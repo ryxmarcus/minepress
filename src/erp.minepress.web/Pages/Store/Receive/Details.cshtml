@@ -1,0 +1,93 @@
+@page
+@model erp.minepress.web.Pages.Store.Receive.DetailsModel
+@{
+    ViewData["Title"] = "Receive Details";
+}
+
+<div class="store-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto"><span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);"><i class="bi bi-box-arrow-in-down" style="font-size:1.5rem;"></i></span></div>
+        <div class="col"><h2 class="mb-0" id="heroTitle">Receive Details</h2><div class="text-white-75" id="heroSub">Loading...</div></div>
+        <div class="col-auto d-flex gap-2">
+            <a href="/Store/Receive" class="btn btn-outline-light btn-sm"><i class="bi bi-arrow-left me-1"></i>Back</a>
+            <button class="btn btn-outline-light btn-sm" onclick="loadDetail()"><i class="bi bi-arrow-clockwise me-1"></i>Refresh</button>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mt-1" id="detailContent" style="display:none;">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header"><h3 class="card-title">Receive Info</h3></div>
+            <div class="card-body" id="infoCard"></div>
+        </div>
+        <div class="card mt-3">
+            <div class="card-header"><h3 class="card-title">Timeline</h3></div>
+            <div class="card-body p-0" id="timelineCard"></div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header"><h3 class="card-title">Items</h3></div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-vcenter mb-0">
+                        <thead><tr><th>#</th><th>Category</th><th>Material</th><th class="text-center">Ordered</th><th class="text-center">Received</th><th class="text-center">Rejected</th><th class="text-center">Accepted</th><th>UOM</th><th class="text-end">Rate</th><th class="text-end">Amount</th></tr></thead>
+                        <tbody id="itemsBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const receiveId = @Model.Id;
+        $(document).ready(function () { loadDetail(); });
+
+        function loadDetail() {
+            $.get(`/api/store/receives/${receiveId}`, function (d) {
+                $('#heroTitle').text(`Receive ${d.receiveNo}`);
+                $('#heroSub').text(`${d.receiveDate} | ${d.receiveType} | ${d.status}`);
+                $('#infoCard').html(`
+                    <dl class="row mb-0">
+                        <dt class="col-5">Receive No</dt><dd class="col-7 fw-bold">${d.receiveNo}</dd>
+                        <dt class="col-5">Date</dt><dd class="col-7">${d.receiveDate}</dd>
+                        <dt class="col-5">Type</dt><dd class="col-7"><span class="badge bg-green-lt">${d.receiveType}</span></dd>
+                        <dt class="col-5">GRN No</dt><dd class="col-7">${d.grnNo || '-'}</dd>
+                        <dt class="col-5">Supplier</dt><dd class="col-7">${d.supplierName || '-'}</dd>
+                        <dt class="col-5">Status</dt><dd class="col-7"><span class="store-status-badge store-status-${(d.status||'').toLowerCase()}">${d.status}</span></dd>
+                        <dt class="col-5">Items</dt><dd class="col-7">${d.totalItems || 0}</dd>
+                        <dt class="col-5">Total Amount</dt><dd class="col-7 fw-bold">₹${(d.totalAmount||0).toLocaleString('en-IN',{minimumFractionDigits:2})}</dd>
+                        <dt class="col-5">Remarks</dt><dd class="col-7">${d.remarks || '-'}</dd>
+                        <dt class="col-5">Created</dt><dd class="col-7">${d.createdOn || ''}</dd>
+                    </dl>
+                `);
+                let itemsHtml = '';
+                (d.items || []).forEach(i => {
+                    itemsHtml += `<tr>
+                        <td>${i.itemSequence}</td><td><span class="badge bg-green-lt">${i.materialCategory}</span></td>
+                        <td>${i.materialName}</td><td class="text-center">${i.orderedQuantity||0}</td>
+                        <td class="text-center fw-bold">${i.receivedQuantity}</td><td class="text-center">${i.rejectedQuantity||0}</td>
+                        <td class="text-center">${i.acceptedQuantity||0}</td><td>${i.uom||'Pcs'}</td>
+                        <td class="text-end">${(i.rate||0).toLocaleString('en-IN',{minimumFractionDigits:2})}</td>
+                        <td class="text-end fw-bold">${(i.amount||0).toLocaleString('en-IN',{minimumFractionDigits:2})}</td>
+                    </tr>`;
+                });
+                $('#itemsBody').html(itemsHtml);
+
+                let tlHtml = '';
+                (d.timeline || []).forEach(t => {
+                    tlHtml += `<div class="list-group-item py-2">
+                        <div class="d-flex justify-content-between"><strong class="small">${t.eventTitle}</strong><span class="text-muted small">${t.createdOn}</span></div>
+                        <div class="text-muted small">${t.eventDescription || ''}</div>
+                    </div>`;
+                });
+                $('#timelineCard').html(tlHtml || '<div class="p-3 text-muted small">No timeline entries.</div>');
+
+                $('#detailContent').show();
+            }).fail(function () { Swal2.error('Failed to load details.'); });
+        }
+    </script>
+}

@@ -1,0 +1,82 @@
+"menuid","menucode","menuname","parentmenuid","routeurl","icon","displayorder","ismobile","isweb","isactive","menulevel","issectionheader","sectionname","badgetext","badgeclass","hasdividerbefore","iconsvg","module_id"
+1,"DASHBOARD","Dashboard",NULL,"/Dashboard","speedometer2",1,True,True,True,1,False,NULL,NULL,NULL,False,NULL,1
+14,"MY_WORKSPACE","My Workspace",NULL,NULL,"kanban",2,True,True,True,1,False,NULL,NULL,NULL,False,NULL,14
+2,"SALES_CRM","CRM",NULL,NULL,"diagram-3",3,True,True,True,1,False,NULL,NULL,NULL,False,NULL,2
+15,"OUTSOURCE","Outsource",NULL,NULL,"box-arrow-up-right",4,True,True,True,1,False,NULL,NULL,NULL,False,NULL,7
+5,"STORE","Store",NULL,NULL,"boxes",5,True,True,True,1,False,NULL,NULL,NULL,False,NULL,5
+4,"PRODUCTION","Press/Production",NULL,NULL,"printer",6,True,True,True,1,False,NULL,NULL,NULL,False,NULL,4
+8,"ACCOUNTS","Accounting",NULL,NULL,"calculator",7,True,True,True,1,False,NULL,NULL,NULL,False,NULL,8
+13,"HRMS","HRMS",NULL,NULL,"people",8,True,True,True,1,False,NULL,NULL,NULL,False,NULL,13
+10,"MAINTENANCE","Maintenance",NULL,NULL,"gear",9,True,True,True,1,False,NULL,NULL,NULL,False,NULL,10
+12,"TOOLS","Tools",NULL,NULL,"tools",10,True,True,True,1,False,NULL,NULL,NULL,False,NULL,12
+1401,"WS_HOME","Workspace Home",14,"/Workspace","house-door",1,True,True,True,2,False,NULL,NULL,NULL,False,NULL,14
+1402,"WS_MY_TASKS","My Tasks",14,"/Workspace/MyTasks","list-task",2,True,True,True,2,False,NULL,NULL,NULL,False,NULL,14
+1403,"WS_APPROVALS","Approvals",14,"/Workspace/Approvals","shield-check",3,True,True,True,2,False,NULL,NULL,NULL,True,NULL,14
+1404,"WS_CALENDAR","Task Calendar",14,"/Workspace/Calendar","calendar3",4,True,True,True,2,False,NULL,NULL,NULL,False,NULL,14
+1405,"WS_NOTIFICATIONS","Notifications",14,"/Workspace/Notifications","bell",5,True,True,True,2,False,NULL,NULL,NULL,False,NULL,14
+1406,"WS_HISTORY","Activity History",14,"/Workspace/History","clock-history",6,True,True,True,2,False,NULL,NULL,NULL,False,NULL,14
+201,"RATE_CALCULATOR","Calculator",2,"/RateCalculator","calculator",1,True,True,True,2,False,"Rate Calculator",NULL,NULL,False,NULL,2
+202,"RATE_CALC_HISTORY","Calculation History",2,"/RateCalculator/List","clock-history",2,True,True,True,2,False,"Rate Calculator",NULL,NULL,False,NULL,2
+203,"ENQUIRY_LIST","Enquiry List",2,"/Enquiry","clipboard-data",3,True,True,True,2,False,"Enquiry",NULL,NULL,True,NULL,2
+204,"ENQUIRY_CREATE","New Enquiry",2,"/Enquiry/Create","plus-circle",4,True,True,True,2,False,"Enquiry",NULL,NULL,False,NULL,2
+205,"QUOTATION_LIST","Quotation List",2,"/Quotation","file-earmark-text",5,True,True,True,2,False,"Quotation",NULL,NULL,True,NULL,2
+206,"QUOTATION_CREATE","New Quotation",2,"/Quotation/Create","plus-circle",6,True,True,True,2,False,"Quotation",NULL,NULL,False,NULL,2
+207,"JOB_LIST","Job List",2,"/Job","briefcase",7,True,True,True,2,False,"Job",NULL,NULL,True,NULL,2
+208,"JOB_CREATE","New Job",2,"/Job/Create","plus-circle",8,True,True,True,2,False,"Job",NULL,NULL,False,NULL,2
+209,"CHALLAN_LIST","Challan List",2,"/Challan","truck",9,True,True,True,2,False,"Challan",NULL,NULL,True,NULL,2
+210,"CHALLAN_CREATE","New Challan",2,"/Challan/Create","plus-circle",10,True,True,True,2,False,"Challan",NULL,NULL,False,NULL,2
+211,"GATE_PASSES","Gate Passes",2,"/GatePass","shield-check",11,True,True,True,2,False,"Challan",NULL,NULL,False,NULL,2
+1501,"OUTSOURCE_LIST","Outsource List",15,"/Outsource","list-ul",1,True,True,True,2,False,NULL,NULL,NULL,False,NULL,7
+1502,"OUTSOURCE_CREATE","New Outsource",15,"/Outsource/Create","plus-circle",2,True,True,True,2,False,NULL,NULL,NULL,False,NULL,7
+501,"STORE_DASHBOARD","Dashboard",5,"/Store","speedometer2",1,True,True,True,2,False,NULL,NULL,NULL,False,NULL,5
+502,"STORE_ISSUE_LIST","Issue List",5,"/Store/Issue","box-arrow-up",2,True,True,True,2,False,NULL,NULL,NULL,True,NULL,5
+503,"STORE_ISSUE_NEW","New Issue",5,"/Store/Issue/Create","plus-circle",3,True,True,True,2,False,NULL,NULL,NULL,False,NULL,5
+504,"STORE_RECEIVE_LIST","Receive List",5,"/Store/Receive","box-arrow-in-down",4,True,True,True,2,False,NULL,NULL,NULL,True,NULL,5
+505,"STORE_RECEIVE_NEW","New Receive",5,"/Store/Receive/Create","plus-circle",5,True,True,True,2,False,NULL,NULL,NULL,False,NULL,5
+506,"STORE_GRN_LIST","Purchase GRNs",5,"/Store/Purchase","receipt",6,True,True,True,2,False,NULL,NULL,NULL,True,NULL,5
+507,"STORE_GRN_NEW","New GRN",5,"/Store/Purchase/Create","plus-circle",7,True,True,True,2,False,NULL,NULL,NULL,False,NULL,5
+508,"STOCK_LEDGER","Stock Ledger",5,"/Store/StockLedger","journal-text",8,True,True,True,2,False,NULL,NULL,NULL,True,NULL,5
+509,"STOCK_SUMMARY","Stock Summary",5,"/Store/StockSummary","bar-chart-line",9,True,True,True,2,False,NULL,NULL,NULL,False,NULL,5
+401,"PROD_DASHBOARD","Dashboard",4,"/Production/Dashboard","speedometer2",1,True,True,True,2,False,NULL,NULL,NULL,False,NULL,4
+402,"MACHINE_JOB_ALLOC","Machine Job Allocation",4,"/Production/JobAllocation","kanban",2,True,True,True,2,False,"Planning",NULL,NULL,True,NULL,4
+403,"MACHINE_SCHEDULING","Machine Scheduling",4,"/Production/MachineScheduling","calendar3",3,True,True,True,2,False,"Planning",NULL,NULL,False,NULL,4
+404,"PROD_TRACKING","Production Tracking",4,"/Production/ProductionTracking","activity",4,True,True,True,2,False,"Monitoring",NULL,NULL,True,NULL,4
+405,"MACHINE_UTILIZATION","Machine Utilization",4,"/Production/MachineUtilization","bar-chart-line",5,True,True,True,2,False,"Monitoring",NULL,NULL,False,NULL,4
+406,"MACHINE_MAINTENANCE","Machine Maintenance",4,"/Production/Maintenance","wrench-adjustable",6,True,True,True,2,False,"Maintenance",NULL,NULL,True,NULL,4
+407,"MACHINE_BREAKDOWN","Machine Breakdown",4,"/Production/MachineBreakdown","lightning-charge",7,True,True,True,2,False,"Maintenance",NULL,NULL,False,NULL,4
+801,"ACC_DASHBOARD","Dashboard",8,"/Accounting","speedometer2",1,True,True,True,2,False,NULL,NULL,NULL,False,NULL,8
+802,"SALES_INVOICE","Sales Invoices",8,"/Accounting/SalesInvoice","receipt-cutoff",2,True,True,True,2,False,NULL,NULL,NULL,True,NULL,8
+803,"PURCHASE_INVOICE","Purchase Invoices",8,"/Accounting/PurchaseInvoice","receipt",3,True,True,True,2,False,NULL,NULL,NULL,False,NULL,8
+804,"ACC_RECEIPTS","Receipts",8,"/Accounting/Receipt","cash-stack",4,True,True,True,2,False,NULL,NULL,NULL,False,NULL,8
+805,"ACC_PAYMENTS","Payments",8,"/Accounting/Payment","wallet2",5,True,True,True,2,False,NULL,NULL,NULL,False,NULL,8
+806,"CREDIT_NOTE","Credit Notes",8,"/Accounting/CreditNote","file-earmark-minus",6,True,True,True,2,False,NULL,NULL,NULL,True,NULL,8
+807,"DEBIT_NOTE","Debit Notes",8,"/Accounting/DebitNote","file-earmark-plus",7,True,True,True,2,False,NULL,NULL,NULL,False,NULL,8
+808,"JOURNAL_VOUCHER","Journal Vouchers",8,"/Accounting/JournalVoucher","journal-text",8,True,True,True,2,False,NULL,NULL,NULL,True,NULL,8
+809,"EXPENSES","Expenses",8,"/Accounting/ExpenseVoucher","cash-coin",9,True,True,True,2,False,NULL,NULL,NULL,False,NULL,8
+810,"BANK_RECONCILIATION","Bank Reconciliation",8,"/Accounting/BankReconciliation","bank",10,True,True,True,2,False,NULL,NULL,NULL,False,NULL,8
+811,"AR_OUTSTANDING","AR Outstanding",8,"/Accounting/ArOutstanding","clock-history",11,True,True,True,2,False,NULL,NULL,NULL,True,NULL,8
+812,"AP_OUTSTANDING","AP Outstanding",8,"/Accounting/ApOutstanding","hourglass-split",12,True,True,True,2,False,NULL,NULL,NULL,False,NULL,8
+813,"ACC_PURCHASE_ORDER","Purchase Orders",8,"/Accounting/PurchaseOrder","cart-check",13,True,True,True,2,False,NULL,NULL,NULL,False,NULL,8
+814,"ACC_GOODS_RECEIPT","Goods Receipts",8,"/Accounting/GoodsReceipt","box-seam",14,True,True,True,2,False,NULL,NULL,NULL,False,NULL,8
+1301,"HRMS_DASHBOARD","HRMS Dashboard",13,"/Hrms","speedometer2",1,True,True,True,2,False,NULL,NULL,NULL,False,NULL,13
+1302,"HRMS_ATTENDANCE","Attendance",13,"/Hrms/Attendance","calendar-check",2,True,True,True,2,False,NULL,NULL,NULL,True,NULL,13
+1303,"HRMS_LEAVES","Leaves",13,"/Hrms/Leaves","calendar-x",3,True,True,True,2,False,NULL,NULL,NULL,False,NULL,13
+1304,"HRMS_HOLIDAYS","Holidays",13,"/Hrms/Holiday","calendar-event",4,True,True,True,2,False,NULL,NULL,NULL,False,NULL,13
+1305,"HRMS_SHIFT","Shift Roster",13,"/Hrms/Shift","clock",5,True,True,True,2,False,NULL,NULL,NULL,False,NULL,13
+1306,"HRMS_LOANS","Loans",13,"/Hrms/Loan","bank",6,True,True,True,2,False,NULL,NULL,NULL,True,NULL,13
+1307,"HRMS_ADVANCE","Salary Advance",13,"/Hrms/Advance","cash-stack",7,True,True,True,2,False,NULL,NULL,NULL,False,NULL,13
+1308,"HRMS_INCENTIVE","Incentives",13,"/Hrms/Incentive","gift",8,True,True,True,2,False,NULL,NULL,NULL,False,NULL,13
+1309,"HRMS_OVERTIME","Overtime",13,"/Hrms/Overtime","clock-history",9,True,True,True,2,False,NULL,NULL,NULL,True,NULL,13
+1310,"HRMS_MEDICAL","Medical Claims",13,"/Hrms/Medical","heart-pulse",10,True,True,True,2,False,NULL,NULL,NULL,False,NULL,13
+1311,"HRMS_TRAVEL","Travel Expenses",13,"/Hrms/Travel","airplane",11,True,True,True,2,False,NULL,NULL,NULL,False,NULL,13
+1312,"HRMS_REIMBURSE","Reimbursements",13,"/Hrms/Reimbursement","receipt-cutoff",12,True,True,True,2,False,NULL,NULL,NULL,False,NULL,13
+1313,"HRMS_TRANSFER","Transfers",13,"/Hrms/Transfer","arrow-left-right",13,True,True,True,2,False,NULL,NULL,NULL,True,NULL,13
+1314,"HRMS_RESIGNATION","Resignation",13,"/Hrms/Resignation","box-arrow-right",14,True,True,True,2,False,NULL,NULL,NULL,False,NULL,13
+1001,"PARTY_LIST","All Parties",10,"/Maintenance/Party","people",1,True,True,True,2,False,"Party Management",NULL,NULL,False,NULL,10
+1002,"PARTY_CREATE","New Party",10,"/Maintenance/Party/Create","person-plus",2,True,True,True,2,False,"Party Management",NULL,NULL,False,NULL,10
+1003,"USER_MANAGEMENT","Users & Roles",10,"/Maintenance/UserManagement","shield-lock",3,True,True,True,2,False,"User Management",NULL,NULL,True,NULL,10
+1004,"ITEM_MANAGEMENT","All Items",10,"/Maintenance/ItemManagement","box-seam",4,True,True,True,2,False,"Item Management",NULL,NULL,True,NULL,10
+1201,"REPORT_BUILDER","Report Builder",12,"/Reports","bar-chart-line",1,True,True,True,2,False,NULL,NULL,NULL,False,NULL,12
+1202,"WORKFLOW","Workflow",12,"/Workflow","diagram-3",2,True,True,True,2,False,NULL,NULL,NULL,False,NULL,12
+1203,"AI_ASSISTANT","AI Assistant",12,"/AgenticAi","robot",3,True,True,True,2,False,NULL,NULL,NULL,False,NULL,12
+1204,"DB_MANAGER","Database Manager",12,"/DbManager","database-gear",4,True,True,True,2,False,"Admin",NULL,NULL,True,NULL,12

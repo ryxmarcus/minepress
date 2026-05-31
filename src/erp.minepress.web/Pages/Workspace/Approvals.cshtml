@@ -1,0 +1,125 @@
+@page
+@model erp.minepress.web.Pages.Workspace.ApprovalsModel
+@{
+    ViewData["Title"] = "Approvals";
+}
+
+<div class="ws-approvals-page ws-my-tasks-page">
+<!-- ═══ Hero Header ═══ -->
+<div class="ws-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-lg ws-hero-avatar">
+                <i class="bi bi-shield-check" style="font-size:1.5rem;"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="mb-1">Approvals</h2>
+            <div class="text-white-75 d-flex align-items-center gap-2">
+                <span class="badge bg-white text-dark">
+                    <i class="bi bi-person-circle me-1"></i>@Model.UserFullName
+                </span>
+                <span class="badge bg-white text-dark">
+                    <i class="bi bi-building me-1"></i>@Model.DeptCode — @Model.DeptName
+                </span>
+            </div>
+        </div>
+        <div class="col-auto d-flex gap-2 flex-wrap">
+            <a href="/Workspace" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-arrow-left me-1"></i>Back to Workspace
+            </a>
+            <button class="btn btn-outline-light btn-sm" onclick="Workspace.refreshApprovals()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Filter Tabs ═══ -->
+<div class="row g-3 mb-3">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body py-2">
+                <div class="d-flex align-items-center flex-wrap gap-2">
+                    <div class="btn-group" role="group" id="approvalFilterGroup">
+                        <button type="button" class="btn btn-outline-purple btn-sm active" data-filter="pending">
+                            <i class="bi bi-hourglass-split me-1"></i>Pending <span class="badge bg-purple ms-1" id="approvalBadgePending">0</span>
+                        </button>
+                        <button type="button" class="btn btn-outline-purple btn-sm" data-filter="approved">
+                            <i class="bi bi-check-circle me-1"></i>Approved <span class="badge bg-success ms-1" id="approvalBadgeApproved">0</span>
+                        </button>
+                        <button type="button" class="btn btn-outline-purple btn-sm" data-filter="rejected">
+                            <i class="bi bi-x-circle me-1"></i>Rejected <span class="badge bg-danger ms-1" id="approvalBadgeRejected">0</span>
+                        </button>
+                    </div>
+                    <div class="ms-auto">
+                        <div class="input-group input-group-sm" style="width:220px;">
+                            <span class="input-group-text"><i class="bi bi-search"></i></span>
+                            <input type="text" class="form-control" placeholder="Search approvals..." id="approvalSearchInput" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Approvals List ═══ -->
+<div class="row g-3">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body p-0" id="wsApprovalsList">
+                <div class="text-center py-5 text-secondary">
+                    <div class="spinner-border spinner-border-sm me-2"></div>Loading approvals...
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Approval Action Modal ═══ -->
+<div class="modal modal-blur fade" id="approvalActionModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="approvalModalTitle">Approval Action</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3" id="approvalModalInfo"></div>
+                <div class="mb-3">
+                    <label class="form-label">Remarks</label>
+                    <textarea class="form-control" id="approvalRemarks" rows="3" placeholder="Enter your remarks..."></textarea>
+                </div>
+                <div class="ws-approval-progress d-none" id="approvalProgressWrap">
+                    <div class="ws-approval-progress-head">
+                        <div class="ws-approval-progress-title"><i class="bi bi-activity me-1"></i>Processing</div>
+                        <div class="ws-approval-progress-value" id="approvalProgressPct">0%</div>
+                    </div>
+                    <div class="ws-approval-progress-track">
+                        <div class="ws-approval-progress-fill" id="approvalProgressFill"></div>
+                    </div>
+                    <div class="ws-approval-progress-steps" id="approvalProgressSteps"></div>
+                    <div class="ws-approval-progress-msg" id="approvalProgressMsg">Preparing...</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn" id="approvalActionBtn" onclick="Workspace.submitApprovalAction()">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+@section Styles {
+    <link href="/css/workspace.css" rel="stylesheet" />
+}
+
+@section Scripts {
+    <script src="/js/workspace.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => Workspace.initApprovals());
+    </script>
+}

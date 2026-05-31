@@ -1,0 +1,241 @@
+@page
+@model erp.minepress.web.Pages.Accounting.SalesInvoice.DetailsModel
+@{
+    ViewData["Title"] = "Sales Invoice Details";
+}
+
+<!-- Action Bar (print-hidden) -->
+<div class="d-flex justify-content-between align-items-center mb-3 d-print-none">
+    <div class="d-flex gap-2">
+        <a href="/Accounting/SalesInvoice" class="btn btn-ghost-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>Back to List
+        </a>
+    </div>
+    <div class="d-flex gap-2">
+        <button class="btn btn-outline-primary btn-sm" onclick="window.print()">
+            <i class="bi bi-printer me-1"></i>Print
+        </button>
+        <button class="btn btn-success btn-sm" id="btnPost" onclick="postInvoice()" style="display:none;">
+            <i class="bi bi-check2-circle me-1"></i>Post to Accounts
+        </button>
+        <button class="btn btn-outline-success btn-sm" id="btnEmail" onclick="sendEmail()">
+            <i class="bi bi-envelope me-1"></i>Email
+        </button>
+        <a class="btn btn-outline-warning btn-sm" id="btnEdit" href="#" style="display:none;">
+            <i class="bi bi-pencil me-1"></i>Edit
+        </a>
+        <button class="btn btn-outline-danger btn-sm" id="btnCancel" onclick="cancelInvoice()" style="display:none;">
+            <i class="bi bi-x-circle me-1"></i>Cancel
+        </button>
+    </div>
+</div>
+
+<!-- Invoice Print Preview -->
+<div class="acc-invoice-preview" id="invoicePreview">
+    <div class="text-center text-muted py-5">
+        <div class="spinner-border spinner-border-sm me-2"></div>Loading invoice...
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const ACC_API = '/api/accounting';
+        let invoiceData = null;
+
+        $(document).ready(function () {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            if (id) loadInvoice(id);
+            else $('#invoicePreview').html('<div class="text-center text-danger py-5">No invoice ID specified.</div>');
+        });
+
+        function loadInvoice(id) {
+            $.get(`${ACC_API}/sales-invoice/${id}`, function (d) {
+                invoiceData = d;
+                renderInvoice(d);
+                // Show/hide action buttons based on status
+                if (d.status === 'DRAFT') {
+                    $('#btnPost').show();
+                    $('#btnEdit').attr('href', `/Accounting/SalesInvoice/Create?id=${d.salesInvoiceId}`).show();
+                    $('#btnCancel').show();
+                } else if (d.status !== 'CANCELLED') {
+                    $('#btnCancel').show();
+                }
+            }).fail(function () {
+                $('#invoicePreview').html('<div class="text-center text-danger py-5"><i class="bi bi-exclamation-circle me-2"></i>Failed to load invoice.</div>');
+            });
+        }
+
+        function renderInvoice(d) {
+            let itemsHtml = '';
+            let seq = 0;
+            (d.items || []).forEach(item => {
+                seq++;
+                itemsHtml += `<tr>
+                    <td class="text-center">${seq}</td>
+                    <td>${esc(item.description)}<br/><small class="text-muted">${esc(item.hsnSacCode || '')}</small></td>
+                    <td class="text-end">${fmtNum(item.quantity)}</td>
+                    <td class="text-end">${fmtCurrency(item.unitRate)}</td>
+                    <td class="text-end">${fmtCurrency(item.taxableValue)}</td>
+                    <td class="text-center small">${item.cgstPercent > 0 ? fmtNum(item.cgstPercent) + '%' : '-'}</td>
+                    <td class="text-center small">${item.sgstPercent > 0 ? fmtNum(item.sgstPercent) + '%' : '-'}</td>
+                    <td class="text-center small">${item.igstPercent > 0 ? fmtNum(item.igstPercent) + '%' : '-'}</td>
+                    <td class="text-end">${fmtCurrency(item.totalTaxAmount)}</td>
+                    <td class="text-end fw-semibold">${fmtCurrency(item.lineTotal)}</td>
+                </tr>`;
+            });
+
+            const statusCls = { 'DRAFT': 'acc-status-draft', 'POSTED': 'acc-status-posted', 'SENT': 'acc-status-posted', 'PAID': 'acc-status-paid', 'PARTIALLY_PAID': 'acc-status-partial', 'CANCELLED': 'acc-status-cancelled' }[d.status] || 'bg-secondary-lt';
+
+            const html = `
+            <div class="acc-invoice-header">
+                <div class="row">
+                    <div class="col-6">
+                        <h3 class="mb-1">${esc(d.companyName)}</h3>
+                        <div class="text-muted small">${esc(d.companyAddress || '')}</div>
+                        ${d.companyGstin ? `<div class="small"><strong>GSTIN:</strong> ${esc(d.companyGstin)}</div>` : ''}
+                        ${d.companyEmail ? `<div class="small">${esc(d.companyEmail)}</div>` : ''}
+                    </div>
+                    <div class="col-6 text-end">
+                        <h2 class="text-primary mb-1">INVOICE</h2>
+                        <div class="fw-bold fs-4">${esc(d.invoiceNo)}</div>
+                        <div class="text-muted">${esc(d.invoiceDate)}</div>
+                        <span class="acc-status-badge ${statusCls} mt-1">${d.status?.replace(/_/g, ' ')}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-6">
+                    <div class="text-muted small mb-1">Bill To</div>
+                    <h5 class="mb-1">${esc(d.customerName)}</h5>
+                    <div class="small">${esc(d.customerAddress || '')}</div>
+                    ${d.customerGst ? `<div class="small"><strong>GSTIN:</strong> ${esc(d.customerGst)}</div>` : ''}
+                    ${d.customerEmail ? `<div class="small">${esc(d.customerEmail)}</div>` : ''}
+                    ${d.customerPhone ? `<div class="small">${esc(d.customerPhone)}</div>` : ''}
+                </div>
+                <div class="col-6 text-end">
+                    ${d.dueDate ? `<div class="small"><strong>Due Date:</strong> ${esc(d.dueDate)}</div>` : ''}
+                    ${d.paymentTermName ? `<div class="small"><strong>Terms:</strong> ${esc(d.paymentTermName)}</div>` : ''}
+                    ${d.placeOfSupply ? `<div class="small"><strong>Place of Supply:</strong> ${esc(d.placeOfSupply)}</div>` : ''}
+                    ${d.jobNo ? `<div class="small"><strong>Job:</strong> <a href="/Job/Details?id=${d.jobId}">${esc(d.jobNo)}</a></div>` : ''}
+                </div>
+            </div>
+
+            <table class="table table-bordered table-sm mb-4">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-center" style="width:40px;">#</th>
+                        <th>Description</th>
+                        <th class="text-end" style="width:70px;">Qty</th>
+                        <th class="text-end" style="width:90px;">Rate</th>
+                        <th class="text-end" style="width:100px;">Taxable</th>
+                        <th class="text-center" style="width:60px;">CGST</th>
+                        <th class="text-center" style="width:60px;">SGST</th>
+                        <th class="text-center" style="width:60px;">IGST</th>
+                        <th class="text-end" style="width:90px;">Tax</th>
+                        <th class="text-end" style="width:100px;">Total</th>
+                    </tr>
+                </thead>
+                <tbody>${itemsHtml}</tbody>
+            </table>
+
+            <div class="row">
+                <div class="col-6">
+                    ${d.termsConditions ? `<div class="mb-2"><strong class="small text-muted">Terms & Conditions</strong><div class="small">${esc(d.termsConditions)}</div></div>` : ''}
+                    ${d.internalNotes ? `<div class="mb-2 d-print-none"><strong class="small text-muted">Internal Notes</strong><div class="small">${esc(d.internalNotes)}</div></div>` : ''}
+                </div>
+                <div class="col-6">
+                    <table class="table table-borderless table-sm mb-0">
+                        <tr><td class="text-muted">Subtotal</td><td class="text-end">${fmtCurrency(d.subtotalAmount)}</td></tr>
+                        ${d.discountAmount > 0 ? `<tr><td class="text-muted">Discount</td><td class="text-end text-danger">-${fmtCurrency(d.discountAmount)}</td></tr>` : ''}
+                        <tr><td class="text-muted">Taxable</td><td class="text-end">${fmtCurrency(d.taxableAmount)}</td></tr>
+                        ${d.cgstAmount > 0 ? `<tr><td class="text-muted">CGST</td><td class="text-end">${fmtCurrency(d.cgstAmount)}</td></tr>` : ''}
+                        ${d.sgstAmount > 0 ? `<tr><td class="text-muted">SGST</td><td class="text-end">${fmtCurrency(d.sgstAmount)}</td></tr>` : ''}
+                        ${d.igstAmount > 0 ? `<tr><td class="text-muted">IGST</td><td class="text-end">${fmtCurrency(d.igstAmount)}</td></tr>` : ''}
+                        ${d.roundOff !== 0 ? `<tr><td class="text-muted">Round Off</td><td class="text-end">${fmtCurrency(d.roundOff)}</td></tr>` : ''}
+                        <tr class="border-top fw-bold fs-5"><td>Grand Total</td><td class="text-end text-primary">${fmtCurrency(d.grandTotal)}</td></tr>
+                        ${d.paidAmount > 0 ? `<tr><td class="text-muted">Paid</td><td class="text-end text-success">${fmtCurrency(d.paidAmount)}</td></tr>` : ''}
+                        ${d.balanceAmount > 0 ? `<tr class="text-danger fw-semibold"><td>Balance Due</td><td class="text-end">${fmtCurrency(d.balanceAmount)}</td></tr>` : ''}
+                    </table>
+                </div>
+            </div>`;
+
+            $('#invoicePreview').html(html);
+        }
+
+        async function sendEmail() {
+            if (!invoiceData) return;
+            const confirmed = await Swal.fire({ title: 'Send Email?', text: `Email invoice ${invoiceData.invoiceNo} to ${invoiceData.customerEmail || 'customer'}?`, icon: 'question', showCancelButton: true, confirmButtonText: 'Send' });
+            if (!confirmed.isConfirmed) return;
+            try {
+                Swal.fire({ title: 'Sending...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                await $.ajax({ url: `${ACC_API}/sales-invoice/${invoiceData.salesInvoiceId}/send-email`, method: 'POST' });
+                Swal.fire({ icon: 'success', title: 'Sent!', text: 'Invoice email sent.', timer: 2000, showConfirmButton: false });
+            } catch (err) {
+                Swal.fire({ icon: 'error', title: 'Error', text: err.responseJSON?.message || 'Failed to send email.' });
+            }
+        }
+
+        async function postInvoice() {
+            if (!invoiceData) return;
+            const confirmed = await Swal.fire({
+                title: 'Post Invoice to Accounts?',
+                html: `<div class="text-start">
+                    <p>This will post <strong>${invoiceData.invoiceNo}</strong> to Accounts Receivable.</p>
+                    <div class="alert alert-info py-2 small mb-0">
+                        <i class="bi bi-info-circle me-1"></i>
+                        <strong>What happens:</strong>
+                        <ul class="mb-0 mt-1">
+                            <li>Invoice status changes from <span class="badge bg-warning-lt">DRAFT</span> to <span class="badge bg-primary-lt">POSTED</span></li>
+                            <li>AR Outstanding entry is created for <strong>₹${Number(invoiceData.grandTotal).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong></li>
+                            <li>Invoice becomes available for receipt collection</li>
+                        </ul>
+                    </div>
+                </div>`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: '<i class="bi bi-check2-circle me-1"></i>Post to Accounts',
+                confirmButtonColor: '#198754',
+                cancelButtonText: 'Not Now'
+            });
+            if (!confirmed.isConfirmed) return;
+            try {
+                Swal.fire({ title: 'Posting...', text: 'Posting invoice to accounts receivable...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                const result = await $.ajax({ url: `${ACC_API}/sales-invoice/${invoiceData.salesInvoiceId}/post`, method: 'POST' });
+                await Swal.fire({
+                    icon: 'success',
+                    title: 'Invoice Posted!',
+                    html: `<p>${result.message}</p><a href="/Accounting/Receipt/Create" class="btn btn-sm btn-outline-primary mt-2"><i class="bi bi-cash-stack me-1"></i>Record Receipt Now</a>`,
+                    showConfirmButton: true,
+                    confirmButtonText: 'OK'
+                });
+                location.reload();
+            } catch (err) {
+                Swal.fire({ icon: 'error', title: 'Error', text: err.responseJSON?.message || 'Failed to post invoice.' });
+            }
+        }
+
+        async function cancelInvoice() {
+            if (!invoiceData) return;
+            const { value: reason } = await Swal.fire({
+                title: `Cancel ${invoiceData.invoiceNo}?`, input: 'textarea', inputLabel: 'Reason',
+                showCancelButton: true, confirmButtonText: 'Cancel Invoice', confirmButtonColor: '#d63939',
+                inputValidator: v => !v && 'Please enter a reason'
+            });
+            if (!reason) return;
+            try {
+                Swal.fire({ title: 'Cancelling...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                await $.ajax({ url: `${ACC_API}/sales-invoice/${invoiceData.salesInvoiceId}/cancel`, method: 'POST', contentType: 'application/json', data: JSON.stringify({ reason }) });
+                Swal.fire({ icon: 'success', title: 'Cancelled', timer: 2000, showConfirmButton: false });
+                setTimeout(() => location.reload(), 1500);
+            } catch (err) {
+                Swal.fire({ icon: 'error', title: 'Error', text: err.responseJSON?.message || 'Failed to cancel.' });
+            }
+        }
+
+        function fmtCurrency(v) { return v != null ? '₹' + Number(v).toLocaleString('en-IN', { minimumFractionDigits: 2 }) : '₹0.00'; }
+        function fmtNum(v) { return v != null ? Number(v).toLocaleString('en-IN') : '0'; }
+        function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.appendChild(document.createTextNode(s)); return d.innerHTML; }
+    </script>
+}

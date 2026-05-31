@@ -1,0 +1,999 @@
+@page
+@model erp.minepress.web.Pages.Maintenance.Party.CreateModel
+@{
+    var isEdit = Model.PartyId.HasValue;
+    ViewData["Title"] = isEdit ? "Edit Party" : "New Party";
+    ViewData["ContainerClass"] = "container-xl";
+    ViewData["HidePageHeader"] = true;
+}
+
+<!-- ── Page Header ── -->
+<div class="page-header d-print-none mb-3">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-md bg-purple-lt text-purple">
+                <i class="bi bi-people-fill fs-4"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="page-title mb-0" id="pageTitle">@(isEdit ? "Edit Party" : "New Party")</h2>
+            <div class="text-secondary mt-1" id="pageSubtitle">@(isEdit ? "Update party details across all tabs" : "Fill in details to create a new party")</div>
+        </div>
+        <div class="col-auto">
+            <a href="/Maintenance/Party" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i>Back to Parties
+            </a>
+        </div>
+    </div>
+</div>
+
+<form id="partyForm" autocomplete="off">
+    <input type="hidden" id="hdnPartyId" value="@(Model.PartyId?.ToString() ?? "")" />
+
+    <div class="pm-form-layout">
+        <!-- ══════════════════════════════════════════════════════════
+             LEFT COLUMN — Tabbed form
+             ══════════════════════════════════════════════════════════ -->
+        <div class="pm-main">
+
+            <!-- ── Tab Navigation ── -->
+            <div class="pm-tabs" id="tabNav">
+                <button type="button" class="pm-tab active" data-tab="basic" onclick="switchTab('basic')">
+                    <i class="bi bi-info-circle"></i> Basic Info
+                </button>
+                <button type="button" class="pm-tab" data-tab="roles" onclick="switchTab('roles')">
+                    <i class="bi bi-tags"></i> Roles
+                    <span class="pm-tab-badge" id="badgeRoles">0</span>
+                </button>
+                <button type="button" class="pm-tab" data-tab="contacts" onclick="switchTab('contacts')">
+                    <i class="bi bi-person-lines-fill"></i> Contacts
+                    <span class="pm-tab-badge" id="badgeContacts">0</span>
+                </button>
+                <button type="button" class="pm-tab" data-tab="addresses" onclick="switchTab('addresses')">
+                    <i class="bi bi-geo-alt"></i> Addresses
+                    <span class="pm-tab-badge" id="badgeAddresses">0</span>
+                </button>
+                <button type="button" class="pm-tab" data-tab="banks" onclick="switchTab('banks')">
+                    <i class="bi bi-bank"></i> Bank Details
+                    <span class="pm-tab-badge" id="badgeBanks">0</span>
+                </button>
+                <button type="button" class="pm-tab" data-tab="roleDetails" onclick="switchTab('roleDetails')">
+                    <i class="bi bi-sliders"></i> Role Config
+                </button>
+            </div>
+
+            <!-- ════════════════════════════════════════════════════
+                 TAB 1 — Basic Information
+                 ════════════════════════════════════════════════════ -->
+            <div class="pm-tab-panel active" id="panel-basic">
+                <div class="pm-card">
+                    <div class="pm-card-label"><i class="bi bi-building"></i> Party Information</div>
+                    <div class="pm-card-body">
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                                <label class="pm-field-label required">Party Name</label>
+                                <input type="text" id="txtName" class="form-control form-control-sm" placeholder="Enter party / company name" required maxlength="200" />
+                                <div class="pm-field-error" id="errName">Party name is required</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="pm-field-label">Party Code</label>
+                                <input type="text" id="txtCode" class="form-control form-control-sm" placeholder="Auto-generated or custom" maxlength="30" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="pm-field-label">Email</label>
+                                <input type="email" id="txtEmail" class="form-control form-control-sm" placeholder="party@@example.com" maxlength="150" />
+                                <div class="pm-field-error" id="errEmail">Enter a valid email address</div>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="pm-field-label">Mobile</label>
+                                <input type="text" id="txtMobile" class="form-control form-control-sm" placeholder="10-digit number" maxlength="15" />
+                                <div class="pm-field-error" id="errMobile">Enter a valid mobile number</div>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="pm-field-label">Status</label>
+                                <select id="ddlStatus" class="form-select form-select-sm">
+                                    <option value="true">Active</option>
+                                    <option value="false">Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pm-card">
+                    <div class="pm-card-label"><i class="bi bi-shield-check"></i> Tax &amp; Compliance</div>
+                    <div class="pm-card-body">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="pm-field-label">GST Number</label>
+                                <input type="text" id="txtGstNo" class="form-control form-control-sm text-uppercase" placeholder="22AAAAA0000A1Z5" maxlength="15" />
+                                <div class="pm-field-error" id="errGst">Enter a valid 15-character GSTIN</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="pm-field-label">PAN Number</label>
+                                <input type="text" id="txtPanNo" class="form-control form-control-sm text-uppercase" placeholder="ABCDE1234F" maxlength="10" />
+                                <div class="pm-field-error" id="errPan">Enter a valid 10-character PAN</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pm-card">
+                    <div class="pm-card-label"><i class="bi bi-house"></i> Primary Address</div>
+                    <div class="pm-card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="pm-field-label">Address Line 1</label>
+                                <input type="text" id="txtAddress1" class="form-control form-control-sm" placeholder="Street / area" maxlength="200" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="pm-field-label">Address Line 2</label>
+                                <input type="text" id="txtAddress2" class="form-control form-control-sm" placeholder="Landmark / floor" maxlength="200" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="pm-field-label">City</label>
+                                <select id="ddlCity" class="form-select form-select-sm">
+                                    <option value="">Select city…</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="pm-field-label">Pin Code</label>
+                                <input type="text" id="txtPin" class="form-control form-control-sm" placeholder="PIN Code" maxlength="10" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ════════════════════════════════════════════════════
+                 TAB 2 — Roles
+                 ════════════════════════════════════════════════════ -->
+            <div class="pm-tab-panel" id="panel-roles">
+                <div class="pm-card">
+                    <div class="pm-card-label"><i class="bi bi-tags"></i> Assign Roles</div>
+                    <div class="pm-card-body">
+                        <p class="small text-muted mb-3">Select one or more roles for this party. Role-specific configuration can be set in the "Role Config" tab.</p>
+                        <div class="pm-role-toggle-row">
+                            <button type="button" class="pm-role-toggle" data-role="Customer" onclick="toggleRole(this)">
+                                <i class="bi bi-check-lg pm-check-icon"></i>
+                                <i class="bi bi-person"></i> Customer
+                            </button>
+                            <button type="button" class="pm-role-toggle" data-role="Supplier" onclick="toggleRole(this)">
+                                <i class="bi bi-check-lg pm-check-icon"></i>
+                                <i class="bi bi-truck"></i> Supplier
+                            </button>
+                            <button type="button" class="pm-role-toggle" data-role="Vendor" onclick="toggleRole(this)">
+                                <i class="bi bi-check-lg pm-check-icon"></i>
+                                <i class="bi bi-building"></i> Vendor
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ════════════════════════════════════════════════════
+                 TAB 3 — Contacts
+                 ════════════════════════════════════════════════════ -->
+            <div class="pm-tab-panel" id="panel-contacts">
+                <div class="pm-card">
+                    <div class="pm-card-label">
+                        <span><i class="bi bi-person-lines-fill"></i> Contact Persons</span>
+                    </div>
+                    <div class="pm-card-body p-0">
+                        <table class="pm-sub-table" id="contactsTable">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Designation</th>
+                                    <th>Email</th>
+                                    <th>Mobile</th>
+                                    <th style="width:40px"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="contactsBody"></tbody>
+                        </table>
+                        <div class="p-3">
+                            <button type="button" class="pm-add-row-btn" onclick="addContactRow()">
+                                <i class="bi bi-plus-lg"></i> Add Contact
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ════════════════════════════════════════════════════
+                 TAB 4 — Addresses
+                 ════════════════════════════════════════════════════ -->
+            <div class="pm-tab-panel" id="panel-addresses">
+                <div class="pm-card">
+                    <div class="pm-card-label">
+                        <span><i class="bi bi-geo-alt"></i> Additional Addresses</span>
+                    </div>
+                    <div class="pm-card-body" id="addressContainer"></div>
+                    <div class="px-3 pb-3">
+                        <button type="button" class="pm-add-row-btn" onclick="addAddressBlock()">
+                            <i class="bi bi-plus-lg"></i> Add Address
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ════════════════════════════════════════════════════
+                 TAB 5 — Bank Details
+                 ════════════════════════════════════════════════════ -->
+            <div class="pm-tab-panel" id="panel-banks">
+                <div class="pm-card">
+                    <div class="pm-card-label">
+                        <span><i class="bi bi-bank"></i> Bank Accounts</span>
+                    </div>
+                    <div class="pm-card-body p-0">
+                        <table class="pm-sub-table" id="banksTable">
+                            <thead>
+                                <tr>
+                                    <th>Bank Name</th>
+                                    <th>Branch</th>
+                                    <th>Account No</th>
+                                    <th>IFSC Code</th>
+                                    <th>MICR No</th>
+                                    <th style="width:40px"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="banksBody"></tbody>
+                        </table>
+                        <div class="p-3">
+                            <button type="button" class="pm-add-row-btn" onclick="addBankRow()">
+                                <i class="bi bi-plus-lg"></i> Add Bank Account
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ════════════════════════════════════════════════════
+                 TAB 6 — Role Configuration
+                 ════════════════════════════════════════════════════ -->
+            <div class="pm-tab-panel" id="panel-roleDetails">
+
+                <!-- Customer Config -->
+                <div class="pm-role-section" id="sectionCustomer">
+                    <div class="pm-card">
+                        <div class="pm-card-label"><i class="bi bi-person"></i> Customer Configuration</div>
+                        <div class="pm-card-body">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="pm-field-label">Customer Type</label>
+                                    <select id="ddlCustomerType" class="form-select form-select-sm">
+                                        <option value="">Select…</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="pm-field-label">Customer Group</label>
+                                    <select id="ddlCustomerGroup" class="form-select form-select-sm">
+                                        <option value="">Select…</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="pm-field-label">Payment Terms</label>
+                                    <select id="ddlPaymentTerms" class="form-select form-select-sm">
+                                        <option value="">Select…</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="pm-field-label">Max Credit Limit (₹)</label>
+                                    <input type="number" id="txtMaxCreditLimit" class="form-control form-control-sm" step="0.01" min="0" placeholder="0.00" />
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="pm-field-label">Salesperson</label>
+                                    <input type="text" id="txtSalesperson" class="form-control form-control-sm" placeholder="Salesperson name" maxlength="100" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Supplier Config -->
+                <div class="pm-role-section" id="sectionSupplier">
+                    <div class="pm-card">
+                        <div class="pm-card-label"><i class="bi bi-truck"></i> Supplier Configuration</div>
+                        <div class="pm-card-body">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="pm-field-label">Supplier Type</label>
+                                    <select id="ddlSupplierType" class="form-select form-select-sm">
+                                        <option value="">Select…</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="pm-field-label">TDS Applicable</label>
+                                    <select id="ddlTdsApplicable" class="form-select form-select-sm">
+                                        <option value="">Select…</option>
+                                        <option value="true">Yes</option>
+                                        <option value="false">No</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="pm-field-label">TDS Rate (%)</label>
+                                    <input type="number" id="txtTdsRate" class="form-control form-control-sm" step="0.01" min="0" max="100" placeholder="0.00" />
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="pm-field-label">Payment Cycle (Days)</label>
+                                    <input type="number" id="txtPaymentCycleDays" class="form-control form-control-sm" min="0" placeholder="30" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="pm-field-label">Remarks</label>
+                                    <input type="text" id="txtSupplierRemarks" class="form-control form-control-sm" placeholder="Supplier notes" maxlength="500" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vendor Config -->
+                <div class="pm-role-section" id="sectionVendor">
+                    <div class="pm-card">
+                        <div class="pm-card-label"><i class="bi bi-building"></i> Vendor Configuration</div>
+                        <div class="pm-card-body">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="pm-field-label">Vendor Type</label>
+                                    <select id="ddlVendorType" class="form-select form-select-sm">
+                                        <option value="">Select…</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="pm-field-label">Contract Start</label>
+                                    <input type="date" id="txtContractStart" class="form-control form-control-sm" />
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="pm-field-label">Contract End</label>
+                                    <input type="date" id="txtContractEnd" class="form-control form-control-sm" />
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="pm-field-label">Contract Value (₹)</label>
+                                    <input type="number" id="txtContractValue" class="form-control form-control-sm" step="0.01" min="0" placeholder="0.00" />
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="pm-field-label">Service Area</label>
+                                    <input type="text" id="txtServiceArea" class="form-control form-control-sm" placeholder="Service area" maxlength="200" />
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="pm-field-label">Remarks</label>
+                                    <input type="text" id="txtVendorRemarks" class="form-control form-control-sm" placeholder="Vendor notes" maxlength="500" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="roleConfigEmpty" class="pm-empty-state">
+                    <i class="bi bi-sliders"></i>
+                    <div>Select roles in the "Roles" tab to configure role-specific settings</div>
+                </div>
+            </div>
+
+        </div><!-- /pm-main -->
+
+        <!-- ══════════════════════════════════════════════════════════
+             RIGHT COLUMN — Summary sidebar
+             ══════════════════════════════════════════════════════════ -->
+        <div class="pm-sidebar">
+            <div class="pm-summary-card">
+                <div class="pm-summary-title">Party Summary</div>
+                <div class="pm-summary-body">
+                    <div class="pm-summary-row">
+                        <span>Name</span>
+                        <span id="sumName">—</span>
+                    </div>
+                    <div class="pm-summary-row">
+                        <span>Code</span>
+                        <span id="sumCode">—</span>
+                    </div>
+                    <div class="pm-summary-divider"></div>
+                    <div class="pm-summary-row">
+                        <span>Roles</span>
+                        <span id="sumRoles">—</span>
+                    </div>
+                    <div class="pm-summary-row">
+                        <span>Contacts</span>
+                        <span id="sumContacts">0</span>
+                    </div>
+                    <div class="pm-summary-row">
+                        <span>Addresses</span>
+                        <span id="sumAddresses">0</span>
+                    </div>
+                    <div class="pm-summary-row">
+                        <span>Banks</span>
+                        <span id="sumBanks">0</span>
+                    </div>
+                    <div class="pm-summary-divider"></div>
+                    <div class="pm-summary-row">
+                        <span>GST</span>
+                        <span id="sumGst" class="font-monospace">—</span>
+                    </div>
+                    <div class="pm-summary-row">
+                        <span>Status</span>
+                        <span id="sumStatus">Active</span>
+                    </div>
+
+                    <!-- Notification Options -->
+                    <div class="pm-summary-divider"></div>
+                    <div class="small text-muted mb-2 fw-semibold"><i class="bi bi-bell me-1"></i>Notifications</div>
+                    <div class="form-check form-check-sm mb-1">
+                        <input class="form-check-input" type="checkbox" id="chkWelcomeMail" checked />
+                        <label class="form-check-label small" for="chkWelcomeMail">Send welcome email to party</label>
+                    </div>
+                    <div class="form-check form-check-sm">
+                        <input class="form-check-input" type="checkbox" id="chkAccountDeptMail" checked />
+                        <label class="form-check-label small" for="chkAccountDeptMail">Notify accounts department</label>
+                    </div>
+                </div>
+                <div class="pm-summary-actions">
+                    <button type="button" class="btn btn-primary w-100" onclick="saveParty()" id="btnSave">
+                        <i class="bi bi-check-lg me-1"></i>@(isEdit ? "Update Party" : "Save Party")
+                    </button>
+                    <a href="/Maintenance/Party" class="btn btn-outline-secondary w-100 btn-sm mt-2">Cancel</a>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /pm-form-layout -->
+</form>
+
+@section Scripts {
+    <script>
+        const PARTY_API = '/api/party';
+        const editPartyId = parseInt($('#hdnPartyId').val()) || 0;
+        let contactIdx = 0;
+        let addressIdx = 0;
+        let bankIdx = 0;
+
+        // ══════════════════════════════════════════════════════════
+        // INIT
+        // ══════════════════════════════════════════════════════════
+        $(document).ready(function () {
+            loadLookups();
+            if (editPartyId > 0) {
+                loadPartyForEdit(editPartyId);
+            } else {
+                addContactRow();
+                addBankRow();
+            }
+            // Live summary updates
+            $('#txtName, #txtCode, #txtGstNo').on('input', updateSummary);
+            $('#ddlStatus').on('change', updateSummary);
+
+            // City Select2
+            $('#ddlCity').select2({
+                theme: 'bootstrap-5',
+                placeholder: 'Search city…',
+                allowClear: true,
+                ajax: {
+                    url: `${PARTY_API}/cities`,
+                    dataType: 'json',
+                    delay: 300,
+                    data: params => ({ q: params.term }),
+                    processResults: data => ({ results: data.map(c => ({ id: c.id, text: `${c.name} (${c.stateName})` })) }),
+                    cache: true
+                },
+                minimumInputLength: 1
+            });
+        });
+
+        // ══════════════════════════════════════════════════════════
+        // TABS
+        // ══════════════════════════════════════════════════════════
+        function switchTab(tab) {
+            $('.pm-tab').removeClass('active');
+            $(`.pm-tab[data-tab="${tab}"]`).addClass('active');
+            $('.pm-tab-panel').removeClass('active');
+            $(`#panel-${tab}`).addClass('active');
+            if (tab === 'roleDetails') updateRoleSections();
+        }
+
+        // ══════════════════════════════════════════════════════════
+        // ROLES
+        // ══════════════════════════════════════════════════════════
+        function toggleRole(btn) {
+            $(btn).toggleClass('active');
+            updateRoleBadges();
+            updateRoleSections();
+            updateSummary();
+        }
+
+        function getSelectedRoles() {
+            return $('.pm-role-toggle.active').map(function () { return $(this).data('role'); }).get();
+        }
+
+        function updateRoleSections() {
+            const roles = getSelectedRoles();
+            $('#sectionCustomer').toggleClass('active', roles.includes('Customer'));
+            $('#sectionSupplier').toggleClass('active', roles.includes('Supplier'));
+            $('#sectionVendor').toggleClass('active', roles.includes('Vendor'));
+            $('#roleConfigEmpty').toggle(roles.length === 0);
+        }
+
+        function updateRoleBadges() {
+            const roles = getSelectedRoles();
+            $('#badgeRoles').text(roles.length);
+            if (roles.length > 0) {
+                $('[data-tab="roles"]').addClass('has-data');
+            } else {
+                $('[data-tab="roles"]').removeClass('has-data');
+            }
+        }
+
+        // ══════════════════════════════════════════════════════════
+        // CONTACTS
+        // ══════════════════════════════════════════════════════════
+        function addContactRow(data) {
+            const idx = contactIdx++;
+            const d = data || {};
+            const html = `<tr data-cidx="${idx}">
+                <td><input type="text" class="form-control form-control-sm" name="cName_${idx}" value="${esc(d.contactName || '')}" placeholder="Name" maxlength="100" /></td>
+                <td><input type="text" class="form-control form-control-sm" name="cDesig_${idx}" value="${esc(d.designation || '')}" placeholder="Designation" maxlength="80" /></td>
+                <td><input type="email" class="form-control form-control-sm" name="cEmail_${idx}" value="${esc(d.email || '')}" placeholder="Email" maxlength="150" /></td>
+                <td><input type="text" class="form-control form-control-sm" name="cMobile_${idx}" value="${d.mobile || ''}" placeholder="Mobile" maxlength="15" /></td>
+                <td><button type="button" class="pm-remove-row" onclick="$(this).closest('tr').remove(); updateBadges();"><i class="bi bi-x"></i></button></td>
+            </tr>`;
+            $('#contactsBody').append(html);
+            updateBadges();
+        }
+
+        // ══════════════════════════════════════════════════════════
+        // ADDRESSES
+        // ══════════════════════════════════════════════════════════
+        function addAddressBlock(data) {
+            const idx = addressIdx++;
+            const d = data || {};
+            const html = `<div class="border rounded p-3 mb-3" data-aidx="${idx}">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="fw-semibold small"><i class="bi bi-geo-alt me-1"></i>Address #${idx + 1}</span>
+                    <button type="button" class="pm-remove-row" onclick="$(this).closest('[data-aidx]').remove(); updateBadges();"><i class="bi bi-x"></i></button>
+                </div>
+                <div class="row g-2">
+                    <div class="col-md-3">
+                        <label class="pm-field-label">Type</label>
+                        <select class="form-select form-select-sm" name="aType_${idx}">
+                            <option value="Billing" ${d.addressType === 'Billing' ? 'selected' : ''}>Billing</option>
+                            <option value="Shipping" ${d.addressType === 'Shipping' ? 'selected' : ''}>Shipping</option>
+                            <option value="Warehouse" ${d.addressType === 'Warehouse' ? 'selected' : ''}>Warehouse</option>
+                            <option value="Office" ${d.addressType === 'Office' ? 'selected' : ''}>Office</option>
+                            <option value="Other" ${d.addressType === 'Other' ? 'selected' : ''}>Other</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="pm-field-label">Label</label>
+                        <input type="text" class="form-control form-control-sm" name="aLabel_${idx}" value="${esc(d.addressLabel || '')}" placeholder="e.g. Head Office" maxlength="100" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="pm-field-label">Default?</label>
+                        <select class="form-select form-select-sm" name="aDefault_${idx}">
+                            <option value="false">No</option>
+                            <option value="true" ${d.isDefault ? 'selected' : ''}>Yes</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="pm-field-label">GSTIN</label>
+                        <input type="text" class="form-control form-control-sm text-uppercase" name="aGstin_${idx}" value="${esc(d.gstin || '')}" placeholder="GSTIN" maxlength="15" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="pm-field-label">Address Line 1</label>
+                        <input type="text" class="form-control form-control-sm" name="aLine1_${idx}" value="${esc(d.addressLine1 || '')}" placeholder="Street / area" maxlength="200" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="pm-field-label">Address Line 2</label>
+                        <input type="text" class="form-control form-control-sm" name="aLine2_${idx}" value="${esc(d.addressLine2 || '')}" placeholder="Landmark" maxlength="200" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="pm-field-label">State</label>
+                        <select class="form-select form-select-sm addr-state-ddl" name="aState_${idx}" onchange="loadCitiesForAddress(${idx})">
+                            <option value="">Select state…</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="pm-field-label">City</label>
+                        <select class="form-select form-select-sm addr-city-ddl" name="aCity_${idx}">
+                            <option value="">Select city…</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="pm-field-label">Postal Code</label>
+                        <input type="text" class="form-control form-control-sm" name="aPostal_${idx}" value="${esc(d.postalCode || '')}" placeholder="PIN" maxlength="10" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="pm-field-label">Contact Person</label>
+                        <input type="text" class="form-control form-control-sm" name="aCPerson_${idx}" value="${esc(d.contactPersonName || '')}" placeholder="Name" maxlength="100" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="pm-field-label">Contact Phone</label>
+                        <input type="text" class="form-control form-control-sm" name="aCPhone_${idx}" value="${esc(d.contactPhone || '')}" placeholder="Phone" maxlength="15" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="pm-field-label">Contact Email</label>
+                        <input type="email" class="form-control form-control-sm" name="aCEmail_${idx}" value="${esc(d.contactEmail || '')}" placeholder="Email" maxlength="150" />
+                    </div>
+                </div>
+            </div>`;
+            $('#addressContainer').append(html);
+            // Load states into this address block
+            loadStatesForAddress(idx, d.stateId, d.cityId);
+            updateBadges();
+        }
+
+        // ══════════════════════════════════════════════════════════
+        // BANK DETAILS
+        // ══════════════════════════════════════════════════════════
+        function addBankRow(data) {
+            const idx = bankIdx++;
+            const d = data || {};
+            const html = `<tr data-bidx="${idx}">
+                <td><input type="text" class="form-control form-control-sm" name="bBank_${idx}" value="${esc(d.bankName || '')}" placeholder="Bank name" maxlength="100" /></td>
+                <td><input type="text" class="form-control form-control-sm" name="bBranch_${idx}" value="${esc(d.branchName || '')}" placeholder="Branch" maxlength="100" /></td>
+                <td><input type="text" class="form-control form-control-sm" name="bAccNo_${idx}" value="${esc(d.accountNo || '')}" placeholder="Account No" maxlength="30" /></td>
+                <td><input type="text" class="form-control form-control-sm text-uppercase" name="bIfsc_${idx}" value="${esc(d.ifscCode || '')}" placeholder="IFSC" maxlength="11" /></td>
+                <td><input type="text" class="form-control form-control-sm" name="bMicr_${idx}" value="${esc(d.micrNo || '')}" placeholder="MICR" maxlength="9" /></td>
+                <td><button type="button" class="pm-remove-row" onclick="$(this).closest('tr').remove(); updateBadges();"><i class="bi bi-x"></i></button></td>
+            </tr>`;
+            $('#banksBody').append(html);
+            updateBadges();
+        }
+
+        // ══════════════════════════════════════════════════════════
+        // LOOKUPS
+        // ══════════════════════════════════════════════════════════
+        function loadLookups() {
+            $.get(`${PARTY_API}/lookups`, function (d) {
+                if (d.customerTypes) d.customerTypes.forEach(t => $('#ddlCustomerType').append(`<option value="${t.id}">${esc(t.name)}</option>`));
+                if (d.customerGroups) d.customerGroups.forEach(g => $('#ddlCustomerGroup').append(`<option value="${g.id}">${esc(g.name)}</option>`));
+                if (d.paymentTerms) d.paymentTerms.forEach(p => $('#ddlPaymentTerms').append(`<option value="${p.id}">${esc(p.name)}</option>`));
+                if (d.supplierTypes) d.supplierTypes.forEach(s => $('#ddlSupplierType').append(`<option value="${s.id}">${esc(s.name)}</option>`));
+                if (d.vendorTypes) d.vendorTypes.forEach(v => $('#ddlVendorType').append(`<option value="${v.id}">${esc(v.name)}</option>`));
+            });
+        }
+
+        function loadStatesForAddress(idx, selectedStateId, selectedCityId) {
+            $.get(`${PARTY_API}/states`, function (data) {
+                const $ddl = $(`select[name="aState_${idx}"]`);
+                data.forEach(s => $ddl.append(`<option value="${s.id}" ${s.id == selectedStateId ? 'selected' : ''}>${esc(s.name)}</option>`));
+                if (selectedStateId) loadCitiesForAddress(idx, selectedCityId);
+            });
+        }
+
+        function loadCitiesForAddress(idx, selectedCityId) {
+            const stateId = $(`select[name="aState_${idx}"]`).val();
+            const $cityDdl = $(`select[name="aCity_${idx}"]`);
+            $cityDdl.find('option:not(:first)').remove();
+            if (!stateId) return;
+            $.get(`${PARTY_API}/cities-by-state/${stateId}`, function (data) {
+                data.forEach(c => $cityDdl.append(`<option value="${c.id}" ${c.id == selectedCityId ? 'selected' : ''}>${esc(c.name)}</option>`));
+            });
+        }
+
+        // ══════════════════════════════════════════════════════════
+        // LOAD PARTY FOR EDIT
+        // ══════════════════════════════════════════════════════════
+        function loadPartyForEdit(id) {
+            $.get(`${PARTY_API}/detail/${id}`, function (d) {
+                // Basic
+                $('#txtName').val(d.name);
+                $('#txtCode').val(d.code);
+                $('#txtEmail').val(d.email);
+                $('#txtMobile').val(d.mobile || '');
+                $('#ddlStatus').val(String(d.isActive));
+                $('#txtGstNo').val(d.gstNo);
+                $('#txtPanNo').val(d.panNo);
+                $('#txtAddress1').val(d.address1);
+                $('#txtAddress2').val(d.address2);
+                $('#txtPin').val(d.pin);
+                if (d.cityId) {
+                    const opt = new Option(d.cityName || 'City', d.cityId, true, true);
+                    $('#ddlCity').append(opt).trigger('change');
+                }
+
+                // Roles
+                (d.roles || []).forEach(r => {
+                    $(`.pm-role-toggle[data-role="${r}"]`).addClass('active');
+                });
+                updateRoleBadges();
+                updateRoleSections();
+
+                // Customer config
+                if (d.customer) {
+                    $('#ddlCustomerType').val(d.customer.customerType || '');
+                    $('#ddlCustomerGroup').val(d.customer.customerGroup || '');
+                    $('#ddlPaymentTerms').val(d.customer.paymentTerms || '');
+                    $('#txtMaxCreditLimit').val(d.customer.maxCreditLimit || '');
+                    $('#txtSalesperson').val(d.customer.salesperson || '');
+                }
+                // Supplier config
+                if (d.supplier) {
+                    $('#ddlSupplierType').val(d.supplier.supplierTypeId || '');
+                    $('#ddlTdsApplicable').val(d.supplier.tdsApplicable != null ? String(d.supplier.tdsApplicable) : '');
+                    $('#txtTdsRate').val(d.supplier.tdsRate || '');
+                    $('#txtPaymentCycleDays').val(d.supplier.paymentCycleDays || '');
+                    $('#txtSupplierRemarks').val(d.supplier.remarks || '');
+                }
+                // Vendor config
+                if (d.vendor) {
+                    $('#ddlVendorType').val(d.vendor.vendorTypeId || '');
+                    $('#txtContractStart').val(d.vendor.contractStartDate || '');
+                    $('#txtContractEnd').val(d.vendor.contractEndDate || '');
+                    $('#txtContractValue').val(d.vendor.contractValue || '');
+                    $('#txtServiceArea').val(d.vendor.serviceArea || '');
+                    $('#txtVendorRemarks').val(d.vendor.remarks || '');
+                }
+
+                // Contacts
+                if (d.contacts && d.contacts.length) {
+                    d.contacts.forEach(c => addContactRow(c));
+                } else {
+                    addContactRow();
+                }
+
+                // Addresses
+                if (d.addresses && d.addresses.length) {
+                    d.addresses.forEach(a => addAddressBlock(a));
+                }
+
+                // Banks
+                if (d.banks && d.banks.length) {
+                    d.banks.forEach(b => addBankRow(b));
+                } else {
+                    addBankRow();
+                }
+
+                updateSummary();
+            }).fail(function () {
+                Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to load party data.' });
+            });
+        }
+
+        // ══════════════════════════════════════════════════════════
+        // SUMMARY
+        // ══════════════════════════════════════════════════════════
+        function updateSummary() {
+            $('#sumName').text($('#txtName').val() || '—');
+            $('#sumCode').text($('#txtCode').val() || '—');
+            const roles = getSelectedRoles();
+            $('#sumRoles').html(roles.length > 0 ? roles.map(r => `<span class="pm-role-pill ${r.toLowerCase()}">${r}</span>`).join(' ') : '—');
+            $('#sumGst').text($('#txtGstNo').val() || '—');
+            $('#sumStatus').text($('#ddlStatus').val() === 'true' ? 'Active' : 'Inactive');
+        }
+
+        function updateBadges() {
+            const cCount = $('#contactsBody tr').length;
+            const aCount = $('#addressContainer [data-aidx]').length;
+            const bCount = $('#banksBody tr').length;
+            $('#badgeContacts').text(cCount);
+            $('#badgeAddresses').text(aCount);
+            $('#badgeBanks').text(bCount);
+            $('#sumContacts').text(cCount);
+            $('#sumAddresses').text(aCount);
+            $('#sumBanks').text(bCount);
+            // Has-data styling
+            $('[data-tab="contacts"]').toggleClass('has-data', cCount > 0);
+            $('[data-tab="addresses"]').toggleClass('has-data', aCount > 0);
+            $('[data-tab="banks"]').toggleClass('has-data', bCount > 0);
+        }
+
+        // ══════════════════════════════════════════════════════════
+        // VALIDATION
+        // ══════════════════════════════════════════════════════════
+        function validate() {
+            let valid = true;
+            // Name
+            if (!$('#txtName').val()?.trim()) {
+                $('#txtName').addClass('is-invalid');
+                $('#errName').addClass('show');
+                valid = false;
+            } else {
+                $('#txtName').removeClass('is-invalid');
+                $('#errName').removeClass('show');
+            }
+            // Email format
+            const email = $('#txtEmail').val()?.trim();
+            if (email && !/^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/.test(email)) {
+                $('#txtEmail').addClass('is-invalid');
+                $('#errEmail').addClass('show');
+                valid = false;
+            } else {
+                $('#txtEmail').removeClass('is-invalid');
+                $('#errEmail').removeClass('show');
+            }
+            // Mobile
+            const mobile = $('#txtMobile').val()?.trim();
+            if (mobile && !/^\d{10,15}$/.test(mobile)) {
+                $('#txtMobile').addClass('is-invalid');
+                $('#errMobile').addClass('show');
+                valid = false;
+            } else {
+                $('#txtMobile').removeClass('is-invalid');
+                $('#errMobile').removeClass('show');
+            }
+            // GST
+            const gst = $('#txtGstNo').val()?.trim();
+            if (gst && !/^\d{2}[A-Z]{5}\d{4}[A-Z]{1}[A-Z\d]{1}[Z]{1}[A-Z\d]{1}$/.test(gst)) {
+                $('#txtGstNo').addClass('is-invalid');
+                $('#errGst').addClass('show');
+                valid = false;
+            } else {
+                $('#txtGstNo').removeClass('is-invalid');
+                $('#errGst').removeClass('show');
+            }
+            // PAN
+            const pan = $('#txtPanNo').val()?.trim();
+            if (pan && !/^[A-Z]{5}\d{4}[A-Z]$/.test(pan)) {
+                $('#txtPanNo').addClass('is-invalid');
+                $('#errPan').addClass('show');
+                valid = false;
+            } else {
+                $('#txtPanNo').removeClass('is-invalid');
+                $('#errPan').removeClass('show');
+            }
+            // Roles check
+            if (getSelectedRoles().length === 0) {
+                Swal.fire({ icon: 'warning', title: 'Roles Required', text: 'Please assign at least one role (Customer, Supplier, or Vendor).' });
+                valid = false;
+            }
+            return valid;
+        }
+
+        // ══════════════════════════════════════════════════════════
+        // SAVE
+        // ══════════════════════════════════════════════════════════
+        async function saveParty() {
+            if (!validate()) return;
+
+            // Collect contacts
+            const contacts = [];
+            $('#contactsBody tr').each(function () {
+                const idx = $(this).data('cidx');
+                const name = $(`input[name="cName_${idx}"]`).val()?.trim();
+                if (name) {
+                    contacts.push({
+                        contactName: name,
+                        designation: $(`input[name="cDesig_${idx}"]`).val()?.trim() || null,
+                        email: $(`input[name="cEmail_${idx}"]`).val()?.trim() || null,
+                        mobile: $(`input[name="cMobile_${idx}"]`).val()?.trim() ? parseInt($(`input[name="cMobile_${idx}"]`).val()) : null
+                    });
+                }
+            });
+
+            // Collect addresses
+            const addresses = [];
+            $('#addressContainer [data-aidx]').each(function () {
+                const idx = $(this).data('aidx');
+                const line1 = $(`input[name="aLine1_${idx}"]`).val()?.trim();
+                if (line1) {
+                    addresses.push({
+                        addressType: $(`select[name="aType_${idx}"]`).val(),
+                        addressLabel: $(`input[name="aLabel_${idx}"]`).val()?.trim() || null,
+                        isDefault: $(`select[name="aDefault_${idx}"]`).val() === 'true',
+                        addressLine1: line1,
+                        addressLine2: $(`input[name="aLine2_${idx}"]`).val()?.trim() || null,
+                        stateId: $(`select[name="aState_${idx}"]`).val() ? parseInt($(`select[name="aState_${idx}"]`).val()) : null,
+                        cityId: $(`select[name="aCity_${idx}"]`).val() ? parseInt($(`select[name="aCity_${idx}"]`).val()) : null,
+                        postalCode: $(`input[name="aPostal_${idx}"]`).val()?.trim() || null,
+                        gstin: $(`input[name="aGstin_${idx}"]`).val()?.trim() || null,
+                        contactPersonName: $(`input[name="aCPerson_${idx}"]`).val()?.trim() || null,
+                        contactPhone: $(`input[name="aCPhone_${idx}"]`).val()?.trim() || null,
+                        contactEmail: $(`input[name="aCEmail_${idx}"]`).val()?.trim() || null
+                    });
+                }
+            });
+
+            // Collect banks
+            const banks = [];
+            $('#banksBody tr').each(function () {
+                const idx = $(this).data('bidx');
+                const bank = $(`input[name="bBank_${idx}"]`).val()?.trim();
+                if (bank) {
+                    banks.push({
+                        bankName: bank,
+                        branchName: $(`input[name="bBranch_${idx}"]`).val()?.trim() || null,
+                        accountNo: $(`input[name="bAccNo_${idx}"]`).val()?.trim() || null,
+                        ifscCode: $(`input[name="bIfsc_${idx}"]`).val()?.trim() || null,
+                        micrNo: $(`input[name="bMicr_${idx}"]`).val()?.trim() || null
+                    });
+                }
+            });
+
+            const roles = getSelectedRoles();
+
+            const payload = {
+                id: editPartyId || 0,
+                name: $('#txtName').val()?.trim(),
+                code: $('#txtCode').val()?.trim() || null,
+                email: $('#txtEmail').val()?.trim() || null,
+                mobile: $('#txtMobile').val()?.trim() ? parseInt($('#txtMobile').val()) : null,
+                isActive: $('#ddlStatus').val() === 'true',
+                gstNo: $('#txtGstNo').val()?.trim() || null,
+                panNo: $('#txtPanNo').val()?.trim() || null,
+                address1: $('#txtAddress1').val()?.trim() || null,
+                address2: $('#txtAddress2').val()?.trim() || null,
+                cityId: $('#ddlCity').val() ? parseInt($('#ddlCity').val()) : null,
+                pin: $('#txtPin').val()?.trim() || null,
+                roles: roles,
+                contacts: contacts,
+                addresses: addresses,
+                banks: banks,
+                sendWelcomeMail: $('#chkWelcomeMail').is(':checked'),
+                notifyAccountsDept: $('#chkAccountDeptMail').is(':checked'),
+                // Customer config
+                customer: roles.includes('Customer') ? {
+                    customerType: $('#ddlCustomerType').val() ? parseInt($('#ddlCustomerType').val()) : null,
+                    customerGroup: $('#ddlCustomerGroup').val() ? parseInt($('#ddlCustomerGroup').val()) : null,
+                    paymentTerms: $('#ddlPaymentTerms').val() ? parseInt($('#ddlPaymentTerms').val()) : null,
+                    maxCreditLimit: parseFloat($('#txtMaxCreditLimit').val()) || null,
+                    salesperson: $('#txtSalesperson').val()?.trim() || null
+                } : null,
+                // Supplier config
+                supplier: roles.includes('Supplier') ? {
+                    supplierTypeId: $('#ddlSupplierType').val() ? parseInt($('#ddlSupplierType').val()) : null,
+                    tdsApplicable: $('#ddlTdsApplicable').val() !== '' ? $('#ddlTdsApplicable').val() === 'true' : null,
+                    tdsRate: parseFloat($('#txtTdsRate').val()) || null,
+                    paymentCycleDays: parseInt($('#txtPaymentCycleDays').val()) || null,
+                    remarks: $('#txtSupplierRemarks').val()?.trim() || null
+                } : null,
+                // Vendor config
+                vendor: roles.includes('Vendor') ? {
+                    vendorTypeId: $('#ddlVendorType').val() ? parseInt($('#ddlVendorType').val()) : null,
+                    contractStartDate: $('#txtContractStart').val() || null,
+                    contractEndDate: $('#txtContractEnd').val() || null,
+                    contractValue: parseFloat($('#txtContractValue').val()) || null,
+                    serviceArea: $('#txtServiceArea').val()?.trim() || null,
+                    remarks: $('#txtVendorRemarks').val()?.trim() || null
+                } : null
+            };
+
+            try {
+                Swal.fire({ title: 'Saving Party…', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                const result = await $.ajax({
+                    url: `${PARTY_API}/save`,
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(payload)
+                });
+                Swal.close();
+                showAcknowledgement(result);
+            } catch (err) {
+                const errData = err.responseJSON;
+                let msg = errData?.message || 'Failed to save party.';
+                if (errData?.errors && errData.errors.length) {
+                    msg += '<ul class="text-start mt-2 mb-0" style="font-size:.85rem;">';
+                    errData.errors.forEach(e => { msg += `<li>${esc(e)}</li>`; });
+                    msg += '</ul>';
+                }
+                Swal.fire({ icon: 'error', title: 'Error', html: msg });
+            }
+        }
+
+        function showAcknowledgement(result) {
+            const isNew = !editPartyId;
+            Swal.fire({
+                icon: 'success',
+                title: isNew ? 'Party Created!' : 'Party Updated!',
+                html: `<div class="text-center">
+                    <div class="mb-2" style="font-size:1.3rem; font-weight:700; color:#6366f1;">${esc(result.name)}</div>
+                    <div class="text-muted small mb-1">${esc(result.code || '')}</div>
+                    <div class="mb-2">${(result.roles || []).map(r => `<span class="pm-role-pill ${r.toLowerCase()}">${r}</span>`).join(' ')}</div>
+                    ${result.welcomeMailSent ? '<div class="text-muted small"><i class="bi bi-envelope-check me-1 text-success"></i>Welcome email sent</div>' : ''}
+                    ${result.accountsDeptNotified ? '<div class="text-muted small"><i class="bi bi-bell-fill me-1 text-primary"></i>Accounts department notified</div>' : ''}
+                    <hr/>
+                    <div class="d-flex justify-content-center gap-2 flex-wrap">
+                        <button class="btn btn-outline-primary btn-sm" onclick="window.location.href='/Maintenance/Party/Create'">
+                            <i class="bi bi-plus-lg me-1"></i>New Party
+                        </button>
+                    </div>
+                </div>`,
+                showConfirmButton: true,
+                confirmButtonText: '<i class="bi bi-arrow-left me-1"></i>Back to Parties',
+                allowOutsideClick: false
+            }).then(() => {
+                window.location.href = '/Maintenance/Party';
+            });
+        }
+
+        function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.appendChild(document.createTextNode(s)); return d.innerHTML; }
+    </script>
+}

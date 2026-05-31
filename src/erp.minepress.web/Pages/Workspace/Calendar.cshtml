@@ -1,0 +1,154 @@
+@page
+@model erp.minepress.web.Pages.Workspace.CalendarModel
+@{
+    ViewData["Title"] = "Task Calendar";
+}
+
+<!-- ═══ Hero Header ═══ -->
+<div class="ws-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-lg ws-hero-avatar">
+                <i class="bi bi-calendar3" style="font-size:1.5rem;"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="mb-1">Task Calendar</h2>
+            <div class="text-white-75 d-flex align-items-center gap-2">
+                <span class="badge bg-white text-dark">
+                    <i class="bi bi-person-circle me-1"></i>@Model.UserFullName
+                </span>
+                <span class="badge bg-white text-dark">
+                    <i class="bi bi-building me-1"></i>@Model.DeptCode — @Model.DeptName
+                </span>
+            </div>
+        </div>
+        <div class="col-auto d-flex gap-2 flex-wrap">
+            <a href="/Workspace" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-arrow-left me-1"></i>Back to Workspace
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Calendar Legend ═══ -->
+<div class="row g-3 mb-3">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body py-2">
+                <div class="d-flex align-items-center flex-wrap gap-3">
+                    <span class="d-flex align-items-center gap-1">
+                        <span class="ws-cal-dot" style="background:#0054a6;"></span>
+                        <small class="text-secondary">Tasks</small>
+                    </span>
+                    <span class="d-flex align-items-center gap-1">
+                        <span class="ws-cal-dot" style="background:#7c3aed;"></span>
+                        <small class="text-secondary">Approvals</small>
+                    </span>
+                    <span class="d-flex align-items-center gap-1">
+                        <span class="ws-cal-dot" style="background:#d63939;"></span>
+                        <small class="text-secondary">Urgent</small>
+                    </span>
+                    <span class="d-flex align-items-center gap-1">
+                        <span class="ws-cal-dot" style="background:#f76707;"></span>
+                        <small class="text-secondary">High Priority</small>
+                    </span>
+                    <span class="d-flex align-items-center gap-1">
+                        <span class="ws-cal-dot" style="background:#2fb344;"></span>
+                        <small class="text-secondary">Completed</small>
+                    </span>
+                    <div class="ms-auto d-flex gap-2">
+                        <!-- View Toggle -->
+                        <div class="btn-group" role="group" id="calViewGroup">
+                            <button type="button" class="btn btn-sm btn-outline-primary active" data-view="month" onclick="Workspace.calSetView('month')">
+                                <i class="bi bi-calendar3 me-1"></i>Month
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-primary" data-view="day" onclick="Workspace.calSetView('day')">
+                                <i class="bi bi-calendar-day me-1"></i>Day
+                            </button>
+                        </div>
+                        <div class="vr mx-1"></div>
+                        <!-- Navigation -->
+                        <button class="btn btn-sm btn-outline-primary" id="calPrev" onclick="Workspace.calNav(-1)">
+                            <i class="bi bi-chevron-left"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary" onclick="Workspace.calNav(0)">Today</button>
+                        <button class="btn btn-sm btn-outline-primary" id="calNext" onclick="Workspace.calNav(1)">
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Month Calendar Grid ═══ -->
+<div class="row g-3" id="calMonthContainer">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex align-items-center">
+                <h3 class="card-title mb-0" id="calMonthTitle"></h3>
+            </div>
+            <div class="card-body p-0">
+                <div class="ws-calendar" id="wsCalendarGrid">
+                    <div class="text-center py-5 text-secondary">
+                        <div class="spinner-border spinner-border-sm me-2"></div>Loading calendar...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Day View ═══ -->
+<div class="row g-3" id="calDayContainer" style="display:none;">
+    <!-- Day Summary Cards -->
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <h3 class="card-title mb-0" id="calDayTitle"></h3>
+                <div class="d-flex gap-3" id="calDaySummary"></div>
+            </div>
+        </div>
+    </div>
+    <!-- Hourly Timeline -->
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="ws-day-timeline" id="wsDayTimeline">
+                    <div class="text-center py-5 text-secondary">
+                        <div class="spinner-border spinner-border-sm me-2"></div>Loading day view...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Task Detail Modal ═══ -->
+<div class="modal modal-blur fade" id="taskDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-info-circle me-2"></i>Task Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="taskDetailBody">
+                <div class="text-center py-4"><div class="spinner-border"></div></div>
+            </div>
+            <div class="modal-footer" id="taskDetailFooter"></div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link href="/css/workspace.css" rel="stylesheet" />
+}
+
+@section Scripts {
+    <script src="/js/workspace.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => Workspace.initCalendar());
+    </script>
+}

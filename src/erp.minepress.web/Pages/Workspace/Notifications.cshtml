@@ -1,0 +1,63 @@
+@page
+@model erp.minepress.web.Pages.Workspace.NotificationsModel
+@{
+    ViewData["Title"] = "Notifications";
+}
+
+<!-- ═══ Hero Header ═══ -->
+<div class="ws-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-lg ws-hero-avatar">
+                <i class="bi bi-bell" style="font-size:1.5rem;"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="mb-1">Notifications</h2>
+            <div class="text-white-75 d-flex align-items-center gap-2">
+                <span class="badge bg-white text-dark">
+                    <i class="bi bi-person-circle me-1"></i>@Model.UserFullName
+                </span>
+            </div>
+        </div>
+        <div class="col-auto d-flex gap-2 flex-wrap">
+            <a href="/Workspace" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-arrow-left me-1"></i>Back to Workspace
+            </a>
+            <button class="btn btn-outline-light btn-sm" onclick="Workspace.refreshNotifications()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Notifications List ═══ -->
+<div class="row g-3">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex align-items-center">
+                <h3 class="card-title mb-0"><i class="bi bi-bell me-2"></i>All Notifications</h3>
+                <div class="ms-auto">
+                    <span class="text-secondary small" id="notifTotal"></span>
+                </div>
+            </div>
+            <div class="card-body p-0" id="wsNotificationsList">
+                <div class="text-center py-5 text-secondary">
+                    <div class="spinner-border spinner-border-sm me-2"></div>Loading notifications...
+                </div>
+            </div>
+        </div>
+        <div class="d-flex justify-content-center mt-3" id="notifPagination"></div>
+    </div>
+</div>
+
+@section Styles {
+    <link href="/css/workspace.css" rel="stylesheet" />
+}
+
+@section Scripts {
+    <script src="/js/workspace.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => Workspace.initNotifications());
+    </script>
+}

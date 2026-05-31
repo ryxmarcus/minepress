@@ -1,0 +1,57 @@
+@page
+@model erp.minepress.web.Pages.Accounting.DebitNote.IndexModel
+@{
+    ViewData["Title"] = "Debit Notes";
+}
+
+<div class="acc-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto"><span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);"><i class="bi bi-file-earmark-plus" style="font-size:1.5rem;"></i></span></div>
+        <div class="col"><h2 class="mb-0">Debit Notes</h2><div class="text-white-75">Purchase returns &amp; adjustments — reduces AP</div></div>
+        <div class="col-auto d-flex gap-2">
+            <a href="/Accounting" class="btn btn-outline-light btn-sm"><i class="bi bi-arrow-left me-1"></i>Back</a>
+            <button class="btn btn-outline-light btn-sm" onclick="loadList()"><i class="bi bi-arrow-clockwise me-1"></i>Refresh</button>
+        </div>
+    </div>
+</div>
+
+<div class="acc-sub-nav d-print-none mb-3">
+    <a href="/Accounting/PurchaseInvoice" class="acc-sub-nav-item"><i class="bi bi-receipt me-1"></i>Purchase Invoices</a>
+    <a href="/Accounting/Payment" class="acc-sub-nav-item"><i class="bi bi-wallet2 me-1"></i>Payments</a>
+    <a href="/Accounting/DebitNote" class="acc-sub-nav-item active"><i class="bi bi-file-earmark-plus me-1"></i>Debit Notes</a>
+    <a href="/Accounting/ApOutstanding" class="acc-sub-nav-item"><i class="bi bi-clock-history me-1"></i>AP Outstanding</a>
+</div>
+
+<div class="card mb-3"><div class="card-body py-2"><div class="row g-2 align-items-center">
+    <div class="col-md-4"><div class="input-icon"><span class="input-icon-addon"><i class="bi bi-search"></i></span><input type="text" id="txtSearch" class="form-control form-control-sm" placeholder="Search..." /></div></div>
+    <div class="col-md-2"><select id="ddlStatus" class="form-select form-select-sm"><option value="">All</option><option value="DRAFT">Draft</option><option value="POSTED">Posted</option><option value="CANCELLED">Cancelled</option></select></div>
+</div></div></div>
+
+<div class="card"><div class="table-responsive"><table class="table table-vcenter card-table table-hover acc-list-table">
+    <thead><tr><th>DN No</th><th>Date</th><th>Supplier</th><th>Type</th><th>Orig Invoice</th><th class="text-end">Amount</th><th>Status</th></tr></thead>
+    <tbody id="listBody"><tr><td colspan="7" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2"></div>Loading...</td></tr></tbody>
+</table></div></div>
+
+@section Scripts {
+    <script>
+        let allData = [];
+        $(document).ready(function () { loadList(); $('#txtSearch, #ddlStatus').on('input change', applyFilters); });
+        function loadList() {
+            $.get('/api/accounting/debit-notes', function (data) { allData = data; applyFilters(); })
+            .fail(function () { $('#listBody').html('<tr><td colspan="7" class="text-center text-danger py-3">Failed to load.</td></tr>'); });
+        }
+        function applyFilters() {
+            const q = ($('#txtSearch').val() || '').toLowerCase(), st = $('#ddlStatus').val();
+            let f = allData.filter(i => { if (q && !(i.debitNoteNo || '').toLowerCase().includes(q) && !(i.supplierName || '').toLowerCase().includes(q)) return false; if (st && i.status !== st) return false; return true; });
+            let html = '';
+            if (!f.length) html = '<tr><td colspan="7" class="text-center text-muted py-4">No debit notes found</td></tr>';
+            f.forEach(i => {
+                const sc = { 'DRAFT': 'acc-status-draft', 'POSTED': 'acc-status-posted', 'CANCELLED': 'acc-status-cancelled' }[i.status] || 'bg-secondary-lt';
+                html += `<tr><td class="fw-semibold">${esc(i.debitNoteNo)}</td><td class="text-muted small">${esc(i.debitNoteDate)}</td><td>${esc(i.supplierName)}</td><td class="small">${esc((i.debitNoteType || '').replace(/_/g, ' '))}</td><td class="small">${esc(i.originalInvoiceNo || '-')}</td><td class="text-end fw-semibold">${fmt(i.grandTotal)}</td><td><span class="acc-status-badge ${sc}">${(i.status || '').replace(/_/g, ' ')}</span></td></tr>`;
+            });
+            $('#listBody').html(html);
+        }
+        function fmt(v) { return v != null ? '₹' + Number(v).toLocaleString('en-IN', { minimumFractionDigits: 2 }) : '₹0.00'; }
+        function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.appendChild(document.createTextNode(s)); return d.innerHTML; }
+    </script>
+}

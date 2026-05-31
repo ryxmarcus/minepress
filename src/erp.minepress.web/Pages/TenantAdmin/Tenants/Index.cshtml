@@ -1,0 +1,55 @@
+@page
+@model erp.minepress.web.Pages.TenantAdmin.Tenants.IndexModel
+@{
+    ViewData["Title"] = "Tenants";
+}
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title mb-0">Tenants</h3>
+        <div class="d-flex gap-2">
+            <a class="btn btn-primary btn-sm" href="/TenantAdmin/Tenants/Create">Add New Tenant</a>
+            <a class="btn btn-outline-secondary btn-sm" href="/TenantAdmin">Back</a>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table">
+            <thead>
+                <tr>
+                    <th>Tenant Key</th>
+                    <th>Name</th>
+                    <th>Status</th>
+                    <th>Plan</th>
+                    <th>Users</th>
+                    <th>Last Activity</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var tenant in Model.Tenants)
+                {
+                    <tr>
+                        <td>@tenant.TenantKey</td>
+                        <td>@tenant.Name</td>
+                        <td>
+                            @if (tenant.IsActive)
+                            {
+                                <span class="badge bg-success">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Inactive</span>
+                            }
+                        </td>
+                        <td>@(tenant.SubscriptionPlan ?? "-" )</td>
+                        <td>@tenant.CurrentUsers / @tenant.MaxUsers</td>
+                        <td>@(tenant.LastActivityAt?.ToString("dd-MMM-yyyy HH:mm") ?? "-")</td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-primary" href="/TenantAdmin/Tenants/Details/@tenant.Id">Update Details</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,294 @@
+@page
+@model erp.minepress.web.Pages.Production.JobAllocation.IndexModel
+@{
+    ViewData["Title"] = "Machine Job Allocation";
+    ViewData["ContainerClass"] = "container-xl";
+}
+
+@section Styles {
+    <style>
+        .prod-board::-webkit-scrollbar { height: 6px; }
+        .prod-board::-webkit-scrollbar-thumb { background: var(--tblr-border-color); border-radius: 3px; }
+    </style>
+}
+
+<!-- ═══ Hero ═══ -->
+<div class="prod-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);">
+                <i class="bi bi-printer" style="font-size:1.5rem;"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="mb-0">Machine Job Allocation</h2>
+            <div class="text-white-75">Drag &amp; drop jobs to machines · Assign manpower · AI-powered suggestions</div>
+        </div>
+        <div class="col-auto d-flex gap-2">
+            <button class="btn btn-outline-light btn-sm" onclick="ProdAllocation.refresh()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+            </button>
+            <button class="btn btn-light btn-sm" onclick="ProdAllocation.saveAllAllocations()">
+                <i class="bi bi-check2-all me-1"></i>Save All
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Insight Cards ═══ -->
+<div class="row g-3 mb-3">
+    <div class="col-6 col-lg-2">
+        <div class="card prod-insight-card">
+            <div class="card-body py-3">
+                <div class="d-flex align-items-center">
+                    <div class="prod-insight-icon bg-primary-lt"><i class="bi bi-gear text-primary"></i></div>
+                    <div class="ms-3">
+                        <div class="text-muted small">Total Machines</div>
+                        <div class="h3 mb-0" id="statTotalMachines">—</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-2">
+        <div class="card prod-insight-card">
+            <div class="card-body py-3">
+                <div class="d-flex align-items-center">
+                    <div class="prod-insight-icon bg-success-lt"><i class="bi bi-play-circle text-success"></i></div>
+                    <div class="ms-3">
+                        <div class="text-muted small">Running</div>
+                        <div class="h3 mb-0" id="statRunning">—</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-2">
+        <div class="card prod-insight-card">
+            <div class="card-body py-3">
+                <div class="d-flex align-items-center">
+                    <div class="prod-insight-icon bg-secondary-lt"><i class="bi bi-pause-circle text-secondary"></i></div>
+                    <div class="ms-3">
+                        <div class="text-muted small">Idle</div>
+                        <div class="h3 mb-0" id="statIdle">—</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-2">
+        <div class="card prod-insight-card">
+            <div class="card-body py-3">
+                <div class="d-flex align-items-center">
+                    <div class="prod-insight-icon bg-warning-lt"><i class="bi bi-inbox text-warning"></i></div>
+                    <div class="ms-3">
+                        <div class="text-muted small">Unallocated</div>
+                        <div class="h3 mb-0" id="statUnallocated">—</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-2">
+        <div class="card prod-insight-card">
+            <div class="card-body py-3">
+                <div class="d-flex align-items-center">
+                    <div class="prod-insight-icon bg-cyan-lt"><i class="bi bi-people text-cyan"></i></div>
+                    <div class="ms-3">
+                        <div class="text-muted small">Manpower Assigned</div>
+                        <div class="h3 mb-0" id="statManpower">—</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-2">
+        <div class="card prod-insight-card">
+            <div class="card-body py-3">
+                <div class="d-flex align-items-center">
+                    <div class="prod-insight-icon bg-purple-lt"><i class="bi bi-calendar-check text-purple"></i></div>
+                    <div class="ms-3">
+                        <div class="text-muted small">Today's Jobs</div>
+                        <div class="h3 mb-0" id="statTodayJobs">—</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Filter Panel ═══ -->
+<div class="card prod-filter-card mb-3">
+    <div class="card-body py-2 px-3">
+        <div class="row g-2 align-items-end">
+            <div class="col-12">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="fw-bold small"><i class="bi bi-funnel me-1"></i>Filters</span>
+                    <button class="btn btn-ghost-secondary btn-sm py-0 px-2" onclick="ProdAllocation.clearFilters()">
+                        <i class="bi bi-x-circle me-1"></i>Clear
+                    </button>
+                </div>
+            </div>
+            <!-- Job Filters -->
+            <div class="col-sm-6 col-md-3 col-lg-2">
+                <label class="form-label small mb-1">Job Search</label>
+                <input type="text" class="form-control form-control-sm" id="filterJobSearch" placeholder="Job No / Product…" oninput="ProdAllocation.applyFilters()">
+            </div>
+            <div class="col-sm-6 col-md-3 col-lg-2">
+                <label class="form-label small mb-1">Job Type</label>
+                <select class="form-select form-select-sm" id="filterJobType" onchange="ProdAllocation.applyFilters()">
+                    <option value="">All Job Types</option>
+                </select>
+            </div>
+            <div class="col-sm-6 col-md-3 col-lg-2">
+                <label class="form-label small mb-1">Product Type</label>
+                <select class="form-select form-select-sm" id="filterProductType" onchange="ProdAllocation.applyFilters()">
+                    <option value="">All Products</option>
+                </select>
+            </div>
+            <div class="col-sm-6 col-md-3 col-lg-2">
+                <label class="form-label small mb-1">Priority</label>
+                <select class="form-select form-select-sm" id="filterPriority" onchange="ProdAllocation.applyFilters()">
+                    <option value="">All Priorities</option>
+                    <option value="Urgent">Urgent</option>
+                    <option value="High">High</option>
+                    <option value="Normal">Normal</option>
+                    <option value="Low">Low</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Unallocated Jobs Pool ═══ -->
+<div class="prod-pool mb-3">
+    <div class="prod-pool-header d-flex align-items-center justify-content-between">
+        <span><i class="bi bi-inbox me-2"></i>Unallocated Jobs — drag to assign</span>
+        <span class="badge bg-warning-lt text-warning" id="poolCount">0</span>
+    </div>
+    <div class="prod-pool-body" id="jobPoolBody">
+        <div class="prod-empty w-100">
+            <i class="bi bi-hourglass-split"></i>Loading jobs…
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Machine Swim-Lane Board ═══ -->
+<div class="d-flex align-items-center justify-content-between mb-2">
+    <h3 class="mb-0" style="font-size:1rem;">
+        <i class="bi bi-kanban me-2"></i>Machine Allocation Board
+    </h3>
+    <div class="d-flex align-items-center gap-2">
+        <input type="text" class="form-control form-control-sm" id="filterMachineName" placeholder="Machine name…" style="width:160px;" oninput="ProdAllocation.applyFilters()">
+        <select class="form-select form-select-sm" id="filterMachineCategory" style="width:160px;" onchange="ProdAllocation.applyFilters()">
+            <option value="">All Categories</option>
+        </select>
+        <span class="text-muted small d-none d-md-inline">Drag jobs between machines to reorder</span>
+    </div>
+</div>
+<div class="prod-board" id="machineBoard">
+    <div class="prod-empty w-100">
+        <i class="bi bi-hourglass-split"></i>Loading machines…
+    </div>
+</div>
+
+<!-- ═══ Manpower Allocation Modal ═══ -->
+<div class="modal modal-blur fade" id="manpowerModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header py-2" style="background:linear-gradient(135deg,rgba(0,163,194,.04),rgba(0,163,194,.08));">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="prod-insight-icon bg-cyan-lt" style="width:36px;height:36px;">
+                        <i class="bi bi-people text-cyan"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title mb-0" style="font-size:.92rem;">Manpower Allocation</h5>
+                        <div class="text-muted" style="font-size:.72rem;">
+                            Machine: <strong id="mpMachineName">—</strong>
+                            <span class="ms-2 text-primary" id="mpJobNo"></span>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body py-3">
+                <!-- Employee Search -->
+                <div class="row g-2 mb-3">
+                    <div class="col-sm-6 col-md-3">
+                        <label class="form-label small mb-1">Department</label>
+                        <select class="form-select form-select-sm" id="mpDeptFilter" onchange="ProdAllocation.searchEmployees()">
+                            <option value="">All Production Depts</option>
+                            <option value="PRE">PRE — Pre-Press</option>
+                            <option value="PRT">PRT — Printing</option>
+                            <option value="FINP">FINP — Finishing</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <label class="form-label small mb-1">Search Employee</label>
+                        <input type="text" class="form-control form-control-sm" id="mpEmpSearch" placeholder="Name or code…" oninput="ProdAllocation.searchEmployees()">
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <label class="form-label small mb-1">Role</label>
+                        <select class="form-select form-select-sm" id="mpRoleFilter">
+                            <option value="Operator">Operator</option>
+                            <option value="Helper">Helper</option>
+                            <option value="Supervisor">Supervisor</option>
+                            <option value="Technician">Technician</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-6 col-md-3">
+                        <label class="form-label small mb-1">Shift</label>
+                        <select class="form-select form-select-sm" id="mpShiftFilter">
+                            <option value="GENERAL">General</option>
+                            <option value="MORNING">Morning</option>
+                            <option value="AFTERNOON">Afternoon</option>
+                            <option value="NIGHT">Night</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Available Employees List -->
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="fw-bold small mb-2"><i class="bi bi-person-lines-fill me-1"></i>Available Employees</div>
+                        <div class="prod-emp-list" id="mpEmployeeList">
+                            <div class="prod-empty"><i class="bi bi-search"></i>Search to find employees</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="fw-bold small mb-2"><i class="bi bi-person-check me-1"></i>Assigned to this Machine</div>
+                        <div class="prod-emp-list" id="mpAssignedList">
+                            <div class="prod-empty"><i class="bi bi-inbox"></i>No employees assigned</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer py-2">
+                <button class="btn btn-ghost-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-primary btn-sm" onclick="ProdAllocation.saveManpowerAllocation()">
+                    <i class="bi bi-check2 me-1"></i>Save Manpower
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ AI Suggestion Panel (slide-in) ═══ -->
+<div class="prod-ai-panel mt-3" id="aiSuggestionPanel" style="display:none;">
+    <div class="prod-ai-header d-flex align-items-center justify-content-between">
+        <span><i class="bi bi-stars me-2"></i>AI Machine Suggestions</span>
+        <button class="btn btn-sm btn-ghost-secondary py-0 px-1" onclick="ProdAllocation.closeAiPanel()">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+    <div id="aiSuggestionBody"></div>
+</div>
+
+@section Scripts {
+    <script src="~/js/production-allocation.js"></script>
+    <script>
+        $(function () {
+            ProdAllocation.init();
+        });
+    </script>
+}

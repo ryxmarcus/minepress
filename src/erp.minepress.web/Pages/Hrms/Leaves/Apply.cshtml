@@ -1,0 +1,139 @@
+@page
+@model erp.minepress.web.Pages.Hrms.Leaves.ApplyModel
+@{
+    ViewData["Title"] = "Apply Leave — HRMS";
+}
+
+<!-- Hero Header -->
+<div class="hrms-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);">
+                <i class="bi bi-calendar-plus" style="font-size:1.5rem;"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="mb-0">Apply Leave</h2>
+            <div class="text-white-75">Submit a new leave request</div>
+        </div>
+        <div class="col-auto">
+            <a href="/Hrms/Leaves" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-arrow-left me-1"></i>Back to Leaves
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Leave Application</h3>
+            </div>
+            <div class="card-body">
+                <form id="leaveApplyForm">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label required">Leave Type</label>
+                            <select class="form-select" id="leaveTypeId" required>
+                                <option value="">Select leave type...</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label required">From Date</label>
+                            <input type="date" class="form-control" id="leaveFrom" required />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label required">To Date</label>
+                            <input type="date" class="form-control" id="leaveTo" required />
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Total Days</label>
+                            <input type="number" class="form-control" id="leaveDays" step="0.5" min="0.5" readonly />
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label class="form-check form-switch mt-4">
+                                    <input class="form-check-input" type="checkbox" id="leaveHalfDay" />
+                                    <span class="form-check-label">Half Day</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Reason</label>
+                        <textarea class="form-control" id="leaveReason" rows="3" placeholder="Enter reason for leave..."></textarea>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send me-1"></i>Submit Leave
+                        </button>
+                        <a href="/Hrms/Leaves" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Current Balances -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h3 class="card-title">Your Leave Balances</h3>
+            </div>
+            <div class="card-body" id="applyLeaveBalances">
+                <div class="text-center text-secondary py-3">
+                    <div class="spinner-border spinner-border-sm me-2" role="status"></div>Loading...
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="/js/hrms.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            Hrms.loadLeaveTypes('leaveTypeId');
+            Hrms.loadLeaveBalancesCompact('applyLeaveBalances');
+
+            const fromEl = document.getElementById('leaveFrom');
+            const toEl = document.getElementById('leaveTo');
+            const daysEl = document.getElementById('leaveDays');
+            const halfEl = document.getElementById('leaveHalfDay');
+
+            function calcDays() {
+                if (fromEl.value && toEl.value) {
+                    const f = new Date(fromEl.value);
+                    const t = new Date(toEl.value);
+                    let days = Math.ceil((t - f) / (1000 * 60 * 60 * 24)) + 1;
+                    if (halfEl.checked) days = 0.5;
+                    if (days < 0.5) days = 0.5;
+                    daysEl.value = days;
+                }
+            }
+
+            fromEl.addEventListener('change', calcDays);
+            toEl.addEventListener('change', calcDays);
+            halfEl.addEventListener('change', calcDays);
+
+            document.getElementById('leaveApplyForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const payload = {
+                    leaveTypeId: parseInt(document.getElementById('leaveTypeId').value),
+                    fromDate: fromEl.value,
+                    toDate: toEl.value,
+                    totalDays: parseFloat(daysEl.value) || 1,
+                    halfDay: halfEl.checked,
+                    reason: document.getElementById('leaveReason').value
+                };
+
+                const res = await Hrms.post('leaves/apply', payload);
+                if (res) {
+                    Swal.fire({ icon: 'success', title: 'Leave Applied', text: res.message, timer: 2000 });
+                    setTimeout(() => window.location.href = '/Hrms/Leaves', 2000);
+                }
+            });
+        });
+    </script>
+}

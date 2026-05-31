@@ -1,0 +1,374 @@
+@page
+@model erp.minepress.web.Pages.Production.MachineScheduling.IndexModel
+@{
+    ViewData["Title"] = "Machine Scheduling";
+    ViewData["ContainerClass"] = "container-xl";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/production.css" />
+}
+
+<!-- ═══ Hero ═══ -->
+<div class="prod-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);">
+                <i class="bi bi-calendar3" style="font-size:1.5rem;"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="mb-0">Machine Scheduling</h2>
+            <div class="text-white-75">Plan and schedule machine operations · View timeline · Manage capacity</div>
+        </div>
+        <div class="col-auto d-flex gap-2">
+            <button class="btn btn-outline-light btn-sm" onclick="MachineSchedule.refresh()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Insight Cards ═══ -->
+<div class="row g-3 mb-3">
+    <div class="col-6 col-lg-3">
+        <div class="card prod-insight-card">
+            <div class="card-body py-3">
+                <div class="d-flex align-items-center">
+                    <div class="prod-insight-icon bg-primary-lt"><i class="bi bi-gear text-primary"></i></div>
+                    <div class="ms-3">
+                        <div class="text-muted small">Total Machines</div>
+                        <div class="h3 mb-0" id="schTotalMachines">—</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card prod-insight-card">
+            <div class="card-body py-3">
+                <div class="d-flex align-items-center">
+                    <div class="prod-insight-icon bg-success-lt"><i class="bi bi-calendar-check text-success"></i></div>
+                    <div class="ms-3">
+                        <div class="text-muted small">Scheduled Today</div>
+                        <div class="h3 mb-0" id="schScheduledToday">—</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card prod-insight-card">
+            <div class="card-body py-3">
+                <div class="d-flex align-items-center">
+                    <div class="prod-insight-icon bg-warning-lt"><i class="bi bi-exclamation-triangle text-warning"></i></div>
+                    <div class="ms-3">
+                        <div class="text-muted small">Pending Jobs</div>
+                        <div class="h3 mb-0" id="schPendingJobs">—</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card prod-insight-card">
+            <div class="card-body py-3">
+                <div class="d-flex align-items-center">
+                    <div class="prod-insight-icon bg-cyan-lt"><i class="bi bi-clock-history text-cyan"></i></div>
+                    <div class="ms-3">
+                        <div class="text-muted small">Avg Setup Time</div>
+                        <div class="h3 mb-0" id="schAvgSetup">—</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Maintenance & Breakdown Alerts ═══ -->
+<div class="row g-3 mb-3">
+    <div class="col-md-6">
+        <div class="prod-alert-panel">
+            <div class="prod-alert-header prod-alert-header-maint">
+                <span><i class="bi bi-tools me-2 text-warning"></i>Scheduled Maintenance</span>
+                <span class="badge bg-warning-lt text-warning" id="schMaintCount">0</span>
+            </div>
+            <div class="prod-alert-body" id="schMaintBody">
+                <div class="prod-alert-empty"><i class="bi bi-check-circle me-1"></i>No upcoming maintenance</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="prod-alert-panel">
+            <div class="prod-alert-header prod-alert-header-breakdown">
+                <span><i class="bi bi-lightning-charge me-2 text-danger"></i>Active Breakdowns</span>
+                <span class="badge bg-danger-lt text-danger" id="schBreakdownCount">0</span>
+            </div>
+            <div class="prod-alert-body" id="schBreakdownBody">
+                <div class="prod-alert-empty"><i class="bi bi-check-circle me-1"></i>No active breakdowns</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Schedule Timeline ═══ -->
+<div class="card mb-3">
+    <div class="card-header py-2">
+        <div class="d-flex align-items-center justify-content-between">
+            <h4 class="mb-0" style="font-size:.92rem;"><i class="bi bi-calendar-week me-2"></i>Machine Schedule</h4>
+            <div class="d-flex gap-2">
+                <input type="date" class="form-control form-control-sm" id="schDateFrom" style="width:140px;">
+                <input type="date" class="form-control form-control-sm" id="schDateTo" style="width:140px;">
+                <select class="form-select form-select-sm" id="schMachineFilter" style="width:180px;">
+                    <option value="">All Machines</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-vcenter card-table prod-maint-table">
+                <thead>
+                    <tr>
+                        <th>Machine</th>
+                        <th>Job No</th>
+                        <th>Product</th>
+                        <th>Planned Start</th>
+                        <th>Planned End</th>
+                        <th>Est. Hours</th>
+                        <th>Status</th>
+                        <th>Manpower</th>
+                    </tr>
+                </thead>
+                <tbody id="schTableBody">
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-4">
+                            <i class="bi bi-hourglass-split"></i> Loading schedule…
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const MachineSchedule = (function () {
+            'use strict';
+
+            async function init() {
+                // Set default dates
+                const today = new Date().toISOString().split('T')[0];
+                const nextWeek = new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0];
+                $('#schDateFrom').val(today);
+                $('#schDateTo').val(nextWeek);
+
+                await loadMachineFilter();
+                await loadSchedule();
+                loadStats();
+                loadMaintBreakdown();
+            }
+
+            async function loadMachineFilter() {
+                try {
+                    const res = await $.get('/api/production/machines');
+                    const $sel = $('#schMachineFilter');
+                    res.forEach(m => $sel.append(`<option value="${m.machineId}">${m.machineName}</option>`));
+                } catch (e) { /* silent */ }
+            }
+
+            async function loadSchedule() {
+                try {
+                    const machineId = $('#schMachineFilter').val();
+                    const [machines, allocations, machineStatusRes] = await Promise.all([
+                        $.get('/api/production/machines'),
+                        $.get('/api/production/machine-allocations'),
+                        $.get('/api/production/machine-status')
+                    ]);
+
+                    // Build status lookup
+                    const statusMap = {};
+                    machineStatusRes.forEach(s => { statusMap[s.machineId] = s; });
+
+                    // Group allocations by machine
+                    const allocByMachine = {};
+                    allocations.forEach(a => {
+                        if (!allocByMachine[a.machineId]) allocByMachine[a.machineId] = [];
+                        allocByMachine[a.machineId].push(a);
+                    });
+
+                    const $body = $('#schTableBody');
+                    $body.empty();
+
+                    let hasRows = false;
+                    machines.forEach(m => {
+                        if (machineId && m.machineId != machineId) return;
+                        const machineAllocs = allocByMachine[m.machineId] || [];
+                        const ms = statusMap[m.machineId] || {};
+                        const rowClass = ms.hasActiveBreakdown ? 'prod-row-breakdown' : ms.maintenanceDue ? 'prod-row-maint-due' : '';
+                        const statusIndicator = ms.hasActiveBreakdown
+                            ? '<span class="badge bg-danger-lt text-danger ms-1" style="font-size:.6rem;" title="Active Breakdown"><i class="bi bi-lightning-charge"></i> Breakdown</span>'
+                            : ms.maintenanceDue
+                                ? '<span class="badge bg-warning-lt text-warning ms-1" style="font-size:.6rem;" title="Maintenance Due"><i class="bi bi-tools"></i> Maint. Due</span>'
+                                : '';
+
+                        if (machineAllocs.length === 0) {
+                            hasRows = true;
+                            $body.append(`
+                                <tr class="${rowClass}">
+                                    <td>
+                                        <div class="fw-medium">${escHtml(m.machineName)}${statusIndicator}</div>
+                                        <div class="text-muted" style="font-size:.72rem;">${escHtml(m.machineCategory || '')}</div>
+                                    </td>
+                                    <td class="text-muted">—</td>
+                                    <td class="text-muted">—</td>
+                                    <td class="text-muted">—</td>
+                                    <td class="text-muted">—</td>
+                                    <td>${m.setupTimeMin ? m.setupTimeMin + ' min' : '—'}</td>
+                                    <td><span class="badge ${ms.hasActiveBreakdown ? 'bg-danger-lt text-danger' : 'bg-secondary-lt'}">${ms.hasActiveBreakdown ? 'Breakdown' : 'Available'}</span></td>
+                                    <td>${m.manpowerRequired || '—'}</td>
+                                </tr>`);
+                        } else {
+                            machineAllocs.forEach((a, idx) => {
+                                hasRows = true;
+                                const empNames = (a.employees || []).map(e => escHtml((e.employeeName || '').split(' ')[0])).join(', ');
+                                const empCount = (a.employees || []).length;
+                                const plannedStart = a.plannedStartTime ? new Date(a.plannedStartTime).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—';
+                                const plannedEnd = a.plannedEndTime ? new Date(a.plannedEndTime).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—';
+                                $body.append(`
+                                    <tr class="${rowClass}">
+                                        ${idx === 0 ? `<td rowspan="${machineAllocs.length}">
+                                            <div class="fw-medium">${escHtml(m.machineName)}${statusIndicator}</div>
+                                            <div class="text-muted" style="font-size:.72rem;">${escHtml(m.machineCategory || '')}</div>
+                                        </td>` : ''}
+                                        <td><span class="fw-bold text-primary" style="font-size:.82rem;">${escHtml(a.jobNo)}</span></td>
+                                        <td style="font-size:.82rem;">${escHtml(a.processName || '—')}</td>
+                                        <td style="font-size:.82rem;">${plannedStart}</td>
+                                        <td style="font-size:.82rem;">${plannedEnd}</td>
+                                        <td>${m.setupTimeMin ? m.setupTimeMin + ' min' : '—'}</td>
+                                        <td><span class="badge bg-green-lt text-green" style="font-size:.68rem;">${escHtml(a.allocationStatus || 'ALLOCATED')}</span></td>
+                                        <td>
+                                            ${empCount > 0
+                                                ? `<span class="badge bg-cyan-lt text-cyan" style="font-size:.68rem;"><i class="bi bi-people me-1"></i>${empCount}</span>
+                                                   <div class="text-muted" style="font-size:.68rem;">${empNames}</div>`
+                                                : (m.manpowerRequired || '—')}
+                                        </td>
+                                    </tr>`);
+                            });
+                        }
+                    });
+
+                    if (!hasRows) {
+                        $body.html('<tr><td colspan="8" class="text-center text-muted py-4"><i class="bi bi-inbox"></i> No schedule data</td></tr>');
+                    }
+                } catch (e) {
+                    $('#schTableBody').html('<tr><td colspan="8" class="text-center text-danger py-4"><i class="bi bi-exclamation-triangle"></i> Failed to load</td></tr>');
+                }
+            }
+
+            async function loadStats() {
+                try {
+                    const res = await $.get('/api/production/stats');
+                    $('#schTotalMachines').text(res.totalMachines);
+                    $('#schScheduledToday').text(res.todayJobs);
+                    $('#schPendingJobs').text(res.idle);
+                } catch (e) { /* silent */ }
+            }
+
+            function refresh() { loadSchedule(); loadStats(); loadMaintBreakdown(); }
+
+            async function loadMaintBreakdown() {
+                try {
+                    const [status, breakdowns, maintenance] = await Promise.all([
+                        $.get('/api/production/machine-status'),
+                        $.get('/api/production/breakdowns'),
+                        $.get('/api/production/maintenance')
+                    ]);
+
+                    // Scheduled maintenance
+                    const maintDue = maintenance.filter(m => {
+                        if (!m.nextDueDate) return false;
+                        const due = new Date(m.nextDueDate);
+                        const now = new Date();
+                        const diff = (due - now) / 86400000;
+                        return diff <= 7 && m.repairStatus !== 'Completed';
+                    });
+                    $('#schMaintCount').text(maintDue.length);
+                    const $mBody = $('#schMaintBody');
+                    $mBody.empty();
+                    if (maintDue.length === 0) {
+                        $mBody.html('<div class="prod-alert-empty"><i class="bi bi-check-circle me-1"></i>No upcoming maintenance</div>');
+                    } else {
+                        maintDue.forEach(m => {
+                            const dueDate = m.nextDueDate ? new Date(m.nextDueDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }) : '—';
+                            const isOverdue = m.isOverdue;
+                            $mBody.append(`
+                                <div class="prod-alert-item">
+                                    <div class="prod-alert-icon ${isOverdue ? 'bg-danger-lt' : 'bg-warning-lt'}">
+                                        <i class="bi bi-tools ${isOverdue ? 'text-danger' : 'text-warning'}"></i>
+                                    </div>
+                                    <div class="flex-fill">
+                                        <div class="fw-medium">${escHtml(m.machineName || '—')}</div>
+                                        <div class="text-muted" style="font-size:.72rem;">${escHtml(m.maintenanceType || '')} · Due: ${dueDate}</div>
+                                    </div>
+                                    <span class="badge ${isOverdue ? 'bg-danger-lt text-danger' : 'bg-warning-lt text-warning'}" style="font-size:.65rem;">
+                                        ${isOverdue ? 'OVERDUE' : (m.repairStatus || 'Pending')}
+                                    </span>
+                                </div>`);
+                        });
+                    }
+
+                    // Active breakdowns
+                    const activeBreakdowns = breakdowns.filter(b =>
+                        b.breakdownStatus === 'Open' || b.breakdownStatus === 'Assigned' || b.breakdownStatus === 'In Progress');
+                    $('#schBreakdownCount').text(activeBreakdowns.length);
+                    const $bBody = $('#schBreakdownBody');
+                    $bBody.empty();
+                    if (activeBreakdowns.length === 0) {
+                        $bBody.html('<div class="prod-alert-empty"><i class="bi bi-check-circle me-1"></i>No active breakdowns</div>');
+                    } else {
+                        activeBreakdowns.forEach(b => {
+                            const startTime = b.breakdownStartTime ? new Date(b.breakdownStartTime).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—';
+                            const sevClass = b.severityLevel === 'Critical' ? 'bg-danger-lt text-danger' : b.severityLevel === 'High' ? 'bg-orange-lt text-orange' : 'bg-warning-lt text-warning';
+                            $bBody.append(`
+                                <div class="prod-alert-item">
+                                    <div class="prod-alert-icon bg-danger-lt">
+                                        <i class="bi bi-lightning-charge text-danger"></i>
+                                    </div>
+                                    <div class="flex-fill">
+                                        <div class="fw-medium">${escHtml(b.machineName || '—')}</div>
+                                        <div class="text-muted" style="font-size:.72rem;">${escHtml(b.faultCategory || '')} · Since: ${startTime}</div>
+                                    </div>
+                                    <div class="d-flex gap-1">
+                                        <span class="badge ${sevClass}" style="font-size:.65rem;">${escHtml(b.severityLevel || '—')}</span>
+                                        <span class="badge bg-secondary-lt" style="font-size:.65rem;">${escHtml(b.breakdownStatus)}</span>
+                                    </div>
+                                </div>`);
+                        });
+                    }
+
+                    // Mark schedule table rows for machines with breakdowns/maintenance
+                    const breakdownMachineIds = new Set(activeBreakdowns.map(b => b.machineId));
+                    const maintMachineIds = new Set(status.filter(s => s.maintenanceDue).map(s => s.machineId));
+                    window._schBreakdownMachineIds = breakdownMachineIds;
+                    window._schMaintMachineIds = maintMachineIds;
+                } catch (e) { /* silent */ }
+            }
+
+            function escHtml(str) {
+                if (!str) return '';
+                const d = document.createElement('div');
+                d.textContent = str;
+                return d.innerHTML;
+            }
+
+            $(function () {
+                init();
+                $('#schMachineFilter, #schDateFrom, #schDateTo').on('change', loadSchedule);
+            });
+
+            return { refresh };
+        })();
+    </script>
+}

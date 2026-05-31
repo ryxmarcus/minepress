@@ -1,0 +1,387 @@
+﻿/* ===== MinePress Enquiry Module — 3-Column Layout ===== */
+
+/* ── Three-column grid: 3 + 6 + 3 = 12 (Bootstrap-style ratio) ── */
+.enq-layout {
+    display: grid;
+    grid-template-columns: 3fr 6fr 3fr;
+    gap: 1rem;
+    align-items: start;
+    padding: 0 .5rem;
+}
+
+/* Sidebars: sticky + scrollable */
+.enq-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+    position: sticky;
+    top: .75rem;
+    max-height: calc(100vh - 1.5rem);
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+.enq-sidebar::-webkit-scrollbar { width: 3px; }
+.enq-sidebar::-webkit-scrollbar-thumb { background: var(--tblr-border-color); border-radius: 3px; }
+
+/* Center (main) — min-width:0 prevents grid blowout */
+.enq-main {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+}
+
+/* ── Rate calculator in center column ── */
+.enq-main #rateCalculatorWidget { min-width: 0; overflow: hidden; }
+
+/* ── Offcanvas Rate Calculator Drawer ── */
+.enq-drawer {
+    width: 720px !important;
+    max-width: 92vw;
+}
+.enq-drawer .offcanvas-header {
+    padding: .75rem 1.25rem;
+    background: var(--tblr-bg-surface);
+}
+.enq-drawer-body {
+    padding: 1rem 1.25rem;
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+.enq-drawer-body::-webkit-scrollbar { width: 4px; }
+.enq-drawer-body::-webkit-scrollbar-thumb { background: var(--tblr-border-color); border-radius: 4px; }
+
+/* Rate calculator content inside drawer */
+.enq-drawer-body .card { box-shadow: none; border: var(--tblr-border-width) solid var(--tblr-border-color); }
+.enq-drawer-body .row { margin-left: 0; margin-right: 0; }
+.enq-drawer-body > #rateCalculatorWidget { min-width: 0; overflow: hidden; }
+
+/* Offcanvas footer (sticky Add Item button) */
+.offcanvas-footer {
+    background: var(--tblr-bg-surface);
+}
+
+/* ── Estimate button (center column) ── */
+.enq-estimate-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    border-radius: var(--tblr-border-radius-lg);
+    font-size: .95rem;
+    transition: all .2s;
+    border: 2px dashed var(--tblr-orange);
+    background: var(--tblr-orange-lt);
+    color: var(--tblr-orange);
+}
+.enq-estimate-btn:hover {
+    background: var(--tblr-orange);
+    color: #fff;
+    border-style: solid;
+    box-shadow: 0 4px 12px rgba(var(--tblr-orange-rgb), .3);
+}
+
+/* ── Items list (center column) ── */
+.enq-items-list {
+    min-height: 60px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 991px) {
+    .enq-layout {
+        grid-template-columns: 1fr;
+        padding: 0;
+    }
+    .enq-sidebar { position: static; max-height: none; }
+    .enq-main { order: -1; }
+    .enq-sidebar-right { order: 1; }
+}
+@media (max-width: 767px) {
+    .enq-layout { grid-template-columns: 1fr; gap: .75rem; }
+}
+
+/* ── Item chips ── */
+.enq-item-chip {
+    border: var(--tblr-border-width) solid var(--tblr-border-color);
+    border-radius: var(--tblr-border-radius);
+    padding: .6rem .75rem;
+    margin-bottom: .5rem;
+    position: relative;
+    transition: all .15s;
+}
+.enq-item-chip:hover { border-color: var(--tblr-primary); box-shadow: 0 2px 8px rgba(0,0,0,.04); }
+.enq-item-chip .btn-close { position: absolute; top: .4rem; right: .4rem; font-size: .5rem; }
+.enq-item-name { font-weight: 600; font-size: .825rem; }
+.enq-item-meta { font-size: .73rem; color: var(--tblr-secondary-color); }
+.enq-item-price { font-weight: 700; color: var(--tblr-green); font-size: .9rem; }
+
+/* ── Enquiry list table (Index page) ── */
+.enq-list-table th {
+    font-weight: 600; font-size: .8rem;
+    text-transform: uppercase; letter-spacing: .5px;
+    color: var(--tblr-secondary-color);
+}
+.enq-list-table tbody tr { transition: background .1s; }
+.enq-list-table tbody tr:hover { background: var(--tblr-primary-bg-subtle); }
+
+.enq-status-badge {
+    font-size: .72rem; font-weight: 600;
+    padding: 3px 10px; border-radius: var(--tblr-border-radius-pill);
+    display: inline-block;
+}
+.enq-status-pill { font-size: .8rem; padding: 4px 14px; }
+.enq-status-draft { background: var(--tblr-warning-bg-subtle); color: var(--tblr-yellow); }
+.enq-status-submitted { background: var(--tblr-info-bg-subtle); color: var(--tblr-info); }
+.enq-status-converted { background: var(--tblr-success-bg-subtle); color: var(--tblr-green); }
+.enq-status-closed { background: var(--tblr-secondary-bg-subtle); color: var(--tblr-secondary); }
+.enq-status-cancelled { background: var(--tblr-danger-bg-subtle); color: var(--tblr-red); }
+
+/* Action dropdown in list */
+.enq-action-dropdown {
+    min-width: 220px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.12);
+    border-radius: var(--tblr-border-radius-lg);
+    padding: .25rem 0;
+}
+.enq-action-dropdown .dropdown-header {
+    font-size: .68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: var(--tblr-secondary-color);
+    padding: .5rem .75rem .25rem;
+}
+.enq-action-dropdown .dropdown-item {
+    font-size: .82rem;
+    padding: .4rem .75rem;
+    transition: all .15s;
+}
+.enq-action-dropdown .dropdown-item:hover {
+    background: var(--tblr-primary-bg-subtle);
+}
+
+/* Tax select in modal */
+.enq-tax-select { min-width: 200px; }
+
+/* ══════ Enquiry Hero (shared between list and details) ══════ */
+.enq-hero,
+.enq-detail-hero {
+    background: linear-gradient(135deg, var(--tblr-primary), var(--tblr-azure));
+    color: #fff;
+    padding: 1.25rem 1.5rem;
+    border-radius: var(--tblr-border-radius-lg);
+    margin-bottom: 1rem;
+}
+
+/* ══════ Details Page ══════ */
+
+/* Tab navigation */
+.enq-detail-tabs {
+    border-bottom: 2px solid var(--tblr-border-color);
+}
+.enq-detail-tabs .nav-link {
+    font-weight: 600;
+    font-size: .85rem;
+    color: var(--tblr-secondary-color);
+    border: none;
+    border-bottom: 3px solid transparent;
+    padding: .65rem 1.1rem;
+    margin-bottom: -2px;
+    transition: all .2s;
+}
+.enq-detail-tabs .nav-link:hover {
+    color: var(--tblr-primary);
+    border-bottom-color: var(--tblr-border-color);
+}
+.enq-detail-tabs .nav-link.active {
+    color: var(--tblr-primary);
+    border-bottom-color: var(--tblr-primary);
+    background: transparent;
+}
+
+/* Detail cards */
+.enq-detail-card {
+    border: var(--tblr-border-width) solid var(--tblr-border-color);
+    transition: box-shadow .2s;
+}
+.enq-detail-card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,.06);
+}
+.enq-detail-card .card-header {
+    background: transparent;
+    border-bottom: 1px solid var(--tblr-border-color);
+    padding: .75rem 1rem;
+}
+.enq-detail-card .card-header .card-title {
+    font-size: .85rem;
+    margin: 0;
+}
+
+/* Customer avatar in details */
+.enq-detail-avatar {
+    width: 52px; height: 52px;
+    background: linear-gradient(135deg, var(--tblr-primary), var(--tblr-azure));
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+/* Info list in detail cards */
+.enq-detail-info-list {
+    display: flex;
+    flex-direction: column;
+    gap: .6rem;
+}
+.enq-detail-info-item {
+    display: grid;
+    grid-template-columns: 20px 1fr 1.2fr;
+    gap: .5rem;
+    align-items: center;
+    font-size: .82rem;
+}
+.enq-detail-info-item i { font-size: .85rem; }
+
+/* Item detail cards */
+.enq-item-detail-card {
+    border: var(--tblr-border-width) solid var(--tblr-border-color);
+    border-left: 4px solid var(--tblr-primary);
+    transition: all .2s;
+}
+.enq-item-detail-card:hover {
+    border-left-color: var(--tblr-azure);
+    box-shadow: 0 4px 16px rgba(0,0,0,.06);
+}
+
+/* Metric boxes inside items */
+.enq-detail-metric {
+    background: var(--tblr-bg-surface-secondary);
+    border-radius: var(--tblr-border-radius);
+    padding: .5rem .65rem;
+    text-align: center;
+}
+.enq-detail-metric-label {
+    font-size: .68rem;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+    color: var(--tblr-secondary-color);
+    font-weight: 600;
+}
+.enq-detail-metric-value {
+    font-size: .9rem;
+    font-weight: 700;
+    color: var(--tblr-body-color);
+    margin-top: .15rem;
+}
+
+/* Timeline */
+.timeline {
+    list-style: none;
+    padding: 0;
+    position: relative;
+}
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--tblr-border-color);
+}
+.timeline-event {
+    position: relative;
+    padding-left: 52px;
+    margin-bottom: 1.25rem;
+}
+.timeline-event-icon {
+    position: absolute;
+    left: 8px;
+    top: 4px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .8rem;
+    z-index: 1;
+}
+.timeline-event-card {
+    border: var(--tblr-border-width) solid var(--tblr-border-color);
+    box-shadow: none;
+}
+.timeline-event-card:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,.04);
+}
+
+/* ══════ Customer Activities (Details page tab) ══════ */
+.ca-activity-card {
+    border: var(--tblr-border-width) solid var(--tblr-border-color);
+    transition: box-shadow .2s;
+}
+.ca-activity-card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,.06);
+}
+.ca-activity-card .card-header {
+    background: transparent;
+    border-bottom: 1px solid var(--tblr-border-color);
+    padding: .75rem 1rem;
+}
+.ca-activity-card .card-header .card-title {
+    font-size: .85rem;
+    margin: 0;
+}
+.ca-activity-card .table th {
+    font-size: .72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+    color: var(--tblr-secondary-color);
+    white-space: nowrap;
+}
+.ca-activity-card .table td {
+    font-size: .82rem;
+    vertical-align: middle;
+}
+.ca-highlight-row {
+    background: var(--tblr-primary-bg-subtle) !important;
+    border-left: 3px solid var(--tblr-primary);
+}
+
+/* ══════ Dark Mode ══════ */
+[data-bs-theme="dark"] .enq-detail-card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,.2);
+}
+[data-bs-theme="dark"] .enq-item-detail-card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,.2);
+}
+[data-bs-theme="dark"] .enq-action-dropdown {
+    box-shadow: 0 8px 32px rgba(0,0,0,.3);
+}
+[data-bs-theme="dark"] .enq-item-chip:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,.15);
+}
+[data-bs-theme="dark"] .timeline-event-card:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,.15);
+}
+[data-bs-theme="dark"] .ca-activity-card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,.2);
+}
+[data-bs-theme="dark"] .cs-results {
+    box-shadow: 0 8px 24px rgba(0,0,0,.3);
+}
+[data-bs-theme="dark"] .hsn-results {
+    box-shadow: 0 8px 24px rgba(0,0,0,.3);
+}
+
+/* Print styles */
+@media print {
+    .enq-detail-hero { background: #333 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .d-print-none { display: none !important; }
+    .enq-item-detail-card { break-inside: avoid; }
+    .card { box-shadow: none !important; border: 1px solid #ddd !important; }
+}

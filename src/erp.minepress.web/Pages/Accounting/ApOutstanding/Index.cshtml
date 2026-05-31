@@ -1,0 +1,76 @@
+@page
+@model erp.minepress.web.Pages.Accounting.ApOutstanding.IndexModel
+@{
+    ViewData["Title"] = "AP Outstanding";
+}
+
+<div class="acc-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto"><span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);"><i class="bi bi-hourglass-split" style="font-size:1.5rem;"></i></span></div>
+        <div class="col"><h2 class="mb-0">Accounts Payable Outstanding</h2><div class="text-white-75">Supplier balances &amp; payment tracking</div></div>
+        <div class="col-auto d-flex gap-2">
+            <a href="/Accounting" class="btn btn-outline-light btn-sm"><i class="bi bi-arrow-left me-1"></i>Back</a>
+            <button class="btn btn-outline-light btn-sm" onclick="loadList()"><i class="bi bi-arrow-clockwise me-1"></i>Refresh</button>
+        </div>
+    </div>
+</div>
+
+<div class="acc-sub-nav d-print-none mb-3">
+    <a href="/Accounting/PurchaseInvoice" class="acc-sub-nav-item"><i class="bi bi-receipt me-1"></i>Purchase Invoices</a>
+    <a href="/Accounting/Payment" class="acc-sub-nav-item"><i class="bi bi-wallet2 me-1"></i>Payments</a>
+    <a href="/Accounting/DebitNote" class="acc-sub-nav-item"><i class="bi bi-file-earmark-plus me-1"></i>Debit Notes</a>
+    <a href="/Accounting/ApOutstanding" class="acc-sub-nav-item active"><i class="bi bi-hourglass-split me-1"></i>AP Outstanding</a>
+</div>
+
+<!-- Summary cards -->
+<div class="row g-3 mb-3" id="summaryCards"></div>
+
+<div class="card mb-3"><div class="card-body py-2"><div class="row g-2 align-items-center">
+    <div class="col-md-4"><div class="input-icon"><span class="input-icon-addon"><i class="bi bi-search"></i></span><input type="text" id="txtSearch" class="form-control form-control-sm" placeholder="Search supplier, document..." /></div></div>
+    <div class="col-md-2"><select id="ddlAging" class="form-select form-select-sm"><option value="">All Aging</option><option value="0-30">0-30 Days</option><option value="31-60">31-60 Days</option><option value="61-90">61-90 Days</option><option value="91+">91+ Days</option></select></div>
+</div></div></div>
+
+<div class="card"><div class="table-responsive"><table class="table table-vcenter card-table table-hover acc-list-table">
+    <thead><tr><th>Supplier</th><th>Doc Type</th><th>Doc No</th><th>Doc Date</th><th>Due Date</th><th class="text-end">Original</th><th class="text-end">Paid</th><th class="text-end">TDS</th><th class="text-end">Outstanding</th><th>Overdue</th><th>Aging</th></tr></thead>
+    <tbody id="listBody"><tr><td colspan="11" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2"></div>Loading...</td></tr></tbody>
+</table></div></div>
+
+@section Scripts {
+    <script>
+        let allData = [];
+        $(document).ready(function () { loadList(); $('#txtSearch, #ddlAging').on('input change', applyFilters); });
+        function loadList() {
+            $.get('/api/accounting/ap-outstanding', function (data) { allData = data; buildSummary(data); applyFilters(); })
+            .fail(function () { $('#listBody').html('<tr><td colspan="11" class="text-center text-danger py-3">Failed to load.</td></tr>'); });
+        }
+        function buildSummary(data) {
+            const total = data.reduce((s, i) => s + (i.outstandingAmount || 0), 0);
+            const overdue = data.filter(i => (i.overdueDays || 0) > 0);
+            const overdueAmt = overdue.reduce((s, i) => s + (i.outstandingAmount || 0), 0);
+            const totalTds = data.reduce((s, i) => s + (i.tdsAmount || 0), 0);
+            let html = `<div class="col-md-3"><div class="card"><div class="card-body p-3"><div class="text-muted small">Total Payable</div><div class="h3 mb-0">${fmt(total)}</div></div></div></div>`;
+            html += `<div class="col-md-3"><div class="card"><div class="card-body p-3"><div class="text-muted small">Overdue Items</div><div class="h3 mb-0 text-danger">${overdue.length} <small class="text-muted">(${fmt(overdueAmt)})</small></div></div></div></div>`;
+            html += `<div class="col-md-3"><div class="card"><div class="card-body p-3"><div class="text-muted small">Total TDS</div><div class="h3 mb-0">${fmt(totalTds)}</div></div></div></div>`;
+            html += `<div class="col-md-3"><div class="card"><div class="card-body p-3"><div class="text-muted small">Total Invoices</div><div class="h3 mb-0">${data.length}</div></div></div></div>`;
+            $('#summaryCards').html(html);
+        }
+        function applyFilters() {
+            const q = ($('#txtSearch').val() || '').toLowerCase(), ag = $('#ddlAging').val();
+            let f = allData.filter(i => {
+                if (q && !(i.supplierName || '').toLowerCase().includes(q) && !(i.documentNo || '').toLowerCase().includes(q)) return false;
+                if (ag && (i.agingBucket || '') !== ag) return false;
+                return true;
+            });
+            let html = '';
+            if (!f.length) html = '<tr><td colspan="11" class="text-center text-muted py-4">No outstanding items</td></tr>';
+            f.forEach(i => {
+                const od = (i.overdueDays || 0) > 0 ? `<span class="text-danger fw-semibold">${i.overdueDays}d</span>` : '<span class="text-muted">-</span>';
+                const agClass = (i.overdueDays || 0) > 90 ? 'text-danger' : (i.overdueDays || 0) > 60 ? 'text-orange' : (i.overdueDays || 0) > 30 ? 'text-warning' : 'text-muted';
+                html += `<tr><td>${esc(i.supplierName)}</td><td class="small">${esc((i.documentType || '').replace(/_/g, ' '))}</td><td class="fw-semibold">${esc(i.documentNo)}</td><td class="text-muted small">${esc(i.documentDate)}</td><td class="small">${esc(i.dueDate || '-')}</td><td class="text-end">${fmt(i.originalAmount)}</td><td class="text-end">${fmt(i.paidAmount)}</td><td class="text-end">${fmt(i.tdsAmount)}</td><td class="text-end fw-semibold">${fmt(i.outstandingAmount)}</td><td>${od}</td><td class="small ${agClass}">${esc(i.agingBucket || '-')}</td></tr>`;
+            });
+            $('#listBody').html(html);
+        }
+        function fmt(v) { return v != null ? '₹' + Number(v).toLocaleString('en-IN', { minimumFractionDigits: 2 }) : '₹0.00'; }
+        function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.appendChild(document.createTextNode(s)); return d.innerHTML; }
+    </script>
+}

@@ -1,0 +1,124 @@
+@page
+@model erp.minepress.web.Pages.Hrms.Overtime.SubmitModel
+@{
+    ViewData["Title"] = "Submit Overtime — HRMS";
+}
+
+<div class="hrms-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);">
+                <i class="bi bi-clock-history" style="font-size:1.5rem;"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="mb-0">Submit Overtime</h2>
+            <div class="text-white-75">Log your overtime hours for approval</div>
+        </div>
+        <div class="col-auto">
+            <a href="/Hrms/Overtime" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-arrow-left me-1"></i>Back to Overtime
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Overtime Entry</h3>
+            </div>
+            <div class="card-body">
+                <form id="overtimeForm">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label required">OT Date</label>
+                            <input type="date" class="form-control" id="otDate" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label required">From Time</label>
+                            <input type="time" class="form-control" id="otFromTime" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label required">To Time</label>
+                            <input type="time" class="form-control" id="otToTime" required />
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">OT Hours</label>
+                            <input type="number" class="form-control" id="otHours" step="0.5" min="0.5" readonly />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label required">Rate per Hour (₹)</label>
+                            <input type="number" class="form-control" id="otRate" min="1" step="10" placeholder="e.g. 150" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Total Amount</label>
+                            <input type="text" class="form-control" id="otAmount" readonly />
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send me-1"></i>Submit Overtime
+                        </button>
+                        <a href="/Hrms/Overtime" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="/js/hrms.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const fromEl = document.getElementById('otFromTime');
+            const toEl = document.getElementById('otToTime');
+            const hoursEl = document.getElementById('otHours');
+            const rateEl = document.getElementById('otRate');
+            const amountEl = document.getElementById('otAmount');
+
+            function calcOt() {
+                if (fromEl.value && toEl.value) {
+                    const [fh, fm] = fromEl.value.split(':').map(Number);
+                    const [th, tm] = toEl.value.split(':').map(Number);
+                    let hrs = (th + tm / 60) - (fh + fm / 60);
+                    if (hrs < 0) hrs += 24;
+                    hrs = Math.round(hrs * 2) / 2;
+                    hoursEl.value = hrs;
+                }
+                const hrs = parseFloat(hoursEl.value) || 0;
+                const rate = parseFloat(rateEl.value) || 0;
+                if (hrs > 0 && rate > 0) {
+                    amountEl.value = '₹ ' + (hrs * rate).toLocaleString('en-IN', { maximumFractionDigits: 0 });
+                } else {
+                    amountEl.value = '';
+                }
+            }
+
+            fromEl.addEventListener('change', calcOt);
+            toEl.addEventListener('change', calcOt);
+            rateEl.addEventListener('input', calcOt);
+
+            document.getElementById('overtimeForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const payload = {
+                    otDate: document.getElementById('otDate').value,
+                    fromTime: fromEl.value,
+                    toTime: toEl.value,
+                    otHours: parseFloat(hoursEl.value),
+                    otRatePerHour: parseFloat(rateEl.value)
+                };
+
+                const res = await Hrms.post('overtime/submit', payload);
+                if (res) {
+                    Swal.fire({ icon: 'success', title: 'Overtime Submitted', text: res.message, timer: 2000 });
+                    setTimeout(() => window.location.href = '/Hrms/Overtime', 2000);
+                }
+            });
+        });
+    </script>
+}

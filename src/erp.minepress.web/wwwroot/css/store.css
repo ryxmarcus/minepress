@@ -1,0 +1,189 @@
+/* ===== MinePress Store Module — CSS ===== */
+
+/* ══════ Store Hero ══════ */
+.store-hero {
+    background: linear-gradient(135deg, #2e7d32, #66bb6a);
+    color: #fff;
+    padding: 1.25rem 1.5rem;
+    border-radius: var(--tblr-border-radius-lg);
+    margin-bottom: 1rem;
+}
+.store-hero .text-white-75 { color: rgba(255,255,255,.75); }
+
+/* ══════ List Page ══════ */
+.store-list-table th {
+    font-weight: 600; font-size: .8rem;
+    text-transform: uppercase; letter-spacing: .5px;
+    color: var(--tblr-secondary-color);
+}
+.store-list-table tbody tr { transition: background .1s; }
+.store-list-table tbody tr:hover { background: var(--tblr-primary-bg-subtle); }
+
+/* ══════ Status Badges ══════ */
+.store-status-badge {
+    font-size: .72rem; font-weight: 600;
+    padding: 3px 10px; border-radius: var(--tblr-border-radius-pill);
+    display: inline-block;
+}
+.store-status-draft       { background: var(--tblr-warning-bg-subtle);   color: var(--tblr-yellow); }
+.store-status-issued      { background: var(--tblr-green-bg-subtle);     color: var(--tblr-green); }
+.store-status-received    { background: var(--tblr-azure-bg-subtle);     color: var(--tblr-azure); }
+.store-status-inspected   { background: var(--tblr-info-bg-subtle);      color: var(--tblr-info); }
+.store-status-pending     { background: var(--tblr-orange-bg-subtle, #fff3e0); color: var(--tblr-orange, #e67700); }
+.store-status-cancelled   { background: var(--tblr-danger-bg-subtle);    color: var(--tblr-red); }
+.store-status-closed      { background: var(--tblr-secondary-bg-subtle, #f5f5f5); color: var(--tblr-secondary-color); }
+.store-status-approved    { background: var(--tblr-green-bg-subtle);     color: var(--tblr-green); }
+.store-status-partially_issued { background: var(--tblr-purple-bg-subtle); color: var(--tblr-purple); }
+
+/* ══════ Create Page ══════ */
+
+/* Details card — compact horizontal bar */
+.si-details-card {
+    border: 1px solid var(--tblr-border-color);
+    border-radius: var(--tblr-border-radius-lg);
+}
+.si-details-card .form-label {
+    font-size: .75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+    color: var(--tblr-secondary-color);
+}
+
+/* Job badge */
+.si-job-badge {
+    background: var(--tblr-green-bg-subtle, #e8f5e9);
+    border: 1px solid var(--tblr-green-lt, #c8e6c9);
+    border-radius: var(--tblr-border-radius);
+    padding: .35rem .75rem;
+    font-size: .85rem;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+[data-bs-theme="dark"] .si-job-badge {
+    background: rgba(46, 125, 50, .15);
+    border-color: rgba(46, 125, 50, .3);
+}
+
+/* BOM + Prev Issued cards */
+.si-bom-card,
+.si-prev-card {
+    border-radius: var(--tblr-border-radius-lg);
+    overflow: hidden;
+}
+.si-bom-card .sticky-top,
+.si-prev-card .sticky-top {
+    background: var(--tblr-bg-surface);
+}
+
+/* Items card */
+.si-items-card {
+    border-radius: var(--tblr-border-radius-lg);
+    overflow: hidden;
+    box-shadow: 0 1px 6px rgba(0,0,0,.06);
+}
+
+/* Items table */
+.si-items-table {
+    table-layout: fixed;
+}
+.si-items-table thead th {
+    font-size: .72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: var(--tblr-secondary-color);
+    border-bottom: 2px solid var(--tblr-border-color);
+    padding: .5rem .5rem;
+    white-space: nowrap;
+}
+.si-items-table tbody td {
+    padding: .4rem .35rem;
+    vertical-align: middle;
+}
+
+/* Item rows */
+.si-item-row {
+    transition: background .12s;
+}
+.si-item-row:hover {
+    background: var(--tblr-primary-bg-subtle, rgba(32,107,196,.04));
+}
+
+/* Compact inputs */
+.si-num-input {
+    font-size: .82rem;
+    padding: .25rem .4rem;
+    font-variant-numeric: tabular-nums;
+}
+.si-uom-input {
+    font-size: .82rem;
+    padding: .25rem .3rem;
+    text-transform: capitalize;
+}
+.si-qty-input {
+    border-color: var(--tblr-primary);
+    font-weight: 600;
+}
+.si-qty-input:focus {
+    box-shadow: 0 0 0 .2rem rgba(32,107,196,.15);
+}
+
+/* Amount cell */
+.si-amt-cell {
+    font-size: .88rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--tblr-green, #2e7d32);
+    padding-right: .5rem !important;
+}
+[data-bs-theme="dark"] .si-amt-cell {
+    color: var(--tblr-green-lt, #66bb6a);
+}
+
+/* Total row */
+.si-total-row td {
+    font-size: .9rem;
+    font-weight: 700;
+    border-top: 2px solid var(--tblr-border-color);
+    padding: .6rem .5rem;
+    background: var(--tblr-bg-surface-secondary, rgba(0,0,0,.02));
+}
+.si-total-row td:last-child { }
+.si-total-row #grandTotal {
+    font-size: 1.05rem;
+    color: var(--tblr-green, #2e7d32);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Sticky action bar */
+.si-action-bar {
+    position: sticky;
+    bottom: 0;
+    z-index: 100;
+    background: var(--tblr-bg-surface);
+    border-top: 1px solid var(--tblr-border-color);
+    padding: .75rem 0;
+    margin-top: 1rem;
+    box-shadow: 0 -2px 10px rgba(0,0,0,.06);
+}
+
+/* Checkbox style */
+.si-check {
+    width: 1.15em;
+    height: 1.15em;
+    cursor: pointer;
+}
+.si-check:checked {
+    background-color: var(--tblr-green);
+    border-color: var(--tblr-green);
+}
+
+/* ══════ Dashboard Cards ══════ */
+.store-dash-card {
+    transition: transform .15s, box-shadow .15s;
+}
+.store-dash-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,0,0,.08);
+}

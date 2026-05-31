@@ -1,0 +1,395 @@
+@page
+@model erp.minepress.web.Pages.Outsource.ReceiveModel
+@{
+    ViewData["Title"] = "Record Receive";
+}
+
+<div class="os-detail-hero d-print-none mb-3" style="background:linear-gradient(135deg,#2fb344,#47c97a);">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);">
+                <i class="bi bi-box-arrow-in-down" style="font-size:1.5rem;"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="mb-0" id="heroTitle">Record Material Receive</h2>
+            <div class="text-white-75" id="heroSub"></div>
+        </div>
+        <div class="col-auto d-flex gap-2">
+            <a id="btnBack" href="/Outsource" class="btn btn-outline-light btn-sm"><i class="bi bi-arrow-left me-1"></i>Back to Details</a>
+        </div>
+    </div>
+</div>
+
+<!-- Status Banner -->
+<div class="card mb-3">
+    <div class="card-body py-2">
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <span class="os-status-badge os-status-pill" id="statusBadge">Loading…</span>
+            </div>
+            <div class="col" id="headerInfo"></div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <!-- ═══ Left Column: Outsource Summary ═══ -->
+    <div class="col-lg-5">
+        <!-- Order Info -->
+        <div class="card mb-3">
+            <div class="card-header"><h3 class="card-title"><i class="bi bi-info-circle me-2 text-success"></i>Outsource Order</h3></div>
+            <div class="card-body" id="orderInfo">
+                <div class="text-center text-muted py-3"><div class="spinner-border spinner-border-sm me-2"></div>Loading…</div>
+            </div>
+        </div>
+
+        <!-- Vendor Info -->
+        <div class="card mb-3">
+            <div class="card-header"><h3 class="card-title"><i class="bi bi-building me-2 text-success"></i>Vendor</h3></div>
+            <div class="card-body" id="vendorInfo"></div>
+        </div>
+
+        <!-- Dispatch Summary -->
+        <div class="card mb-3">
+            <div class="card-header"><h3 class="card-title"><i class="bi bi-send me-2 text-azure"></i>Dispatch Summary</h3></div>
+            <div class="card-body" id="dispatchSummary">
+                <div class="text-muted text-center py-3">Loading…</div>
+            </div>
+        </div>
+
+        <!-- Items Reference -->
+        <div class="card mb-3">
+            <div class="card-header"><h3 class="card-title"><i class="bi bi-list-check me-2 text-success"></i>Order Items</h3></div>
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table table-sm">
+                    <thead>
+                        <tr><th>#</th><th>Product</th><th>Process</th><th class="text-end">Qty</th><th class="text-end">Amount</th></tr>
+                    </thead>
+                    <tbody id="itemsBody">
+                        <tr><td colspan="5" class="text-center text-muted py-3">Loading…</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ Right Column: Receive Form + History ═══ -->
+    <div class="col-lg-7">
+        <!-- Receive Form -->
+        <div class="card mb-3 border-success">
+            <div class="card-header bg-green-lt">
+                <h3 class="card-title"><i class="bi bi-box-arrow-in-down me-2 text-success"></i>New Receive</h3>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label required">Received Quantity (Good)</label>
+                        <input type="number" class="form-control" id="rReceivedQty" min="0" step="0.01" placeholder="Good quantity received" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Rejected Quantity</label>
+                        <input type="number" class="form-control" id="rRejectedQty" min="0" step="0.01" value="0" placeholder="Rejected / defective quantity" />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Remarks</label>
+                        <textarea class="form-control" id="rRemarks" rows="3" placeholder="Quality notes, condition details…"></textarea>
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="row g-2 mt-3" id="receiveStats">
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-between">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="chkEmailVendor" checked>
+                    <label class="form-check-label" for="chkEmailVendor">
+                        <i class="bi bi-envelope me-1"></i>Email receive confirmation to vendor
+                    </label>
+                </div>
+                <button class="btn btn-success" id="btnSaveReceive" onclick="saveReceive()">
+                    <i class="bi bi-check-lg me-1"></i>Save Receive
+                </button>
+            </div>
+        </div>
+
+        <!-- Receive History -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <h3 class="card-title"><i class="bi bi-clock-history me-2 text-green"></i>Previous Receives</h3>
+                <span class="badge bg-green-lt ms-auto" id="receiveCount">0</span>
+            </div>
+            <div class="card-body" id="receiveHistory">
+                <div class="text-muted text-center py-3">Loading…</div>
+            </div>
+        </div>
+
+        <!-- Recent Timeline -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="bi bi-activity me-2 text-secondary"></i>Recent Timeline</h3>
+            </div>
+            <div class="card-body" id="recentTimeline" style="max-height:300px;overflow-y:auto;">
+                <div class="text-muted text-center py-3">Loading…</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    const OS_API = '/api/outsource';
+    const outsourceId = @Model.Id;
+    let osData = null;
+
+    $(function () { loadDetail(); });
+
+    async function loadDetail() {
+        try {
+            osData = await $.get(`${OS_API}/detail/${outsourceId}`);
+            renderPage();
+        } catch (err) {
+            Swal2.error(err.responseJSON?.message || 'Failed to load outsource details.');
+        }
+    }
+
+    function renderPage() {
+        const d = osData;
+
+        // Hero
+        $('#heroTitle').text(`Record Receive — ${d.outsourceNo}`);
+        $('#heroSub').text(`${d.vendorName} • ${d.processType || 'General'} • ${d.outsourceDate}`);
+        $('#btnBack').attr('href', `/Outsource/Details?id=${d.outsourceId}`);
+
+        // Status
+        const sc = getStatusClass(d.status);
+        $('#statusBadge').attr('class', `os-status-badge os-status-pill ${sc}`).text(fmtStatus(d.status));
+        $('#headerInfo').html(`
+            <div class="row small">
+                <div class="col-auto"><span class="os-info-label">Job:</span> <a href="/Job/Details?id=${d.jobId}">${d.jobNo}</a></div>
+                <div class="col-auto"><span class="os-info-label">Customer:</span> ${d.customerName || '—'}</div>
+                <div class="col-auto"><span class="os-info-label">Total Qty:</span> <strong>${d.totalQuantity ?? '—'}</strong></div>
+                <div class="col-auto"><span class="os-info-label">Amount:</span> <strong>₹${(d.totalAmount ?? 0).toLocaleString('en-IN', {minimumFractionDigits:2})}</strong></div>
+            </div>
+        `);
+
+        // Order info
+        $('#orderInfo').html(`
+            <div class="row g-2">
+                ${ic('Outsource No', d.outsourceNo)}${ic('Date', d.outsourceDate)}
+                ${ic('Process Type', d.processType || '—')}${ic('Expected Delivery', d.expectedDeliveryDate || '—')}
+                ${ic('Status', `<span class="os-status-badge ${sc}">${fmtStatus(d.status)}</span>`)}
+                ${ic('Remarks', d.remarks || '—')}
+            </div>
+        `);
+
+        // Vendor info
+        $('#vendorInfo').html(`
+            <div class="row g-2">
+                ${ic('Name', d.vendorName)}${ic('Code', d.vendorCode || '—')}
+                ${ic('Email', d.vendorEmail || '—')}${ic('GST', d.vendorGst || '—')}
+            </div>
+        `);
+
+        // Dispatch summary
+        const dispatches = d.dispatches || [];
+        const totalDispatched = dispatches.reduce((s, x) => s + (x.totalQuantity ?? 0), 0);
+        const receives = d.receives || [];
+        const totalReceived = receives.reduce((s, x) => s + (x.receivedQuantity ?? 0), 0);
+        const totalRejected = receives.reduce((s, x) => s + (x.rejectedQuantity ?? 0), 0);
+        const pendingReturn = totalDispatched - totalReceived - totalRejected;
+
+        $('#dispatchSummary').html(`
+            <div class="row g-2 text-center">
+                <div class="col-4">
+                    <div class="fs-3 fw-bold text-azure">${totalDispatched}</div>
+                    <div class="small text-muted">Dispatched</div>
+                </div>
+                <div class="col-4">
+                    <div class="fs-3 fw-bold text-success">${totalReceived}</div>
+                    <div class="small text-muted">Received</div>
+                </div>
+                <div class="col-4">
+                    <div class="fs-3 fw-bold ${pendingReturn > 0 ? 'text-warning' : 'text-muted'}">${pendingReturn > 0 ? pendingReturn : 0}</div>
+                    <div class="small text-muted">Pending</div>
+                </div>
+            </div>
+        `);
+
+        // Receive stats in form
+        $('#receiveStats').html(`
+            <div class="col-4"><div class="alert alert-azure py-1 px-2 mb-0 text-center"><small class="text-muted d-block">Dispatched</small><strong>${totalDispatched}</strong></div></div>
+            <div class="col-4"><div class="alert alert-success py-1 px-2 mb-0 text-center"><small class="text-muted d-block">Already Received</small><strong>${totalReceived}</strong></div></div>
+            <div class="col-4"><div class="alert ${pendingReturn > 0 ? 'alert-warning' : 'alert-secondary'} py-1 px-2 mb-0 text-center"><small class="text-muted d-block">Pending</small><strong>${pendingReturn > 0 ? pendingReturn : 0}</strong></div></div>
+        `);
+
+        // Pre-fill suggestion
+        if (pendingReturn > 0) $('#rReceivedQty').attr('placeholder', `Pending: ${pendingReturn}`);
+
+        // Disable email checkbox if no vendor email
+        if (!d.vendorEmail) {
+            $('#chkEmailVendor').prop('checked', false).prop('disabled', true);
+            $('#chkEmailVendor').closest('.form-check').find('label').append(' <small class="text-muted">(no email)</small>');
+        }
+
+        // Items
+        const items = d.items || [];
+        if (items.length) {
+            let ih = '';
+            items.forEach((item, i) => {
+                ih += `<tr>
+                    <td>${i + 1}</td>
+                    <td class="fw-semibold">${item.productName || '—'}</td>
+                    <td>${item.processName || '—'}</td>
+                    <td class="text-end">${item.quantity ?? 0}</td>
+                    <td class="text-end">₹${(item.amount ?? 0).toLocaleString('en-IN', {minimumFractionDigits:2})}</td>
+                </tr>`;
+            });
+            $('#itemsBody').html(ih);
+        } else {
+            $('#itemsBody').html('<tr><td colspan="5" class="text-center text-muted py-3">No items.</td></tr>');
+        }
+
+        // Receives
+        renderReceives(receives);
+
+        // Timeline (recent 10)
+        renderTimeline((d.timeline || []).slice(0, 10));
+    }
+
+    function renderReceives(receives) {
+        $('#receiveCount').text(receives.length);
+        if (!receives.length) {
+            $('#receiveHistory').html('<div class="text-muted text-center py-3">No previous receives.</div>');
+            return;
+        }
+        let html = '';
+        receives.forEach(r => {
+            html += `<div class="card card-sm mb-2 os-receive-card">
+                <div class="card-body py-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong><i class="bi bi-box-arrow-in-down me-2 text-success"></i>Received</strong>
+                            <span class="ms-3 text-muted small">${r.receiveDate}</span>
+                        </div>
+                        <div>
+                            <span class="fw-bold text-success">Good: ${r.receivedQuantity ?? 0}</span>
+                            ${(r.rejectedQuantity ?? 0) > 0 ? `<span class="fw-bold text-danger ms-3">Rejected: ${r.rejectedQuantity}</span>` : ''}
+                        </div>
+                    </div>
+                    ${r.remarks ? `<div class="small text-muted mt-1">${r.remarks}</div>` : ''}
+                </div>
+            </div>`;
+        });
+        $('#receiveHistory').html(html);
+    }
+
+    function renderTimeline(timeline) {
+        if (!timeline.length) { $('#recentTimeline').html('<div class="text-muted text-center py-3">No timeline events.</div>'); return; }
+        let html = '<div class="os-timeline">';
+        timeline.forEach(t => {
+            html += `<div class="os-timeline-entry">
+                <div class="os-timeline-dot ${getTlDot(t.eventType)}"></div>
+                <div class="d-flex justify-content-between">
+                    <strong class="small">${t.eventTitle}</strong>
+                    <span class="small text-muted">${t.createdOn}</span>
+                </div>
+                ${t.eventDescription ? `<div class="small text-muted">${t.eventDescription}</div>` : ''}
+            </div>`;
+        });
+        html += '</div>';
+        $('#recentTimeline').html(html);
+    }
+
+    // ── Save Receive ──
+    async function saveReceive() {
+        const receivedQty = parseFloat($('#rReceivedQty').val()) || 0;
+        const rejectedQty = parseFloat($('#rRejectedQty').val()) || 0;
+
+        if (receivedQty <= 0 && rejectedQty <= 0) { Swal2.error('Please enter received or rejected quantity.'); return; }
+
+        try {
+            Swal2.showLoading('Recording receive…');
+            const res = await $.ajax({
+                url: `${OS_API}/receive`, method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    outsourceId,
+                    receivedQuantity: receivedQty,
+                    rejectedQuantity: rejectedQty,
+                    remarks: $('#rRemarks').val()?.trim() || null
+                })
+            });
+            Swal2.hideLoading();
+
+            // Email to vendor if checked
+            if ($('#chkEmailVendor').is(':checked') && osData?.vendorEmail) {
+                try {
+                    Swal2.showLoading('Sending receive confirmation email…');
+                    await $.ajax({
+                        url: `${OS_API}/send-email-vendor`, method: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({ outsourceId })
+                    });
+                    Swal2.hideLoading();
+                } catch (emailErr) {
+                    Swal2.hideLoading();
+                    console.warn('Email to vendor failed', emailErr);
+                }
+            }
+
+            const rejMsg = rejectedQty > 0 ? `, <span class="text-danger">Rejected: ${rejectedQty}</span>` : '';
+            await Swal.fire({
+                icon: 'success',
+                title: 'Receive Recorded!',
+                html: `Good: <strong class="text-success">${receivedQty}</strong>${rejMsg}`,
+                showCancelButton: true,
+                confirmButtonText: 'View Details',
+                cancelButtonText: 'Record Another',
+                confirmButtonColor: '#2fb344'
+            }).then(result => {
+                if (result.isConfirmed) {
+                    window.location.href = `/Outsource/Details?id=${outsourceId}`;
+                } else {
+                    $('#rReceivedQty').val('');
+                    $('#rRejectedQty').val(0);
+                    $('#rRemarks').val('');
+                    loadDetail();
+                }
+            });
+        } catch (err) {
+            Swal2.hideLoading();
+            Swal2.error(err.responseJSON?.message || 'Failed to save receive.');
+        }
+    }
+
+    // ── Helpers ──
+    function ic(label, val) { return `<div class="col-md-6"><div class="os-info-label">${label}</div><div class="os-info-value">${val}</div></div>`; }
+    function fmtStatus(s) { return s ? s.replace(/_/g, ' ') : 'N/A'; }
+    function getStatusClass(status) {
+        const m = {
+            'OUTSOURCE_CREATED':'os-status-created','VENDOR_ASSIGNED':'os-status-vendor_assigned',
+            'MATERIAL_SENT':'os-status-material_sent','VENDOR_ACKNOWLEDGED':'os-status-vendor_ack',
+            'PROCESS_STARTED':'os-status-process_started','PROCESS_COMPLETED':'os-status-process_done',
+            'QUALITY_CHECKED':'os-status-quality','MATERIAL_RECEIVED':'os-status-received',
+            'RETURN_DELAYED':'os-status-delayed','REWORK_REQUIRED':'os-status-rework',
+            'REWORK_SENT':'os-status-rework','REWORK_COMPLETED':'os-status-quality',
+            'PAYMENT_INITIATED':'os-status-payment','PAYMENT_COMPLETED':'os-status-payment',
+            'OUTSOURCE_CLOSED':'os-status-closed','OUTSOURCE_CANCELLED':'os-status-cancelled'
+        };
+        return m[status] || 'bg-secondary-lt';
+    }
+    function getTlDot(et) {
+        const m = {
+            'OUTSOURCE_CREATED':'dot-purple','VENDOR_ASSIGNED':'dot-info','MATERIAL_SENT':'dot-info',
+            'VENDOR_ACKNOWLEDGED':'dot-cyan','PROCESS_STARTED':'dot-cyan','PROCESS_COMPLETED':'dot-info',
+            'QUALITY_CHECKED':'dot-success','MATERIAL_RECEIVED':'dot-success','RETURN_DELAYED':'dot-warning',
+            'REWORK_REQUIRED':'dot-orange','REWORK_SENT':'dot-orange','REWORK_COMPLETED':'dot-success',
+            'PAYMENT_INITIATED':'dot-warning','PAYMENT_COMPLETED':'dot-success',
+            'OUTSOURCE_CLOSED':'dot-primary','OUTSOURCE_CANCELLED':'dot-danger'
+        };
+        return m[et] || 'dot-primary';
+    }
+</script>
+}

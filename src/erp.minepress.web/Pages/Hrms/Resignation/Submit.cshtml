@@ -1,0 +1,120 @@
+@page
+@model erp.minepress.web.Pages.Hrms.Resignation.SubmitModel
+@{
+    ViewData["Title"] = "Submit Resignation — HRMS";
+}
+
+<div class="hrms-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);">
+                <i class="bi bi-box-arrow-right" style="font-size:1.5rem;"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="mb-0">Submit Resignation</h2>
+            <div class="text-white-75">Initiate your resignation process</div>
+        </div>
+        <div class="col-auto">
+            <a href="/Hrms/Resignation" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-arrow-left me-1"></i>Back
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-warning">
+            <div class="card-status-top bg-warning"></div>
+            <div class="card-header">
+                <h3 class="card-title">Resignation Form</h3>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning mb-3">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <strong>Please note:</strong> Once submitted, your resignation will be reviewed by HR. This action cannot be undone easily.
+                </div>
+                <form id="resignationForm">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label required">Resignation Date</label>
+                            <input type="date" class="form-control" id="resignDate" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label required">Notice Period (Days)</label>
+                            <input type="number" class="form-control" id="resignNoticeDays" min="1" value="30" required />
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Last Working Day</label>
+                            <input type="date" class="form-control" id="resignLastDay" />
+                            <small class="form-hint">Auto-calculated from notice period if left blank</small>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label required">Reason</label>
+                        <textarea class="form-control" id="resignReason" rows="4" placeholder="Please state your reason for resignation..." required></textarea>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-warning">
+                            <i class="bi bi-send me-1"></i>Submit Resignation
+                        </button>
+                        <a href="/Hrms/Resignation" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="/js/hrms.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const dateEl = document.getElementById('resignDate');
+            const noticeEl = document.getElementById('resignNoticeDays');
+            const lastDayEl = document.getElementById('resignLastDay');
+
+            function calcLastDay() {
+                if (dateEl.value && noticeEl.value) {
+                    const d = new Date(dateEl.value);
+                    d.setDate(d.getDate() + parseInt(noticeEl.value));
+                    lastDayEl.value = d.toISOString().split('T')[0];
+                }
+            }
+
+            dateEl.addEventListener('change', calcLastDay);
+            noticeEl.addEventListener('input', calcLastDay);
+
+            document.getElementById('resignationForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const confirmed = await Swal.fire({
+                    icon: 'warning',
+                    title: 'Confirm Resignation',
+                    text: 'Are you sure you want to submit your resignation?',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, Submit',
+                    confirmButtonColor: '#e6a919'
+                });
+
+                if (!confirmed.isConfirmed) return;
+
+                const payload = {
+                    resignationDate: dateEl.value,
+                    reason: document.getElementById('resignReason').value,
+                    lastWorkingDay: lastDayEl.value || null,
+                    noticePeriodDays: parseInt(noticeEl.value)
+                };
+
+                const res = await Hrms.post('resignations/submit', payload);
+                if (res) {
+                    Swal.fire({ icon: 'info', title: 'Resignation Submitted', text: res.message, timer: 3000 });
+                    setTimeout(() => window.location.href = '/Hrms/Resignation', 3000);
+                }
+            });
+        });
+    </script>
+}

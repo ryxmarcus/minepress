@@ -1,0 +1,517 @@
+@page
+@model erp.minepress.web.Pages.Reports.IndexModel
+@{
+    ViewData["Title"] = "Report Builder";
+    var currentUserName = User?.Identity?.Name ?? "Current User";
+}
+
+@section Styles {
+    <link href="/css/report-builder.css" rel="stylesheet" />
+}
+
+<!-- ═══════════ HERO ═══════════ -->
+<div class="rb-hero" id="rbHero">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div class="d-flex align-items-center gap-3">
+            <span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);">
+                <i class="bi bi-bar-chart-line-fill" style="font-size:1.5rem;"></i>
+            </span>
+            <div>
+                <h2 class="mb-0 text-white fw-bold">Report Builder</h2>
+                <div class="text-white-75">Design custom reports — drag columns, add filters, group, sort, and export</div>
+            </div>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-light btn-sm" onclick="RB.newReport()">
+                <i class="bi bi-plus-lg me-1"></i>New Report
+            </button>
+            <button class="btn btn-outline-light btn-sm" onclick="RB.showSavedList()">
+                <i class="bi bi-collection me-1"></i>My Reports
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════ STATS ROW ═══════════ -->
+<div class="row g-3 mb-3" id="rbStatsRow">
+    <div class="col-sm-6 col-lg-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-primary-lt me-3"><i class="bi bi-file-earmark-bar-graph"></i></span>
+                    <div>
+                        <div class="fw-bold" id="rbStatSaved">0</div>
+                        <div class="text-secondary small">My Reports</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-success-lt me-3"><i class="bi bi-share"></i></span>
+                    <div>
+                        <div class="fw-bold" id="rbStatShared">0</div>
+                        <div class="text-secondary small">Shared</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-warning-lt me-3"><i class="bi bi-table"></i></span>
+                    <div>
+                        <div class="fw-bold" id="rbStatTables">0</div>
+                        <div class="text-secondary small">Data Sources</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-info-lt me-3"><i class="bi bi-lightning"></i></span>
+                    <div>
+                        <div class="fw-bold" id="rbStatRows">—</div>
+                        <div class="text-secondary small">Last Query Rows</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════ SAVED REPORTS LIST ═══════════ -->
+<div id="rbSavedListView">
+    <div class="card mb-3">
+        <div class="card-header">
+            <div class="d-flex align-items-center justify-content-between w-100">
+                <h3 class="card-title mb-0"><i class="bi bi-collection me-2"></i>Saved Reports</h3>
+                <div class="d-flex gap-2 align-items-center">
+                    <div class="input-icon">
+                        <span class="input-icon-addon"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control form-control-sm" id="rbSearchSaved" placeholder="Search reports..." style="width:220px;">
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="RB.newReport()">
+                        <i class="bi bi-plus-lg me-1"></i>New Report
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="row g-3 p-3" id="rbSavedGrid">
+                <div class="col-12 text-center py-5 text-muted">
+                    <i class="bi bi-inbox" style="font-size:2rem; opacity:.4;"></i>
+                    <div class="mt-2">Loading saved reports...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════ REPORT DESIGNER ═══════════ -->
+<div id="rbDesignerView" style="display:none;">
+
+    <!-- Toolbar -->
+    <div class="card mb-2 rb-toolbar-card">
+        <div class="card-body py-2">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <button class="btn btn-sm btn-ghost-secondary" onclick="RB.showSavedList()" title="Back">
+                    <i class="bi bi-arrow-left me-1"></i>Back
+                </button>
+                <div class="vr"></div>
+                <button class="btn btn-sm btn-primary" onclick="RB.executeReport()" title="Run Report">
+                    <i class="bi bi-play-fill me-1"></i>Run
+                </button>
+                <button class="btn btn-sm btn-ghost-secondary" onclick="RB.saveReport()" title="Save">
+                    <i class="bi bi-floppy me-1"></i>Save
+                </button>
+                <div class="vr"></div>
+                <button class="btn btn-sm btn-ghost-info" onclick="RB.showAiSummary()" title="AI Summary">
+                    <i class="bi bi-stars me-1"></i>AI Summary
+                </button>
+                <button class="btn btn-sm btn-ghost-success" onclick="RB.openExportDialog()" title="Export / Print">
+                    <i class="bi bi-box-arrow-up-right me-1"></i>Export / Print
+                </button>
+                <div class="ms-auto d-flex align-items-center gap-2">
+                    <span class="badge bg-azure-lt" id="rbExecTimeBadge" style="display:none;" title="Execution Time">
+                        <i class="bi bi-lightning-charge me-1"></i><span id="rbExecTimeVal">0</span>ms
+                    </span>
+                    <span class="badge bg-purple-lt" id="rbQueryPlanBadge" style="display:none;" title="Query Plan ID">
+                        <i class="bi bi-diagram-3 me-1"></i>#<span id="rbQueryPlanVal">0</span>
+                    </span>
+                    <span class="badge bg-secondary-lt" id="rbRowCountBadge">0 rows</span>
+                    <span class="badge bg-primary-lt" id="rbPageBadge">Page 1</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabbed Designer -->
+    <div class="card rb-tabbed-card">
+        <div class="card-header p-0">
+            <ul class="nav nav-tabs rb-designer-tabs" id="rbDesignerTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="rbTabReportInfo" data-bs-toggle="tab" data-bs-target="#rbPaneReportInfo" type="button" role="tab">
+                        <i class="bi bi-info-circle me-1"></i>Report Info
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="rbTabSourceTable" data-bs-toggle="tab" data-bs-target="#rbPaneSourceTable" type="button" role="tab">
+                        <i class="bi bi-database me-1"></i>Source Table
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="rbTabJoinedTables" data-bs-toggle="tab" data-bs-target="#rbPaneJoinedTables" type="button" role="tab">
+                        <i class="bi bi-link-45deg me-1"></i>Joined Tables
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="rbTabReportType" data-bs-toggle="tab" data-bs-target="#rbPaneReportType" type="button" role="tab">
+                        <i class="bi bi-bar-chart-steps me-1"></i>Report Type
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="rbTabColumns" data-bs-toggle="tab" data-bs-target="#rbPaneColumns" type="button" role="tab">
+                        <i class="bi bi-columns-gap me-1"></i>Columns
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="rbTabConfig" data-bs-toggle="tab" data-bs-target="#rbPaneConfig" type="button" role="tab">
+                        <i class="bi bi-sliders me-1"></i>Configuration
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="rbTabResults" data-bs-toggle="tab" data-bs-target="#rbPaneResults" type="button" role="tab">
+                        <i class="bi bi-table me-1"></i>Results
+                    </button>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body p-0">
+            <div class="tab-content" id="rbDesignerTabContent">
+
+                <!-- ── TAB: Report Info ── -->
+                <div class="tab-pane fade show active" id="rbPaneReportInfo" role="tabpanel">
+                    <div class="rb-tab-body">
+                        <input type="hidden" id="rbReportId" value="0">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Report Code</label>
+                                <input type="text" class="form-control form-control-sm" id="rbReportCode" placeholder="Report Code" maxlength="50">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Report Name</label>
+                                <input type="text" class="form-control form-control-sm" id="rbReportName" placeholder="Report Name">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Description</label>
+                                <textarea class="form-control form-control-sm" id="rbDescription" placeholder="Description" rows="3"></textarea>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="rbIsShared">
+                                    <label class="form-check-label" for="rbIsShared">Share with all users</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── TAB: Source Table ── -->
+                <div class="tab-pane fade" id="rbPaneSourceTable" role="tabpanel">
+                    <div class="rb-tab-body">
+                        <div class="rb-smart-search mb-3">
+                            <label class="form-label">Search Tables &amp; Views</label>
+                            <div class="input-icon">
+                                <span class="input-icon-addon"><i class="bi bi-search"></i></span>
+                                <input type="text" class="form-control form-control-sm" id="rbTableSearch" placeholder="Search tables & views..." autocomplete="off">
+                            </div>
+                            <div class="rb-table-dropdown" id="rbTableDropdown" style="display:none;"></div>
+                        </div>
+                        <input type="hidden" id="rbTableSelect" value="">
+                        <div class="rb-category-chips mb-3" id="rbCategoryChips"></div>
+                        <div class="rb-table-preview" id="rbTablePreview" style="display:none;">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="rb-preview-icon" id="rbPreviewIcon"><i class="bi bi-table"></i></span>
+                                <div class="flex-grow-1 min-width-0">
+                                    <div class="rb-preview-name text-truncate" id="rbPreviewName"></div>
+                                    <div class="rb-preview-meta" id="rbPreviewMeta"></div>
+                                </div>
+                                <button class="btn-close" style="font-size:.5rem;" onclick="RB.clearTable()" title="Clear"></button>
+                            </div>
+                            <div class="rb-preview-badges mt-1" id="rbPreviewBadges"></div>
+                        </div>
+                        <div class="mt-1 small text-muted" id="rbTableInfo"></div>
+                    </div>
+                </div>
+
+                <!-- ── TAB: Joined Tables ── -->
+                <div class="tab-pane fade" id="rbPaneJoinedTables" role="tabpanel">
+                    <div class="rb-tab-body">
+                        <div class="d-flex align-items-center justify-content-between mb-3" id="rbJoinSection">
+                            <h4 class="mb-0" style="font-size:.9rem; font-weight:600;">Joined Tables</h4>
+                            <button class="btn btn-primary btn-sm" onclick="RB.addJoin()">
+                                <i class="bi bi-plus me-1"></i>Add Join
+                            </button>
+                        </div>
+                        <div id="rbJoinList" class="rb-join-list">
+                            <div class="text-muted small text-center py-4">
+                                <i class="bi bi-link-45deg" style="font-size:2rem; opacity:.3;"></i>
+                                <div class="mt-2">No tables joined — select a source table first, then add joins</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── TAB: Report Type ── -->
+                <div class="tab-pane fade" id="rbPaneReportType" role="tabpanel">
+                    <div class="rb-tab-body">
+                        <label class="form-label mb-2">Report Type</label>
+                        <div class="d-flex gap-2 mb-3">
+                            <button class="btn btn-sm flex-fill rb-type-btn active" id="rbTypeDetail" onclick="RB.setReportType('detail')">
+                                <i class="bi bi-list-ul me-1"></i>Detail
+                            </button>
+                            <button class="btn btn-sm flex-fill rb-type-btn" id="rbTypeSummary" onclick="RB.setReportType('summary')">
+                                <i class="bi bi-bar-chart-steps me-1"></i>Summary
+                            </button>
+                        </div>
+                        <label class="form-label mb-2">Options</label>
+                        <div class="d-flex gap-4">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="rbShowTotals">
+                                <label class="form-check-label" for="rbShowTotals">Show Totals</label>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="rbShowGrandTotal">
+                                <label class="form-check-label" for="rbShowGrandTotal">Show Grand Total</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── TAB: Columns ── -->
+                <div class="tab-pane fade" id="rbPaneColumns" role="tabpanel">
+                    <div class="rb-tab-body">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <h4 class="mb-0" style="font-size:.9rem; font-weight:600;">Column Selection</h4>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-outline-primary" onclick="RB.selectAllColumns()">
+                                    <i class="bi bi-check-all me-1"></i>Select All
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="RB.deselectAllColumns()">
+                                    <i class="bi bi-x-lg me-1"></i>Clear
+                                </button>
+                            </div>
+                        </div>
+                        <div class="input-icon mb-3">
+                            <span class="input-icon-addon"><i class="bi bi-search"></i></span>
+                            <input type="text" class="form-control form-control-sm" id="rbColumnSearch" placeholder="Search columns...">
+                        </div>
+                        <div id="rbColumnList" class="rb-column-list rb-column-list-tabbed">
+                            <div class="text-muted small text-center py-4">
+                                <i class="bi bi-columns-gap" style="font-size:2rem; opacity:.3;"></i>
+                                <div class="mt-2">Select a table first</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── TAB: Configuration ── -->
+                <div class="tab-pane fade" id="rbPaneConfig" role="tabpanel">
+                    <div class="rb-tab-body">
+                        <!-- Filters -->
+                        <div class="rb-config-section mb-4">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <h4 class="mb-0" style="font-size:.9rem; font-weight:600;">
+                                    <i class="bi bi-funnel me-1"></i>Filters
+                                    <span class="badge bg-secondary-lt ms-1" id="rbFilterCount" style="font-size:.6rem; display:none;">0</span>
+                                </h4>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm btn-outline-danger" onclick="RB.clearAllFilters()" id="rbClearFiltersBtn" style="display:none;">
+                                        <i class="bi bi-x-lg me-1"></i>Clear All
+                                    </button>
+                                    <button class="btn btn-sm btn-primary" onclick="RB.addSmartFilter()">
+                                        <i class="bi bi-plus me-1"></i>Add Filter
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="rbFilterList" class="rb-filter-list">
+                                <div class="rb-filter-empty text-muted small text-center py-3">
+                                    <i class="bi bi-funnel" style="font-size:1.5rem; opacity:.3;"></i>
+                                    <div class="mt-1">No filters — click <strong>Add Filter</strong> or right-click a column</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Group By -->
+                        <div class="rb-config-section mb-4">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <h4 class="mb-0" style="font-size:.9rem; font-weight:600;">
+                                    <i class="bi bi-collection me-1"></i>Group By
+                                </h4>
+                                <button class="btn btn-sm btn-primary" onclick="RB.addGroupBy()">
+                                    <i class="bi bi-plus me-1"></i>Add
+                                </button>
+                            </div>
+                            <div id="rbGroupByList" class="rb-group-list">
+                                <div class="text-muted small text-center py-2">No grouping</div>
+                            </div>
+                        </div>
+
+                        <!-- Order By -->
+                        <div class="rb-config-section mb-4">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <h4 class="mb-0" style="font-size:.9rem; font-weight:600;">
+                                    <i class="bi bi-sort-down me-1"></i>Order By
+                                </h4>
+                                <button class="btn btn-sm btn-primary" onclick="RB.addOrderBy()">
+                                    <i class="bi bi-plus me-1"></i>Add
+                                </button>
+                            </div>
+                            <div id="rbOrderByList" class="rb-order-list">
+                                <div class="text-muted small text-center py-2">Default order</div>
+                            </div>
+                        </div>
+
+                        <!-- Aggregates -->
+                        <div class="rb-config-section" id="rbAggregatesSection" style="display:none;">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <h4 class="mb-0" style="font-size:.9rem; font-weight:600;">
+                                    <i class="bi bi-calculator me-1"></i>Aggregates
+                                </h4>
+                                <button class="btn btn-sm btn-primary" onclick="RB.addAggregate()">
+                                    <i class="bi bi-plus me-1"></i>Add
+                                </button>
+                            </div>
+                            <div id="rbAggregateList" class="rb-agg-list">
+                                <div class="text-muted small text-center py-2">No aggregates</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── TAB: Results ── -->
+                <div class="tab-pane fade" id="rbPaneResults" role="tabpanel">
+                    <div class="rb-tab-body-results">
+                        <div class="d-flex align-items-center justify-content-between px-3 py-2 border-bottom">
+                            <span class="fw-semibold"><i class="bi bi-table me-1"></i>Results</span>
+                            <div class="d-flex gap-2 align-items-center">
+                                <label class="small text-muted me-1 mb-0">Page Size</label>
+                                <select class="form-select form-select-sm" id="rbPageSize" style="width:70px;">
+                                    <option value="10">10</option>
+                                    <option value="25" selected>25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                    <option value="200">200</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="rb-results-wrapper" id="rbResultsWrapper">
+                            <div class="rb-results-empty" id="rbResultsEmpty">
+                                <i class="bi bi-bar-chart-line" style="font-size:3rem; opacity:.3;"></i>
+                                <div class="text-muted mt-2">Select a data source, pick columns, and click <strong>Run</strong></div>
+                                <div class="text-muted small mt-1">Or open a saved report to get started</div>
+                            </div>
+                            <div class="table-responsive" id="rbTableContainer" style="display:none;">
+                                <table class="table table-sm table-hover table-striped mb-0 rb-data-table" id="rbDataTable">
+                                    <thead id="rbTableHead"></thead>
+                                    <tbody id="rbTableBody"></tbody>
+                                    <tfoot id="rbTableFoot" style="display:none;"></tfoot>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="rb-pagination" id="rbPagination" style="display:none;">
+                            <div class="d-flex align-items-center justify-content-between w-100">
+                                <div class="small text-muted" id="rbPaginationInfo">Showing 0 of 0</div>
+                                <div class="d-flex gap-1">
+                                    <button class="btn btn-sm btn-ghost-secondary" id="rbBtnFirst" onclick="RB.goToPage(1)"><i class="bi bi-chevron-double-left"></i></button>
+                                    <button class="btn btn-sm btn-ghost-secondary" id="rbBtnPrev" onclick="RB.prevPage()"><i class="bi bi-chevron-left"></i></button>
+                                    <span class="btn btn-sm btn-ghost-secondary disabled" id="rbPageDisplay">1 / 1</span>
+                                    <button class="btn btn-sm btn-ghost-secondary" id="rbBtnNext" onclick="RB.nextPage()"><i class="bi bi-chevron-right"></i></button>
+                                    <button class="btn btn-sm btn-ghost-secondary" id="rbBtnLast" onclick="RB.goToPage(-1)"><i class="bi bi-chevron-double-right"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<input type="hidden" id="rbCurrentUserName" value="@currentUserName" />
+
+<!-- ═══════════ AI SUMMARY MODAL ═══════════ -->
+<div class="modal modal-blur fade" id="rbAiModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-stars me-2 text-info"></i>AI Data Summary</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="rbAiBody">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <div class="mt-2 text-muted">Analyzing your data...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════ EXPORT OPTIONS MODAL ═══════════ -->
+<div class="modal modal-blur fade" id="rbExportModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-download me-2 text-success"></i>Export / Print Report</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="small text-muted mb-2">Choose output format and what details should be included.</div>
+                <div class="mb-3">
+                    <label class="form-label">Format</label>
+                    <select class="form-select" id="rbExportFormat">
+                        <option value="csv">CSV (data + report details)</option>
+                        <option value="pdf">PDF (print-ready)</option>
+                        <option value="print">Print Preview</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="rbIncludeHeader" checked>
+                        <label class="form-check-label" for="rbIncludeHeader">Include header (report name + user + timestamp)</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="rbIncludeFilters" checked>
+                        <label class="form-check-label" for="rbIncludeFilters">Include applied filters</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="rbIncludeFooter" checked>
+                        <label class="form-check-label" for="rbIncludeFooter">Include footer (row count + generated by)</label>
+                    </div>
+                </div>
+                <div class="alert alert-info py-2 mb-0" id="rbExportRecommendation"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="RB.confirmExportSelection()">
+                    <i class="bi bi-check2-circle me-1"></i>Continue
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="/js/report-builder.js"></script>
+}

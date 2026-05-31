@@ -1,0 +1,143 @@
+@page
+@model erp.minepress.web.Pages.Hrms.Reimbursement.SubmitModel
+@{
+    ViewData["Title"] = "Submit Reimbursement — HRMS";
+}
+
+<div class="hrms-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);">
+                <i class="bi bi-receipt" style="font-size:1.5rem;"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="mb-0">Submit Reimbursement</h2>
+            <div class="text-white-75">File a new expense reimbursement claim</div>
+        </div>
+        <div class="col-auto">
+            <a href="/Hrms/Reimbursement" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-arrow-left me-1"></i>Back to Reimbursements
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Reimbursement Form</h3>
+            </div>
+            <div class="card-body">
+                <form id="reimbursementForm">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label required">Employee</label>
+                            <select class="form-select" id="reimEmployee" required>
+                                <option value="">Search employee…</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label required">Reimbursement Type</label>
+                            <select class="form-select" id="reimType" required>
+                                <option value="">Select type…</option>
+                                <option value="MEDICAL">Medical</option>
+                                <option value="TRAVEL">Travel</option>
+                                <option value="FUEL">Fuel</option>
+                                <option value="FOOD">Food &amp; Meals</option>
+                                <option value="TELEPHONE">Telephone / Internet</option>
+                                <option value="STATIONERY">Stationery / Supplies</option>
+                                <option value="OTHER">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <label class="form-label required">Claim Date</label>
+                            <input type="date" class="form-control" id="reimClaimDate" required />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label required">Claim Amount (₹)</label>
+                            <input type="number" class="form-control" id="reimClaimAmount" min="1" step="any" placeholder="e.g. 2500" required />
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description / Details</label>
+                        <textarea class="form-control" id="reimDescription" rows="3" placeholder="Describe the expense…"></textarea>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send me-1"></i>Submit Claim
+                        </button>
+                        <a href="/Hrms/Reimbursement" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h3 class="card-title"><i class="bi bi-info-circle me-1"></i>Guidelines</h3>
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    <li>Submit claims with valid receipts/bills within 30 days of the expense.</li>
+                    <li>Medical reimbursements require prescription copy and pharmacy bills.</li>
+                    <li>Travel/fuel claims must include trip details and odometer readings where applicable.</li>
+                    <li>Approved claims are processed in the next payroll cycle.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="/js/hrms.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize Select2 for employee search
+            $('#reimEmployee').select2({
+                theme: 'bootstrap-5',
+                placeholder: 'Search employee by name or code…',
+                allowClear: true,
+                minimumInputLength: 1,
+                ajax: {
+                    url: '/api/hrms/employees/search',
+                    dataType: 'json',
+                    delay: 300,
+                    data: params => ({ q: params.term }),
+                    processResults: data => ({
+                        results: data.map(e => ({
+                            id: e.employeeId,
+                            text: `${e.empCode} — ${e.name}`
+                        }))
+                    }),
+                    cache: true
+                }
+            });
+
+            document.getElementById('reimbursementForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const empVal = $('#reimEmployee').val();
+                if (!empVal) {
+                    Swal.fire({ icon: 'warning', title: 'Employee Required', text: 'Please select an employee.' });
+                    return;
+                }
+                const payload = {
+                    employeeId: parseInt(empVal),
+                    reimbursementType: document.getElementById('reimType').value,
+                    claimDate: document.getElementById('reimClaimDate').value,
+                    claimAmount: parseFloat(document.getElementById('reimClaimAmount').value),
+                    description: document.getElementById('reimDescription').value || null
+                };
+
+                const res = await Hrms.post('reimbursements/submit', payload);
+                if (res) {
+                    Swal.fire({ icon: 'success', title: 'Claim Submitted', text: res.message, timer: 2000 });
+                    setTimeout(() => window.location.href = '/Hrms/Reimbursement', 2000);
+                }
+            });
+        });
+    </script>
+}

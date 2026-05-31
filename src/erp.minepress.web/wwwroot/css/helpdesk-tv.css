@@ -1,0 +1,990 @@
+/* ═══════════════════════════════════════════════════════════════
+   HELPDESK TV DISPLAY — Full-screen large-format styles
+   Designed for 1080p+ Smart TV / big screen at helpdesk
+   Dark theme, high contrast, large fonts
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Reset / Full Screen ── */
+.tv-body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: #0a0e1a;
+    color: #e0e6f0;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    cursor: none;
+    user-select: none;
+}
+
+/* ── Header ── */
+.tv-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 1.5rem;
+    background: linear-gradient(135deg, #0f1629 0%, #1a1f3a 100%);
+    border-bottom: 2px solid rgba(99, 140, 255, 0.15);
+    flex-shrink: 0;
+    min-height: 52px;
+}
+
+.tv-header-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.tv-logo-icon {
+    color: #638cff;
+}
+
+.tv-brand-text {
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    color: #fff;
+}
+
+.tv-brand-divider {
+    color: rgba(255, 255, 255, 0.2);
+    font-weight: 300;
+    font-size: 1.65rem;
+}
+
+.tv-brand-sub {
+    font-size: 1.3rem;
+    font-weight: 500;
+    color: #8b9bc7;
+}
+
+.tv-header-stats {
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.95rem;
+}
+
+.tv-header-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.tv-live-dot {
+    width: 10px;
+    height: 10px;
+    background: #22c55e;
+    border-radius: 50%;
+    animation: tvPulse 2s ease-in-out infinite;
+    box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+}
+
+@keyframes tvPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.85); }
+}
+
+.tv-clock {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 1px;
+}
+
+/* ── KPI Strip ── */
+.tv-kpi-strip {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(15, 22, 41, 0.7);
+    border-bottom: 1px solid rgba(99, 140, 255, 0.08);
+    flex-shrink: 0;
+    overflow-x: auto;
+}
+
+.tv-kpi {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.45rem 0.8rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    min-width: 120px;
+    transition: transform 0.2s, background 0.2s;
+}
+
+.tv-kpi:hover {
+    background: rgba(255, 255, 255, 0.06);
+    transform: translateY(-1px);
+}
+
+.tv-kpi-icon {
+    font-size: 1.8rem;
+    flex-shrink: 0;
+}
+
+.tv-kpi-data {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+}
+
+.tv-kpi-val {
+    font-size: 1.9rem;
+    font-weight: 800;
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+}
+
+.tv-kpi-label {
+    font-size: 0.88rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #7b8ab8;
+    font-weight: 600;
+}
+
+/* ── Tabs ── */
+.tv-tabs {
+    display: flex;
+    gap: 0;
+    flex-shrink: 0;
+    background: #111833;
+    border-bottom: 2px solid rgba(99, 140, 255, 0.1);
+}
+
+.tv-tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    padding: 0.65rem 1rem;
+    background: transparent;
+    border: none;
+    color: #6b7ba8;
+    font-size: 1.2rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s;
+    border-bottom: 3px solid transparent;
+    position: relative;
+}
+
+.tv-tab:hover {
+    color: #a0b4e8;
+    background: rgba(99, 140, 255, 0.05);
+}
+
+.tv-tab.active {
+    color: #fff;
+    border-bottom-color: #638cff;
+    background: rgba(99, 140, 255, 0.08);
+}
+
+.tv-tab i {
+    font-size: 1.4rem;
+}
+
+.tv-tab-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 30px;
+    height: 28px;
+    padding: 0 8px;
+    border-radius: 14px;
+    background: rgba(99, 140, 255, 0.15);
+    color: #8ba8ff;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.tv-tab.active .tv-tab-badge {
+    background: #638cff;
+    color: #fff;
+}
+
+/* ── Process Stage Tabs ── */
+.tv-stage-tabs {
+    display: flex;
+    gap: 0;
+    flex-shrink: 0;
+    background: #111833;
+    border-bottom: 2px solid rgba(99, 140, 255, 0.1);
+    overflow-x: auto;
+}
+
+.tv-stage-tab {
+    flex: 1;
+    min-width: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    background: transparent;
+    border: none;
+    color: #6b7ba8;
+    padding: 0.6rem 1rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.25s;
+    border-bottom: 3px solid transparent;
+}
+
+.tv-stage-tab i {
+    font-size: 1.15rem;
+}
+
+.tv-stage-tab:hover {
+    color: #a0b4e8;
+    background: rgba(99, 140, 255, 0.05);
+}
+
+.tv-stage-tab.active {
+    color: #fff;
+    border-bottom-color: #638cff;
+    background: rgba(99, 140, 255, 0.08);
+}
+
+/* ── Main Content ── */
+.tv-main {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+}
+
+.tv-panel {
+    display: none;
+    height: 100%;
+    overflow-y: auto;
+    padding: 0.75rem 1rem;
+    scroll-behavior: smooth;
+}
+
+.tv-panel.active {
+    display: block;
+}
+
+/* Scrollbar */
+.tv-panel::-webkit-scrollbar { width: 6px; }
+.tv-panel::-webkit-scrollbar-track { background: transparent; }
+.tv-panel::-webkit-scrollbar-thumb { background: rgba(99, 140, 255, 0.2); border-radius: 3px; }
+
+/* ── Card Grid (Running Jobs & Machines) ── */
+.tv-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 0.7rem;
+}
+
+.tv-machine-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+/* ── Job Card ── */
+.tv-job-card {
+    background: linear-gradient(145deg, #151c35 0%, #1a2140 100%);
+    border-radius: 12px;
+    border: 1px solid rgba(99, 140, 255, 0.1);
+    padding: 0.9rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transition: transform 0.2s, border-color 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+
+.tv-job-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    border-radius: 12px 0 0 12px;
+}
+
+.tv-job-card.priority-Urgent::before,
+.tv-job-card.priority-Critical::before { background: #ef4444; }
+.tv-job-card.priority-High::before { background: #f97316; }
+.tv-job-card.priority-Normal::before { background: #638cff; }
+.tv-job-card.priority-Low::before { background: #6b7ba8; }
+
+.tv-job-card:hover {
+    border-color: rgba(99, 140, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+.tv-job-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.tv-job-no {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #fff;
+}
+
+.tv-job-machine {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.96rem;
+    font-weight: 600;
+    color: #22c55e;
+    background: rgba(34, 197, 94, 0.1);
+    padding: 0.2rem 0.65rem;
+    border-radius: 6px;
+}
+
+.tv-job-product {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #c4d0ed;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tv-job-customer {
+    font-size: 0.96rem;
+    color: #7b8ab8;
+    font-weight: 500;
+}
+
+.tv-job-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    font-size: 0.92rem;
+}
+
+.tv-job-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.12rem 0.45rem;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #8b9bc7;
+    font-weight: 500;
+}
+
+.tv-job-tag.tag-qty { color: #60a5fa; }
+.tv-job-tag.tag-delivery { color: #fbbf24; }
+.tv-job-tag.tag-type { color: #a78bfa; }
+.tv-job-tag.tag-priority-Urgent,
+.tv-job-tag.tag-priority-Critical { color: #fca5a5; background: rgba(239, 68, 68, 0.12); }
+.tv-job-tag.tag-priority-High { color: #fdba74; background: rgba(249, 115, 22, 0.12); }
+.tv-job-tag.tag-overdue { color: #fca5a5; background: rgba(239, 68, 68, 0.15); }
+
+/* Progress bar inside card */
+.tv-progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.tv-progress {
+    flex: 1;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.tv-progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #638cff, #22c55e);
+    transition: width 0.5s ease;
+}
+
+.tv-progress-pct {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #a0b4e8;
+    min-width: 35px;
+    text-align: right;
+}
+
+/* Workers mini strip */
+.tv-workers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin-top: 0.1rem;
+}
+
+.tv-worker-chip {
+    font-size: 0.68rem;
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    background: rgba(99, 140, 255, 0.08);
+    color: #8ba8ff;
+    font-weight: 600;
+}
+
+/* ── Machine Card ── */
+.tv-machine-card {
+    background: linear-gradient(145deg, #151c35 0%, #1a2140 100%);
+    border-radius: 12px;
+    border: 1px solid rgba(99, 140, 255, 0.1);
+    padding: 0.75rem 0.9rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    transition: transform 0.2s;
+    position: relative;
+}
+
+.tv-machine-card.status-RUNNING {
+    border-color: rgba(34, 197, 94, 0.25);
+}
+
+.tv-machine-card.status-BREAKDOWN {
+    border-color: rgba(239, 68, 68, 0.3);
+    background: linear-gradient(145deg, #1c1520 0%, #251a2a 100%);
+}
+
+.tv-machine-card.status-IDLE {
+    opacity: 0.65;
+}
+
+.tv-machine-name {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.tv-machine-code {
+    font-size: 0.72rem;
+    color: #6b7ba8;
+    font-weight: 500;
+}
+
+.tv-machine-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 0.15rem 0.5rem;
+    border-radius: 6px;
+    width: fit-content;
+}
+
+.tv-machine-status.st-RUNNING {
+    color: #22c55e;
+    background: rgba(34, 197, 94, 0.12);
+}
+
+.tv-machine-status.st-IDLE {
+    color: #fbbf24;
+    background: rgba(251, 191, 36, 0.1);
+}
+
+.tv-machine-status.st-BREAKDOWN {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.12);
+    animation: tvAlertPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes tvAlertPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+.tv-machine-info {
+    font-size: 0.78rem;
+    color: #8b9bc7;
+}
+
+.tv-machine-info strong {
+    color: #c4d0ed;
+}
+
+/* ── Table (Queue & Workforce) ── */
+.tv-table-wrap {
+    overflow-x: auto;
+    height: 100%;
+}
+
+.tv-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 1.15rem;
+}
+
+.tv-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.tv-table th {
+    padding: 0.7rem 0.9rem;
+    background: #111833;
+    color: #7b8ab8;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 2px solid rgba(99, 140, 255, 0.1);
+    white-space: nowrap;
+    text-align: left;
+}
+
+.tv-table td {
+    padding: 0.7rem 0.9rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    color: #c4d0ed;
+    vertical-align: middle;
+}
+
+/* ── Queue Job Step Flow ── */
+.tv-step-flow {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    flex-wrap: nowrap;
+}
+
+.tv-step {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    padding: 0.28rem 0.65rem;
+    border-radius: 5px;
+    white-space: nowrap;
+    max-width: 160px;
+}
+
+.tv-step-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 118px;
+    display: inline-block;
+}
+
+.tv-step-icon {
+    font-size: 0.85rem;
+    flex-shrink: 0;
+}
+
+.tv-step-prev {
+    background: rgba(100, 116, 139, 0.18);
+    color: #94a3b8;
+    border: 1px solid rgba(100, 116, 139, 0.25);
+}
+
+.tv-step-prev .tv-step-icon {
+    color: #64748b;
+}
+
+.tv-step-current {
+    background: rgba(59, 130, 246, 0.2);
+    color: #93c5fd;
+    border: 1px solid rgba(59, 130, 246, 0.4);
+}
+
+.tv-step-current .tv-step-icon {
+    color: #60a5fa;
+}
+
+.tv-step-next {
+    background: rgba(16, 185, 129, 0.15);
+    color: #6ee7b7;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.tv-step-next .tv-step-icon {
+    color: #34d399;
+}
+
+.tv-step-empty {
+    opacity: 0.4;
+}
+
+.tv-step-arrow {
+    color: #334165;
+    font-size: 0.6rem;
+    flex-shrink: 0;
+}
+
+.tv-table tbody tr {
+    transition: background 0.15s;
+}
+
+.tv-table tbody tr:hover {
+    background: rgba(99, 140, 255, 0.04);
+}
+
+.tv-table .tv-priority-cell {
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+.tv-priority-Urgent,
+.tv-priority-Critical { color: #ef4444; }
+.tv-priority-High { color: #f97316; }
+.tv-priority-Normal { color: #638cff; }
+.tv-priority-Low { color: #6b7ba8; }
+
+.tv-delivery-overdue {
+    color: #fca5a5;
+    font-weight: 700;
+}
+
+.tv-ai-score {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 28px;
+    border-radius: 8px;
+    font-weight: 800;
+    font-size: 0.85rem;
+}
+
+.tv-ai-score.score-high { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
+.tv-ai-score.score-mid { background: rgba(251, 191, 36, 0.12); color: #fbbf24; }
+.tv-ai-score.score-low { background: rgba(107, 123, 168, 0.12); color: #8b9bc7; }
+
+/* Workforce machine chips */
+.tv-wf-machines {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+
+.tv-wf-machine {
+    font-size: 0.72rem;
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    background: rgba(99, 140, 255, 0.08);
+    color: #8ba8ff;
+    font-weight: 600;
+}
+
+.tv-wf-on-leave {
+    background: rgba(244, 63, 94, 0.08);
+}
+
+.tv-wf-leave-badge {
+    display: inline-flex;
+    align-items: center;
+    margin-left: .4rem;
+    padding: .12rem .45rem;
+    border-radius: 999px;
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .2px;
+    color: #fecdd3;
+    background: rgba(244, 63, 94, 0.22);
+    border: 1px solid rgba(244, 63, 94, 0.45);
+}
+
+.tv-wf-total-time {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.15rem 0.5rem;
+    border-radius: 6px;
+    font-weight: 800;
+    color: #fde68a;
+    background: rgba(245, 158, 11, 0.16);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    letter-spacing: 0.2px;
+}
+
+/* ── Empty States ── */
+.tv-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 3rem 1rem;
+    color: #4a5580;
+    font-size: 1.3rem;
+    font-weight: 600;
+    grid-column: 1 / -1;
+}
+
+.tv-empty-state i {
+    font-size: 2.5rem;
+    opacity: 0.5;
+}
+
+.tv-empty-cell {
+    text-align: center;
+    color: #4a5580;
+    font-size: 1rem;
+    padding: 2rem !important;
+}
+
+/* ── AI Insight Bar ── */
+.tv-ai-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.4rem 1rem;
+    background: linear-gradient(90deg, #1a1045 0%, #0f1629 50%, #1a1045 100%);
+    border-top: 1px solid rgba(167, 139, 250, 0.15);
+    flex-shrink: 0;
+    min-height: 38px;
+    overflow: hidden;
+}
+
+.tv-ai-icon {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: #a78bfa;
+    font-weight: 700;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+}
+
+.tv-ai-icon i {
+    font-size: 1.1rem;
+    animation: tvSparkle 3s ease-in-out infinite;
+}
+
+@keyframes tvSparkle {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+.tv-ai-ticker {
+    flex: 1;
+    overflow: hidden;
+    white-space: nowrap;
+    mask-image: linear-gradient(90deg, transparent 0%, #000 3%, #000 97%, transparent 100%);
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 3%, #000 97%, transparent 100%);
+}
+
+.tv-ai-msg {
+    display: inline-block;
+    font-size: 0.88rem;
+    color: #c4b5fd;
+    font-weight: 500;
+    animation: tvTicker 25s linear infinite;
+    padding-left: 100%;
+}
+
+@keyframes tvTicker {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+}
+
+/* ── Auto-Cycle Progress Bar ── */
+.tv-cycle-bar {
+    height: 3px;
+    background: transparent;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.tv-cycle-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, #638cff, #a78bfa);
+    transition: width 0.3s linear;
+}
+
+.tv-cycle-bar.cycling::after {
+    animation: tvCycleFill var(--cycle-duration, 15s) linear infinite;
+}
+
+@keyframes tvCycleFill {
+    0%   { width: 0; }
+    100% { width: 100%; }
+}
+
+/* ── Responsive Adjustments ── */
+@media (max-width: 1200px) {
+    .tv-card-grid { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+    .tv-machine-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+}
+
+/* ═══ Speech Controls & Indicators ═══ */
+
+.tv-speech-btn {
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.15);
+    color: #67e8f9;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.15rem;
+    transition: all .25s ease;
+    position: relative;
+}
+
+.tv-speech-btn:hover {
+    background: rgba(103,232,249,.15);
+    border-color: #67e8f9;
+    transform: scale(1.1);
+}
+
+.tv-speech-btn.muted {
+    color: #6b7280;
+    border-color: rgba(255,255,255,.08);
+}
+
+.tv-speech-btn.muted:hover {
+    color: #ef4444;
+    background: rgba(239,68,68,.1);
+    border-color: #ef4444;
+}
+
+/* Speech wave animation (visible when speaking) */
+.tv-speech-indicator {
+    display: none;
+    align-items: flex-end;
+    gap: 2px;
+    height: 22px;
+    margin-right: 4px;
+}
+
+.tv-speech-indicator.speaking {
+    display: flex;
+}
+
+.tv-speech-wave {
+    width: 3px;
+    background: #67e8f9;
+    border-radius: 2px;
+    animation: tvSpeechWave 1s ease-in-out infinite;
+}
+
+.tv-speech-wave:nth-child(1) { height: 8px; animation-delay: 0s; }
+.tv-speech-wave:nth-child(2) { height: 16px; animation-delay: .15s; }
+.tv-speech-wave:nth-child(3) { height: 10px; animation-delay: .3s; }
+
+@keyframes tvSpeechWave {
+    0%, 100% { transform: scaleY(.4); opacity: .5; }
+    50% { transform: scaleY(1); opacity: 1; }
+}
+
+/* Speech event toast notifications */
+.tv-speech-toast-container {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+    max-width: 420px;
+}
+
+.tv-speech-toast {
+    background: rgba(15,23,42,.92);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(103,232,249,.25);
+    border-left: 4px solid #67e8f9;
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: #e2e8f0;
+    font-size: .95rem;
+    line-height: 1.35;
+    animation: tvToastIn .4s ease forwards;
+    box-shadow: 0 8px 32px rgba(0,0,0,.4);
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.tv-speech-toast.toast-out {
+    animation: tvToastOut .4s ease forwards;
+}
+
+.tv-speech-toast-icon {
+    font-size: 1.3rem;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.tv-speech-toast-body {
+    flex: 1;
+}
+
+.tv-speech-toast-title {
+    font-weight: 600;
+    font-size: .85rem;
+    color: #67e8f9;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    margin-bottom: 2px;
+}
+
+.tv-speech-toast-msg {
+    color: #cbd5e1;
+}
+
+/* Toast severity colors */
+.tv-speech-toast.sev-success { border-left-color: #22c55e; }
+.tv-speech-toast.sev-success .tv-speech-toast-title { color: #22c55e; }
+.tv-speech-toast.sev-warning { border-left-color: #f59e0b; }
+.tv-speech-toast.sev-warning .tv-speech-toast-title { color: #f59e0b; }
+.tv-speech-toast.sev-danger  { border-left-color: #ef4444; }
+.tv-speech-toast.sev-danger  .tv-speech-toast-title { color: #ef4444; }
+.tv-speech-toast.sev-info    { border-left-color: #67e8f9; }
+
+@keyframes tvToastIn {
+    from { opacity: 0; transform: translateX(40px) scale(.95); }
+    to   { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@keyframes tvToastOut {
+    from { opacity: 1; transform: translateX(0) scale(1); }
+    to   { opacity: 0; transform: translateX(40px) scale(.9); }
+}
+
+@media (min-width: 1920px) {
+    .tv-kpi-val { font-size: 1.8rem; }
+    .tv-job-no { font-size: 1.3rem; }
+    .tv-table { font-size: 1.15rem; }
+    .tv-clock { font-size: 1.5rem; }
+    .tv-card-grid { grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); }
+}
+
+@media (min-width: 2560px) {
+    .tv-kpi-val { font-size: 2.2rem; }
+    .tv-job-no { font-size: 1.5rem; }
+    .tv-job-product { font-size: 1.2rem; }
+    .tv-table { font-size: 1.3rem; }
+    .tv-clock { font-size: 1.8rem; }
+    .tv-brand-text { font-size: 1.8rem; }
+    .tv-tab { font-size: 1.25rem; }
+    .tv-card-grid { grid-template-columns: repeat(auto-fill, minmax(500px, 1fr)); }
+}

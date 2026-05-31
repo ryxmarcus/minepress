@@ -1,0 +1,437 @@
+@page
+@model erp.minepress.web.Pages.Production.ProductionTracking.IndexModel
+@{
+    ViewData["Title"] = "Production Tracking";
+    ViewData["ContainerClass"] = "container-xl";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/production.css" />
+}
+
+<!-- ═══ Hero ═══ -->
+<div class="prod-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);">
+                <i class="bi bi-graph-up-arrow" style="font-size:1.5rem;"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="mb-0">Production Tracking</h2>
+            <div class="text-white-75">Monitor real-time production progress · Track job completion · View timelines</div>
+        </div>
+        <div class="col-auto d-flex gap-2">
+            <button class="btn btn-outline-light btn-sm" onclick="ProdTracking.refresh()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Insight Cards ═══ -->
+<div class="row g-3 mb-3">
+    <div class="col-6 col-lg-3">
+        <div class="card prod-insight-card">
+            <div class="card-body py-3">
+                <div class="d-flex align-items-center">
+                    <div class="prod-insight-icon bg-success-lt"><i class="bi bi-play-circle text-success"></i></div>
+                    <div class="ms-3">
+                        <div class="text-muted small">In Progress</div>
+                        <div class="h3 mb-0" id="trkInProgress">—</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card prod-insight-card">
+            <div class="card-body py-3">
+                <div class="d-flex align-items-center">
+                    <div class="prod-insight-icon bg-primary-lt"><i class="bi bi-check-circle text-primary"></i></div>
+                    <div class="ms-3">
+                        <div class="text-muted small">Completed Today</div>
+                        <div class="h3 mb-0" id="trkCompleted">—</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card prod-insight-card">
+            <div class="card-body py-3">
+                <div class="d-flex align-items-center">
+                    <div class="prod-insight-icon bg-danger-lt"><i class="bi bi-clock text-danger"></i></div>
+                    <div class="ms-3">
+                        <div class="text-muted small">Delayed</div>
+                        <div class="h3 mb-0" id="trkDelayed">—</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card prod-insight-card">
+            <div class="card-body py-3">
+                <div class="d-flex align-items-center">
+                    <div class="prod-insight-icon bg-cyan-lt"><i class="bi bi-people text-cyan"></i></div>
+                    <div class="ms-3">
+                        <div class="text-muted small">Active Manpower</div>
+                        <div class="h3 mb-0" id="trkManpower">—</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Maintenance & Breakdown Alerts ═══ -->
+<div class="row g-3 mb-3">
+    <div class="col-md-6">
+        <div class="prod-alert-panel">
+            <div class="prod-alert-header prod-alert-header-maint">
+                <span><i class="bi bi-tools me-2 text-warning"></i>Scheduled Maintenance</span>
+                <span class="badge bg-warning-lt text-warning" id="trkMaintCount">0</span>
+            </div>
+            <div class="prod-alert-body" id="trkMaintBody">
+                <div class="prod-alert-empty"><i class="bi bi-check-circle me-1"></i>No upcoming maintenance</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="prod-alert-panel">
+            <div class="prod-alert-header prod-alert-header-breakdown">
+                <span><i class="bi bi-lightning-charge me-2 text-danger"></i>Active Breakdowns</span>
+                <span class="badge bg-danger-lt text-danger" id="trkBreakdownCount">0</span>
+            </div>
+            <div class="prod-alert-body" id="trkBreakdownBody">
+                <div class="prod-alert-empty"><i class="bi bi-check-circle me-1"></i>No active breakdowns</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Filters ═══ -->
+<div class="card prod-filter-card mb-3">
+    <div class="card-body py-2 px-3">
+        <div class="row g-2 align-items-end">
+            <div class="col-sm-6 col-md-3">
+                <label class="form-label small mb-1">Job Search</label>
+                <input type="text" class="form-control form-control-sm" id="trkJobSearch" placeholder="Job No / Product…" oninput="ProdTracking.applyFilters()">
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <label class="form-label small mb-1">Machine</label>
+                <select class="form-select form-select-sm" id="trkMachineFilter" onchange="ProdTracking.applyFilters()">
+                    <option value="">All Machines</option>
+                </select>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <label class="form-label small mb-1">Status</label>
+                <select class="form-select form-select-sm" id="trkStatusFilter" onchange="ProdTracking.applyFilters()">
+                    <option value="">All Statuses</option>
+                    <option value="ALLOCATED">Allocated</option>
+                    <option value="IN_PROGRESS">In Progress</option>
+                    <option value="COMPLETED">Completed</option>
+                    <option value="ON_HOLD">On Hold</option>
+                </select>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <label class="form-label small mb-1">Date</label>
+                <input type="date" class="form-control form-control-sm" id="trkDateFilter" onchange="ProdTracking.applyFilters()">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Production Jobs Table ═══ -->
+<div class="card">
+    <div class="card-header py-2">
+        <h4 class="mb-0" style="font-size:.92rem;"><i class="bi bi-list-check me-2"></i>Production Jobs</h4>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-vcenter card-table prod-maint-table">
+                <thead>
+                    <tr>
+                        <th>Job No</th>
+                        <th>Product</th>
+                        <th>Machine</th>
+                        <th>Party</th>
+                        <th>Quantity</th>
+                        <th>Progress</th>
+                        <th>Status</th>
+                        <th>Delivery</th>
+                    </tr>
+                </thead>
+                <tbody id="trkTableBody">
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-4">
+                            <i class="bi bi-hourglass-split"></i> Loading production data…
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const ProdTracking = (function () {
+            'use strict';
+
+            let allJobs = [];
+            let allocLookup = {}; // jobId -> { machineName, machineCode, allocationStatus }
+            let machineStatusMap = {}; // machineId -> { hasActiveBreakdown, maintenanceDue, ... }
+
+            async function init() {
+                const today = new Date().toISOString().split('T')[0];
+                $('#trkDateFilter').val(today);
+
+                await loadMachineFilter();
+                await loadAllocations();
+                await loadJobs();
+                loadStats();
+                loadMaintBreakdown();
+            }
+
+            async function loadAllocations() {
+                try {
+                    const res = await $.get('/api/production/machine-allocations');
+                    allocLookup = {};
+                    res.forEach(a => {
+                        allocLookup[a.jobId] = {
+                            machineName: a.machineName,
+                            machineCode: a.machineCode,
+                            machineId: a.machineId,
+                            allocationStatus: a.allocationStatus
+                        };
+                    });
+                } catch (e) { /* silent */ }
+            }
+
+            async function loadMachineFilter() {
+                try {
+                    const [machines, statusRes] = await Promise.all([
+                        $.get('/api/production/machines'),
+                        $.get('/api/production/machine-status')
+                    ]);
+                    const $sel = $('#trkMachineFilter');
+                    machines.forEach(m => $sel.append(`<option value="${m.machineId}">${m.machineName}</option>`));
+                    statusRes.forEach(s => { machineStatusMap[s.machineId] = s; });
+                } catch (e) { /* silent */ }
+            }
+
+            async function loadJobs() {
+                try {
+                    // Fetch both unallocated and allocated jobs
+                    const [unallocated, allocRes] = await Promise.all([
+                        $.get('/api/production/unallocated-jobs'),
+                        $.get('/api/production/machine-allocations')
+                    ]);
+
+                    // Build allocated job list from machine-allocations
+                    const allocatedJobs = allocRes.map(a => ({
+                        jobId: a.jobId,
+                        jobNo: a.jobNo,
+                        productName: a.processName || '',
+                        partyName: '',
+                        quantity: a.plannedQuantity,
+                        statusCode: a.allocationStatus,
+                        progressPercent: a.completedQuantity && a.plannedQuantity ? Math.round((a.completedQuantity / a.plannedQuantity) * 100) : 0,
+                        deliveryDate: null,
+                        machineName: a.machineName,
+                        machineId: a.machineId
+                    }));
+
+                    // Merge: add machine info to unallocated jobs from allocLookup
+                    const enriched = unallocated.map(j => ({
+                        ...j,
+                        machineName: allocLookup[j.jobId]?.machineName || null,
+                        machineId: allocLookup[j.jobId]?.machineId || null
+                    }));
+
+                    // Combine: allocated jobs first, then unallocated
+                    allJobs = [...allocatedJobs, ...enriched];
+                    renderTable(allJobs);
+                } catch (e) {
+                    $('#trkTableBody').html('<tr><td colspan="8" class="text-center text-danger py-4"><i class="bi bi-exclamation-triangle"></i> Failed to load</td></tr>');
+                }
+            }
+
+            function renderTable(jobs) {
+                const $body = $('#trkTableBody');
+                $body.empty();
+
+                if (jobs.length === 0) {
+                    $body.html('<tr><td colspan="8" class="text-center text-muted py-4"><i class="bi bi-inbox"></i> No jobs found</td></tr>');
+                    return;
+                }
+
+                jobs.forEach(j => {
+                    const delivery = j.deliveryDate ? new Date(j.deliveryDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
+                    const daysLeft = j.deliveryDate ? Math.ceil((new Date(j.deliveryDate) - new Date()) / 86400000) : null;
+                    const urgencyClass = daysLeft !== null && daysLeft <= 2 ? 'text-danger fw-bold' : daysLeft !== null && daysLeft <= 5 ? 'text-warning' : '';
+                    const progress = j.progressPercent || 0;
+                    const statusBadge = getStatusBadge(j.statusCode);
+
+                    // Machine status indicators
+                    const ms = j.machineId ? machineStatusMap[j.machineId] : null;
+                    const rowClass = ms?.hasActiveBreakdown ? 'prod-row-breakdown' : ms?.maintenanceDue ? 'prod-row-maint-due' : '';
+                    let machineHtml = j.machineName ? escHtml(j.machineName) : '<span class="text-muted">—</span>';
+                    if (ms?.hasActiveBreakdown) {
+                        machineHtml += '<br><span class="badge bg-danger-lt text-danger" style="font-size:.6rem;"><i class="bi bi-lightning-charge"></i> Breakdown</span>';
+                    } else if (ms?.maintenanceDue) {
+                        machineHtml += '<br><span class="badge bg-warning-lt text-warning" style="font-size:.6rem;"><i class="bi bi-tools"></i> Maint. Due</span>';
+                    }
+
+                    $body.append(`
+                        <tr class="${rowClass}">
+                            <td><span class="fw-bold text-primary" style="font-size:.82rem;">${escHtml(j.jobNo)}</span></td>
+                            <td style="font-size:.82rem;">${escHtml(j.productName || '—')}</td>
+                            <td style="font-size:.82rem;">${machineHtml}</td>
+                            <td style="font-size:.82rem;">${escHtml(j.partyName || '—')}</td>
+                            <td style="font-size:.82rem;">${j.quantity?.toLocaleString('en-IN') || '—'}</td>
+                            <td style="width:120px;">
+                                <div class="progress progress-sm">
+                                    <div class="progress-bar bg-primary" style="width:${progress}%"></div>
+                                </div>
+                                <span class="text-muted" style="font-size:.7rem;">${progress}%</span>
+                            </td>
+                            <td>${statusBadge}</td>
+                            <td class="${urgencyClass}" style="font-size:.82rem;">${delivery}</td>
+                        </tr>`);
+                });
+            }
+
+            function getStatusBadge(status) {
+                const map = {
+                    'PENDING': 'bg-secondary-lt text-secondary',
+                    'IN_PROGRESS': 'bg-primary-lt text-primary',
+                    'COMPLETED': 'bg-success-lt text-success',
+                    'ON_HOLD': 'bg-warning-lt text-warning',
+                    'CANCELLED': 'bg-danger-lt text-danger'
+                };
+                const cls = map[status] || 'bg-secondary-lt text-secondary';
+                return `<span class="badge ${cls}" style="font-size:.68rem;">${escHtml(status || 'PENDING')}</span>`;
+            }
+
+            function applyFilters() {
+                const search = ($('#trkJobSearch').val() || '').toLowerCase();
+                const machineId = $('#trkMachineFilter').val();
+                const status = $('#trkStatusFilter').val();
+
+                let filtered = allJobs.filter(j => {
+                    if (search && !(j.jobNo || '').toLowerCase().includes(search) &&
+                        !(j.productName || '').toLowerCase().includes(search)) return false;
+                    if (machineId && String(j.machineId || '') !== machineId) return false;
+                    if (status && (j.statusCode || '') !== status) return false;
+                    return true;
+                });
+
+                renderTable(filtered);
+            }
+
+            async function loadStats() {
+                try {
+                    const res = await $.get('/api/production/stats');
+                    $('#trkInProgress').text(res.running);
+                    $('#trkCompleted').text(res.todayJobs);
+                    $('#trkDelayed').text(0);
+                    $('#trkManpower').text(res.manpowerAssigned);
+                } catch (e) { /* silent */ }
+            }
+
+            function refresh() { loadAllocations().then(() => loadJobs()); loadStats(); loadMaintBreakdown(); }
+
+            async function loadMaintBreakdown() {
+                try {
+                    const [machineStatusRes, breakdowns, maintenance] = await Promise.all([
+                        $.get('/api/production/machine-status'),
+                        $.get('/api/production/breakdowns'),
+                        $.get('/api/production/maintenance')
+                    ]);
+
+                    // Scheduled maintenance (due within 7 days, not completed)
+                    const maintDue = maintenance.filter(m => {
+                        if (!m.nextDueDate) return false;
+                        const due = new Date(m.nextDueDate);
+                        const now = new Date();
+                        const diff = (due - now) / 86400000;
+                        return diff <= 7 && m.repairStatus !== 'Completed';
+                    });
+                    $('#trkMaintCount').text(maintDue.length);
+                    const $mBody = $('#trkMaintBody');
+                    $mBody.empty();
+                    if (maintDue.length === 0) {
+                        $mBody.html('<div class="prod-alert-empty"><i class="bi bi-check-circle me-1"></i>No upcoming maintenance</div>');
+                    } else {
+                        maintDue.forEach(m => {
+                            const dueDate = m.nextDueDate ? new Date(m.nextDueDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }) : '—';
+                            const isOverdue = m.isOverdue;
+                            $mBody.append(`
+                                <div class="prod-alert-item">
+                                    <div class="prod-alert-icon ${isOverdue ? 'bg-danger-lt' : 'bg-warning-lt'}">
+                                        <i class="bi bi-tools ${isOverdue ? 'text-danger' : 'text-warning'}"></i>
+                                    </div>
+                                    <div class="flex-fill">
+                                        <div class="fw-medium">${escHtml(m.machineName || '—')}</div>
+                                        <div class="text-muted" style="font-size:.72rem;">${escHtml(m.maintenanceType || '')} · Due: ${dueDate}${m.downtimeMinutes ? ' · Est. ' + m.downtimeMinutes + ' min' : ''}</div>
+                                    </div>
+                                    <span class="badge ${isOverdue ? 'bg-danger-lt text-danger' : 'bg-warning-lt text-warning'}" style="font-size:.65rem;">
+                                        ${isOverdue ? 'OVERDUE' : (m.repairStatus || 'Pending')}
+                                    </span>
+                                </div>`);
+                        });
+                    }
+
+                    // Active breakdowns
+                    const activeBreakdowns = breakdowns.filter(b =>
+                        b.breakdownStatus === 'Open' || b.breakdownStatus === 'Assigned' || b.breakdownStatus === 'In Progress');
+                    $('#trkBreakdownCount').text(activeBreakdowns.length);
+                    const $bBody = $('#trkBreakdownBody');
+                    $bBody.empty();
+                    if (activeBreakdowns.length === 0) {
+                        $bBody.html('<div class="prod-alert-empty"><i class="bi bi-check-circle me-1"></i>No active breakdowns</div>');
+                    } else {
+                        activeBreakdowns.forEach(b => {
+                            const startTime = b.breakdownStartTime ? new Date(b.breakdownStartTime).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—';
+                            const sevClass = b.severityLevel === 'Critical' ? 'bg-danger-lt text-danger' : b.severityLevel === 'High' ? 'bg-orange-lt text-orange' : 'bg-warning-lt text-warning';
+                            const downtime = b.downtimeMinutes ? Math.round(b.downtimeMinutes) + ' min' : 'Ongoing';
+                            $bBody.append(`
+                                <div class="prod-alert-item">
+                                    <div class="prod-alert-icon bg-danger-lt">
+                                        <i class="bi bi-lightning-charge text-danger"></i>
+                                    </div>
+                                    <div class="flex-fill">
+                                        <div class="fw-medium">${escHtml(b.machineName || '—')}</div>
+                                        <div class="text-muted" style="font-size:.72rem;">${escHtml(b.faultCategory || '')} · Since: ${startTime} · Downtime: ${downtime}</div>
+                                    </div>
+                                    <div class="d-flex gap-1">
+                                        <span class="badge ${sevClass}" style="font-size:.65rem;">${escHtml(b.severityLevel || '—')}</span>
+                                        <span class="badge bg-secondary-lt" style="font-size:.65rem;">${escHtml(b.breakdownStatus)}</span>
+                                    </div>
+                                </div>`);
+                        });
+                    }
+
+                    // Update delayed count: count jobs on machines with active breakdowns
+                    const breakdownMachineIds = new Set(activeBreakdowns.map(b => b.machineId));
+                    const delayedCount = allJobs.filter(j => j.machineId && breakdownMachineIds.has(j.machineId)).length;
+                    $('#trkDelayed').text(delayedCount);
+                } catch (e) { /* silent */ }
+            }
+
+            function escHtml(str) {
+                if (!str) return '';
+                const d = document.createElement('div');
+                d.textContent = str;
+                return d.innerHTML;
+            }
+
+            $(function () { init(); });
+
+            return { refresh, applyFilters };
+        })();
+    </script>
+}

@@ -1,0 +1,237 @@
+@page
+@model erp.minepress.web.Pages.AgenticAi.IndexModel
+@{
+    ViewData["Title"] = "Agentic AI";
+}
+
+@section Styles {
+    <link href="/css/agentic-ai.css" rel="stylesheet" />
+}
+
+<!-- ═══ Hero Header ═══ -->
+<div class="ai-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-lg ai-hero-avatar">
+                <i class="bi bi-robot" style="font-size:1.5rem;"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="mb-1">MinePress Agentic AI</h2>
+            <div class="text-white-75 d-flex align-items-center gap-2">
+                <span class="badge bg-white text-dark">
+                    <i class="bi bi-person me-1"></i>@Model.UserFullName
+                </span>
+                <span class="badge bg-success-lt text-white">
+                    <i class="bi bi-circle-fill me-1" style="font-size:0.5rem;"></i>Online
+                </span>
+            </div>
+        </div>
+        <div class="col-auto d-flex gap-2">
+            <button class="btn btn-outline-light btn-sm" onclick="AgenticAi.clearChat()">
+                <i class="bi bi-trash3 me-1"></i>Clear Chat
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mt-2">
+    <!-- ═══ Main Chat Area ═══ -->
+    <div class="col-lg-9">
+        <div class="card ai-chat-card">
+            <div class="card-body p-0 d-flex flex-column" style="height:calc(100vh - 260px); min-height:500px;">
+                <!-- Chat Messages -->
+                <div class="ai-chat-messages flex-grow-1 overflow-auto p-3" id="chatMessages">
+                    <!-- Welcome message -->
+                    <div class="ai-msg ai-msg-bot">
+                        <div class="ai-msg-avatar">
+                            <i class="bi bi-robot"></i>
+                        </div>
+                        <div class="ai-msg-content">
+                            <div class="ai-msg-bubble">
+                                <p class="mb-2"><strong>Hi @Model.UserFullName 👋, How may I help you?</strong></p>
+                                <p class="mb-2">I can help you with your printing ERP operations. Try saying:</p>
+                                <div class="ai-suggestions">
+                                    <button class="ai-suggestion-chip" onclick="AgenticAi.useSuggestion('Create brochure job for 500 copies')">
+                                        <i class="bi bi-briefcase me-1"></i>Create brochure job for 500 copies
+                                    </button>
+                                    <button class="ai-suggestion-chip" onclick="AgenticAi.useSuggestion('Calculate cost for 1000 posters offset printing')">
+                                        <i class="bi bi-calculator me-1"></i>Calculate cost for 1000 posters
+                                    </button>
+                                    <button class="ai-suggestion-chip" onclick="AgenticAi.useSuggestion('Check status of job JOB-2026-0001')">
+                                        <i class="bi bi-search me-1"></i>Check job status
+                                    </button>
+                                    <button class="ai-suggestion-chip" onclick="AgenticAi.useSuggestion('Generate invoice for JOB-2026-0001')">
+                                        <i class="bi bi-receipt me-1"></i>Generate invoice
+                                    </button>
+                                    <button class="ai-suggestion-chip" onclick="AgenticAi.useSuggestion('Allocate machine for JOB-2026-0001')">
+                                        <i class="bi bi-printer me-1"></i>Allocate machine
+                                    </button>
+                                    <button class="ai-suggestion-chip" onclick="AgenticAi.useSuggestion('Show me the reports summary')">
+                                        <i class="bi bi-bar-chart me-1"></i>View reports
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="ai-msg-meta">MinePress AI &bull; Just now</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input Area -->
+                <div class="ai-chat-input-area border-top p-3">
+                    <!-- Output Format & Delivery Options -->
+                    <div class="row g-2 mb-2">
+                        <div class="col-auto">
+                            <select class="form-select form-select-sm ai-agent-select" id="agentSelect" title="Select Agent">
+                                <option value="auto">🤖 Auto (AI Decides)</option>
+                                <optgroup label="Agents">
+                                    <option value="JobAgent">📋 Job Agent</option>
+                                    <option value="CostingAgent">💰 Costing Agent</option>
+                                    <option value="MachineAgent">🖨️ Machine Agent</option>
+                                    <option value="BillingAgent">🧾 Billing Agent</option>
+                                    <option value="DeliveryAgent">🚚 Delivery Agent</option>
+                                    <option value="VendorAgent">🏭 Vendor Agent</option>
+                                    <option value="ReportingAgent">📊 Reporting Agent</option>
+                                    <option value="CustomerAgent">👤 Customer Agent</option>
+                                    <option value="EnquiryAgent">📝 Enquiry Agent</option>
+                                    <option value="QuotationAgent">📑 Quotation Agent</option>
+                                    <option value="PurchaseAgent">🛒 Purchase Agent</option>
+                                    <option value="HRAgent">👥 HR Agent</option>
+                                    <option value="StoreAgent">📦 Store Agent</option>
+                                    <option value="AccountingAgent">💳 Accounting Agent</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <select class="form-select form-select-sm" id="outputFormat" title="Output Format">
+                                <option value="text">📝 Text</option>
+                                <option value="table">📊 Table</option>
+                                <option value="pdf">📄 PDF</option>
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <select class="form-select form-select-sm" id="deliveryChannel" title="Delivery Channel">
+                                <option value="">🖥️ Screen Only</option>
+                                <option value="email">📧 Email</option>
+                                <option value="whatsapp">💬 WhatsApp</option>
+                            </select>
+                        </div>
+                        <div class="col" id="deliveryAddressGroup" style="display:none;">
+                            <input type="text" class="form-control form-control-sm" id="deliveryAddress"
+                                   placeholder="Email or phone number..." />
+                        </div>
+                    </div>
+                    <!-- Text Input Row -->
+                    <div class="d-flex gap-2">
+                        <div class="flex-grow-1 position-relative">
+                            <textarea class="form-control ai-input" id="userInput" rows="1"
+                                      placeholder="Type your request... (e.g., 'Create 500 brochure job for ABC Enterprises')"
+                                      maxlength="2000"></textarea>
+                        </div>
+                        <button class="btn btn-primary ai-send-btn" id="sendBtn" onclick="AgenticAi.send()" title="Send">
+                            <i class="bi bi-send-fill"></i>
+                        </button>
+                        <button class="btn btn-outline-secondary ai-mic-btn" id="micBtn" onclick="AgenticAi.toggleSpeech()" title="Voice Input">
+                            <i class="bi bi-mic-fill"></i>
+                        </button>
+                    </div>
+                    <div class="ai-speech-indicator" id="speechIndicator" style="display:none;">
+                        <span class="ai-pulse-dot"></span>
+                        <span class="small text-danger fw-semibold">Listening... Speak now</span>
+                        <button class="btn btn-sm btn-outline-danger ms-2" onclick="AgenticAi.stopSpeech()">Stop</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ Side Panel ═══ -->
+    <div class="col-lg-3">
+        <!-- Agent Status -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <h3 class="card-title"><i class="bi bi-cpu me-2"></i>Agent Status</h3>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush" id="agentStatusList">
+                    <div class="list-group-item d-flex align-items-center py-2">
+                        <span class="status-dot status-dot-animated bg-success me-2"></span>
+                        <span class="small">Intent Agent</span>
+                    </div>
+                    <div class="list-group-item d-flex align-items-center py-2">
+                        <span class="status-dot bg-success me-2"></span>
+                        <span class="small">Job Agent</span>
+                    </div>
+                    <div class="list-group-item d-flex align-items-center py-2">
+                        <span class="status-dot bg-success me-2"></span>
+                        <span class="small">Costing Agent</span>
+                    </div>
+                    <div class="list-group-item d-flex align-items-center py-2">
+                        <span class="status-dot bg-success me-2"></span>
+                        <span class="small">Machine Agent</span>
+                    </div>
+                    <div class="list-group-item d-flex align-items-center py-2">
+                        <span class="status-dot bg-success me-2"></span>
+                        <span class="small">Billing Agent</span>
+                    </div>
+                    <div class="list-group-item d-flex align-items-center py-2">
+                        <span class="status-dot bg-success me-2"></span>
+                        <span class="small">Delivery Agent</span>
+                    </div>
+                    <div class="list-group-item d-flex align-items-center py-2">
+                        <span class="status-dot bg-success me-2"></span>
+                        <span class="small">Vendor Agent</span>
+                    </div>
+                    <div class="list-group-item d-flex align-items-center py-2">
+                        <span class="status-dot bg-success me-2"></span>
+                        <span class="small">Reporting Agent</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <h3 class="card-title"><i class="bi bi-clock-history me-2"></i>Recent Activity</h3>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush" id="recentActivity">
+                    <div class="list-group-item text-center text-muted small py-3">
+                        <i class="bi bi-chat-dots me-1"></i>No activity yet
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Supported Intents -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="bi bi-lightbulb me-2"></i>Supported Commands</h3>
+            </div>
+            <div class="card-body">
+                <div class="d-flex flex-wrap gap-1">
+                    <span class="badge bg-blue-lt">Create Job</span>
+                    <span class="badge bg-blue-lt">Update Job</span>
+                    <span class="badge bg-green-lt">Calculate Cost</span>
+                    <span class="badge bg-cyan-lt">Check Status</span>
+                    <span class="badge bg-purple-lt">Allocate Machine</span>
+                    <span class="badge bg-orange-lt">Vendor Job</span>
+                    <span class="badge bg-yellow-lt">Generate Invoice</span>
+                    <span class="badge bg-red-lt">Gate Pass</span>
+                    <span class="badge bg-pink-lt">Update Delivery</span>
+                    <span class="badge bg-teal-lt">Reports</span>
+                    <span class="badge bg-indigo-lt">Send Documents</span>
+                </div>
+                <div class="mt-2 small text-muted">
+                    <i class="bi bi-translate me-1"></i>Supports English, Hindi &amp; Hinglish
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>window.__aiUserName = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.UserFullName));</script>
+    <script src="/js/agentic-ai.js"></script>
+}

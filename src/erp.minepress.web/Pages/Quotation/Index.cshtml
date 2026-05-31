@@ -1,0 +1,427 @@
+@page
+@model erp.minepress.web.Pages.Quotation.IndexModel
+@{
+    ViewData["Title"] = "Quotations";
+}
+
+<!-- Hero Header -->
+<div class="qt-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);">
+                <i class="bi bi-file-earmark-text" style="font-size:1.5rem;"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="mb-0">Quotations</h2>
+            <div class="text-white-75">Manage customer quotations, track status and send to clients.</div>
+        </div>
+        <div class="col-auto d-flex gap-2">
+            <button class="btn btn-outline-light btn-sm" onclick="loadQuotationList()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+            </button>
+            <a href="/Quotation/Details?mode=create" class="btn btn-light">
+                <i class="bi bi-plus-lg me-1"></i>New Quotation
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Row -->
+<div class="row g-3 mb-3" id="qtStats">
+    <div class="col-6 col-md-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-primary-lt me-3"><i class="bi bi-file-earmark-text"></i></span>
+                    <div>
+                        <div class="fw-bold fs-3" id="statTotal">0</div>
+                        <div class="text-secondary small">Total</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-warning-lt me-3"><i class="bi bi-pencil-square"></i></span>
+                    <div>
+                        <div class="fw-bold fs-3" id="statDraft">0</div>
+                        <div class="text-secondary small">Draft</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-info-lt me-3"><i class="bi bi-send"></i></span>
+                    <div>
+                        <div class="fw-bold fs-3" id="statSent">0</div>
+                        <div class="text-secondary small">Sent</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-success-lt me-3"><i class="bi bi-check-circle"></i></span>
+                    <div>
+                        <div class="fw-bold fs-3" id="statApproved">0</div>
+                        <div class="text-secondary small">Approved</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card mb-3">
+    <div class="card-body py-2">
+        <div class="row g-2 align-items-center">
+            <div class="col-md-4">
+                <div class="input-icon">
+                    <span class="input-icon-addon"><i class="bi bi-search"></i></span>
+                    <input type="text" id="txtSearch" class="form-control form-control-sm" placeholder="Search quotation no, customer..." />
+                </div>
+            </div>
+            <div class="col-md-2">
+                <select id="ddlStatusFilter" class="form-select form-select-sm">
+                    <option value="">All Statuses</option>
+                    <option value="DRAFT">Draft</option>
+                    <option value="SENT">Sent</option>
+                    <option value="APPROVED">Approved</option>
+                    <option value="REVISED">Revised</option>
+                    <option value="CLOSED">Closed</option>
+                    <option value="CANCELLED">Cancelled</option>
+                </select>
+            </div>
+            <div class="col-auto ms-auto">
+                <span class="text-muted small" id="filteredCount"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quotation Table -->
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table qt-list-table table-hover">
+            <thead>
+                <tr>
+                    <th class="sortable" data-sort="quotationNo" style="cursor:pointer;">Quotation No <i class="bi bi-arrow-down-up small text-muted"></i></th>
+                    <th class="sortable" data-sort="quotationDate" style="cursor:pointer;">Date <i class="bi bi-arrow-down-up small text-muted"></i></th>
+                    <th class="sortable" data-sort="customerName" style="cursor:pointer;">Customer <i class="bi bi-arrow-down-up small text-muted"></i></th>
+                    <th>Enquiry</th>
+                    <th class="text-center">Items</th>
+                    <th class="text-end sortable" data-sort="netAmount" style="cursor:pointer;">Net Amount <i class="bi bi-arrow-down-up small text-muted"></i></th>
+                    <th>Valid Till</th>
+                    <th class="sortable" data-sort="status" style="cursor:pointer;">Status <i class="bi bi-arrow-down-up small text-muted"></i></th>
+                    <th class="text-center" style="width:100px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="quotationListBody">
+                <tr>
+                    <td colspan="9" class="text-center text-muted py-4">
+                        <div class="spinner-border spinner-border-sm me-2"></div>Loading quotations...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Paging Controls -->
+<div class="card mt-2" id="pagingControls" style="display:none;">
+    <div class="card-body py-2">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-muted small">Show</span>
+                <select id="ddlPageSize" class="form-select form-select-sm" style="width:auto;">
+                    <option value="10">10</option>
+                    <option value="25" selected>25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+                <span class="text-muted small">entries</span>
+            </div>
+            <div class="text-muted small" id="pagingInfo"></div>
+            <nav>
+                <ul class="pagination pagination-sm mb-0" id="paginationNav"></ul>
+            </nav>
+        </div>
+    </div>
+</div>
+<div id="emptyState" class="text-center py-5" style="display:none;">
+    <i class="bi bi-file-earmark-x" style="font-size:3rem; opacity:.3;"></i>
+    <div class="text-muted mt-2">No quotations found</div>
+    <a href="/Quotation/Details?mode=create" class="btn btn-primary mt-3">
+        <i class="bi bi-plus-lg me-1"></i>Create First Quotation
+    </a>
+</div>
+
+@section Scripts {
+    <script>
+        const QT_LIST_API = '/api/quotation';
+        let allQuotations = [];
+        let currentPage = 1;
+        let pageSize = 25;
+        let sortField = 'quotationNo';
+        let sortDir = 'desc';
+
+        $(document).ready(function () {
+            loadQuotationList();
+            $('#txtSearch, #ddlStatusFilter').on('input change', function () { currentPage = 1; applyFilters(); });
+            $('#ddlPageSize').on('change', function () { pageSize = parseInt($(this).val()); currentPage = 1; applyFilters(); });
+            $(document).on('click', '.sortable', function () {
+                const field = $(this).data('sort');
+                if (sortField === field) { sortDir = sortDir === 'asc' ? 'desc' : 'asc'; }
+                else { sortField = field; sortDir = 'asc'; }
+                $('.sortable i').attr('class', 'bi bi-arrow-down-up small text-muted');
+                $(this).find('i').attr('class', sortDir === 'asc' ? 'bi bi-arrow-up small text-primary' : 'bi bi-arrow-down small text-primary');
+                applyFilters();
+            });
+        });
+
+        function loadQuotationList() {
+            $('#quotationListBody').html('<tr><td colspan="9" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2"></div>Loading quotations...</td></tr>');
+            $.get(`${QT_LIST_API}/list`, function (data) {
+                allQuotations = data;
+                updateStats();
+                applyFilters();
+            }).fail(function () {
+                $('#quotationListBody').html('<tr><td colspan="9" class="text-center text-danger py-3"><i class="bi bi-exclamation-circle me-1"></i>Failed to load quotations.</td></tr>');
+            });
+        }
+
+        function updateStats() {
+            $('#statTotal').text(allQuotations.length);
+            $('#statDraft').text(allQuotations.filter(q => q.status === 'DRAFT').length);
+            $('#statSent').text(allQuotations.filter(q => q.status === 'SENT').length);
+            $('#statApproved').text(allQuotations.filter(q => q.status === 'APPROVED').length);
+        }
+
+        function applyFilters() {
+            const q = ($('#txtSearch').val() || '').toLowerCase();
+            const status = $('#ddlStatusFilter').val();
+
+            let filtered = allQuotations.filter(qt => {
+                if (q && !(qt.quotationNo || '').toLowerCase().includes(q) &&
+                    !(qt.customerName || '').toLowerCase().includes(q) &&
+                    !(qt.enquiryNo || '').toLowerCase().includes(q)) return false;
+                if (status && qt.status !== status) return false;
+                return true;
+            });
+
+            // Sort
+            filtered.sort((a, b) => {
+                let va = a[sortField], vb = b[sortField];
+                if (va == null) va = '';
+                if (vb == null) vb = '';
+                if (typeof va === 'string') va = va.toLowerCase();
+                if (typeof vb === 'string') vb = vb.toLowerCase();
+                if (va < vb) return sortDir === 'asc' ? -1 : 1;
+                if (va > vb) return sortDir === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            // Paging
+            const totalItems = filtered.length;
+            const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+            if (currentPage > totalPages) currentPage = totalPages;
+            const start = (currentPage - 1) * pageSize;
+            const paged = filtered.slice(start, start + pageSize);
+
+            $('#filteredCount').text(filtered.length < allQuotations.length
+                ? `Showing ${filtered.length} of ${allQuotations.length}` : '');
+            renderQuotationTable(paged);
+            renderPaging(totalItems, totalPages);
+        }
+
+        function renderPaging(totalItems, totalPages) {
+            if (totalItems === 0) { $('#pagingControls').hide(); return; }
+            $('#pagingControls').show();
+            const start = (currentPage - 1) * pageSize + 1;
+            const end = Math.min(currentPage * pageSize, totalItems);
+            $('#pagingInfo').text(`Showing ${start} to ${end} of ${totalItems} entries`);
+
+            let navHtml = '';
+            navHtml += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}"><a class="page-link" href="javascript:void(0)" onclick="goToPage(${currentPage - 1})">&laquo;</a></li>`;
+            const maxButtons = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+            let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+            if (endPage - startPage < maxButtons - 1) startPage = Math.max(1, endPage - maxButtons + 1);
+            for (let i = startPage; i <= endPage; i++) {
+                navHtml += `<li class="page-item ${i === currentPage ? 'active' : ''}"><a class="page-link" href="javascript:void(0)" onclick="goToPage(${i})">${i}</a></li>`;
+            }
+            navHtml += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}"><a class="page-link" href="javascript:void(0)" onclick="goToPage(${currentPage + 1})">&raquo;</a></li>`;
+            $('#paginationNav').html(navHtml);
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            applyFilters();
+        }
+
+        function renderQuotationTable(data) {
+            if (data.length === 0) {
+                $('#quotationListBody').html('');
+                $('#emptyState').show();
+                return;
+            }
+            $('#emptyState').hide();
+
+            let html = '';
+            data.forEach(q => {
+                const statusClass = {
+                    'DRAFT': 'qt-status-draft',
+                    'SENT': 'qt-status-sent',
+                    'APPROVED': 'qt-status-approved',
+                    'REVISED': 'qt-status-revised',
+                    'CLOSED': 'qt-status-closed',
+                    'CANCELLED': 'qt-status-cancelled'
+                }[q.status] || 'bg-secondary-lt';
+
+                const isDraft = q.status === 'DRAFT';
+                const isClosed = q.status === 'CLOSED' || q.status === 'CANCELLED';
+
+                html += `<tr class="qt-list-row" data-id="${q.quotationId}">
+                    <td>
+                        <a href="/Quotation/Details?id=${q.quotationId}" class="fw-semibold text-primary text-decoration-none">${esc(q.quotationNo)}</a>
+                        <div class="text-muted small">${q.createdOn || ''}</div>
+                    </td>
+                    <td>${esc(q.quotationDate)}</td>
+                    <td>
+                        <div class="fw-semibold">${esc(q.customerName)}</div>
+                        <div class="text-muted small">${esc(q.customerCode || '')}</div>
+                    </td>
+                    <td>
+                        ${q.enquiryNo ? `<a href="/Enquiry/Details?id=${q.enquiryId}" class="badge bg-blue-lt text-decoration-none">${esc(q.enquiryNo)}</a>` : '<span class="text-muted">-</span>'}
+                    </td>
+                    <td class="text-center"><span class="badge bg-primary-lt">${q.itemCount}</span></td>
+                    <td class="text-end fw-semibold">${q.netAmount != null ? '₹' + Number(q.netAmount).toLocaleString('en-IN', {minimumFractionDigits:2}) : '-'}</td>
+                    <td class="small">${q.validTill || '<span class="text-muted">-</span>'}</td>
+                    <td><span class="qt-status-badge ${statusClass}">${q.status || 'N/A'}</span></td>
+                    <td class="text-center">
+                        <div class="dropdown">
+                            <button class="btn btn-ghost-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-three-dots-vertical"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end qt-action-dropdown">
+                                <h6 class="dropdown-header">View</h6>
+                                <a class="dropdown-item" href="/Quotation/Details?id=${q.quotationId}">
+                                    <i class="bi bi-eye me-2 text-primary"></i>View Details
+                                </a>
+
+                                <div class="dropdown-divider"></div>
+                                <h6 class="dropdown-header">Actions</h6>
+                                ${!isClosed ? `<a class="dropdown-item" href="javascript:void(0)" onclick="sendQuotationEmail(${q.quotationId}, '${esc(q.quotationNo)}')">
+                                    <i class="bi bi-envelope me-2 text-success"></i>Email to Customer
+                                </a>` : ''}
+                                ${!isClosed ? `<a class="dropdown-item" href="javascript:void(0)" onclick="updateStatus(${q.quotationId}, 'APPROVED', '${esc(q.quotationNo)}')">
+                                    <i class="bi bi-check-circle me-2 text-success"></i>Mark Approved
+                                </a>` : ''}
+                                ${!isClosed ? `<a class="dropdown-item" href="javascript:void(0)" onclick="convertToJob(${q.quotationId})">
+                                    <i class="bi bi-briefcase me-2 text-purple"></i>Convert to Job
+                                </a>` : ''}
+
+                                ${isDraft ? `<div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="javascript:void(0)" onclick="updateStatus(${q.quotationId}, 'CANCELLED', '${esc(q.quotationNo)}')">
+                                    <i class="bi bi-x-circle me-2 text-warning"></i>Cancel
+                                </a>
+                                <a class="dropdown-item text-danger" href="javascript:void(0)" onclick="deleteQuotation(${q.quotationId}, '${esc(q.quotationNo)}')">
+                                    <i class="bi bi-trash me-2"></i>Delete
+                                </a>` : ''}
+                            </div>
+                        </div>
+                    </td>
+                </tr>`;
+            });
+
+            $('#quotationListBody').html(html);
+        }
+
+        // ── Actions ──
+        async function updateStatus(id, status, qtNo) {
+            const confirmed = await Swal2.confirmStatus(qtNo, status);
+            if (!confirmed) return;
+            try {
+                await $.ajax({
+                    url: `${QT_LIST_API}/updatestatus`,
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ quotationId: id, status: status })
+                });
+                Swal2.success(`Status updated to ${status}`);
+                loadQuotationList();
+            } catch (err) {
+                Swal2.error(err.responseJSON?.message || 'Failed to update status');
+            }
+        }
+
+        async function deleteQuotation(id, qtNo) {
+            const confirmed = await Swal2.confirmDelete(qtNo);
+            if (!confirmed) return;
+            try {
+                Swal2.showLoading('Deleting...');
+                await $.ajax({
+                    url: `${QT_LIST_API}/delete/${id}`,
+                    method: 'DELETE'
+                });
+                Swal2.hideLoading();
+                Swal2.success('Quotation deleted successfully.');
+                loadQuotationList();
+            } catch (err) {
+                Swal2.hideLoading();
+                Swal2.error(err.responseJSON?.message || 'Failed to delete');
+            }
+        }
+
+        async function sendQuotationEmail(id, qtNo) {
+            const result = await Swal.fire({
+                title: 'Email Quotation?',
+                html: `Send <strong>${qtNo}</strong> to the customer's email address?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: '<i class="bi bi-envelope me-1"></i>Send Email',
+                confirmButtonColor: '#0d6efd'
+            });
+            if (!result.isConfirmed) return;
+            try {
+                Swal2.showLoading('Sending email...');
+                const res = await $.ajax({
+                    url: `${QT_LIST_API}/send-email/${id}`,
+                    method: 'POST'
+                });
+                Swal2.hideLoading();
+                Swal2.success(res.message || 'Quotation emailed successfully.');
+                loadQuotationList();
+            } catch (err) {
+                Swal2.hideLoading();
+                Swal2.error(err.responseJSON?.message || 'Failed to send email');
+            }
+        }
+
+        function convertToJob(quotationId) {
+            window.location.href = `/Job/Create?fromQuotationId=${quotationId}`;
+        }
+
+        // ── Helpers ──
+        function esc(value) {
+            return (value || '')
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#39;');
+        }
+    </script>
+}

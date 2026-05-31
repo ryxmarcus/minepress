@@ -1,0 +1,7143 @@
+postgres View 
+SELECT job_costing_master_json FROM press_db.vw_job_costing_master_json;
+
+
+
+{
+  "inks": [
+    {
+      "id": 1,
+      "color": "Black",
+      "drying": "Absorption",
+      "ink_code": "INK_COLDSET_BLACK",
+      "ink_name": "Coldset Black Ink",
+      "job_types": "Newspaper",
+      "table_name": "mst_ink",
+      "rate_per_kg": 190,
+      "consumption_gsm": 1.7
+    },
+    {
+      "id": 2,
+      "color": "Black",
+      "drying": "Instant",
+      "ink_code": "INK_DIG_BLACK",
+      "ink_name": "Digital Black Ink",
+      "job_types": "VariableData,ShortRun",
+      "table_name": "mst_ink",
+      "rate_per_kg": 2200,
+      "consumption_gsm": 0.8
+    },
+    {
+      "id": 3,
+      "color": "Multi",
+      "drying": "Solvent",
+      "ink_code": "INK_ECO_SOLVENT",
+      "ink_name": "Eco Solvent Ink",
+      "job_types": "Flex,Banner,Signage",
+      "table_name": "mst_ink",
+      "rate_per_kg": 1500,
+      "consumption_gsm": 0.75
+    },
+    {
+      "id": 4,
+      "color": "Cyan",
+      "drying": "Fast Dry",
+      "ink_code": "INK_FLEXO_CYAN",
+      "ink_name": "Flexo Cyan Ink",
+      "job_types": "Label,Packaging",
+      "table_name": "mst_ink",
+      "rate_per_kg": 560,
+      "consumption_gsm": 0.9
+    },
+    {
+      "id": 5,
+      "color": "Black",
+      "drying": "Oxidation",
+      "ink_code": "INK_FOOD_BLACK",
+      "ink_name": "Food Grade Black Ink",
+      "job_types": "FoodPackaging",
+      "table_name": "mst_ink",
+      "rate_per_kg": 600,
+      "consumption_gsm": 1.4
+    },
+    {
+      "id": 6,
+      "color": "Cyan",
+      "drying": "Oxidation",
+      "ink_code": "INK_FOOD_CYAN",
+      "ink_name": "Food Grade Cyan Ink",
+      "job_types": "FoodPackaging",
+      "table_name": "mst_ink",
+      "rate_per_kg": 620,
+      "consumption_gsm": 1.2
+    },
+    {
+      "id": 7,
+      "color": "Cyan",
+      "drying": "Solvent",
+      "ink_code": "INK_GRAVURE_CYAN",
+      "ink_name": "Gravure Cyan Ink",
+      "job_types": "FlexiblePackaging",
+      "table_name": "mst_ink",
+      "rate_per_kg": 500,
+      "consumption_gsm": 0.85
+    },
+    {
+      "id": 8,
+      "color": "Cyan",
+      "drying": "Heatset",
+      "ink_code": "INK_HEATSET_CYAN",
+      "ink_name": "Heatset Cyan Ink",
+      "job_types": "Magazine,Newspaper",
+      "table_name": "mst_ink",
+      "rate_per_kg": 450,
+      "consumption_gsm": 1.1
+    },
+    {
+      "id": 9,
+      "color": "Cyan",
+      "drying": "LED UV",
+      "ink_code": "INK_LED_UV_CYAN",
+      "ink_name": "LED UV Cyan Ink",
+      "job_types": "Packaging,Label",
+      "table_name": "mst_ink",
+      "rate_per_kg": 980,
+      "consumption_gsm": 1
+    },
+    {
+      "id": 10,
+      "color": "Gold",
+      "drying": "Oxidation",
+      "ink_code": "INK_MET_GOLD",
+      "ink_name": "Metallic Gold Ink",
+      "job_types": "Invitation,Packaging",
+      "table_name": "mst_ink",
+      "rate_per_kg": 1600,
+      "consumption_gsm": 2.2
+    },
+    {
+      "id": 11,
+      "color": "Silver",
+      "drying": "Oxidation",
+      "ink_code": "INK_MET_SILVER",
+      "ink_name": "Metallic Silver Ink",
+      "job_types": "Invitation,Packaging",
+      "table_name": "mst_ink",
+      "rate_per_kg": 1500,
+      "consumption_gsm": 2.1
+    },
+    {
+      "id": 12,
+      "color": "Black",
+      "drying": "Absorption",
+      "ink_code": "INK_NEWS_BLACK",
+      "ink_name": "Newspaper Black Ink",
+      "job_types": "Newspaper",
+      "table_name": "mst_ink",
+      "rate_per_kg": 210,
+      "consumption_gsm": 1.8
+    },
+    {
+      "id": 13,
+      "color": "Black",
+      "drying": "Oxidation",
+      "ink_code": "INK_OFF_BLACK",
+      "ink_name": "Offset Black Ink",
+      "job_types": "Book,Newspaper,Forms",
+      "table_name": "mst_ink",
+      "rate_per_kg": 380,
+      "consumption_gsm": 1.5
+    },
+    {
+      "id": 14,
+      "color": "Cyan",
+      "drying": "Oxidation",
+      "ink_code": "INK_OFF_CYAN",
+      "ink_name": "Offset Cyan Ink",
+      "job_types": "Book,Magazine,Commercial",
+      "table_name": "mst_ink",
+      "rate_per_kg": 420,
+      "consumption_gsm": 1.2
+    },
+    {
+      "id": 15,
+      "color": "Black",
+      "drying": "Oxidation",
+      "ink_code": "INK_OFF_HD_BLACK",
+      "ink_name": "High Density Black Ink",
+      "job_types": "Book,Poster",
+      "table_name": "mst_ink",
+      "rate_per_kg": 520,
+      "consumption_gsm": 1.8
+    },
+    {
+      "id": 16,
+      "color": "Magenta",
+      "drying": "Oxidation",
+      "ink_code": "INK_OFF_MAGENTA",
+      "ink_name": "Offset Magenta Ink",
+      "job_types": "Book,Magazine,Commercial",
+      "table_name": "mst_ink",
+      "rate_per_kg": 430,
+      "consumption_gsm": 1.3
+    },
+    {
+      "id": 17,
+      "color": "Yellow",
+      "drying": "Oxidation",
+      "ink_code": "INK_OFF_YELLOW",
+      "ink_name": "Offset Yellow Ink",
+      "job_types": "Book,Magazine,Commercial",
+      "table_name": "mst_ink",
+      "rate_per_kg": 410,
+      "consumption_gsm": 1
+    },
+    {
+      "id": 18,
+      "color": "Blue",
+      "drying": "Oxidation",
+      "ink_code": "INK_PANTONE_BLUE",
+      "ink_name": "Pantone Blue Ink",
+      "job_types": "Branding,Packaging",
+      "table_name": "mst_ink",
+      "rate_per_kg": 800,
+      "consumption_gsm": 1.4
+    },
+    {
+      "id": 19,
+      "color": "Red",
+      "drying": "Oxidation",
+      "ink_code": "INK_PANTONE_RED",
+      "ink_name": "Pantone Red Ink",
+      "job_types": "Branding,Packaging",
+      "table_name": "mst_ink",
+      "rate_per_kg": 780,
+      "consumption_gsm": 1.4
+    },
+    {
+      "id": 20,
+      "color": "Black",
+      "drying": "Oxidation",
+      "ink_code": "INK_SEC_MICRO",
+      "ink_name": "Microtext Security Ink",
+      "job_types": "Cheque,Passport",
+      "table_name": "mst_ink",
+      "rate_per_kg": 4200,
+      "consumption_gsm": 1.5
+    },
+    {
+      "id": 21,
+      "color": "Clear",
+      "drying": "UV",
+      "ink_code": "INK_SEC_UV",
+      "ink_name": "Invisible UV Ink",
+      "job_types": "Cheque,Certificate",
+      "table_name": "mst_ink",
+      "rate_per_kg": 3500,
+      "consumption_gsm": 0.2
+    },
+    {
+      "id": 22,
+      "color": "Multi",
+      "drying": "Heat",
+      "ink_code": "INK_SUBLIMATION",
+      "ink_name": "Sublimation Ink",
+      "job_types": "Mug,Tshirt,Gift",
+      "table_name": "mst_ink",
+      "rate_per_kg": 2100,
+      "consumption_gsm": 0.85
+    },
+    {
+      "id": 23,
+      "color": "Black",
+      "drying": "Heat",
+      "ink_code": "INK_TEXTILE_BLACK",
+      "ink_name": "Textile Black Ink",
+      "job_types": "Fabric,Garment",
+      "table_name": "mst_ink",
+      "rate_per_kg": 1800,
+      "consumption_gsm": 0.9
+    },
+    {
+      "id": 24,
+      "color": "Black",
+      "drying": "UV",
+      "ink_code": "INK_UV_BLACK",
+      "ink_name": "UV Black Ink",
+      "job_types": "Packaging,Label",
+      "table_name": "mst_ink",
+      "rate_per_kg": 820,
+      "consumption_gsm": 1.3
+    },
+    {
+      "id": 25,
+      "color": "Cyan",
+      "drying": "UV",
+      "ink_code": "INK_UV_CYAN",
+      "ink_name": "UV Cyan Ink",
+      "job_types": "Packaging,Carton",
+      "table_name": "mst_ink",
+      "rate_per_kg": 850,
+      "consumption_gsm": 1.1
+    },
+    {
+      "id": 26,
+      "color": "Clear",
+      "drying": "Fast Dry",
+      "ink_code": "INK_VAR_GLOSS",
+      "ink_name": "Gloss Varnish",
+      "job_types": "Book,Catalogue",
+      "table_name": "mst_ink",
+      "rate_per_kg": 260,
+      "consumption_gsm": 0.7
+    },
+    {
+      "id": 27,
+      "color": "Clear",
+      "drying": "Fast Dry",
+      "ink_code": "INK_VAR_MATT",
+      "ink_name": "Matt Varnish",
+      "job_types": "Book,Catalogue",
+      "table_name": "mst_ink",
+      "rate_per_kg": 270,
+      "consumption_gsm": 0.75
+    },
+    {
+      "id": 28,
+      "color": "White",
+      "drying": "Oxidation",
+      "ink_code": "INK_WHITE_OFFSET",
+      "ink_name": "Opaque White Ink",
+      "job_types": "Packaging,Invitation",
+      "table_name": "mst_ink",
+      "rate_per_kg": 680,
+      "consumption_gsm": 2.5
+    },
+    {
+      "id": 29,
+      "color": "White",
+      "drying": "UV",
+      "ink_code": "INK_WHITE_UV",
+      "ink_name": "UV White Ink",
+      "job_types": "Label,Packaging",
+      "table_name": "mst_ink",
+      "rate_per_kg": 1200,
+      "consumption_gsm": 2.3
+    }
+  ],
+  "papers": [
+    {
+      "id": 1,
+      "gsm": 60,
+      "type": "MAPLITHO",
+      "grain": "Long",
+      "size_mm": {
+        "width": 889,
+        "length": 584
+      },
+      "category": "WRITING",
+      "job_types": "Book,Notebook,Form",
+      "paper_code": "PAP_MAP_60",
+      "paper_name": "Maplitho 60 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 62,
+      "rate_per_sheet": 2.1
+    },
+    {
+      "id": 2,
+      "gsm": 70,
+      "type": "MAPLITHO",
+      "grain": "Long",
+      "size_mm": {
+        "width": 889,
+        "length": 584
+      },
+      "category": "WRITING",
+      "job_types": "Book,Notebook",
+      "paper_code": "PAP_MAP_70",
+      "paper_name": "Maplitho 70 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 66,
+      "rate_per_sheet": 2.4
+    },
+    {
+      "id": 3,
+      "gsm": 130,
+      "type": "ART PAPER",
+      "grain": "Short",
+      "size_mm": {
+        "width": 889,
+        "length": 584
+      },
+      "category": "COATED",
+      "job_types": "Book,Magazine,Brochure",
+      "paper_code": "PAP_ART_G130",
+      "paper_name": "Art Paper Gloss 130 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 88,
+      "rate_per_sheet": 4.8
+    },
+    {
+      "id": 4,
+      "gsm": 170,
+      "type": "ART PAPER",
+      "grain": "Short",
+      "size_mm": {
+        "width": 889,
+        "length": 584
+      },
+      "category": "COATED",
+      "job_types": "Book,Magazine,Brochure",
+      "paper_code": "PAP_ART_M170",
+      "paper_name": "Art Paper Matt 170 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 92,
+      "rate_per_sheet": 6.5
+    },
+    {
+      "id": 5,
+      "gsm": 250,
+      "type": "ART CARD",
+      "grain": "Short",
+      "size_mm": {
+        "width": 889,
+        "length": 584
+      },
+      "category": "COATED",
+      "job_types": "Book,Poster,Folder",
+      "paper_code": "PAP_ART_G250",
+      "paper_name": "Art Card Gloss 250 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 98,
+      "rate_per_sheet": 9.2
+    },
+    {
+      "id": 6,
+      "gsm": 250,
+      "type": "DUPLEX",
+      "grain": "NA",
+      "size_mm": {
+        "width": 1000,
+        "length": 700
+      },
+      "category": "BOARD",
+      "job_types": "Carton,Box",
+      "paper_code": "PAP_DUP_250",
+      "paper_name": "Duplex Board 250 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 54,
+      "rate_per_sheet": 8.5
+    },
+    {
+      "id": 7,
+      "gsm": 350,
+      "type": "DUPLEX",
+      "grain": "NA",
+      "size_mm": {
+        "width": 1000,
+        "length": 700
+      },
+      "category": "BOARD",
+      "job_types": "Carton,Box",
+      "paper_code": "PAP_DUP_350",
+      "paper_name": "Duplex Board 350 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 56,
+      "rate_per_sheet": 12
+    },
+    {
+      "id": 8,
+      "gsm": 120,
+      "type": "KRAFT",
+      "grain": "NA",
+      "size_mm": {
+        "width": 1000,
+        "length": 700
+      },
+      "category": "KRAFT",
+      "job_types": "Bag,Carton",
+      "paper_code": "PAP_KRAFT_120",
+      "paper_name": "Brown Kraft 120 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 48,
+      "rate_per_sheet": 6.5
+    },
+    {
+      "id": 9,
+      "gsm": 85,
+      "type": "BOND",
+      "grain": "Long",
+      "size_mm": {
+        "width": 889,
+        "length": 584
+      },
+      "category": "WRITING",
+      "job_types": "Certificate,Letterhead",
+      "paper_code": "PAP_BOND_85",
+      "paper_name": "Bond Paper 85 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 78,
+      "rate_per_sheet": 3.1
+    },
+    {
+      "id": 10,
+      "gsm": 56,
+      "type": "NCR",
+      "grain": "Long",
+      "size_mm": {
+        "width": 889,
+        "length": 584
+      },
+      "category": "SPECIAL",
+      "job_types": "Invoice,Receipt",
+      "paper_code": "PAP_NCR_56",
+      "paper_name": "NCR Paper 56 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 135,
+      "rate_per_sheet": 4.8
+    },
+    {
+      "id": 11,
+      "gsm": 45,
+      "type": "NEWSPRINT",
+      "grain": "NA",
+      "size_mm": {
+        "width": null,
+        "length": null
+      },
+      "category": "NEWS",
+      "job_types": "Newspaper",
+      "paper_code": "PAP_NEWS_45",
+      "paper_name": "Newsprint 45 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 42,
+      "rate_per_sheet": null
+    },
+    {
+      "id": 12,
+      "gsm": 80,
+      "type": "MAPLITHO",
+      "grain": "Long",
+      "size_mm": {
+        "width": 889,
+        "length": 584
+      },
+      "category": "WRITING",
+      "job_types": "Book,Textbook",
+      "paper_code": "PAP_MAP_80",
+      "paper_name": "Maplitho 80 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 70,
+      "rate_per_sheet": 2.8
+    },
+    {
+      "id": 13,
+      "gsm": 90,
+      "type": "MAPLITHO",
+      "grain": "Long",
+      "size_mm": {
+        "width": 889,
+        "length": 584
+      },
+      "category": "WRITING",
+      "job_types": "Book,Register",
+      "paper_code": "PAP_MAP_90",
+      "paper_name": "Maplitho 90 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 74,
+      "rate_per_sheet": 3.2
+    },
+    {
+      "id": 14,
+      "gsm": 75,
+      "type": "COPIER",
+      "grain": "Short",
+      "size_mm": {
+        "width": 297,
+        "length": 210
+      },
+      "category": "OFFICE",
+      "job_types": "Office,Form",
+      "paper_code": "PAP_COP_75",
+      "paper_name": "Copier Paper 75 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 72,
+      "rate_per_sheet": 1.2
+    },
+    {
+      "id": 15,
+      "gsm": 80,
+      "type": "COPIER",
+      "grain": "Short",
+      "size_mm": {
+        "width": 297,
+        "length": 210
+      },
+      "category": "OFFICE",
+      "job_types": "Office,Form",
+      "paper_code": "PAP_COP_80",
+      "paper_name": "Copier Paper 80 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 76,
+      "rate_per_sheet": 1.4
+    },
+    {
+      "id": 16,
+      "gsm": 180,
+      "type": "BRISTOL",
+      "grain": "Short",
+      "size_mm": {
+        "width": 889,
+        "length": 584
+      },
+      "category": "CARD",
+      "job_types": "Cover,Invitation",
+      "paper_code": "PAP_BRISTOL_180",
+      "paper_name": "Bristol Card 180 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 90,
+      "rate_per_sheet": 6.8
+    },
+    {
+      "id": 17,
+      "gsm": 250,
+      "type": "BRISTOL",
+      "grain": "Short",
+      "size_mm": {
+        "width": 889,
+        "length": 584
+      },
+      "category": "CARD",
+      "job_types": "Cover,Invitation",
+      "paper_code": "PAP_BRISTOL_250",
+      "paper_name": "Bristol Card 250 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 96,
+      "rate_per_sheet": 9.5
+    },
+    {
+      "id": 18,
+      "gsm": 180,
+      "type": "KRAFT",
+      "grain": "NA",
+      "size_mm": {
+        "width": 1000,
+        "length": 700
+      },
+      "category": "KRAFT",
+      "job_types": "Carton,Box,Bag",
+      "paper_code": "PAP_KRAFT_180",
+      "paper_name": "Brown Kraft 180 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 52,
+      "rate_per_sheet": 10.2
+    },
+    {
+      "id": 19,
+      "gsm": 300,
+      "type": "KRAFT",
+      "grain": "NA",
+      "size_mm": {
+        "width": 1000,
+        "length": 700
+      },
+      "category": "KRAFT",
+      "job_types": "Heavy Carton",
+      "paper_code": "PAP_KRAFT_300",
+      "paper_name": "Brown Kraft 300 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 56,
+      "rate_per_sheet": 16
+    },
+    {
+      "id": 20,
+      "gsm": 90,
+      "type": "SECURITY",
+      "grain": "Long",
+      "size_mm": {
+        "width": 889,
+        "length": 584
+      },
+      "category": "SPECIAL",
+      "job_types": "Cheque,Certificate",
+      "paper_code": "PAP_SECURITY_90",
+      "paper_name": "Security Paper 90 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 160,
+      "rate_per_sheet": 6.5
+    },
+    {
+      "id": 21,
+      "gsm": 40,
+      "type": "BIBLE",
+      "grain": "Long",
+      "size_mm": {
+        "width": 889,
+        "length": 584
+      },
+      "category": "SPECIAL",
+      "job_types": "Bible,Dictionary",
+      "paper_code": "PAP_BIBLE_40",
+      "paper_name": "Bible Paper 40 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 110,
+      "rate_per_sheet": 3.9
+    },
+    {
+      "id": 22,
+      "gsm": 300,
+      "type": "FLEX MEDIA",
+      "grain": "NA",
+      "size_mm": {
+        "width": null,
+        "length": null
+      },
+      "category": "FLEX",
+      "job_types": "Banner,Flex",
+      "paper_code": "PAP_FLEX_300",
+      "paper_name": "Flex Media 300 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 120,
+      "rate_per_sheet": null
+    },
+    {
+      "id": 23,
+      "gsm": 260,
+      "type": "PHOTO",
+      "grain": "Short",
+      "size_mm": {
+        "width": 914,
+        "length": 610
+      },
+      "category": "DIGITAL",
+      "job_types": "Photo,Poster",
+      "paper_code": "PAP_PHOTO_260",
+      "paper_name": "Photo Paper 260 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 150,
+      "rate_per_sheet": 18
+    },
+    {
+      "id": 24,
+      "gsm": 48,
+      "type": "NEWSPRINT",
+      "grain": "NA",
+      "size_mm": {
+        "width": null,
+        "length": null
+      },
+      "category": "NEWS",
+      "job_types": "Newspaper",
+      "paper_code": "PAP_NEWS_48",
+      "paper_name": "Newsprint 48 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 44,
+      "rate_per_sheet": null
+    },
+    {
+      "id": 25,
+      "gsm": 120,
+      "type": "TEXTURE",
+      "grain": "Short",
+      "size_mm": {
+        "width": 889,
+        "length": 584
+      },
+      "category": "SPECIAL",
+      "job_types": "Invitation,Premium",
+      "paper_code": "PAP_TEXTURE_120",
+      "paper_name": "Texture Paper 120 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 140,
+      "rate_per_sheet": 7.2
+    },
+    {
+      "id": 26,
+      "gsm": 100,
+      "type": "ART",
+      "grain": "Long",
+      "size_mm": {
+        "width": 889,
+        "length": 584
+      },
+      "category": "COATED",
+      "job_types": "Book,Magazine,Brochure",
+      "paper_code": "PAP_ART_100",
+      "paper_name": "Art Paper 100 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 86,
+      "rate_per_sheet": 3.8
+    },
+    {
+      "id": 27,
+      "gsm": 130,
+      "type": "ART",
+      "grain": "Long",
+      "size_mm": {
+        "width": 889,
+        "length": 584
+      },
+      "category": "COATED",
+      "job_types": "Magazine,Brochure",
+      "paper_code": "PAP_ART_130",
+      "paper_name": "Art Paper 130 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 90,
+      "rate_per_sheet": 4.9
+    },
+    {
+      "id": 28,
+      "gsm": 170,
+      "type": "ART",
+      "grain": "Short",
+      "size_mm": {
+        "width": 889,
+        "length": 584
+      },
+      "category": "COATED",
+      "job_types": "Magazine,Catalogue",
+      "paper_code": "PAP_ART_170",
+      "paper_name": "Art Paper 170 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 94,
+      "rate_per_sheet": 6.8
+    },
+    {
+      "id": 29,
+      "gsm": 250,
+      "type": "ART",
+      "grain": "Short",
+      "size_mm": {
+        "width": 889,
+        "length": 584
+      },
+      "category": "COATED",
+      "job_types": "Cover,Poster",
+      "paper_code": "PAP_ART_250",
+      "paper_name": "Art Paper 250 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 102,
+      "rate_per_sheet": 9.8
+    },
+    {
+      "id": 30,
+      "gsm": 300,
+      "type": "ART BOARD",
+      "grain": "Short",
+      "size_mm": {
+        "width": 1000,
+        "length": 700
+      },
+      "category": "BOARD",
+      "job_types": "Carton,Cover",
+      "paper_code": "PAP_ARTB_300",
+      "paper_name": "Art Board 300 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 110,
+      "rate_per_sheet": 14
+    },
+    {
+      "id": 31,
+      "gsm": 350,
+      "type": "ART BOARD",
+      "grain": "Short",
+      "size_mm": {
+        "width": 1000,
+        "length": 700
+      },
+      "category": "BOARD",
+      "job_types": "Premium Carton",
+      "paper_code": "PAP_ARTB_350",
+      "paper_name": "Art Board 350 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 115,
+      "rate_per_sheet": 18
+    },
+    {
+      "id": 32,
+      "gsm": 250,
+      "type": "DUPLEX",
+      "grain": "NA",
+      "size_mm": {
+        "width": 1000,
+        "length": 700
+      },
+      "category": "BOARD",
+      "job_types": "Carton",
+      "paper_code": "PAP_DUPLEX_250",
+      "paper_name": "Duplex Board Grey Back 250 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 58,
+      "rate_per_sheet": 9
+    },
+    {
+      "id": 33,
+      "gsm": 400,
+      "type": "DUPLEX",
+      "grain": "NA",
+      "size_mm": {
+        "width": 1000,
+        "length": 700
+      },
+      "category": "BOARD",
+      "job_types": "Heavy Carton",
+      "paper_code": "PAP_DUPLEX_400",
+      "paper_name": "Duplex Board Grey Back 400 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 62,
+      "rate_per_sheet": 14.5
+    },
+    {
+      "id": 34,
+      "gsm": 80,
+      "type": "SELF ADHESIVE",
+      "grain": "Short",
+      "size_mm": {
+        "width": 482,
+        "length": 330
+      },
+      "category": "LABEL",
+      "job_types": "Label,Sticker",
+      "paper_code": "PAP_LABEL_80",
+      "paper_name": "Self Adhesive Paper 80 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 145,
+      "rate_per_sheet": 12.5
+    },
+    {
+      "id": 35,
+      "gsm": 100,
+      "type": "SELF ADHESIVE",
+      "grain": "Short",
+      "size_mm": {
+        "width": 482,
+        "length": 330
+      },
+      "category": "LABEL",
+      "job_types": "Label,Sticker",
+      "paper_code": "PAP_LABEL_100",
+      "paper_name": "Self Adhesive Paper 100 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 155,
+      "rate_per_sheet": 15
+    },
+    {
+      "id": 36,
+      "gsm": 50,
+      "type": "NCR",
+      "grain": "Long",
+      "size_mm": {
+        "width": 889,
+        "length": 584
+      },
+      "category": "SPECIAL",
+      "job_types": "Bill,Invoice",
+      "paper_code": "PAP_NCR_50",
+      "paper_name": "NCR Paper 50 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 120,
+      "rate_per_sheet": 3.2
+    },
+    {
+      "id": 37,
+      "gsm": 55,
+      "type": "NCR",
+      "grain": "Long",
+      "size_mm": {
+        "width": 889,
+        "length": 584
+      },
+      "category": "SPECIAL",
+      "job_types": "Bill,Invoice",
+      "paper_code": "PAP_NCR_55",
+      "paper_name": "NCR Paper 55 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 130,
+      "rate_per_sheet": 3.8
+    },
+    {
+      "id": 38,
+      "gsm": 80,
+      "type": "ENVELOPE",
+      "grain": "Short",
+      "size_mm": {
+        "width": 1000,
+        "length": 700
+      },
+      "category": "WRITING",
+      "job_types": "Envelope",
+      "paper_code": "PAP_ENV_80",
+      "paper_name": "Envelope Paper 80 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 78,
+      "rate_per_sheet": 4.2
+    },
+    {
+      "id": 39,
+      "gsm": 100,
+      "type": "ENVELOPE",
+      "grain": "Short",
+      "size_mm": {
+        "width": 1000,
+        "length": 700
+      },
+      "category": "WRITING",
+      "job_types": "Envelope",
+      "paper_code": "PAP_ENV_100",
+      "paper_name": "Envelope Paper 100 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 82,
+      "rate_per_sheet": 5.6
+    },
+    {
+      "id": 40,
+      "gsm": 170,
+      "type": "POSTER",
+      "grain": "Short",
+      "size_mm": {
+        "width": 914,
+        "length": 610
+      },
+      "category": "DIGITAL",
+      "job_types": "Poster,Display",
+      "paper_code": "PAP_POSTER_170",
+      "paper_name": "Poster Paper 170 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 98,
+      "rate_per_sheet": 7.2
+    },
+    {
+      "id": 41,
+      "gsm": 200,
+      "type": "SYNTHETIC",
+      "grain": "NA",
+      "size_mm": {
+        "width": 889,
+        "length": 584
+      },
+      "category": "SPECIAL",
+      "job_types": "ID Card,Manual",
+      "paper_code": "PAP_SYN_200",
+      "paper_name": "Synthetic Paper 200 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 210,
+      "rate_per_sheet": 18
+    },
+    {
+      "id": 42,
+      "gsm": 58,
+      "type": "THERMAL",
+      "grain": "NA",
+      "size_mm": {
+        "width": null,
+        "length": null
+      },
+      "category": "SPECIAL",
+      "job_types": "Receipt",
+      "paper_code": "PAP_THERM_58",
+      "paper_name": "Thermal Paper 58 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 115,
+      "rate_per_sheet": null
+    },
+    {
+      "id": 43,
+      "gsm": 80,
+      "type": "THERMAL",
+      "grain": "NA",
+      "size_mm": {
+        "width": null,
+        "length": null
+      },
+      "category": "SPECIAL",
+      "job_types": "Receipt",
+      "paper_code": "PAP_THERM_80",
+      "paper_name": "Thermal Paper 80 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 125,
+      "rate_per_sheet": null
+    },
+    {
+      "id": 48,
+      "gsm": 45,
+      "type": "BIBLE",
+      "grain": "Long",
+      "size_mm": {
+        "width": 889,
+        "length": 584
+      },
+      "category": "SPECIAL",
+      "job_types": "Dictionary,LawBook",
+      "paper_code": "PAP_BIBLE_45",
+      "paper_name": "Bible Paper 45 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 170,
+      "rate_per_sheet": 2.5
+    },
+    {
+      "id": 49,
+      "gsm": 230,
+      "type": "IVORY",
+      "grain": "Short",
+      "size_mm": {
+        "width": 1000,
+        "length": 700
+      },
+      "category": "BOARD",
+      "job_types": "Cosmetic,Pharma",
+      "paper_code": "PAP_IVORY_230",
+      "paper_name": "Ivory Board 230 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 115,
+      "rate_per_sheet": 10.8
+    },
+    {
+      "id": 50,
+      "gsm": 300,
+      "type": "SBS",
+      "grain": "Short",
+      "size_mm": {
+        "width": 1000,
+        "length": 700
+      },
+      "category": "BOARD",
+      "job_types": "Food,Export",
+      "paper_code": "PAP_SBS_300",
+      "paper_name": "SBS Board 300 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 135,
+      "rate_per_sheet": 15
+    },
+    {
+      "id": 53,
+      "gsm": 80,
+      "type": "KRAFT",
+      "grain": "NA",
+      "size_mm": {
+        "width": 1000,
+        "length": 700
+      },
+      "category": "PACKAGING",
+      "job_types": "Bag,Wrapping",
+      "paper_code": "PAP_KRAFT_80",
+      "paper_name": "Brown Kraft 80 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 52,
+      "rate_per_sheet": 3.1
+    },
+    {
+      "id": 54,
+      "gsm": 90,
+      "type": "SECURITY",
+      "grain": "Long",
+      "size_mm": {
+        "width": 889,
+        "length": 584
+      },
+      "category": "SECURITY",
+      "job_types": "Certificate,Marksheet",
+      "paper_code": "PAP_SEC_90",
+      "paper_name": "Security Paper 90 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 160,
+      "rate_per_sheet": 8.5
+    },
+    {
+      "id": 55,
+      "gsm": 100,
+      "type": "SECURITY",
+      "grain": "Long",
+      "size_mm": {
+        "width": 889,
+        "length": 584
+      },
+      "category": "SECURITY",
+      "job_types": "Degree,Cheque",
+      "paper_code": "PAP_SEC_100",
+      "paper_name": "Security Paper 100 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 180,
+      "rate_per_sheet": 10.2
+    },
+    {
+      "id": 56,
+      "gsm": 90,
+      "type": "TEXTILE",
+      "grain": "NA",
+      "size_mm": {
+        "width": 914,
+        "length": 610
+      },
+      "category": "DIGITAL",
+      "job_types": "TShirt,Garment",
+      "paper_code": "PAP_TEXTILE_90",
+      "paper_name": "Textile Transfer Paper 90 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 210,
+      "rate_per_sheet": 9.5
+    },
+    {
+      "id": 57,
+      "gsm": 100,
+      "type": "SUBLIMATION",
+      "grain": "NA",
+      "size_mm": {
+        "width": 914,
+        "length": 610
+      },
+      "category": "DIGITAL",
+      "job_types": "Mug,Garment",
+      "paper_code": "PAP_SUBL_100",
+      "paper_name": "Sublimation Paper 100 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 195,
+      "rate_per_sheet": 8.8
+    },
+    {
+      "id": 59,
+      "gsm": 380,
+      "type": "CANVAS",
+      "grain": "NA",
+      "size_mm": {
+        "width": 914,
+        "length": 610
+      },
+      "category": "DIGITAL",
+      "job_types": "Canvas,Art",
+      "paper_code": "PAP_CANVAS_380",
+      "paper_name": "Canvas Paper 380 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 320,
+      "rate_per_sheet": 32
+    },
+    {
+      "id": 60,
+      "gsm": 120,
+      "type": "METALLIC",
+      "grain": "Short",
+      "size_mm": {
+        "width": 889,
+        "length": 584
+      },
+      "category": "SPECIAL",
+      "job_types": "Invitation,Premium",
+      "paper_code": "PAP_MET_GOLD",
+      "paper_name": "Metallic Gold Paper 120 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 180,
+      "rate_per_sheet": 14
+    },
+    {
+      "id": 61,
+      "gsm": 120,
+      "type": "METALLIC",
+      "grain": "Short",
+      "size_mm": {
+        "width": 889,
+        "length": 584
+      },
+      "category": "SPECIAL",
+      "job_types": "Invitation,Premium",
+      "paper_code": "PAP_MET_SILVER",
+      "paper_name": "Metallic Silver Paper 120 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 180,
+      "rate_per_sheet": 14
+    },
+    {
+      "id": 62,
+      "gsm": 180,
+      "type": "FILTER",
+      "grain": "NA",
+      "size_mm": {
+        "width": 1000,
+        "length": 700
+      },
+      "category": "INDUSTRIAL",
+      "job_types": "Industrial",
+      "paper_code": "PAP_FILTER_180",
+      "paper_name": "Filter Paper 180 GSM",
+      "table_name": "mst_paper",
+      "rate_per_kg": 250,
+      "rate_per_sheet": 22
+    }
+  ],
+  "plates": [
+    {
+      "id": 1,
+      "rate": 535,
+      "plate_code": "PLT_TH_KODAK_20",
+      "plate_type": "Thermal",
+      "table_name": "mst_plate",
+      "plate_size_mm": {
+        "width": 800,
+        "length": 1030
+      },
+      "job_types_supported": "Book,Magazine,Brochure"
+    },
+    {
+      "id": 2,
+      "rate": 785,
+      "plate_code": "PLT_TH_KODAK_30",
+      "plate_type": "Thermal",
+      "table_name": "mst_plate",
+      "plate_size_mm": {
+        "width": 940,
+        "length": 1130
+      },
+      "job_types_supported": "Newspaper,Magazine"
+    },
+    {
+      "id": 3,
+      "rate": 500,
+      "plate_code": "PLT_TH_FUJI_20",
+      "plate_type": "Thermal",
+      "table_name": "mst_plate",
+      "plate_size_mm": {
+        "width": 800,
+        "length": 1030
+      },
+      "job_types_supported": "Book,Commercial"
+    },
+    {
+      "id": 4,
+      "rate": 620,
+      "plate_code": "PLT_PR_KODAK",
+      "plate_type": "Thermal",
+      "table_name": "mst_plate",
+      "plate_size_mm": {
+        "width": 800,
+        "length": 1030
+      },
+      "job_types_supported": "EcoPrint,Book"
+    },
+    {
+      "id": 5,
+      "rate": 650,
+      "plate_code": "PLT_PR_FUJI",
+      "plate_type": "Thermal",
+      "table_name": "mst_plate",
+      "plate_size_mm": {
+        "width": 800,
+        "length": 1030
+      },
+      "job_types_supported": "Book,Magazine"
+    },
+    {
+      "id": 6,
+      "rate": 425,
+      "plate_code": "PLT_VIO_SCREEN",
+      "plate_type": "Violet",
+      "table_name": "mst_plate",
+      "plate_size_mm": {
+        "width": 800,
+        "length": 1030
+      },
+      "job_types_supported": "Book,Leaflet"
+    },
+    {
+      "id": 7,
+      "rate": 340,
+      "plate_code": "PLT_UV_PS",
+      "plate_type": "PS",
+      "table_name": "mst_plate",
+      "plate_size_mm": {
+        "width": 800,
+        "length": 1030
+      },
+      "job_types_supported": "Forms,Invoice"
+    },
+    {
+      "id": 8,
+      "rate": 925,
+      "plate_code": "PLT_NEWS_TH",
+      "plate_type": "Thermal",
+      "table_name": "mst_plate",
+      "plate_size_mm": {
+        "width": 940,
+        "length": 1130
+      },
+      "job_types_supported": "Newspaper"
+    },
+    {
+      "id": 9,
+      "rate": 220,
+      "plate_code": "PLT_MINI_OFFSET",
+      "plate_type": "PS",
+      "table_name": "mst_plate",
+      "plate_size_mm": {
+        "width": 370,
+        "length": 520
+      },
+      "job_types_supported": "SmallJobs"
+    },
+    {
+      "id": 10,
+      "rate": 470,
+      "plate_code": "PLT_TH_TECHNOVA_20",
+      "plate_type": "Thermal",
+      "table_name": "mst_plate",
+      "plate_size_mm": {
+        "width": 800,
+        "length": 1030
+      },
+      "job_types_supported": "Book,Magazine,Commercial"
+    },
+    {
+      "id": 11,
+      "rate": 850,
+      "plate_code": "PLT_TH_TECHNOVA_30",
+      "plate_type": "Thermal",
+      "table_name": "mst_plate",
+      "plate_size_mm": {
+        "width": 940,
+        "length": 1130
+      },
+      "job_types_supported": "Newspaper"
+    },
+    {
+      "id": 12,
+      "rate": 435,
+      "plate_code": "PLT_TH_JK_20",
+      "plate_type": "Thermal",
+      "table_name": "mst_plate",
+      "plate_size_mm": {
+        "width": 800,
+        "length": 1030
+      },
+      "job_types_supported": "Book,Leaflet"
+    },
+    {
+      "id": 13,
+      "rate": 390,
+      "plate_code": "PLT_ECO_TH",
+      "plate_type": "Thermal",
+      "table_name": "mst_plate",
+      "plate_size_mm": {
+        "width": 800,
+        "length": 1030
+      },
+      "job_types_supported": "LowCostBook,Forms"
+    },
+    {
+      "id": 14,
+      "rate": 280,
+      "plate_code": "PLT_ECO_PS",
+      "plate_type": "PS",
+      "table_name": "mst_plate",
+      "plate_size_mm": {
+        "width": 800,
+        "length": 1030
+      },
+      "job_types_supported": "Invoice,Receipt"
+    },
+    {
+      "id": 15,
+      "rate": 1060,
+      "plate_code": "PLT_LONGRUN_TH",
+      "plate_type": "Thermal",
+      "table_name": "mst_plate",
+      "plate_size_mm": {
+        "width": 940,
+        "length": 1130
+      },
+      "job_types_supported": "Magazine,Packaging"
+    },
+    {
+      "id": 16,
+      "rate": 1290,
+      "plate_code": "PLT_METAL_BACK",
+      "plate_type": "Thermal",
+      "table_name": "mst_plate",
+      "plate_size_mm": {
+        "width": 940,
+        "length": 1130
+      },
+      "job_types_supported": "HighVolume,Packaging"
+    },
+    {
+      "id": 17,
+      "rate": 585,
+      "plate_code": "PLT_UV_LONG",
+      "plate_type": "UV",
+      "table_name": "mst_plate",
+      "plate_size_mm": {
+        "width": 800,
+        "length": 1030
+      },
+      "job_types_supported": "Packaging,Carton"
+    },
+    {
+      "id": 18,
+      "rate": 630,
+      "plate_code": "PLT_UV_FINE",
+      "plate_type": "UV",
+      "table_name": "mst_plate",
+      "plate_size_mm": {
+        "width": 800,
+        "length": 1030
+      },
+      "job_types_supported": "HighDetail,Security"
+    },
+    {
+      "id": 19,
+      "rate": 810,
+      "plate_code": "PLT_SEC_MICRO",
+      "plate_type": "Thermal",
+      "table_name": "mst_plate",
+      "plate_size_mm": {
+        "width": 800,
+        "length": 1030
+      },
+      "job_types_supported": "Security,Certificates"
+    },
+    {
+      "id": 20,
+      "rate": 840,
+      "plate_code": "PLT_SEC_GUIL",
+      "plate_type": "Thermal",
+      "table_name": "mst_plate",
+      "plate_size_mm": {
+        "width": 800,
+        "length": 1030
+      },
+      "job_types_supported": "Security,Cheque"
+    },
+    {
+      "id": 21,
+      "rate": 965,
+      "plate_code": "PLT_PKG_HEAVY",
+      "plate_type": "Thermal",
+      "table_name": "mst_plate",
+      "plate_size_mm": {
+        "width": 940,
+        "length": 1130
+      },
+      "job_types_supported": "Carton,Box"
+    },
+    {
+      "id": 22,
+      "rate": 785,
+      "plate_code": "PLT_PKG_FINE",
+      "plate_type": "Thermal",
+      "table_name": "mst_plate",
+      "plate_size_mm": {
+        "width": 800,
+        "length": 1030
+      },
+      "job_types_supported": "FMCG,Labels"
+    },
+    {
+      "id": 23,
+      "rate": 510,
+      "plate_code": "PLT_LABEL_NARROW",
+      "plate_type": "Thermal",
+      "table_name": "mst_plate",
+      "plate_size_mm": {
+        "width": 400,
+        "length": 600
+      },
+      "job_types_supported": "Label,Sticker"
+    },
+    {
+      "id": 24,
+      "rate": 410,
+      "plate_code": "PLT_GENERIC_TH",
+      "plate_type": "Thermal",
+      "table_name": "mst_plate",
+      "plate_size_mm": {
+        "width": 800,
+        "length": 1030
+      },
+      "job_types_supported": "General"
+    }
+  ],
+  "bindings": [
+    {
+      "id": 1,
+      "table_name": "mst_binding",
+      "binding_code": "BND_PERFECT",
+      "binding_type": "GLUE",
+      "cost_per_unit": 6.5
+    },
+    {
+      "id": 2,
+      "table_name": "mst_binding",
+      "binding_code": "BND_CASE",
+      "binding_type": "THREAD+CASE",
+      "cost_per_unit": 45
+    },
+    {
+      "id": 3,
+      "table_name": "mst_binding",
+      "binding_code": "BND_SECTION_SEW",
+      "binding_type": "THREAD",
+      "cost_per_unit": 18
+    },
+    {
+      "id": 4,
+      "table_name": "mst_binding",
+      "binding_code": "BND_SADDLE",
+      "binding_type": "WIRE",
+      "cost_per_unit": 1.8
+    },
+    {
+      "id": 5,
+      "table_name": "mst_binding",
+      "binding_code": "BND_SIDE_STITCH",
+      "binding_type": "WIRE",
+      "cost_per_unit": 2.5
+    },
+    {
+      "id": 6,
+      "table_name": "mst_binding",
+      "binding_code": "BND_SPIRAL",
+      "binding_type": "SPIRAL",
+      "cost_per_unit": 8
+    },
+    {
+      "id": 7,
+      "table_name": "mst_binding",
+      "binding_code": "BND_WIRO",
+      "binding_type": "WIRE",
+      "cost_per_unit": 9.5
+    },
+    {
+      "id": 8,
+      "table_name": "mst_binding",
+      "binding_code": "BND_TAPE",
+      "binding_type": "TAPE",
+      "cost_per_unit": 5
+    },
+    {
+      "id": 9,
+      "table_name": "mst_binding",
+      "binding_code": "BND_PAD",
+      "binding_type": "GLUE",
+      "cost_per_unit": 3
+    },
+    {
+      "id": 10,
+      "table_name": "mst_binding",
+      "binding_code": "BND_LOOSE",
+      "binding_type": "NONE",
+      "cost_per_unit": 0
+    },
+    {
+      "id": 11,
+      "table_name": "mst_binding",
+      "binding_code": "BND_SCREW",
+      "binding_type": "SCREW",
+      "cost_per_unit": 25
+    },
+    {
+      "id": 12,
+      "table_name": "mst_binding",
+      "binding_code": "BND_RING",
+      "binding_type": "RING",
+      "cost_per_unit": 30
+    },
+    {
+      "id": 13,
+      "table_name": "mst_binding",
+      "binding_code": "BND_COMB",
+      "binding_type": "PLASTIC",
+      "cost_per_unit": 7
+    }
+  ],
+  "machines": [
+    {
+      "id": 1,
+      "type": "Computer",
+      "model": "Z8 G4",
+      "speed": {
+        "unit": "Hours",
+        "max_per_hour": 8
+      },
+      "costing": {
+        "setup": 0,
+        "hourly": 300
+      },
+      "category": "PREPRESS",
+      "priority": 99,
+      "department": "DES",
+      "max_colors": null,
+      "table_name": "mst_machine",
+      "machine_code": "PRE_DESK_01",
+      "machine_name": "Design Workstation - High End",
+      "manufacturer": "HP",
+      "printing_side": null
+    },
+    {
+      "id": 2,
+      "type": "Monitor",
+      "model": "ColorEdge CG279X",
+      "speed": {
+        "unit": "Hours",
+        "max_per_hour": 24
+      },
+      "costing": {
+        "setup": 0,
+        "hourly": 80
+      },
+      "category": "PREPRESS",
+      "priority": 100,
+      "department": "DES",
+      "max_colors": null,
+      "table_name": "mst_machine",
+      "machine_code": "PRE_MON_01",
+      "machine_name": "Colour Calibration Monitor",
+      "manufacturer": "EIZO",
+      "printing_side": null
+    },
+    {
+      "id": 3,
+      "type": "Inkjet Proof",
+      "model": "SureColor P20000",
+      "speed": {
+        "unit": "SheetsPerHour",
+        "max_per_hour": 200
+      },
+      "costing": {
+        "setup": 200,
+        "hourly": 450
+      },
+      "category": "PREPRESS",
+      "priority": 90,
+      "department": "PRF",
+      "max_colors": null,
+      "table_name": "mst_machine",
+      "machine_code": "PRE_PROOF_01",
+      "machine_name": "Proofing Inkjet - Contract Proof",
+      "manufacturer": "Epson",
+      "printing_side": null
+    },
+    {
+      "id": 4,
+      "type": "Thermal CTP",
+      "model": "Trendsetter Q800",
+      "speed": {
+        "unit": "PlatesPerHour",
+        "max_per_hour": 25
+      },
+      "costing": {
+        "setup": 2500,
+        "hourly": 3500
+      },
+      "category": "CTP",
+      "priority": 1,
+      "department": "PLT",
+      "max_colors": null,
+      "table_name": "mst_machine",
+      "machine_code": "CTP_KODAK_TS",
+      "machine_name": "Kodak Trendsetter",
+      "manufacturer": "Kodak",
+      "printing_side": null
+    },
+    {
+      "id": 5,
+      "type": "CTP Plate Setter",
+      "model": "PlateSetter S",
+      "speed": {
+        "unit": "PlatesPerHour",
+        "max_per_hour": 18
+      },
+      "costing": {
+        "setup": 1800,
+        "hourly": 3000
+      },
+      "category": "CTP",
+      "priority": 2,
+      "department": "PLT",
+      "max_colors": null,
+      "table_name": "mst_machine",
+      "machine_code": "CTP_SCREEN",
+      "machine_name": "Screen CTP",
+      "manufacturer": "SCREEN",
+      "printing_side": null
+    },
+    {
+      "id": 6,
+      "type": "Processor",
+      "model": "Processor X",
+      "speed": {
+        "unit": "PlatesPerHour",
+        "max_per_hour": 40
+      },
+      "costing": {
+        "setup": 600,
+        "hourly": 1200
+      },
+      "category": "CTP",
+      "priority": 3,
+      "department": "PLT",
+      "max_colors": null,
+      "table_name": "mst_machine",
+      "machine_code": "CTP_PLTPROC_01",
+      "machine_name": "Plate Processor",
+      "manufacturer": "Kodak",
+      "printing_side": null
+    },
+    {
+      "id": 7,
+      "type": "Punch",
+      "model": "Punch-300",
+      "speed": {
+        "unit": "PlatesPerHour",
+        "max_per_hour": 60
+      },
+      "costing": {
+        "setup": 150,
+        "hourly": 600
+      },
+      "category": "PREPRESS",
+      "priority": 4,
+      "department": "PLT",
+      "max_colors": null,
+      "table_name": "mst_machine",
+      "machine_code": "CTP_PUNCH_01",
+      "machine_name": "Plate Punching Machine",
+      "manufacturer": "TechNova",
+      "printing_side": null
+    },
+    {
+      "id": 8,
+      "type": "Sheetfed Offset",
+      "model": "SM 52",
+      "speed": {
+        "unit": "SheetsPerHour",
+        "max_per_hour": 12000
+      },
+      "costing": {
+        "setup": 1200,
+        "hourly": 3200
+      },
+      "category": "OFFSET",
+      "priority": 2,
+      "department": "PRS",
+      "max_colors": 4,
+      "table_name": "mst_machine",
+      "machine_code": "OFF_HD_SM52",
+      "machine_name": "Heidelberg SM 52",
+      "manufacturer": "Heidelberg",
+      "printing_side": "Both"
+    },
+    {
+      "id": 9,
+      "type": "Sheetfed Offset",
+      "model": "SM 74",
+      "speed": {
+        "unit": "SheetsPerHour",
+        "max_per_hour": 15000
+      },
+      "costing": {
+        "setup": 1500,
+        "hourly": 4200
+      },
+      "category": "OFFSET",
+      "priority": 1,
+      "department": "PRS",
+      "max_colors": 4,
+      "table_name": "mst_machine",
+      "machine_code": "OFF_HD_SM74",
+      "machine_name": "Heidelberg Speedmaster SM 74",
+      "manufacturer": "Heidelberg",
+      "printing_side": "Both"
+    },
+    {
+      "id": 10,
+      "type": "Sheetfed Offset",
+      "model": "Lithrone 26",
+      "speed": {
+        "unit": "SheetsPerHour",
+        "max_per_hour": 13000
+      },
+      "costing": {
+        "setup": 1400,
+        "hourly": 3800
+      },
+      "category": "OFFSET",
+      "priority": 1,
+      "department": "PRS",
+      "max_colors": 5,
+      "table_name": "mst_machine",
+      "machine_code": "OFF_KOMORI_L26",
+      "machine_name": "Komori Lithrone 26",
+      "manufacturer": "Komori",
+      "printing_side": "Both"
+    },
+    {
+      "id": 11,
+      "type": "Sheetfed Offset",
+      "model": "Single-1C",
+      "speed": {
+        "unit": "SheetsPerHour",
+        "max_per_hour": 7000
+      },
+      "costing": {
+        "setup": 700,
+        "hourly": 1800
+      },
+      "category": "OFFSET",
+      "priority": 5,
+      "department": "PRS",
+      "max_colors": 1,
+      "table_name": "mst_machine",
+      "machine_code": "OFF_MANU_1C",
+      "machine_name": "Manugraph Single Color",
+      "manufacturer": "Manugraph",
+      "printing_side": "Single"
+    },
+    {
+      "id": 12,
+      "type": "Sheetfed Offset",
+      "model": "DI 46",
+      "speed": {
+        "unit": "SheetsPerHour",
+        "max_per_hour": 10000
+      },
+      "costing": {
+        "setup": 1300,
+        "hourly": 3600
+      },
+      "category": "OFFSET",
+      "priority": 2,
+      "department": "PRS",
+      "max_colors": 4,
+      "table_name": "mst_machine",
+      "machine_code": "OFF_MITSU_4C",
+      "machine_name": "Mitsubishi 4-Color",
+      "manufacturer": "Mitsubishi",
+      "printing_side": "Both"
+    },
+    {
+      "id": 13,
+      "type": "Web Offset",
+      "model": "WebPress 600",
+      "speed": {
+        "unit": "ImpressionsPerHour",
+        "max_per_hour": 30000
+      },
+      "costing": {
+        "setup": 10000,
+        "hourly": 7000
+      },
+      "category": "OFFSET",
+      "priority": 1,
+      "department": "WEB",
+      "max_colors": 4,
+      "table_name": "mst_machine",
+      "machine_code": "WEB_MANUGRAPH",
+      "machine_name": "Manugraph Web Press",
+      "manufacturer": "Manugraph",
+      "printing_side": "Both"
+    },
+    {
+      "id": 14,
+      "type": "Web Offset",
+      "model": "Rapida 162",
+      "speed": {
+        "unit": "ImpressionsPerHour",
+        "max_per_hour": 35000
+      },
+      "costing": {
+        "setup": 12000,
+        "hourly": 9500
+      },
+      "category": "OFFSET",
+      "priority": 1,
+      "department": "WEB",
+      "max_colors": 6,
+      "table_name": "mst_machine",
+      "machine_code": "WEB_KBA",
+      "machine_name": "KBA Web Offset",
+      "manufacturer": "KBA",
+      "printing_side": "Both"
+    },
+    {
+      "id": 15,
+      "type": "ElectroInk Press",
+      "model": "Indigo 7K",
+      "speed": {
+        "unit": "SheetsPerHour",
+        "max_per_hour": 4500
+      },
+      "costing": {
+        "setup": 10000,
+        "hourly": 8000
+      },
+      "category": "DIGITAL",
+      "priority": 1,
+      "department": "DIG",
+      "max_colors": 7,
+      "table_name": "mst_machine",
+      "machine_code": "DIG_HP_INDIGO",
+      "machine_name": "HP Indigo",
+      "manufacturer": "HP",
+      "printing_side": "Single"
+    },
+    {
+      "id": 16,
+      "type": "Digital Press",
+      "model": "Pro C9200",
+      "speed": {
+        "unit": "SheetsPerHour",
+        "max_per_hour": 8000
+      },
+      "costing": {
+        "setup": 1200,
+        "hourly": 2200
+      },
+      "category": "DIGITAL",
+      "priority": 1,
+      "department": "DIG",
+      "max_colors": 4,
+      "table_name": "mst_machine",
+      "machine_code": "DIG_RICOH",
+      "machine_name": "Ricoh Pro C9200",
+      "manufacturer": "Ricoh",
+      "printing_side": "Single"
+    },
+    {
+      "id": 17,
+      "type": "Digital Press",
+      "model": "Versant 3100",
+      "speed": {
+        "unit": "SheetsPerHour",
+        "max_per_hour": 7000
+      },
+      "costing": {
+        "setup": 1100,
+        "hourly": 2100
+      },
+      "category": "DIGITAL",
+      "priority": 2,
+      "department": "DIG",
+      "max_colors": 5,
+      "table_name": "mst_machine",
+      "machine_code": "DIG_XEROX",
+      "machine_name": "Xerox Versant",
+      "manufacturer": "Xerox",
+      "printing_side": "Single"
+    },
+    {
+      "id": 18,
+      "type": "UV Screen Press",
+      "model": "Press UV",
+      "speed": {
+        "unit": "SheetsPerHour",
+        "max_per_hour": 1500
+      },
+      "costing": {
+        "setup": 2000,
+        "hourly": 3200
+      },
+      "category": "SCREEN",
+      "priority": 1,
+      "department": "SCR",
+      "max_colors": 6,
+      "table_name": "mst_machine",
+      "machine_code": "SCR_SAKURAI_UV",
+      "machine_name": "Sakurai UV Screen",
+      "manufacturer": "Sakurai",
+      "printing_side": "Single"
+    },
+    {
+      "id": 19,
+      "type": "Manual Screen",
+      "model": "Table-1",
+      "speed": {
+        "unit": "SheetsPerHour",
+        "max_per_hour": 200
+      },
+      "costing": {
+        "setup": 0,
+        "hourly": 400
+      },
+      "category": "SCREEN",
+      "priority": 50,
+      "department": "SCR",
+      "max_colors": null,
+      "table_name": "mst_machine",
+      "machine_code": "SCR_MANUAL_TABLE",
+      "machine_name": "Screen Printing Table",
+      "manufacturer": "Local",
+      "printing_side": null
+    },
+    {
+      "id": 20,
+      "type": "Large Format Inkjet",
+      "model": "Latex 3600",
+      "speed": {
+        "unit": "SqmPerHour",
+        "max_per_hour": 80
+      },
+      "costing": {
+        "setup": 2500,
+        "hourly": 4500
+      },
+      "category": "DIGITAL",
+      "priority": 1,
+      "department": "FLX",
+      "max_colors": 6,
+      "table_name": "mst_machine",
+      "machine_code": "FLX_HP_LF",
+      "machine_name": "HP Latex Large Format",
+      "manufacturer": "HP",
+      "printing_side": "Single"
+    },
+    {
+      "id": 21,
+      "type": "UV Inkjet",
+      "model": "UJV300",
+      "speed": {
+        "unit": "SqmPerHour",
+        "max_per_hour": 70
+      },
+      "costing": {
+        "setup": 1500,
+        "hourly": 3000
+      },
+      "category": "DIGITAL",
+      "priority": 2,
+      "department": "FLX",
+      "max_colors": 6,
+      "table_name": "mst_machine",
+      "machine_code": "FLX_MIMAKI",
+      "machine_name": "Mimaki UV",
+      "manufacturer": "Mimaki",
+      "printing_side": "Single"
+    },
+    {
+      "id": 22,
+      "type": "Guillotine Cutter",
+      "model": "115",
+      "speed": {
+        "unit": "CutsPerHour",
+        "max_per_hour": 1800
+      },
+      "costing": {
+        "setup": 600,
+        "hourly": 1000
+      },
+      "category": "CUTTING",
+      "priority": 1,
+      "department": "CUT",
+      "max_colors": null,
+      "table_name": "mst_machine",
+      "machine_code": "CUT_POLAR_115",
+      "machine_name": "Polar 115",
+      "manufacturer": "Polar",
+      "printing_side": null
+    },
+    {
+      "id": 23,
+      "type": "Guillotine Cutter",
+      "model": "92",
+      "speed": {
+        "unit": "CutsPerHour",
+        "max_per_hour": 1200
+      },
+      "costing": {
+        "setup": 500,
+        "hourly": 900
+      },
+      "category": "CUTTING",
+      "priority": 2,
+      "department": "CUT",
+      "max_colors": null,
+      "table_name": "mst_machine",
+      "machine_code": "CUT_WOH_92",
+      "machine_name": "Wohlenberg 92",
+      "manufacturer": "Wohlenberg",
+      "printing_side": null
+    },
+    {
+      "id": 24,
+      "type": "Slitter",
+      "model": "SlitMax",
+      "speed": {
+        "unit": "MetersPerHour",
+        "max_per_hour": 600
+      },
+      "costing": {
+        "setup": 800,
+        "hourly": 1500
+      },
+      "category": "CUTTING",
+      "priority": 2,
+      "department": "CUT",
+      "max_colors": null,
+      "table_name": "mst_machine",
+      "machine_code": "CUT_SLIT_01",
+      "machine_name": "Rotary Slitter",
+      "manufacturer": "TechNova",
+      "printing_side": null
+    },
+    {
+      "id": 25,
+      "type": "Folder",
+      "model": "KH-82",
+      "speed": {
+        "unit": "SheetsPerHour",
+        "max_per_hour": 14000
+      },
+      "costing": {
+        "setup": 1200,
+        "hourly": 1600
+      },
+      "category": "FOLDING",
+      "priority": 1,
+      "department": "FOL",
+      "max_colors": null,
+      "table_name": "mst_machine",
+      "machine_code": "FOLD_STEHL",
+      "machine_name": "Stahl Folder",
+      "manufacturer": "Stahl",
+      "printing_side": null
+    },
+    {
+      "id": 26,
+      "type": "Folding",
+      "model": "K800",
+      "speed": {
+        "unit": "SheetsPerHour",
+        "max_per_hour": 11000
+      },
+      "costing": {
+        "setup": 1000,
+        "hourly": 1400
+      },
+      "category": "FOLDING",
+      "priority": 2,
+      "department": "FOL",
+      "max_colors": null,
+      "table_name": "mst_machine",
+      "machine_code": "FOLD_MBO",
+      "machine_name": "MBO Folder",
+      "manufacturer": "MBO",
+      "printing_side": null
+    },
+    {
+      "id": 27,
+      "type": "Perfect Binder",
+      "model": "KM 600",
+      "speed": {
+        "unit": "BooksPerHour",
+        "max_per_hour": 1800
+      },
+      "costing": {
+        "setup": 3000,
+        "hourly": 2600
+      },
+      "category": "BINDING",
+      "priority": 1,
+      "department": "BND",
+      "max_colors": null,
+      "table_name": "mst_machine",
+      "machine_code": "BND_KOLBUS_PERF",
+      "machine_name": "Kolbus Perfect Binder",
+      "manufacturer": "Kolbus",
+      "printing_side": null
+    },
+    {
+      "id": 28,
+      "type": "Case Binding",
+      "model": "S 500",
+      "speed": {
+        "unit": "BooksPerHour",
+        "max_per_hour": 600
+      },
+      "costing": {
+        "setup": 5000,
+        "hourly": 4200
+      },
+      "category": "BINDING",
+      "priority": 1,
+      "department": "BND",
+      "max_colors": null,
+      "table_name": "mst_machine",
+      "machine_code": "BND_MULLER_CASE",
+      "machine_name": "Muller Martini Case Binder",
+      "manufacturer": "Muller-Martini",
+      "printing_side": null
+    },
+    {
+      "id": 29,
+      "type": "Saddle Stitcher",
+      "model": "FS-70",
+      "speed": {
+        "unit": "BooksPerHour",
+        "max_per_hour": 5000
+      },
+      "costing": {
+        "setup": 900,
+        "hourly": 1400
+      },
+      "category": "BINDING",
+      "priority": 2,
+      "department": "BND",
+      "max_colors": null,
+      "table_name": "mst_machine",
+      "machine_code": "BND_NAGEL_STI",
+      "machine_name": "Nagel Stitcher",
+      "manufacturer": "Nagel",
+      "printing_side": null
+    },
+    {
+      "id": 30,
+      "type": "Spiral Binder",
+      "model": "VeloBind",
+      "speed": {
+        "unit": "BooksPerHour",
+        "max_per_hour": 400
+      },
+      "costing": {
+        "setup": 300,
+        "hourly": 600
+      },
+      "category": "BINDING",
+      "priority": 10,
+      "department": "BND",
+      "max_colors": null,
+      "table_name": "mst_machine",
+      "machine_code": "BND_RENZ_SPIRAL",
+      "machine_name": "Renz Spiral Binder",
+      "manufacturer": "Renz",
+      "printing_side": null
+    },
+    {
+      "id": 31,
+      "type": "Laminator",
+      "model": "AB-1200",
+      "speed": {
+        "unit": "SheetsPerHour",
+        "max_per_hour": 8000
+      },
+      "costing": {
+        "setup": 1200,
+        "hourly": 1600
+      },
+      "category": "FINISHING",
+      "priority": 2,
+      "department": "FIN",
+      "max_colors": null,
+      "table_name": "mst_machine",
+      "machine_code": "FIN_AUTOBOND_LAM",
+      "machine_name": "Autobond Lamination",
+      "manufacturer": "Autobond",
+      "printing_side": null
+    },
+    {
+      "id": 32,
+      "type": "UV Coater",
+      "model": "UV-1200",
+      "speed": {
+        "unit": "SheetsPerHour",
+        "max_per_hour": 5000
+      },
+      "costing": {
+        "setup": 3000,
+        "hourly": 4200
+      },
+      "category": "FINISHING",
+      "priority": 1,
+      "department": "FIN",
+      "max_colors": null,
+      "table_name": "mst_machine",
+      "machine_code": "FIN_SAKURAI_UV",
+      "machine_name": "Sakurai UV Coater",
+      "manufacturer": "Sakurai",
+      "printing_side": null
+    },
+    {
+      "id": 33,
+      "type": "Die Cutter",
+      "model": "MasterCut",
+      "speed": {
+        "unit": "SheetsPerHour",
+        "max_per_hour": 900
+      },
+      "costing": {
+        "setup": 1500,
+        "hourly": 3800
+      },
+      "category": "FINISHING",
+      "priority": 1,
+      "department": "FIN",
+      "max_colors": null,
+      "table_name": "mst_machine",
+      "machine_code": "FIN_BOBST_DIE",
+      "machine_name": "Bobst Die Cutter",
+      "manufacturer": "Bobst",
+      "printing_side": null
+    },
+    {
+      "id": 34,
+      "type": "Foil Stamper",
+      "model": "FoilPro",
+      "speed": {
+        "unit": "SheetsPerHour",
+        "max_per_hour": 400
+      },
+      "costing": {
+        "setup": 500,
+        "hourly": 1200
+      },
+      "category": "FINISHING",
+      "priority": 1,
+      "department": "FIN",
+      "max_colors": null,
+      "table_name": "mst_machine",
+      "machine_code": "FIN_GIETZ_FOIL",
+      "machine_name": "Gietz Foil Stamping",
+      "manufacturer": "Gietz",
+      "printing_side": null
+    },
+    {
+      "id": 35,
+      "type": "Shrink Wrapper",
+      "model": "Torre",
+      "speed": {
+        "unit": "PacksPerHour",
+        "max_per_hour": 900
+      },
+      "costing": {
+        "setup": 800,
+        "hourly": 1000
+      },
+      "category": "PACKAGING",
+      "priority": 5,
+      "department": "PKG",
+      "max_colors": null,
+      "table_name": "mst_machine",
+      "machine_code": "PKG_SHRINK_MINIPACK",
+      "machine_name": "Shrink Wrapping Machine",
+      "manufacturer": "Minipack",
+      "printing_side": null
+    },
+    {
+      "id": 36,
+      "type": "Strapper",
+      "model": "TP-200",
+      "speed": {
+        "unit": "PacksPerHour",
+        "max_per_hour": 1200
+      },
+      "costing": {
+        "setup": 0,
+        "hourly": 350
+      },
+      "category": "PACKAGING",
+      "priority": 20,
+      "department": "PKG",
+      "max_colors": null,
+      "table_name": "mst_machine",
+      "machine_code": "PKG_STRAP_TRANSPAK",
+      "machine_name": "Strapping Machine",
+      "manufacturer": "Transpak",
+      "printing_side": null
+    },
+    {
+      "id": 37,
+      "type": "Sealer",
+      "model": "BS-80",
+      "speed": {
+        "unit": "BoxesPerHour",
+        "max_per_hour": 600
+      },
+      "costing": {
+        "setup": 0,
+        "hourly": 400
+      },
+      "category": "PACKAGING",
+      "priority": 30,
+      "department": "PKG",
+      "max_colors": null,
+      "table_name": "mst_machine",
+      "machine_code": "PKG_CARTON_SEAL",
+      "machine_name": "Carton Sealer",
+      "manufacturer": "BestPack",
+      "printing_side": null
+    },
+    {
+      "id": 38,
+      "type": "Compressor",
+      "model": "GA15",
+      "speed": {
+        "unit": "Hours",
+        "max_per_hour": 24
+      },
+      "costing": {
+        "setup": 0,
+        "hourly": 450
+      },
+      "category": "UTILITY",
+      "priority": 90,
+      "department": "UTL",
+      "max_colors": null,
+      "table_name": "mst_machine",
+      "machine_code": "UTL_COMP_ATLAS",
+      "machine_name": "Air Compressor 15HP",
+      "manufacturer": "Atlas Copco",
+      "printing_side": null
+    },
+    {
+      "id": 39,
+      "type": "Generator",
+      "model": "DG-125",
+      "speed": {
+        "unit": "Hours",
+        "max_per_hour": 24
+      },
+      "costing": {
+        "setup": 0,
+        "hourly": 600
+      },
+      "category": "UTILITY",
+      "priority": 99,
+      "department": "UTL",
+      "max_colors": null,
+      "table_name": "mst_machine",
+      "machine_code": "UTL_DG_KIRLOSKAR",
+      "machine_name": "Diesel Generator 125KVA",
+      "manufacturer": "Kirloskar",
+      "printing_side": null
+    },
+    {
+      "id": 40,
+      "type": "UPS",
+      "model": "Symmetra",
+      "speed": {
+        "unit": "Hours",
+        "max_per_hour": 24
+      },
+      "costing": {
+        "setup": 0,
+        "hourly": 250
+      },
+      "category": "UTILITY",
+      "priority": 99,
+      "department": "UTL",
+      "max_colors": null,
+      "table_name": "mst_machine",
+      "machine_code": "UTL_UPS_APC",
+      "machine_name": "Online UPS",
+      "manufacturer": "APC",
+      "printing_side": null
+    },
+    {
+      "id": 41,
+      "type": "Stabilizer",
+      "model": "ST-100",
+      "speed": {
+        "unit": "Hours",
+        "max_per_hour": 24
+      },
+      "costing": {
+        "setup": 0,
+        "hourly": 50
+      },
+      "category": "UTILITY",
+      "priority": 99,
+      "department": "UTL",
+      "max_colors": null,
+      "table_name": "mst_machine",
+      "machine_code": "UTL_STAB_SERVO",
+      "machine_name": "Voltage Stabilizer",
+      "manufacturer": "Servo",
+      "printing_side": null
+    }
+  ],
+  "chemicals": [
+    {
+      "id": 1,
+      "rate": 480,
+      "table_name": "mst_chemical",
+      "chemical_code": "CH_BLANKET_ECO",
+      "chemical_name": "Eco Blanket Wash"
+    },
+    {
+      "id": 2,
+      "rate": 420,
+      "table_name": "mst_chemical",
+      "chemical_code": "CH_BLANKET_WASH",
+      "chemical_name": "Blanket Wash"
+    },
+    {
+      "id": 3,
+      "rate": 600,
+      "table_name": "mst_chemical",
+      "chemical_code": "CH_CTP_CLEAN",
+      "chemical_name": "CTP Processor Cleaner"
+    },
+    {
+      "id": 4,
+      "rate": 520,
+      "table_name": "mst_chemical",
+      "chemical_code": "CH_DEGLAZER",
+      "chemical_name": "Roller Deglazer"
+    },
+    {
+      "id": 5,
+      "rate": 320,
+      "table_name": "mst_chemical",
+      "chemical_code": "CH_DESENSE",
+      "chemical_name": "Plate Desensitizer"
+    },
+    {
+      "id": 6,
+      "rate": 350,
+      "table_name": "mst_chemical",
+      "chemical_code": "CH_DEV_ANALOG",
+      "chemical_name": "Analog Plate Developer"
+    },
+    {
+      "id": 7,
+      "rate": 450,
+      "table_name": "mst_chemical",
+      "chemical_code": "CH_DEV_CTP",
+      "chemical_name": "CTP Plate Developer"
+    },
+    {
+      "id": 8,
+      "rate": 380,
+      "table_name": "mst_chemical",
+      "chemical_code": "CH_FOUNT_IPA_FREE",
+      "chemical_name": "IPA Free Fountain Solution"
+    },
+    {
+      "id": 9,
+      "rate": 320,
+      "table_name": "mst_chemical",
+      "chemical_code": "CH_FOUNT_STD",
+      "chemical_name": "Fountain Solution Concentrate"
+    },
+    {
+      "id": 10,
+      "rate": 280,
+      "table_name": "mst_chemical",
+      "chemical_code": "CH_GUM_PLATE",
+      "chemical_name": "Plate Gumming Solution"
+    },
+    {
+      "id": 11,
+      "rate": 180,
+      "table_name": "mst_chemical",
+      "chemical_code": "CH_IPA",
+      "chemical_name": "Isopropyl Alcohol"
+    },
+    {
+      "id": 12,
+      "rate": 240,
+      "table_name": "mst_chemical",
+      "chemical_code": "CH_IPA_SUB",
+      "chemical_name": "IPA Substitute"
+    },
+    {
+      "id": 13,
+      "rate": 300,
+      "table_name": "mst_chemical",
+      "chemical_code": "CH_PLATE_CLEAN",
+      "chemical_name": "Plate Cleaner"
+    },
+    {
+      "id": 14,
+      "rate": 400,
+      "table_name": "mst_chemical",
+      "chemical_code": "CH_ROLLER_WASH",
+      "chemical_name": "Roller Wash"
+    }
+  ],
+  "designing": [
+    {
+      "id": 1,
+      "category": "Creative",
+      "software": "Photoshop,Illustrator",
+      "base_cost": 2500,
+      "cost_unit": "Per Job",
+      "job_types": "Book",
+      "color_mode": "CMYK",
+      "table_name": "mst_designing",
+      "design_code": "DES_BOOK_COVER",
+      "design_name": "Book Cover Designing",
+      "design_type": "Cover",
+      "file_format": "PDF,AI",
+      "rework_charge": 500,
+      "avg_time_hours": 6,
+      "plate_by_party": false,
+      "cost_applicable": true,
+      "design_by_party": false,
+      "revision_allowed": 2,
+      "manpower_required": 1
+    },
+    {
+      "id": 2,
+      "category": "Artwork",
+      "software": "InDesign",
+      "base_cost": 12,
+      "cost_unit": "Per Page",
+      "job_types": "Book",
+      "color_mode": "CMYK",
+      "table_name": "mst_designing",
+      "design_code": "DES_BOOK_INSIDE",
+      "design_name": "Book Inside Page Layout",
+      "design_type": "Inside",
+      "file_format": "PDF",
+      "rework_charge": 100,
+      "avg_time_hours": 0.25,
+      "plate_by_party": false,
+      "cost_applicable": true,
+      "design_by_party": false,
+      "revision_allowed": 1,
+      "manpower_required": 1
+    },
+    {
+      "id": 3,
+      "category": "Creative",
+      "software": "Photoshop,InDesign",
+      "base_cost": 3500,
+      "cost_unit": "Per Job",
+      "job_types": "Magazine",
+      "color_mode": "CMYK",
+      "table_name": "mst_designing",
+      "design_code": "DES_MAG_COVER",
+      "design_name": "Magazine Cover Design",
+      "design_type": "Cover",
+      "file_format": "PDF",
+      "rework_charge": 700,
+      "avg_time_hours": 8,
+      "plate_by_party": false,
+      "cost_applicable": true,
+      "design_by_party": false,
+      "revision_allowed": 2,
+      "manpower_required": 1
+    },
+    {
+      "id": 4,
+      "category": "Artwork",
+      "software": "InDesign",
+      "base_cost": 20,
+      "cost_unit": "Per Page",
+      "job_types": "Magazine",
+      "color_mode": "CMYK",
+      "table_name": "mst_designing",
+      "design_code": "DES_MAG_LAYOUT",
+      "design_name": "Magazine Page Layout",
+      "design_type": "Inside",
+      "file_format": "PDF",
+      "rework_charge": 150,
+      "avg_time_hours": 0.4,
+      "plate_by_party": false,
+      "cost_applicable": true,
+      "design_by_party": false,
+      "revision_allowed": 1,
+      "manpower_required": 1
+    },
+    {
+      "id": 5,
+      "category": "Creative",
+      "software": "Corel,Illustrator",
+      "base_cost": 2000,
+      "cost_unit": "Per Job",
+      "job_types": "Brochure,Leaflet",
+      "color_mode": "CMYK",
+      "table_name": "mst_designing",
+      "design_code": "DES_BROCHURE",
+      "design_name": "Brochure Designing",
+      "design_type": "Full",
+      "file_format": "PDF,CDR",
+      "rework_charge": 500,
+      "avg_time_hours": 4,
+      "plate_by_party": false,
+      "cost_applicable": true,
+      "design_by_party": false,
+      "revision_allowed": 2,
+      "manpower_required": 1
+    },
+    {
+      "id": 6,
+      "category": "Artwork",
+      "software": "InDesign",
+      "base_cost": 5,
+      "cost_unit": "Per Page",
+      "job_types": "Newspaper",
+      "color_mode": "CMYK",
+      "table_name": "mst_designing",
+      "design_code": "DES_NEWS_LAYOUT",
+      "design_name": "Newspaper Page Layout",
+      "design_type": "Inside",
+      "file_format": "PDF",
+      "rework_charge": 0,
+      "avg_time_hours": 0.15,
+      "plate_by_party": false,
+      "cost_applicable": true,
+      "design_by_party": false,
+      "revision_allowed": 0,
+      "manpower_required": 1
+    },
+    {
+      "id": 7,
+      "category": "Creative",
+      "software": "Photoshop,Illustrator",
+      "base_cost": 1500,
+      "cost_unit": "Per Job",
+      "job_types": "Poster,Banner",
+      "color_mode": "CMYK",
+      "table_name": "mst_designing",
+      "design_code": "DES_POSTER",
+      "design_name": "Poster Designing",
+      "design_type": "Single Page",
+      "file_format": "PDF,AI",
+      "rework_charge": 400,
+      "avg_time_hours": 2.5,
+      "plate_by_party": false,
+      "cost_applicable": true,
+      "design_by_party": false,
+      "revision_allowed": 2,
+      "manpower_required": 1
+    },
+    {
+      "id": 8,
+      "category": "Creative",
+      "software": "Corel",
+      "base_cost": 300,
+      "cost_unit": "Per Job",
+      "job_types": "VisitingCard",
+      "color_mode": "CMYK",
+      "table_name": "mst_designing",
+      "design_code": "DES_VISITING",
+      "design_name": "Visiting Card Design",
+      "design_type": "Card",
+      "file_format": "PDF,CDR",
+      "rework_charge": 200,
+      "avg_time_hours": 0.5,
+      "plate_by_party": false,
+      "cost_applicable": true,
+      "design_by_party": false,
+      "revision_allowed": 1,
+      "manpower_required": 1
+    },
+    {
+      "id": 9,
+      "category": "Prepress",
+      "software": "Illustrator,ArtiosCAD",
+      "base_cost": 5000,
+      "cost_unit": "Per Job",
+      "job_types": "Packaging,Box",
+      "color_mode": "CMYK",
+      "table_name": "mst_designing",
+      "design_code": "DES_PACK_BOX",
+      "design_name": "Packaging Box Design",
+      "design_type": "Die & Artwork",
+      "file_format": "PDF,AI",
+      "rework_charge": 1000,
+      "avg_time_hours": 10,
+      "plate_by_party": false,
+      "cost_applicable": true,
+      "design_by_party": false,
+      "revision_allowed": 3,
+      "manpower_required": 2
+    },
+    {
+      "id": 10,
+      "category": "External",
+      "software": null,
+      "base_cost": 0,
+      "cost_unit": "NA",
+      "job_types": "All",
+      "color_mode": "CMYK",
+      "table_name": "mst_designing",
+      "design_code": "DES_BY_PARTY",
+      "design_name": "Design Provided by Party",
+      "design_type": "NA",
+      "file_format": "PDF",
+      "rework_charge": 0,
+      "avg_time_hours": 0,
+      "plate_by_party": false,
+      "cost_applicable": false,
+      "design_by_party": true,
+      "revision_allowed": 0,
+      "manpower_required": 0
+    },
+    {
+      "id": 11,
+      "category": "External",
+      "software": null,
+      "base_cost": 0,
+      "cost_unit": "NA",
+      "job_types": "All",
+      "color_mode": "CMYK",
+      "table_name": "mst_designing",
+      "design_code": "PLATE_BY_PARTY",
+      "design_name": "Plate Provided by Party",
+      "design_type": "Plate",
+      "file_format": "Plate",
+      "rework_charge": 0,
+      "avg_time_hours": 0,
+      "plate_by_party": true,
+      "cost_applicable": false,
+      "design_by_party": true,
+      "revision_allowed": 0,
+      "manpower_required": 0
+    },
+    {
+      "id": 12,
+      "category": "Prepress",
+      "software": "Illustrator,ArtiosCAD",
+      "base_cost": 6000,
+      "cost_unit": "Per Job",
+      "job_types": "Carton,Packaging",
+      "color_mode": "CMYK",
+      "table_name": "mst_designing",
+      "design_code": "DES_CARTON",
+      "design_name": "Mono Carton Designing",
+      "design_type": "Die & Artwork",
+      "file_format": "PDF,AI",
+      "rework_charge": 1200,
+      "avg_time_hours": 12,
+      "plate_by_party": false,
+      "cost_applicable": true,
+      "design_by_party": false,
+      "revision_allowed": 3,
+      "manpower_required": 2
+    },
+    {
+      "id": 13,
+      "category": "Prepress",
+      "software": "ArtiosCAD",
+      "base_cost": 7000,
+      "cost_unit": "Per Job",
+      "job_types": "Corrugated,Packaging",
+      "color_mode": "CMYK",
+      "table_name": "mst_designing",
+      "design_code": "DES_CORRUGATED",
+      "design_name": "Corrugated Box Designing",
+      "design_type": "Structure",
+      "file_format": "PDF",
+      "rework_charge": 1500,
+      "avg_time_hours": 14,
+      "plate_by_party": false,
+      "cost_applicable": true,
+      "design_by_party": false,
+      "revision_allowed": 3,
+      "manpower_required": 2
+    },
+    {
+      "id": 14,
+      "category": "Creative",
+      "software": "Illustrator",
+      "base_cost": 1200,
+      "cost_unit": "Per Job",
+      "job_types": "Label,Sticker",
+      "color_mode": "CMYK",
+      "table_name": "mst_designing",
+      "design_code": "DES_LABEL",
+      "design_name": "Product Label Designing",
+      "design_type": "Label",
+      "file_format": "PDF,AI",
+      "rework_charge": 500,
+      "avg_time_hours": 3,
+      "plate_by_party": false,
+      "cost_applicable": true,
+      "design_by_party": false,
+      "revision_allowed": 2,
+      "manpower_required": 1
+    },
+    {
+      "id": 15,
+      "category": "Artwork",
+      "software": "Illustrator,Excel",
+      "base_cost": 800,
+      "cost_unit": "Per Job",
+      "job_types": "Label,Sticker,Packaging",
+      "color_mode": "CMYK",
+      "table_name": "mst_designing",
+      "design_code": "DES_BARCODE",
+      "design_name": "Barcode & Variable Data Setup",
+      "design_type": "Data",
+      "file_format": "PDF",
+      "rework_charge": 0,
+      "avg_time_hours": 1,
+      "plate_by_party": false,
+      "cost_applicable": true,
+      "design_by_party": false,
+      "revision_allowed": 0,
+      "manpower_required": 1
+    },
+    {
+      "id": 16,
+      "category": "Artwork",
+      "software": "Corel,InDesign",
+      "base_cost": 600,
+      "cost_unit": "Per Job",
+      "job_types": "Form,Stationery",
+      "color_mode": "CMYK",
+      "table_name": "mst_designing",
+      "design_code": "DES_FORM",
+      "design_name": "Computer / Office Form Design",
+      "design_type": "Form",
+      "file_format": "PDF",
+      "rework_charge": 300,
+      "avg_time_hours": 1.5,
+      "plate_by_party": false,
+      "cost_applicable": true,
+      "design_by_party": false,
+      "revision_allowed": 1,
+      "manpower_required": 1
+    },
+    {
+      "id": 17,
+      "category": "Creative",
+      "software": "Corel",
+      "base_cost": 500,
+      "cost_unit": "Per Job",
+      "job_types": "Letterhead,Envelope",
+      "color_mode": "CMYK",
+      "table_name": "mst_designing",
+      "design_code": "DES_LETTERHEAD",
+      "design_name": "Letterhead & Office Stationery",
+      "design_type": "Stationery",
+      "file_format": "PDF",
+      "rework_charge": 200,
+      "avg_time_hours": 1,
+      "plate_by_party": false,
+      "cost_applicable": true,
+      "design_by_party": false,
+      "revision_allowed": 1,
+      "manpower_required": 1
+    },
+    {
+      "id": 18,
+      "category": "Security",
+      "software": "Illustrator",
+      "base_cost": 8000,
+      "cost_unit": "Per Job",
+      "job_types": "Cheque,Certificate",
+      "color_mode": "CMYK",
+      "table_name": "mst_designing",
+      "design_code": "DES_SECURITY",
+      "design_name": "Security Background Design",
+      "design_type": "Pattern",
+      "file_format": "PDF",
+      "rework_charge": 2000,
+      "avg_time_hours": 10,
+      "plate_by_party": false,
+      "cost_applicable": true,
+      "design_by_party": false,
+      "revision_allowed": 2,
+      "manpower_required": 2
+    },
+    {
+      "id": 19,
+      "category": "Security",
+      "software": "InDesign,Excel",
+      "base_cost": 1000,
+      "cost_unit": "Per Job",
+      "job_types": "Cheque,Certificate,Ticket",
+      "color_mode": "CMYK",
+      "table_name": "mst_designing",
+      "design_code": "DES_SERIAL",
+      "design_name": "Serial Number Setup",
+      "design_type": "Variable",
+      "file_format": "PDF",
+      "rework_charge": 0,
+      "avg_time_hours": 1.5,
+      "plate_by_party": false,
+      "cost_applicable": true,
+      "design_by_party": false,
+      "revision_allowed": 0,
+      "manpower_required": 1
+    },
+    {
+      "id": 20,
+      "category": "Creative",
+      "software": "Corel,Illustrator",
+      "base_cost": 900,
+      "cost_unit": "Per Job",
+      "job_types": "Ticket,Coupon",
+      "color_mode": "CMYK",
+      "table_name": "mst_designing",
+      "design_code": "DES_TICKET",
+      "design_name": "Event Ticket Design",
+      "design_type": "Ticket",
+      "file_format": "PDF",
+      "rework_charge": 300,
+      "avg_time_hours": 1.5,
+      "plate_by_party": false,
+      "cost_applicable": true,
+      "design_by_party": false,
+      "revision_allowed": 1,
+      "manpower_required": 1
+    },
+    {
+      "id": 21,
+      "category": "Creative",
+      "software": "Photoshop",
+      "base_cost": 4000,
+      "cost_unit": "Per Job",
+      "job_types": "Textile,Fabric",
+      "color_mode": "RGB",
+      "table_name": "mst_designing",
+      "design_code": "DES_TEXTILE",
+      "design_name": "Textile Print Design",
+      "design_type": "Pattern",
+      "file_format": "TIFF",
+      "rework_charge": 1000,
+      "avg_time_hours": 6,
+      "plate_by_party": false,
+      "cost_applicable": true,
+      "design_by_party": false,
+      "revision_allowed": 2,
+      "manpower_required": 1
+    },
+    {
+      "id": 22,
+      "category": "Creative",
+      "software": "InDesign,Photoshop",
+      "base_cost": 25,
+      "cost_unit": "Per Page",
+      "job_types": "PhotoBook",
+      "color_mode": "CMYK",
+      "table_name": "mst_designing",
+      "design_code": "DES_PHOTOBOOK",
+      "design_name": "Photo Book Layout",
+      "design_type": "Album",
+      "file_format": "PDF",
+      "rework_charge": 700,
+      "avg_time_hours": 0.5,
+      "plate_by_party": false,
+      "cost_applicable": true,
+      "design_by_party": false,
+      "revision_allowed": 2,
+      "manpower_required": 1
+    },
+    {
+      "id": 23,
+      "category": "Creative",
+      "software": "Photoshop",
+      "base_cost": 2500,
+      "cost_unit": "Per Job",
+      "job_types": "Flex,Hoarding",
+      "color_mode": "CMYK",
+      "table_name": "mst_designing",
+      "design_code": "DES_HOARDING",
+      "design_name": "Hoarding & Outdoor Design",
+      "design_type": "Large Format",
+      "file_format": "PDF",
+      "rework_charge": 600,
+      "avg_time_hours": 4,
+      "plate_by_party": false,
+      "cost_applicable": true,
+      "design_by_party": false,
+      "revision_allowed": 2,
+      "manpower_required": 1
+    },
+    {
+      "id": 24,
+      "category": "Digital",
+      "software": "InDesign",
+      "base_cost": 1500,
+      "cost_unit": "Per Job",
+      "job_types": "Digital,Invitation",
+      "color_mode": "CMYK",
+      "table_name": "mst_designing",
+      "design_code": "DES_VARIABLE",
+      "design_name": "Personalized Variable Print Setup",
+      "design_type": "Variable",
+      "file_format": "PDF",
+      "rework_charge": 0,
+      "avg_time_hours": 2,
+      "plate_by_party": false,
+      "cost_applicable": true,
+      "design_by_party": false,
+      "revision_allowed": 0,
+      "manpower_required": 1
+    },
+    {
+      "id": 25,
+      "category": "Creative",
+      "software": "Corel",
+      "base_cost": 700,
+      "cost_unit": "Per Job",
+      "job_types": "CD,DVD",
+      "color_mode": "CMYK",
+      "table_name": "mst_designing",
+      "design_code": "DES_CD",
+      "design_name": "CD / DVD Cover Design",
+      "design_type": "Cover",
+      "file_format": "PDF",
+      "rework_charge": 300,
+      "avg_time_hours": 1.5,
+      "plate_by_party": false,
+      "cost_applicable": true,
+      "design_by_party": false,
+      "revision_allowed": 1,
+      "manpower_required": 1
+    },
+    {
+      "id": 26,
+      "category": "Artwork",
+      "software": "InDesign",
+      "base_cost": 15,
+      "cost_unit": "Per Page",
+      "job_types": "Manual,Catalogue",
+      "color_mode": "CMYK",
+      "table_name": "mst_designing",
+      "design_code": "DES_MANUAL",
+      "design_name": "Technical Manual Layout",
+      "design_type": "Manual",
+      "file_format": "PDF",
+      "rework_charge": 200,
+      "avg_time_hours": 0.3,
+      "plate_by_party": false,
+      "cost_applicable": true,
+      "design_by_party": false,
+      "revision_allowed": 1,
+      "manpower_required": 1
+    }
+  ],
+  "finishing": [
+    {
+      "id": 1,
+      "rate": 1.2,
+      "table_name": "mst_finishing",
+      "finish_code": "FIN_LAM_GLOSS",
+      "finish_type": "GLOSS"
+    },
+    {
+      "id": 2,
+      "rate": 1.4,
+      "table_name": "mst_finishing",
+      "finish_code": "FIN_LAM_MATT",
+      "finish_type": "MATT"
+    },
+    {
+      "id": 3,
+      "rate": 3.5,
+      "table_name": "mst_finishing",
+      "finish_code": "FIN_LAM_SOFT",
+      "finish_type": "SOFT_TOUCH"
+    },
+    {
+      "id": 4,
+      "rate": 2.5,
+      "table_name": "mst_finishing",
+      "finish_code": "FIN_UV_FLOOD",
+      "finish_type": "FLOOD"
+    },
+    {
+      "id": 5,
+      "rate": 4.5,
+      "table_name": "mst_finishing",
+      "finish_code": "FIN_UV_SPOT",
+      "finish_type": "SPOT"
+    },
+    {
+      "id": 6,
+      "rate": 6,
+      "table_name": "mst_finishing",
+      "finish_code": "FIN_DIE_CUT",
+      "finish_type": "AUTOMATIC"
+    },
+    {
+      "id": 7,
+      "rate": 1.5,
+      "table_name": "mst_finishing",
+      "finish_code": "FIN_CREASE",
+      "finish_type": "CREASE"
+    },
+    {
+      "id": 8,
+      "rate": 0.5,
+      "table_name": "mst_finishing",
+      "finish_code": "FIN_FOLD_AUTO",
+      "finish_type": "AUTO"
+    },
+    {
+      "id": 9,
+      "rate": 1,
+      "table_name": "mst_finishing",
+      "finish_code": "FIN_FOLD_MANUAL",
+      "finish_type": "MANUAL"
+    },
+    {
+      "id": 10,
+      "rate": 5,
+      "table_name": "mst_finishing",
+      "finish_code": "FIN_EMBOSS",
+      "finish_type": "RAISED"
+    },
+    {
+      "id": 11,
+      "rate": 6.5,
+      "table_name": "mst_finishing",
+      "finish_code": "FIN_FOIL",
+      "finish_type": "HOT"
+    },
+    {
+      "id": 12,
+      "rate": 1.8,
+      "table_name": "mst_finishing",
+      "finish_code": "FIN_VARNISH",
+      "finish_type": "AQ"
+    },
+    {
+      "id": 13,
+      "rate": 1.2,
+      "table_name": "mst_finishing",
+      "finish_code": "FIN_PERF",
+      "finish_type": "PERF"
+    },
+    {
+      "id": 14,
+      "rate": 2,
+      "table_name": "mst_finishing",
+      "finish_code": "FIN_NUMBER",
+      "finish_type": "NUMBERING"
+    }
+  ],
+  "costing_rules": {
+    "ink_rules": {
+      "wastage_percent": 5,
+      "startup_ink_grams": 200
+    },
+    "base_rules": {
+      "currency": "INR",
+      "decimal_precision": 2,
+      "minimum_job_value": 500,
+      "rounding_strategy": "nearest_10"
+    },
+    "paper_rules": {
+      "storage_loss_percent": 0.5,
+      "cutting_wastage_percent": 2,
+      "handling_wastage_percent": 1,
+      "minimum_order_qty_sheets": 500
+    },
+    "plate_rules": {
+      "replate_percent": 2,
+      "minimum_plate_count": 1,
+      "plate_wastage_percent": 3
+    },
+    "pricing_rules": {
+      "gst_percent": 18,
+      "round_off_to": 10
+    },
+    "printing_rules": {
+      "perfecting_factor": 1.6,
+      "double_side_factor": 1.8,
+      "color_registration_wastage_percent": 2
+    },
+    "postpress_rules": {
+      "packing_cost_per_unit": 2,
+      "binding_wastage_percent": 2,
+      "finishing_wastage_percent": 2
+    },
+    "production_rules": {
+      "shift_hours": 8,
+      "downtime_percent": 10,
+      "plate_change_time_minutes": 15,
+      "machine_efficiency_percent": 85
+    }
+  },
+  "product_parts": [
+    {
+      "id": 1001,
+      "part_code": "BOOK_COVER_FRONT",
+      "part_name": "Front Cover",
+      "table_name": "mst_product_part",
+      "description": "Outer front cover",
+      "is_multiple": false,
+      "default_pages": 1,
+      "display_order": 1,
+      "is_page_based": true,
+      "requires_paper": true,
+      "requires_plate": true,
+      "requires_binding": true,
+      "requires_printing": true,
+      "requires_finishing": true,
+      "print_product_type_id": 1001
+    },
+    {
+      "id": 1002,
+      "part_code": "BOOK_COVER_BACK",
+      "part_name": "Back Cover",
+      "table_name": "mst_product_part",
+      "description": "Outer back cover",
+      "is_multiple": false,
+      "default_pages": 1,
+      "display_order": 2,
+      "is_page_based": true,
+      "requires_paper": true,
+      "requires_plate": true,
+      "requires_binding": true,
+      "requires_printing": true,
+      "requires_finishing": true,
+      "print_product_type_id": 1001
+    },
+    {
+      "id": 1003,
+      "part_code": "BOOK_COVER_INNER",
+      "part_name": "Inner Cover",
+      "table_name": "mst_product_part",
+      "description": "Inside of cover",
+      "is_multiple": false,
+      "default_pages": 2,
+      "display_order": 3,
+      "is_page_based": true,
+      "requires_paper": true,
+      "requires_plate": true,
+      "requires_binding": false,
+      "requires_printing": true,
+      "requires_finishing": false,
+      "print_product_type_id": 1001
+    },
+    {
+      "id": 1004,
+      "part_code": "BOOK_INSIDE_BW",
+      "part_name": "Inside Pages (B/W)",
+      "table_name": "mst_product_part",
+      "description": "Black & white text pages",
+      "is_multiple": false,
+      "default_pages": 0,
+      "display_order": 4,
+      "is_page_based": true,
+      "requires_paper": true,
+      "requires_plate": true,
+      "requires_binding": false,
+      "requires_printing": true,
+      "requires_finishing": false,
+      "print_product_type_id": 1001
+    },
+    {
+      "id": 1005,
+      "part_code": "BOOK_INSIDE_COLOR",
+      "part_name": "Inside Pages (Colour)",
+      "table_name": "mst_product_part",
+      "description": "Multicolour pages",
+      "is_multiple": false,
+      "default_pages": 0,
+      "display_order": 5,
+      "is_page_based": true,
+      "requires_paper": true,
+      "requires_plate": true,
+      "requires_binding": false,
+      "requires_printing": true,
+      "requires_finishing": false,
+      "print_product_type_id": 1001
+    },
+    {
+      "id": 1006,
+      "part_code": "BOOK_INSERT",
+      "part_name": "Insert Pages",
+      "table_name": "mst_product_part",
+      "description": "Special inserts",
+      "is_multiple": true,
+      "default_pages": 0,
+      "display_order": 6,
+      "is_page_based": true,
+      "requires_paper": true,
+      "requires_plate": true,
+      "requires_binding": false,
+      "requires_printing": true,
+      "requires_finishing": false,
+      "print_product_type_id": 1001
+    },
+    {
+      "id": 1007,
+      "part_code": "NOTEBOOK_COVER",
+      "part_name": "Cover Pages",
+      "table_name": "mst_product_part",
+      "description": "Notebook outer cover",
+      "is_multiple": false,
+      "default_pages": 4,
+      "display_order": 10,
+      "is_page_based": true,
+      "requires_paper": true,
+      "requires_plate": true,
+      "requires_binding": true,
+      "requires_printing": true,
+      "requires_finishing": true,
+      "print_product_type_id": 1002
+    },
+    {
+      "id": 1008,
+      "part_code": "NOTEBOOK_INSIDE",
+      "part_name": "Inside Pages",
+      "table_name": "mst_product_part",
+      "description": "Notebook writing pages",
+      "is_multiple": false,
+      "default_pages": 0,
+      "display_order": 11,
+      "is_page_based": true,
+      "requires_paper": true,
+      "requires_plate": true,
+      "requires_binding": false,
+      "requires_printing": true,
+      "requires_finishing": false,
+      "print_product_type_id": 1002
+    },
+    {
+      "id": 1009,
+      "part_code": "REGISTER_COVER",
+      "part_name": "Cover Pages",
+      "table_name": "mst_product_part",
+      "description": "Register outer cover",
+      "is_multiple": false,
+      "default_pages": 4,
+      "display_order": 12,
+      "is_page_based": true,
+      "requires_paper": true,
+      "requires_plate": true,
+      "requires_binding": true,
+      "requires_printing": true,
+      "requires_finishing": true,
+      "print_product_type_id": 1003
+    },
+    {
+      "id": 1010,
+      "part_code": "REGISTER_INSIDE",
+      "part_name": "Inside Pages",
+      "table_name": "mst_product_part",
+      "description": "Register writing pages",
+      "is_multiple": false,
+      "default_pages": 0,
+      "display_order": 13,
+      "is_page_based": true,
+      "requires_paper": true,
+      "requires_plate": true,
+      "requires_binding": false,
+      "requires_printing": true,
+      "requires_finishing": false,
+      "print_product_type_id": 1003
+    },
+    {
+      "id": 1011,
+      "part_code": "DIARY_COVER",
+      "part_name": "Cover Pages",
+      "table_name": "mst_product_part",
+      "description": "Diary cover",
+      "is_multiple": false,
+      "default_pages": 4,
+      "display_order": 14,
+      "is_page_based": true,
+      "requires_paper": true,
+      "requires_plate": true,
+      "requires_binding": true,
+      "requires_printing": true,
+      "requires_finishing": true,
+      "print_product_type_id": 1004
+    },
+    {
+      "id": 1012,
+      "part_code": "DIARY_INSIDE",
+      "part_name": "Inside Pages",
+      "table_name": "mst_product_part",
+      "description": "Diary inner pages",
+      "is_multiple": false,
+      "default_pages": 0,
+      "display_order": 15,
+      "is_page_based": true,
+      "requires_paper": true,
+      "requires_plate": true,
+      "requires_binding": false,
+      "requires_printing": true,
+      "requires_finishing": false,
+      "print_product_type_id": 1004
+    },
+    {
+      "id": 1013,
+      "part_code": "MAGAZINE_COVER",
+      "part_name": "Magazine Cover",
+      "table_name": "mst_product_part",
+      "description": "Glossy magazine cover",
+      "is_multiple": false,
+      "default_pages": 4,
+      "display_order": 20,
+      "is_page_based": true,
+      "requires_paper": true,
+      "requires_plate": true,
+      "requires_binding": true,
+      "requires_printing": true,
+      "requires_finishing": true,
+      "print_product_type_id": 1005
+    },
+    {
+      "id": 1014,
+      "part_code": "MAGAZINE_INSIDE",
+      "part_name": "Magazine Inside Pages",
+      "table_name": "mst_product_part",
+      "description": "Magazine inner pages",
+      "is_multiple": false,
+      "default_pages": 0,
+      "display_order": 21,
+      "is_page_based": true,
+      "requires_paper": true,
+      "requires_plate": true,
+      "requires_binding": false,
+      "requires_printing": true,
+      "requires_finishing": false,
+      "print_product_type_id": 1005
+    },
+    {
+      "id": 1015,
+      "part_code": "JOURNAL_INSIDE",
+      "part_name": "Journal Pages",
+      "table_name": "mst_product_part",
+      "description": "Journal text pages",
+      "is_multiple": false,
+      "default_pages": 0,
+      "display_order": 22,
+      "is_page_based": true,
+      "requires_paper": true,
+      "requires_plate": true,
+      "requires_binding": false,
+      "requires_printing": true,
+      "requires_finishing": false,
+      "print_product_type_id": 1006
+    },
+    {
+      "id": 1016,
+      "part_code": "CATALOG_COVER",
+      "part_name": "Catalog Cover",
+      "table_name": "mst_product_part",
+      "description": "Catalog outer cover",
+      "is_multiple": false,
+      "default_pages": 4,
+      "display_order": 30,
+      "is_page_based": true,
+      "requires_paper": true,
+      "requires_plate": true,
+      "requires_binding": true,
+      "requires_printing": true,
+      "requires_finishing": true,
+      "print_product_type_id": 1007
+    },
+    {
+      "id": 1017,
+      "part_code": "CATALOG_INSIDE",
+      "part_name": "Catalog Inside Pages",
+      "table_name": "mst_product_part",
+      "description": "Catalog pages",
+      "is_multiple": false,
+      "default_pages": 0,
+      "display_order": 31,
+      "is_page_based": true,
+      "requires_paper": true,
+      "requires_plate": true,
+      "requires_binding": false,
+      "requires_printing": true,
+      "requires_finishing": false,
+      "print_product_type_id": 1007
+    },
+    {
+      "id": 1018,
+      "part_code": "BROCHURE_PAGES",
+      "part_name": "Brochure Pages",
+      "table_name": "mst_product_part",
+      "description": "Brochure pages",
+      "is_multiple": false,
+      "default_pages": 0,
+      "display_order": 32,
+      "is_page_based": true,
+      "requires_paper": true,
+      "requires_plate": true,
+      "requires_binding": false,
+      "requires_printing": true,
+      "requires_finishing": true,
+      "print_product_type_id": 1008
+    },
+    {
+      "id": 1019,
+      "part_code": "BOOKLET_COVER",
+      "part_name": "Booklet Cover",
+      "table_name": "mst_product_part",
+      "description": "Outer cover",
+      "is_multiple": false,
+      "default_pages": 4,
+      "display_order": 33,
+      "is_page_based": true,
+      "requires_paper": true,
+      "requires_plate": true,
+      "requires_binding": true,
+      "requires_printing": true,
+      "requires_finishing": true,
+      "print_product_type_id": 1009
+    },
+    {
+      "id": 1020,
+      "part_code": "BOOKLET_INSIDE",
+      "part_name": "Booklet Pages",
+      "table_name": "mst_product_part",
+      "description": "Booklet pages",
+      "is_multiple": false,
+      "default_pages": 0,
+      "display_order": 34,
+      "is_page_based": true,
+      "requires_paper": true,
+      "requires_plate": true,
+      "requires_binding": true,
+      "requires_printing": true,
+      "requires_finishing": true,
+      "print_product_type_id": 1009
+    },
+    {
+      "id": 1025,
+      "part_code": "VISIT_CARD_PRINT",
+      "part_name": "Visiting Card",
+      "table_name": "mst_product_part",
+      "description": "Business visiting card",
+      "is_multiple": false,
+      "default_pages": 1,
+      "display_order": 40,
+      "is_page_based": false,
+      "requires_paper": true,
+      "requires_plate": false,
+      "requires_binding": false,
+      "requires_printing": true,
+      "requires_finishing": true,
+      "print_product_type_id": 1011
+    },
+    {
+      "id": 1026,
+      "part_code": "LETTERHEAD_PRINT",
+      "part_name": "Letter Head",
+      "table_name": "mst_product_part",
+      "description": "Company letter head",
+      "is_multiple": false,
+      "default_pages": 1,
+      "display_order": 41,
+      "is_page_based": false,
+      "requires_paper": true,
+      "requires_plate": false,
+      "requires_binding": false,
+      "requires_printing": true,
+      "requires_finishing": false,
+      "print_product_type_id": 1012
+    },
+    {
+      "id": 1027,
+      "part_code": "ENVELOPE_PRINT",
+      "part_name": "Envelope",
+      "table_name": "mst_product_part",
+      "description": "Office envelope",
+      "is_multiple": false,
+      "default_pages": 1,
+      "display_order": 42,
+      "is_page_based": false,
+      "requires_paper": true,
+      "requires_plate": false,
+      "requires_binding": true,
+      "requires_printing": true,
+      "requires_finishing": true,
+      "print_product_type_id": 1013
+    },
+    {
+      "id": 1028,
+      "part_code": "BILL_PAGES",
+      "part_name": "Bill Pages",
+      "table_name": "mst_product_part",
+      "description": "Invoice / bill pages",
+      "is_multiple": false,
+      "default_pages": 0,
+      "display_order": 50,
+      "is_page_based": true,
+      "requires_paper": true,
+      "requires_plate": true,
+      "requires_binding": true,
+      "requires_printing": true,
+      "requires_finishing": false,
+      "print_product_type_id": 1014
+    },
+    {
+      "id": 1029,
+      "part_code": "CHALLAN_PAGES",
+      "part_name": "Challan Pages",
+      "table_name": "mst_product_part",
+      "description": "Delivery challan",
+      "is_multiple": false,
+      "default_pages": 0,
+      "display_order": 51,
+      "is_page_based": true,
+      "requires_paper": true,
+      "requires_plate": true,
+      "requires_binding": false,
+      "requires_printing": true,
+      "requires_finishing": false,
+      "print_product_type_id": 1015
+    },
+    {
+      "id": 1030,
+      "part_code": "FORM_PAGES",
+      "part_name": "Form Pages",
+      "table_name": "mst_product_part",
+      "description": "Office / statutory forms",
+      "is_multiple": true,
+      "default_pages": 0,
+      "display_order": 52,
+      "is_page_based": true,
+      "requires_paper": true,
+      "requires_plate": true,
+      "requires_binding": false,
+      "requires_printing": true,
+      "requires_finishing": false,
+      "print_product_type_id": 1016
+    },
+    {
+      "id": 1031,
+      "part_code": "PAD_PAGES",
+      "part_name": "Pad Pages",
+      "table_name": "mst_product_part",
+      "description": "Writing pads",
+      "is_multiple": false,
+      "default_pages": 0,
+      "display_order": 53,
+      "is_page_based": true,
+      "requires_paper": true,
+      "requires_plate": true,
+      "requires_binding": true,
+      "requires_printing": true,
+      "requires_finishing": false,
+      "print_product_type_id": 1017
+    },
+    {
+      "id": 1032,
+      "part_code": "CARTON_BOX",
+      "part_name": "Carton Box",
+      "table_name": "mst_product_part",
+      "description": "Printed carton",
+      "is_multiple": false,
+      "default_pages": 1,
+      "display_order": 60,
+      "is_page_based": false,
+      "requires_paper": true,
+      "requires_plate": true,
+      "requires_binding": true,
+      "requires_printing": true,
+      "requires_finishing": true,
+      "print_product_type_id": 1018
+    },
+    {
+      "id": 1033,
+      "part_code": "LABEL_PRINT",
+      "part_name": "Product Label",
+      "table_name": "mst_product_part",
+      "description": "Sticker / label",
+      "is_multiple": false,
+      "default_pages": 1,
+      "display_order": 61,
+      "is_page_based": false,
+      "requires_paper": true,
+      "requires_plate": false,
+      "requires_binding": false,
+      "requires_printing": true,
+      "requires_finishing": true,
+      "print_product_type_id": 1019
+    },
+    {
+      "id": 1034,
+      "part_code": "TAG_PRINT",
+      "part_name": "Tag",
+      "table_name": "mst_product_part",
+      "description": "Hang tag",
+      "is_multiple": false,
+      "default_pages": 1,
+      "display_order": 62,
+      "is_page_based": false,
+      "requires_paper": true,
+      "requires_plate": false,
+      "requires_binding": false,
+      "requires_printing": true,
+      "requires_finishing": true,
+      "print_product_type_id": 1020
+    },
+    {
+      "id": 1041,
+      "part_code": "CALENDAR_COVER",
+      "part_name": "Calendar Cover",
+      "table_name": "mst_product_part",
+      "description": "Calendar front cover",
+      "is_multiple": false,
+      "default_pages": 1,
+      "display_order": 70,
+      "is_page_based": false,
+      "requires_paper": true,
+      "requires_plate": true,
+      "requires_binding": true,
+      "requires_printing": true,
+      "requires_finishing": true,
+      "print_product_type_id": 1027
+    },
+    {
+      "id": 1042,
+      "part_code": "CALENDAR_MONTH",
+      "part_name": "Month Sheets",
+      "table_name": "mst_product_part",
+      "description": "Monthly sheets",
+      "is_multiple": false,
+      "default_pages": 12,
+      "display_order": 71,
+      "is_page_based": true,
+      "requires_paper": true,
+      "requires_plate": true,
+      "requires_binding": false,
+      "requires_printing": true,
+      "requires_finishing": false,
+      "print_product_type_id": 1027
+    },
+    {
+      "id": 1043,
+      "part_code": "CALENDAR_BACKBOARD",
+      "part_name": "Back Board",
+      "table_name": "mst_product_part",
+      "description": "Calendar back board",
+      "is_multiple": true,
+      "default_pages": 1,
+      "display_order": 72,
+      "is_page_based": false,
+      "requires_paper": false,
+      "requires_plate": true,
+      "requires_binding": false,
+      "requires_printing": false,
+      "requires_finishing": false,
+      "print_product_type_id": 1027
+    },
+    {
+      "id": 1035,
+      "part_code": "CARRY_BAG",
+      "part_name": "Carry Bag",
+      "table_name": "mst_product_part",
+      "description": "Paper / cloth bag",
+      "is_multiple": false,
+      "default_pages": 1,
+      "display_order": 74,
+      "is_page_based": false,
+      "requires_paper": true,
+      "requires_plate": true,
+      "requires_binding": true,
+      "requires_printing": true,
+      "requires_finishing": true,
+      "print_product_type_id": 1021
+    },
+    {
+      "id": 1036,
+      "part_code": "POSTER_PRINT",
+      "part_name": "Poster",
+      "table_name": "mst_product_part",
+      "description": "Poster printing",
+      "is_multiple": false,
+      "default_pages": 1,
+      "display_order": 80,
+      "is_page_based": false,
+      "requires_paper": true,
+      "requires_plate": false,
+      "requires_binding": false,
+      "requires_printing": true,
+      "requires_finishing": true,
+      "print_product_type_id": 1022
+    },
+    {
+      "id": 1037,
+      "part_code": "FLYER_PRINT",
+      "part_name": "Flyer",
+      "table_name": "mst_product_part",
+      "description": "Flyer / handout",
+      "is_multiple": false,
+      "default_pages": 1,
+      "display_order": 81,
+      "is_page_based": false,
+      "requires_paper": true,
+      "requires_plate": false,
+      "requires_binding": false,
+      "requires_printing": true,
+      "requires_finishing": false,
+      "print_product_type_id": 1023
+    },
+    {
+      "id": 1038,
+      "part_code": "LEAFLET_PRINT",
+      "part_name": "Leaflet",
+      "table_name": "mst_product_part",
+      "description": "Single page leaflet",
+      "is_multiple": false,
+      "default_pages": 1,
+      "display_order": 82,
+      "is_page_based": false,
+      "requires_paper": true,
+      "requires_plate": false,
+      "requires_binding": false,
+      "requires_printing": true,
+      "requires_finishing": false,
+      "print_product_type_id": 1024
+    },
+    {
+      "id": 1039,
+      "part_code": "BANNER_FLEX",
+      "part_name": "Flex Banner",
+      "table_name": "mst_product_part",
+      "description": "Flex banner",
+      "is_multiple": false,
+      "default_pages": 1,
+      "display_order": 83,
+      "is_page_based": false,
+      "requires_paper": true,
+      "requires_plate": false,
+      "requires_binding": false,
+      "requires_printing": true,
+      "requires_finishing": true,
+      "print_product_type_id": 1025
+    },
+    {
+      "id": 1040,
+      "part_code": "STANDEE_PRINT",
+      "part_name": "Standee",
+      "table_name": "mst_product_part",
+      "description": "Standee display",
+      "is_multiple": false,
+      "default_pages": 1,
+      "display_order": 84,
+      "is_page_based": false,
+      "requires_paper": true,
+      "requires_plate": false,
+      "requires_binding": false,
+      "requires_printing": true,
+      "requires_finishing": true,
+      "print_product_type_id": 1026
+    },
+    {
+      "id": 1021,
+      "part_code": "NEWS_FRONT",
+      "part_name": "Front Page",
+      "table_name": "mst_product_part",
+      "description": "Front page",
+      "is_multiple": false,
+      "default_pages": 1,
+      "display_order": 100,
+      "is_page_based": true,
+      "requires_paper": true,
+      "requires_plate": true,
+      "requires_binding": false,
+      "requires_printing": true,
+      "requires_finishing": false,
+      "print_product_type_id": 1010
+    },
+    {
+      "id": 1022,
+      "part_code": "NEWS_INSIDE",
+      "part_name": "Inside Pages",
+      "table_name": "mst_product_part",
+      "description": "Inside pages",
+      "is_multiple": false,
+      "default_pages": 0,
+      "display_order": 101,
+      "is_page_based": true,
+      "requires_paper": true,
+      "requires_plate": true,
+      "requires_binding": false,
+      "requires_printing": true,
+      "requires_finishing": false,
+      "print_product_type_id": 1010
+    },
+    {
+      "id": 1023,
+      "part_code": "NEWS_BACK",
+      "part_name": "Back Page",
+      "table_name": "mst_product_part",
+      "description": "Back page",
+      "is_multiple": false,
+      "default_pages": 1,
+      "display_order": 102,
+      "is_page_based": true,
+      "requires_paper": true,
+      "requires_plate": true,
+      "requires_binding": false,
+      "requires_printing": true,
+      "requires_finishing": false,
+      "print_product_type_id": 1010
+    },
+    {
+      "id": 1024,
+      "part_code": "NEWS_SUPPLEMENT",
+      "part_name": "Supplement",
+      "table_name": "mst_product_part",
+      "description": "Special supplement",
+      "is_multiple": true,
+      "default_pages": 0,
+      "display_order": 103,
+      "is_page_based": true,
+      "requires_paper": true,
+      "requires_plate": true,
+      "requires_binding": false,
+      "requires_printing": true,
+      "requires_finishing": false,
+      "print_product_type_id": 1010
+    },
+    {
+      "id": 1044,
+      "part_code": "FLEX_PRINT",
+      "part_name": "Flex Print",
+      "table_name": "mst_product_part",
+      "description": "Flex printing material",
+      "is_multiple": false,
+      "default_pages": 1,
+      "display_order": 120,
+      "is_page_based": false,
+      "requires_paper": true,
+      "requires_plate": false,
+      "requires_binding": false,
+      "requires_printing": true,
+      "requires_finishing": true,
+      "print_product_type_id": 1028
+    },
+    {
+      "id": 1045,
+      "part_code": "VINYL_PRINT",
+      "part_name": "Vinyl Print",
+      "table_name": "mst_product_part",
+      "description": "Vinyl printing material",
+      "is_multiple": false,
+      "default_pages": 1,
+      "display_order": 121,
+      "is_page_based": false,
+      "requires_paper": true,
+      "requires_plate": false,
+      "requires_binding": false,
+      "requires_printing": true,
+      "requires_finishing": true,
+      "print_product_type_id": 1029
+    },
+    {
+      "id": 1046,
+      "part_code": "CANVAS_PRINT",
+      "part_name": "Canvas Print",
+      "table_name": "mst_product_part",
+      "description": "Canvas artwork print",
+      "is_multiple": false,
+      "default_pages": 1,
+      "display_order": 122,
+      "is_page_based": false,
+      "requires_paper": true,
+      "requires_plate": false,
+      "requires_binding": false,
+      "requires_printing": true,
+      "requires_finishing": true,
+      "print_product_type_id": 1030
+    },
+    {
+      "id": 1047,
+      "part_code": "PHOTO_PRINT",
+      "part_name": "Photo Print",
+      "table_name": "mst_product_part",
+      "description": "Photo paper print",
+      "is_multiple": false,
+      "default_pages": 1,
+      "display_order": 123,
+      "is_page_based": false,
+      "requires_paper": true,
+      "requires_plate": false,
+      "requires_binding": false,
+      "requires_printing": true,
+      "requires_finishing": true,
+      "print_product_type_id": 1031
+    },
+    {
+      "id": 1048,
+      "part_code": "CERTIFICATE_PRINT",
+      "part_name": "Certificate",
+      "table_name": "mst_product_part",
+      "description": "Printed certificate",
+      "is_multiple": false,
+      "default_pages": 1,
+      "display_order": 124,
+      "is_page_based": false,
+      "requires_paper": true,
+      "requires_plate": false,
+      "requires_binding": false,
+      "requires_printing": true,
+      "requires_finishing": true,
+      "print_product_type_id": 1032
+    },
+    {
+      "id": 1049,
+      "part_code": "IDCARD_PRINT",
+      "part_name": "ID Card",
+      "table_name": "mst_product_part",
+      "description": "Identification card print",
+      "is_multiple": false,
+      "default_pages": 1,
+      "display_order": 125,
+      "is_page_based": false,
+      "requires_paper": true,
+      "requires_plate": false,
+      "requires_binding": false,
+      "requires_printing": true,
+      "requires_finishing": true,
+      "print_product_type_id": 1033
+    },
+    {
+      "id": 1050,
+      "part_code": "INVITATION_PRINT",
+      "part_name": "Invitation Card",
+      "table_name": "mst_product_part",
+      "description": "Invitation / greeting card",
+      "is_multiple": false,
+      "default_pages": 1,
+      "display_order": 126,
+      "is_page_based": false,
+      "requires_paper": true,
+      "requires_plate": false,
+      "requires_binding": false,
+      "requires_printing": true,
+      "requires_finishing": true,
+      "print_product_type_id": 1034
+    }
+  ],
+  "job_type_rules": {
+    "CUTTING": {
+      "category": "POST"
+    },
+    "FOLDING": {
+      "category": "POST"
+    },
+    "FULL_UV": {
+      "category": "FULL",
+      "printing_mode": "UV"
+    },
+    "CTP_ONLY": {
+      "category": "PREPRESS"
+    },
+    "DTP_ONLY": {
+      "category": "SERVICE"
+    },
+    "JOB_WORK": {
+      "category": "LABOUR"
+    },
+    "OUT_BIND": {
+      "category": "OUTSOURCE"
+    },
+    "PRINT_UV": {
+      "category": "PRINT_ONLY",
+      "printing_mode": "UV"
+    },
+    "FULL_FLEX": {
+      "category": "FULL",
+      "printing_mode": "FLEX"
+    },
+    "OUT_PRINT": {
+      "category": "OUTSOURCE"
+    },
+    "PACKAGING": {
+      "category": "POST"
+    },
+    "LAMINATION": {
+      "category": "POST"
+    },
+    "OUT_FINISH": {
+      "category": "OUTSOURCE"
+    },
+    "PRINT_FLEX": {
+      "category": "PRINT_ONLY",
+      "printing_mode": "FLEX"
+    },
+    "PROOF_ONLY": {
+      "category": "PREPRESS"
+    },
+    "DESIGN_ONLY": {
+      "category": "SERVICE"
+    },
+    "FINISH_ONLY": {
+      "category": "POST"
+    },
+    "FULL_OFFSET": {
+      "category": "FULL",
+      "printing_mode": "OFFSET"
+    },
+    "FULL_SCREEN": {
+      "category": "FULL",
+      "printing_mode": "SCREEN"
+    },
+    "BINDING_ONLY": {
+      "category": "POST"
+    },
+    "FULL_DIGITAL": {
+      "category": "FULL",
+      "printing_mode": "DIGITAL"
+    },
+    "PRINT_OFFSET": {
+      "category": "PRINT_ONLY",
+      "printing_mode": "OFFSET"
+    },
+    "PRINT_SCREEN": {
+      "category": "PRINT_ONLY",
+      "printing_mode": "SCREEN"
+    },
+    "PRINT_DIGITAL": {
+      "category": "PRINT_ONLY",
+      "printing_mode": "DIGITAL"
+    }
+  },
+  "press_materials": [
+    {
+      "id": 1,
+      "rate": 1200,
+      "table_name": "mst_material",
+      "material_code": "MAT_BEARING",
+      "material_name": "Machine Bearing"
+    },
+    {
+      "id": 2,
+      "rate": 220,
+      "table_name": "mst_material",
+      "material_code": "MAT_BIND_GLUE",
+      "material_name": "Perfect Binding Glue"
+    },
+    {
+      "id": 3,
+      "rate": 45,
+      "table_name": "mst_material",
+      "material_code": "MAT_CARTON",
+      "material_name": "Corrugated Carton Box"
+    },
+    {
+      "id": 4,
+      "rate": 250,
+      "table_name": "mst_material",
+      "material_code": "MAT_FILM_TRACE",
+      "material_name": "Tracing Film"
+    },
+    {
+      "id": 5,
+      "rate": 4800,
+      "table_name": "mst_material",
+      "material_code": "MAT_FOIL",
+      "material_name": "Foil Stamping Roll"
+    },
+    {
+      "id": 6,
+      "rate": 60,
+      "table_name": "mst_material",
+      "material_code": "MAT_FUSE",
+      "material_name": "Electrical Fuse"
+    },
+    {
+      "id": 7,
+      "rate": 420,
+      "table_name": "mst_material",
+      "material_code": "MAT_GREASE",
+      "material_name": "Machine Grease"
+    },
+    {
+      "id": 8,
+      "rate": 90,
+      "table_name": "mst_material",
+      "material_code": "MAT_IMPRESSION_PAPER",
+      "material_name": "Impression Paper"
+    },
+    {
+      "id": 9,
+      "rate": 1500,
+      "table_name": "mst_material",
+      "material_code": "MAT_INK_DUCT_FOIL",
+      "material_name": "Ink Duct Foil"
+    },
+    {
+      "id": 10,
+      "rate": 3200,
+      "table_name": "mst_material",
+      "material_code": "MAT_LAM_FILM",
+      "material_name": "Lamination Film"
+    },
+    {
+      "id": 11,
+      "rate": 120,
+      "table_name": "mst_material",
+      "material_code": "MAT_MASKING_TAPE",
+      "material_name": "Masking Tape"
+    },
+    {
+      "id": 12,
+      "rate": 8500,
+      "table_name": "mst_material",
+      "material_code": "MAT_RUBBER_BLANKET",
+      "material_name": "Rubber Blanket"
+    },
+    {
+      "id": 13,
+      "rate": 210,
+      "table_name": "mst_material",
+      "material_code": "MAT_SHRINK_FILM",
+      "material_name": "Shrink Wrap Film"
+    },
+    {
+      "id": 14,
+      "rate": 260,
+      "table_name": "mst_material",
+      "material_code": "MAT_SPIRAL_WIRE",
+      "material_name": "Spiral Binding Wire"
+    },
+    {
+      "id": 15,
+      "rate": 160,
+      "table_name": "mst_material",
+      "material_code": "MAT_STRAP",
+      "material_name": "Plastic Strapping Belt"
+    },
+    {
+      "id": 16,
+      "rate": 180,
+      "table_name": "mst_material",
+      "material_code": "MAT_THREAD",
+      "material_name": "Book Stitching Thread"
+    },
+    {
+      "id": 17,
+      "rate": 70,
+      "table_name": "mst_material",
+      "material_code": "MAT_WIPING_CLOTH",
+      "material_name": "Cotton Waste Cloth"
+    },
+    {
+      "id": 18,
+      "rate": 9000,
+      "table_name": "mst_material",
+      "material_code": "PRS_BLANKET",
+      "material_name": "Offset Rubber Blanket"
+    },
+    {
+      "id": 19,
+      "rate": 180,
+      "table_name": "mst_material",
+      "material_code": "PRS_BLANKET_WASH",
+      "material_name": "Blanket Wash Solution"
+    },
+    {
+      "id": 20,
+      "rate": 350,
+      "table_name": "mst_material",
+      "material_code": "PRS_FILTER",
+      "material_name": "Ink Filter"
+    },
+    {
+      "id": 21,
+      "rate": 120,
+      "table_name": "mst_material",
+      "material_code": "PRS_GLOVES",
+      "material_name": "Industrial Gloves"
+    },
+    {
+      "id": 22,
+      "rate": 1600,
+      "table_name": "mst_material",
+      "material_code": "PRS_INK_DUCT_FOIL",
+      "material_name": "Ink Duct Foil"
+    },
+    {
+      "id": 23,
+      "rate": 1200,
+      "table_name": "mst_material",
+      "material_code": "PRS_INK_KNIFE",
+      "material_name": "Ink Knife"
+    },
+    {
+      "id": 24,
+      "rate": 150,
+      "table_name": "mst_material",
+      "material_code": "PRS_INK_MIX_STICK",
+      "material_name": "Ink Mixing Stick"
+    },
+    {
+      "id": 25,
+      "rate": 30,
+      "table_name": "mst_material",
+      "material_code": "PRS_MASK",
+      "material_name": "Safety Mask"
+    },
+    {
+      "id": 26,
+      "rate": 120,
+      "table_name": "mst_material",
+      "material_code": "PRS_MR_CALIPER",
+      "material_name": "Caliper Paper"
+    },
+    {
+      "id": 27,
+      "rate": 90,
+      "table_name": "mst_material",
+      "material_code": "PRS_MR_IMP_PAPER",
+      "material_name": "Make-ready Impression Paper"
+    },
+    {
+      "id": 28,
+      "rate": 15,
+      "table_name": "mst_material",
+      "material_code": "PRS_MR_PACK_SHEET",
+      "material_name": "Packing Sheets"
+    },
+    {
+      "id": 29,
+      "rate": 110,
+      "table_name": "mst_material",
+      "material_code": "PRS_PAPER_TAPE",
+      "material_name": "Paper Tape"
+    },
+    {
+      "id": 30,
+      "rate": 280,
+      "table_name": "mst_material",
+      "material_code": "PRS_POWDER",
+      "material_name": "Anti Set-Off Powder"
+    },
+    {
+      "id": 31,
+      "rate": 200,
+      "table_name": "mst_material",
+      "material_code": "PRS_ROLLER_WASH",
+      "material_name": "Roller Wash Chemical"
+    },
+    {
+      "id": 32,
+      "rate": 5500,
+      "table_name": "mst_material",
+      "material_code": "PRS_SENSOR",
+      "material_name": "Sheet Detection Sensor"
+    },
+    {
+      "id": 33,
+      "rate": 40,
+      "table_name": "mst_material",
+      "material_code": "PRS_SPONGE",
+      "material_name": "Cleaning Sponge"
+    },
+    {
+      "id": 34,
+      "rate": 450,
+      "table_name": "mst_material",
+      "material_code": "PRS_SUCKER",
+      "material_name": "Feeder Suction Cup"
+    },
+    {
+      "id": 35,
+      "rate": 70,
+      "table_name": "mst_material",
+      "material_code": "PRS_WASTE_CLOTH",
+      "material_name": "Waste Cotton Cloth"
+    }
+  ],
+  "job_types_master": [
+    {
+      "id": 1015,
+      "table_name": "mst_job_type",
+      "description": "Binding service only",
+      "job_type_code": "BINDING_ONLY",
+      "job_type_name": "Binding Only",
+      "printing_mode": null,
+      "is_ctp_required": false,
+      "is_dtp_required": false,
+      "is_full_process": false,
+      "is_outsource_job": false,
+      "is_single_process": true,
+      "is_design_required": false,
+      "is_binding_required": true,
+      "is_inhouse_material": false,
+      "is_customer_material": true,
+      "is_printing_required": false,
+      "allow_advance_payment": true,
+      "is_finishing_required": false,
+      "default_end_process_code": "BINDING",
+      "require_costing_approval": false,
+      "default_start_process_code": "BINDING"
+    },
+    {
+      "id": 1008,
+      "table_name": "mst_job_type",
+      "description": "CTP plate making service",
+      "job_type_code": "CTP_ONLY",
+      "job_type_name": "Prepress / Plate Making (CTP)",
+      "printing_mode": "OFFSET",
+      "is_ctp_required": true,
+      "is_dtp_required": false,
+      "is_full_process": false,
+      "is_outsource_job": false,
+      "is_single_process": true,
+      "is_design_required": false,
+      "is_binding_required": false,
+      "is_inhouse_material": true,
+      "is_customer_material": false,
+      "is_printing_required": false,
+      "allow_advance_payment": true,
+      "is_finishing_required": false,
+      "default_end_process_code": "PREPRESS",
+      "require_costing_approval": false,
+      "default_start_process_code": "PREPRESS"
+    },
+    {
+      "id": 1018,
+      "table_name": "mst_job_type",
+      "description": "Paper cutting or trimming",
+      "job_type_code": "CUTTING",
+      "job_type_name": "Cutting / Trimming",
+      "printing_mode": null,
+      "is_ctp_required": false,
+      "is_dtp_required": false,
+      "is_full_process": false,
+      "is_outsource_job": false,
+      "is_single_process": true,
+      "is_design_required": false,
+      "is_binding_required": false,
+      "is_inhouse_material": false,
+      "is_customer_material": true,
+      "is_printing_required": false,
+      "allow_advance_payment": true,
+      "is_finishing_required": true,
+      "default_end_process_code": "FINISHING",
+      "require_costing_approval": false,
+      "default_start_process_code": "FINISHING"
+    },
+    {
+      "id": 1006,
+      "table_name": "mst_job_type",
+      "description": "Creative design service only",
+      "job_type_code": "DESIGN_ONLY",
+      "job_type_name": "Design Only",
+      "printing_mode": null,
+      "is_ctp_required": false,
+      "is_dtp_required": false,
+      "is_full_process": false,
+      "is_outsource_job": false,
+      "is_single_process": true,
+      "is_design_required": true,
+      "is_binding_required": false,
+      "is_inhouse_material": false,
+      "is_customer_material": true,
+      "is_printing_required": false,
+      "allow_advance_payment": true,
+      "is_finishing_required": false,
+      "default_end_process_code": "DESIGN",
+      "require_costing_approval": false,
+      "default_start_process_code": "DESIGN"
+    },
+    {
+      "id": 1007,
+      "table_name": "mst_job_type",
+      "description": "DTP and layout work",
+      "job_type_code": "DTP_ONLY",
+      "job_type_name": "DTP / Layout Only",
+      "printing_mode": null,
+      "is_ctp_required": false,
+      "is_dtp_required": true,
+      "is_full_process": false,
+      "is_outsource_job": false,
+      "is_single_process": true,
+      "is_design_required": false,
+      "is_binding_required": false,
+      "is_inhouse_material": false,
+      "is_customer_material": true,
+      "is_printing_required": false,
+      "allow_advance_payment": true,
+      "is_finishing_required": false,
+      "default_end_process_code": "DTP",
+      "require_costing_approval": false,
+      "default_start_process_code": "DTP"
+    },
+    {
+      "id": 1016,
+      "table_name": "mst_job_type",
+      "description": "General finishing work",
+      "job_type_code": "FINISH_ONLY",
+      "job_type_name": "Finishing Only",
+      "printing_mode": null,
+      "is_ctp_required": false,
+      "is_dtp_required": false,
+      "is_full_process": false,
+      "is_outsource_job": false,
+      "is_single_process": true,
+      "is_design_required": false,
+      "is_binding_required": false,
+      "is_inhouse_material": false,
+      "is_customer_material": true,
+      "is_printing_required": false,
+      "allow_advance_payment": true,
+      "is_finishing_required": true,
+      "default_end_process_code": "FINISHING",
+      "require_costing_approval": false,
+      "default_start_process_code": "FINISHING"
+    },
+    {
+      "id": 1019,
+      "table_name": "mst_job_type",
+      "description": "Paper folding service",
+      "job_type_code": "FOLDING",
+      "job_type_name": "Folding",
+      "printing_mode": null,
+      "is_ctp_required": false,
+      "is_dtp_required": false,
+      "is_full_process": false,
+      "is_outsource_job": false,
+      "is_single_process": true,
+      "is_design_required": false,
+      "is_binding_required": false,
+      "is_inhouse_material": false,
+      "is_customer_material": true,
+      "is_printing_required": false,
+      "allow_advance_payment": true,
+      "is_finishing_required": true,
+      "default_end_process_code": "FINISHING",
+      "require_costing_approval": false,
+      "default_start_process_code": "FINISHING"
+    },
+    {
+      "id": 1002,
+      "table_name": "mst_job_type",
+      "description": "Complete job using digital printing",
+      "job_type_code": "FULL_DIGITAL",
+      "job_type_name": "Full Job – Digital Printing",
+      "printing_mode": "DIGITAL",
+      "is_ctp_required": false,
+      "is_dtp_required": true,
+      "is_full_process": true,
+      "is_outsource_job": false,
+      "is_single_process": false,
+      "is_design_required": true,
+      "is_binding_required": true,
+      "is_inhouse_material": true,
+      "is_customer_material": false,
+      "is_printing_required": true,
+      "allow_advance_payment": true,
+      "is_finishing_required": true,
+      "default_end_process_code": "DISPATCH",
+      "require_costing_approval": true,
+      "default_start_process_code": "ENQUIRY"
+    },
+    {
+      "id": 1004,
+      "table_name": "mst_job_type",
+      "description": "Complete flex printing job",
+      "job_type_code": "FULL_FLEX",
+      "job_type_name": "Full Job – Flex Printing",
+      "printing_mode": "FLEX",
+      "is_ctp_required": false,
+      "is_dtp_required": true,
+      "is_full_process": true,
+      "is_outsource_job": false,
+      "is_single_process": false,
+      "is_design_required": true,
+      "is_binding_required": true,
+      "is_inhouse_material": true,
+      "is_customer_material": false,
+      "is_printing_required": true,
+      "allow_advance_payment": true,
+      "is_finishing_required": true,
+      "default_end_process_code": "DISPATCH",
+      "require_costing_approval": true,
+      "default_start_process_code": "ENQUIRY"
+    },
+    {
+      "id": 1001,
+      "table_name": "mst_job_type",
+      "description": "Complete job from design to dispatch (Offset)",
+      "job_type_code": "FULL_OFFSET",
+      "job_type_name": "Full Job – Offset Printing",
+      "printing_mode": "OFFSET",
+      "is_ctp_required": true,
+      "is_dtp_required": true,
+      "is_full_process": true,
+      "is_outsource_job": false,
+      "is_single_process": false,
+      "is_design_required": true,
+      "is_binding_required": true,
+      "is_inhouse_material": true,
+      "is_customer_material": false,
+      "is_printing_required": true,
+      "allow_advance_payment": true,
+      "is_finishing_required": true,
+      "default_end_process_code": "DISPATCH",
+      "require_costing_approval": true,
+      "default_start_process_code": "ENQUIRY"
+    },
+    {
+      "id": 1003,
+      "table_name": "mst_job_type",
+      "description": "Complete screen printing job",
+      "job_type_code": "FULL_SCREEN",
+      "job_type_name": "Full Job – Screen Printing",
+      "printing_mode": "SCREEN",
+      "is_ctp_required": false,
+      "is_dtp_required": true,
+      "is_full_process": true,
+      "is_outsource_job": false,
+      "is_single_process": false,
+      "is_design_required": true,
+      "is_binding_required": true,
+      "is_inhouse_material": true,
+      "is_customer_material": false,
+      "is_printing_required": true,
+      "allow_advance_payment": true,
+      "is_finishing_required": true,
+      "default_end_process_code": "DISPATCH",
+      "require_costing_approval": true,
+      "default_start_process_code": "ENQUIRY"
+    },
+    {
+      "id": 1005,
+      "table_name": "mst_job_type",
+      "description": "Complete UV printing job",
+      "job_type_code": "FULL_UV",
+      "job_type_name": "Full Job – UV Printing",
+      "printing_mode": "UV",
+      "is_ctp_required": false,
+      "is_dtp_required": true,
+      "is_full_process": true,
+      "is_outsource_job": false,
+      "is_single_process": false,
+      "is_design_required": true,
+      "is_binding_required": true,
+      "is_inhouse_material": true,
+      "is_customer_material": false,
+      "is_printing_required": true,
+      "allow_advance_payment": true,
+      "is_finishing_required": true,
+      "default_end_process_code": "DISPATCH",
+      "require_costing_approval": true,
+      "default_start_process_code": "ENQUIRY"
+    },
+    {
+      "id": 1024,
+      "table_name": "mst_job_type",
+      "description": "Labour only job",
+      "job_type_code": "JOB_WORK",
+      "job_type_name": "Job Work / Labour Job",
+      "printing_mode": null,
+      "is_ctp_required": false,
+      "is_dtp_required": false,
+      "is_full_process": false,
+      "is_outsource_job": false,
+      "is_single_process": true,
+      "is_design_required": false,
+      "is_binding_required": false,
+      "is_inhouse_material": false,
+      "is_customer_material": true,
+      "is_printing_required": false,
+      "allow_advance_payment": true,
+      "is_finishing_required": false,
+      "default_end_process_code": "CLOSURE",
+      "require_costing_approval": false,
+      "default_start_process_code": "ENQUIRY"
+    },
+    {
+      "id": 1017,
+      "table_name": "mst_job_type",
+      "description": "Lamination process",
+      "job_type_code": "LAMINATION",
+      "job_type_name": "Lamination",
+      "printing_mode": null,
+      "is_ctp_required": false,
+      "is_dtp_required": false,
+      "is_full_process": false,
+      "is_outsource_job": false,
+      "is_single_process": true,
+      "is_design_required": false,
+      "is_binding_required": false,
+      "is_inhouse_material": false,
+      "is_customer_material": true,
+      "is_printing_required": false,
+      "allow_advance_payment": true,
+      "is_finishing_required": true,
+      "default_end_process_code": "FINISHING",
+      "require_costing_approval": false,
+      "default_start_process_code": "FINISHING"
+    },
+    {
+      "id": 1022,
+      "table_name": "mst_job_type",
+      "description": "Binding done by vendor",
+      "job_type_code": "OUT_BIND",
+      "job_type_name": "Outsource Binding Job",
+      "printing_mode": null,
+      "is_ctp_required": false,
+      "is_dtp_required": false,
+      "is_full_process": false,
+      "is_outsource_job": true,
+      "is_single_process": false,
+      "is_design_required": false,
+      "is_binding_required": true,
+      "is_inhouse_material": true,
+      "is_customer_material": false,
+      "is_printing_required": false,
+      "allow_advance_payment": true,
+      "is_finishing_required": false,
+      "default_end_process_code": "RECEIPT",
+      "require_costing_approval": false,
+      "default_start_process_code": "PURCHASE"
+    },
+    {
+      "id": 1023,
+      "table_name": "mst_job_type",
+      "description": "Finishing outsourced",
+      "job_type_code": "OUT_FINISH",
+      "job_type_name": "Outsource Finishing Job",
+      "printing_mode": null,
+      "is_ctp_required": false,
+      "is_dtp_required": false,
+      "is_full_process": false,
+      "is_outsource_job": true,
+      "is_single_process": false,
+      "is_design_required": false,
+      "is_binding_required": false,
+      "is_inhouse_material": true,
+      "is_customer_material": false,
+      "is_printing_required": false,
+      "allow_advance_payment": true,
+      "is_finishing_required": true,
+      "default_end_process_code": "RECEIPT",
+      "require_costing_approval": false,
+      "default_start_process_code": "PURCHASE"
+    },
+    {
+      "id": 1021,
+      "table_name": "mst_job_type",
+      "description": "Printing done by external vendor",
+      "job_type_code": "OUT_PRINT",
+      "job_type_name": "Outsource Printing Job",
+      "printing_mode": "MULTI",
+      "is_ctp_required": false,
+      "is_dtp_required": false,
+      "is_full_process": false,
+      "is_outsource_job": true,
+      "is_single_process": false,
+      "is_design_required": false,
+      "is_binding_required": false,
+      "is_inhouse_material": true,
+      "is_customer_material": false,
+      "is_printing_required": true,
+      "allow_advance_payment": true,
+      "is_finishing_required": false,
+      "default_end_process_code": "RECEIPT",
+      "require_costing_approval": true,
+      "default_start_process_code": "PURCHASE"
+    },
+    {
+      "id": 1020,
+      "table_name": "mst_job_type",
+      "description": "Final packaging work",
+      "job_type_code": "PACKAGING",
+      "job_type_name": "Packaging",
+      "printing_mode": null,
+      "is_ctp_required": false,
+      "is_dtp_required": false,
+      "is_full_process": false,
+      "is_outsource_job": false,
+      "is_single_process": true,
+      "is_design_required": false,
+      "is_binding_required": false,
+      "is_inhouse_material": false,
+      "is_customer_material": true,
+      "is_printing_required": false,
+      "allow_advance_payment": true,
+      "is_finishing_required": true,
+      "default_end_process_code": "FINISHING",
+      "require_costing_approval": false,
+      "default_start_process_code": "FINISHING"
+    },
+    {
+      "id": 1011,
+      "table_name": "mst_job_type",
+      "description": "Digital printing service only",
+      "job_type_code": "PRINT_DIGITAL",
+      "job_type_name": "Printing Only – Digital",
+      "printing_mode": "DIGITAL",
+      "is_ctp_required": false,
+      "is_dtp_required": false,
+      "is_full_process": false,
+      "is_outsource_job": false,
+      "is_single_process": true,
+      "is_design_required": false,
+      "is_binding_required": false,
+      "is_inhouse_material": true,
+      "is_customer_material": true,
+      "is_printing_required": true,
+      "allow_advance_payment": true,
+      "is_finishing_required": false,
+      "default_end_process_code": "PRINTING",
+      "require_costing_approval": false,
+      "default_start_process_code": "PRINTING"
+    },
+    {
+      "id": 1013,
+      "table_name": "mst_job_type",
+      "description": "Flex printing service",
+      "job_type_code": "PRINT_FLEX",
+      "job_type_name": "Printing Only – Flex",
+      "printing_mode": "FLEX",
+      "is_ctp_required": false,
+      "is_dtp_required": false,
+      "is_full_process": false,
+      "is_outsource_job": false,
+      "is_single_process": true,
+      "is_design_required": false,
+      "is_binding_required": false,
+      "is_inhouse_material": true,
+      "is_customer_material": true,
+      "is_printing_required": true,
+      "allow_advance_payment": true,
+      "is_finishing_required": false,
+      "default_end_process_code": "PRINTING",
+      "require_costing_approval": false,
+      "default_start_process_code": "PRINTING"
+    },
+    {
+      "id": 1010,
+      "table_name": "mst_job_type",
+      "description": "Offset printing service only",
+      "job_type_code": "PRINT_OFFSET",
+      "job_type_name": "Printing Only – Offset",
+      "printing_mode": "OFFSET",
+      "is_ctp_required": false,
+      "is_dtp_required": false,
+      "is_full_process": false,
+      "is_outsource_job": false,
+      "is_single_process": true,
+      "is_design_required": false,
+      "is_binding_required": false,
+      "is_inhouse_material": true,
+      "is_customer_material": true,
+      "is_printing_required": true,
+      "allow_advance_payment": true,
+      "is_finishing_required": false,
+      "default_end_process_code": "PRINTING",
+      "require_costing_approval": false,
+      "default_start_process_code": "PRINTING"
+    },
+    {
+      "id": 1012,
+      "table_name": "mst_job_type",
+      "description": "Screen printing service",
+      "job_type_code": "PRINT_SCREEN",
+      "job_type_name": "Printing Only – Screen",
+      "printing_mode": "SCREEN",
+      "is_ctp_required": false,
+      "is_dtp_required": false,
+      "is_full_process": false,
+      "is_outsource_job": false,
+      "is_single_process": true,
+      "is_design_required": false,
+      "is_binding_required": false,
+      "is_inhouse_material": true,
+      "is_customer_material": true,
+      "is_printing_required": true,
+      "allow_advance_payment": true,
+      "is_finishing_required": false,
+      "default_end_process_code": "PRINTING",
+      "require_costing_approval": false,
+      "default_start_process_code": "PRINTING"
+    },
+    {
+      "id": 1014,
+      "table_name": "mst_job_type",
+      "description": "UV printing service",
+      "job_type_code": "PRINT_UV",
+      "job_type_name": "Printing Only – UV",
+      "printing_mode": "UV",
+      "is_ctp_required": false,
+      "is_dtp_required": false,
+      "is_full_process": false,
+      "is_outsource_job": false,
+      "is_single_process": true,
+      "is_design_required": false,
+      "is_binding_required": false,
+      "is_inhouse_material": true,
+      "is_customer_material": true,
+      "is_printing_required": true,
+      "allow_advance_payment": true,
+      "is_finishing_required": false,
+      "default_end_process_code": "PRINTING",
+      "require_costing_approval": false,
+      "default_start_process_code": "PRINTING"
+    },
+    {
+      "id": 1009,
+      "table_name": "mst_job_type",
+      "description": "Sample proof printing",
+      "job_type_code": "PROOF_ONLY",
+      "job_type_name": "Proofing Only",
+      "printing_mode": "MULTI",
+      "is_ctp_required": false,
+      "is_dtp_required": false,
+      "is_full_process": false,
+      "is_outsource_job": false,
+      "is_single_process": true,
+      "is_design_required": false,
+      "is_binding_required": false,
+      "is_inhouse_material": true,
+      "is_customer_material": true,
+      "is_printing_required": true,
+      "allow_advance_payment": true,
+      "is_finishing_required": false,
+      "default_end_process_code": "PRINTING",
+      "require_costing_approval": false,
+      "default_start_process_code": "PRINTING"
+    }
+  ],
+  "print_product_sizes": [
+    {
+      "id": 5,
+      "remarks": "Popular trade size",
+      "category": "BOOK",
+      "width_mm": 140,
+      "height_mm": 216,
+      "is_active": true,
+      "size_code": "5.5X8.5",
+      "size_name": "5.5 x 8.5 inch",
+      "table_name": "mst_print_product_size",
+      "width_inch": 5.5,
+      "height_inch": 8.5,
+      "is_standard": true
+    },
+    {
+      "id": 4,
+      "remarks": "Fiction paperback",
+      "category": "BOOK",
+      "width_mm": 127,
+      "height_mm": 203,
+      "is_active": true,
+      "size_code": "5X8",
+      "size_name": "5 x 8 inch",
+      "table_name": "mst_print_product_size",
+      "width_inch": 5,
+      "height_inch": 8,
+      "is_standard": true
+    },
+    {
+      "id": 19,
+      "remarks": "Lesson books",
+      "category": "BOOK",
+      "width_mm": 159,
+      "height_mm": 241,
+      "is_active": true,
+      "size_code": "6.25X9.5",
+      "size_name": "6.25 x 9.5 inch",
+      "table_name": "mst_print_product_size",
+      "width_inch": 6.25,
+      "height_inch": 9.5,
+      "is_standard": true
+    },
+    {
+      "id": 21,
+      "remarks": "Govt tender size",
+      "category": "BOOK",
+      "width_mm": 152,
+      "height_mm": 203,
+      "is_active": true,
+      "size_code": "6X8",
+      "size_name": "6 x 8 inch",
+      "table_name": "mst_print_product_size",
+      "width_inch": 6,
+      "height_inch": 8,
+      "is_standard": true
+    },
+    {
+      "id": 6,
+      "remarks": "Most common trade size",
+      "category": "BOOK",
+      "width_mm": 152,
+      "height_mm": 229,
+      "is_active": true,
+      "size_code": "6X9",
+      "size_name": "6 x 9 inch",
+      "table_name": "mst_print_product_size",
+      "width_inch": 6,
+      "height_inch": 9,
+      "is_standard": true
+    },
+    {
+      "id": 20,
+      "remarks": "School books",
+      "category": "BOOK",
+      "width_mm": 184,
+      "height_mm": 241,
+      "is_active": true,
+      "size_code": "7.25X9.5",
+      "size_name": "7.25 x 9.5 inch",
+      "table_name": "mst_print_product_size",
+      "width_inch": 7.25,
+      "height_inch": 9.5,
+      "is_standard": true
+    },
+    {
+      "id": 7,
+      "remarks": "Non-fiction",
+      "category": "BOOK",
+      "width_mm": 178,
+      "height_mm": 254,
+      "is_active": true,
+      "size_code": "7X10",
+      "size_name": "7 x 10 inch",
+      "table_name": "mst_print_product_size",
+      "width_inch": 7,
+      "height_inch": 10,
+      "is_standard": true
+    },
+    {
+      "id": 8,
+      "remarks": "Large textbooks",
+      "category": "BOOK",
+      "width_mm": 216,
+      "height_mm": 279,
+      "is_active": true,
+      "size_code": "8.5X11",
+      "size_name": "8.5 x 11 inch",
+      "table_name": "mst_print_product_size",
+      "width_inch": 8.5,
+      "height_inch": 11,
+      "is_standard": true
+    },
+    {
+      "id": 3,
+      "remarks": "Textbooks, manuals",
+      "category": "BOOK",
+      "width_mm": 210,
+      "height_mm": 297,
+      "is_active": true,
+      "size_code": "A4",
+      "size_name": "A4",
+      "table_name": "mst_print_product_size",
+      "width_inch": 8.27,
+      "height_inch": 11.69,
+      "is_standard": true
+    },
+    {
+      "id": 1,
+      "remarks": "Novels, small books",
+      "category": "BOOK",
+      "width_mm": 148,
+      "height_mm": 210,
+      "is_active": true,
+      "size_code": "A5",
+      "size_name": "A5",
+      "table_name": "mst_print_product_size",
+      "width_inch": 5.83,
+      "height_inch": 8.27,
+      "is_standard": true
+    },
+    {
+      "id": 2,
+      "remarks": "Academic books",
+      "category": "BOOK",
+      "width_mm": 176,
+      "height_mm": 250,
+      "is_active": true,
+      "size_code": "B5",
+      "size_name": "B5",
+      "table_name": "mst_print_product_size",
+      "width_inch": 6.93,
+      "height_inch": 9.84,
+      "is_standard": true
+    },
+    {
+      "id": 72,
+      "remarks": "Custom book",
+      "category": "BOOK",
+      "width_mm": null,
+      "height_mm": null,
+      "is_active": true,
+      "size_code": "BOOK_CUSTOM",
+      "size_name": "Book Custom Size",
+      "table_name": "mst_print_product_size",
+      "width_inch": null,
+      "height_inch": null,
+      "is_standard": false
+    },
+    {
+      "id": 44,
+      "remarks": "US style",
+      "category": "BROCHURE",
+      "width_mm": 203,
+      "height_mm": 279,
+      "is_active": true,
+      "size_code": "BR_8X11",
+      "size_name": "Brochure 8 x 11 inch",
+      "table_name": "mst_print_product_size",
+      "width_inch": 8,
+      "height_inch": 11,
+      "is_standard": true
+    },
+    {
+      "id": 45,
+      "remarks": "Premium brochure",
+      "category": "BROCHURE",
+      "width_mm": 229,
+      "height_mm": 305,
+      "is_active": true,
+      "size_code": "BR_9X12",
+      "size_name": "Brochure 9 x 12 inch",
+      "table_name": "mst_print_product_size",
+      "width_inch": 9,
+      "height_inch": 12,
+      "is_standard": true
+    },
+    {
+      "id": 40,
+      "remarks": "Single / multi fold",
+      "category": "BROCHURE",
+      "width_mm": 210,
+      "height_mm": 297,
+      "is_active": true,
+      "size_code": "BR_A4",
+      "size_name": "Brochure A4",
+      "table_name": "mst_print_product_size",
+      "width_inch": 8.27,
+      "height_inch": 11.69,
+      "is_standard": true
+    },
+    {
+      "id": 41,
+      "remarks": "Flyers",
+      "category": "BROCHURE",
+      "width_mm": 148,
+      "height_mm": 210,
+      "is_active": true,
+      "size_code": "BR_A5",
+      "size_name": "Brochure A5",
+      "table_name": "mst_print_product_size",
+      "width_inch": 5.83,
+      "height_inch": 8.27,
+      "is_standard": true
+    },
+    {
+      "id": 42,
+      "remarks": "Handouts",
+      "category": "BROCHURE",
+      "width_mm": 105,
+      "height_mm": 148,
+      "is_active": true,
+      "size_code": "BR_A6",
+      "size_name": "Brochure A6",
+      "table_name": "mst_print_product_size",
+      "width_inch": 4.13,
+      "height_inch": 5.83,
+      "is_standard": true
+    },
+    {
+      "id": 43,
+      "remarks": "Tri-fold brochures",
+      "category": "BROCHURE",
+      "width_mm": 99,
+      "height_mm": 210,
+      "is_active": true,
+      "size_code": "BR_DL",
+      "size_name": "DL Size (Envelope)",
+      "table_name": "mst_print_product_size",
+      "width_inch": 3.9,
+      "height_inch": 8.27,
+      "is_standard": true
+    },
+    {
+      "id": 46,
+      "remarks": "Creative marketing",
+      "category": "BROCHURE",
+      "width_mm": 203,
+      "height_mm": 203,
+      "is_active": true,
+      "size_code": "BR_SQ_8",
+      "size_name": "Square Brochure 8 x 8",
+      "table_name": "mst_print_product_size",
+      "width_inch": 8,
+      "height_inch": 8,
+      "is_standard": false
+    },
+    {
+      "id": 74,
+      "remarks": "Custom Calendar",
+      "category": "CALENDAR",
+      "width_mm": null,
+      "height_mm": null,
+      "is_active": true,
+      "size_code": "CAL_CUSTOM",
+      "size_name": "Custom Size Calendar",
+      "table_name": "mst_print_product_size",
+      "width_inch": null,
+      "height_inch": null,
+      "is_standard": false
+    },
+    {
+      "id": 37,
+      "remarks": "Base strip",
+      "category": "CALENDAR",
+      "width_mm": 210,
+      "height_mm": 100,
+      "is_active": true,
+      "size_code": "CAL_DESK_BASE",
+      "size_name": "Desk Calendar Base",
+      "table_name": "mst_print_product_size",
+      "width_inch": 8.27,
+      "height_inch": 3.94,
+      "is_standard": true
+    },
+    {
+      "id": 36,
+      "remarks": "Tent style desk calendar",
+      "category": "CALENDAR",
+      "width_mm": 200,
+      "height_mm": 150,
+      "is_active": true,
+      "size_code": "CAL_DESK_TENT",
+      "size_name": "Desk Calendar Tent",
+      "table_name": "mst_print_product_size",
+      "width_inch": 7.87,
+      "height_inch": 5.91,
+      "is_standard": true
+    },
+    {
+      "id": 39,
+      "remarks": "Promotional",
+      "category": "CALENDAR",
+      "width_mm": 70,
+      "height_mm": 100,
+      "is_active": true,
+      "size_code": "CAL_POCKET",
+      "size_name": "Pocket Calendar",
+      "table_name": "mst_print_product_size",
+      "width_inch": 2.76,
+      "height_inch": 3.94,
+      "is_standard": false
+    },
+    {
+      "id": 38,
+      "remarks": "Small table calendars",
+      "category": "CALENDAR",
+      "width_mm": 165,
+      "height_mm": 140,
+      "is_active": true,
+      "size_code": "CAL_TABLE",
+      "size_name": "Table Calendar",
+      "table_name": "mst_print_product_size",
+      "width_inch": 6.5,
+      "height_inch": 5.5,
+      "is_standard": false
+    },
+    {
+      "id": 35,
+      "remarks": "Corporate calendars",
+      "category": "CALENDAR",
+      "width_mm": 297,
+      "height_mm": 420,
+      "is_active": true,
+      "size_code": "CAL_WALL_A3",
+      "size_name": "Wall Calendar A3",
+      "table_name": "mst_print_product_size",
+      "width_inch": 11.69,
+      "height_inch": 16.54,
+      "is_standard": true
+    },
+    {
+      "id": 34,
+      "remarks": "Premium calendars",
+      "category": "CALENDAR",
+      "width_mm": 350,
+      "height_mm": 500,
+      "is_active": true,
+      "size_code": "CAL_WALL_LG",
+      "size_name": "Wall Calendar Large",
+      "table_name": "mst_print_product_size",
+      "width_inch": 13.78,
+      "height_inch": 19.69,
+      "is_standard": true
+    },
+    {
+      "id": 33,
+      "remarks": "Most wall calendars",
+      "category": "CALENDAR",
+      "width_mm": 330,
+      "height_mm": 480,
+      "is_active": true,
+      "size_code": "CAL_WALL_STD",
+      "size_name": "Wall Calendar Standard",
+      "table_name": "mst_print_product_size",
+      "width_inch": 13,
+      "height_inch": 18.9,
+      "is_standard": true
+    },
+    {
+      "id": 18,
+      "remarks": "Small notebooks",
+      "category": "BOOK",
+      "width_mm": 95,
+      "height_mm": 123,
+      "is_active": true,
+      "size_code": "CROWN_1_16",
+      "size_name": "1/16 Crown",
+      "table_name": "mst_print_product_size",
+      "width_inch": 3.75,
+      "height_inch": 4.88,
+      "is_standard": false
+    },
+    {
+      "id": 15,
+      "remarks": "Half crown",
+      "category": "BOOK",
+      "width_mm": 254,
+      "height_mm": 381,
+      "is_active": true,
+      "size_code": "CROWN_1_2",
+      "size_name": "1/2 Crown",
+      "table_name": "mst_print_product_size",
+      "width_inch": 10,
+      "height_inch": 15,
+      "is_standard": true
+    },
+    {
+      "id": 16,
+      "remarks": "Textbooks",
+      "category": "BOOK",
+      "width_mm": 190,
+      "height_mm": 247,
+      "is_active": true,
+      "size_code": "CROWN_1_4",
+      "size_name": "1/4 Crown",
+      "table_name": "mst_print_product_size",
+      "width_inch": 7.5,
+      "height_inch": 9.75,
+      "is_standard": true
+    },
+    {
+      "id": 17,
+      "remarks": "Novels",
+      "category": "BOOK",
+      "width_mm": 123,
+      "height_mm": 190,
+      "is_active": true,
+      "size_code": "CROWN_1_8",
+      "size_name": "1/8 Crown",
+      "table_name": "mst_print_product_size",
+      "width_inch": 4.88,
+      "height_inch": 7.5,
+      "is_standard": true
+    },
+    {
+      "id": 10,
+      "remarks": "Classic press size",
+      "category": "BOOK",
+      "width_mm": 171,
+      "height_mm": 241,
+      "is_active": true,
+      "size_code": "CROWN_Q",
+      "size_name": "Crown Quarto",
+      "table_name": "mst_print_product_size",
+      "width_inch": 6.73,
+      "height_inch": 9.49,
+      "is_standard": true
+    },
+    {
+      "id": 14,
+      "remarks": "Pocket books",
+      "category": "BOOK",
+      "width_mm": 111,
+      "height_mm": 143,
+      "is_active": true,
+      "size_code": "DEMY_1_16",
+      "size_name": "1/16 Demy",
+      "table_name": "mst_print_product_size",
+      "width_inch": 4.38,
+      "height_inch": 5.63,
+      "is_standard": false
+    },
+    {
+      "id": 11,
+      "remarks": "Half demy",
+      "category": "BOOK",
+      "width_mm": 285,
+      "height_mm": 445,
+      "is_active": true,
+      "size_code": "DEMY_1_2",
+      "size_name": "1/2 Demy",
+      "table_name": "mst_print_product_size",
+      "width_inch": 11.25,
+      "height_inch": 17.5,
+      "is_standard": true
+    },
+    {
+      "id": 12,
+      "remarks": "Ledger style",
+      "category": "BOOK",
+      "width_mm": 222,
+      "height_mm": 286,
+      "is_active": true,
+      "size_code": "DEMY_1_4",
+      "size_name": "1/4 Demy",
+      "table_name": "mst_print_product_size",
+      "width_inch": 8.75,
+      "height_inch": 11.25,
+      "is_standard": true
+    },
+    {
+      "id": 13,
+      "remarks": "School books",
+      "category": "BOOK",
+      "width_mm": 143,
+      "height_mm": 222,
+      "is_active": true,
+      "size_code": "DEMY_1_8",
+      "size_name": "1/8 Demy",
+      "table_name": "mst_print_product_size",
+      "width_inch": 5.63,
+      "height_inch": 8.75,
+      "is_standard": true
+    },
+    {
+      "id": 9,
+      "remarks": "Govt & school books",
+      "category": "BOOK",
+      "width_mm": 205,
+      "height_mm": 269,
+      "is_active": true,
+      "size_code": "DEMY_Q",
+      "size_name": "Demy Quarto",
+      "table_name": "mst_print_product_size",
+      "width_inch": 8.07,
+      "height_inch": 10.59,
+      "is_standard": true
+    },
+    {
+      "id": 60,
+      "remarks": "Long envelope",
+      "category": "ENVELOPE",
+      "width_mm": 254,
+      "height_mm": 114,
+      "is_active": true,
+      "size_code": "ENV_10X4_5",
+      "size_name": "Envelope 10 x 4.5 inch",
+      "table_name": "mst_print_product_size",
+      "width_inch": 10,
+      "height_inch": 4.5,
+      "is_standard": true
+    },
+    {
+      "id": 59,
+      "remarks": "Cheque envelope",
+      "category": "ENVELOPE",
+      "width_mm": 229,
+      "height_mm": 102,
+      "is_active": true,
+      "size_code": "ENV_9X4",
+      "size_name": "Envelope 9 x 4 inch",
+      "table_name": "mst_print_product_size",
+      "width_inch": 9,
+      "height_inch": 4,
+      "is_standard": true
+    },
+    {
+      "id": 61,
+      "remarks": "Courier envelope",
+      "category": "ENVELOPE",
+      "width_mm": 330,
+      "height_mm": 470,
+      "is_active": true,
+      "size_code": "ENV_BROWN_A3",
+      "size_name": "Envelope Brown A3",
+      "table_name": "mst_print_product_size",
+      "width_inch": 13,
+      "height_inch": 18.5,
+      "is_standard": false
+    },
+    {
+      "id": 56,
+      "remarks": "A4 without folding",
+      "category": "ENVELOPE",
+      "width_mm": 229,
+      "height_mm": 324,
+      "is_active": true,
+      "size_code": "ENV_C4",
+      "size_name": "Envelope C4",
+      "table_name": "mst_print_product_size",
+      "width_inch": 9.02,
+      "height_inch": 12.76,
+      "is_standard": true
+    },
+    {
+      "id": 57,
+      "remarks": "A4 folded once",
+      "category": "ENVELOPE",
+      "width_mm": 162,
+      "height_mm": 229,
+      "is_active": true,
+      "size_code": "ENV_C5",
+      "size_name": "Envelope C5",
+      "table_name": "mst_print_product_size",
+      "width_inch": 6.38,
+      "height_inch": 9.02,
+      "is_standard": true
+    },
+    {
+      "id": 58,
+      "remarks": "A4 folded twice",
+      "category": "ENVELOPE",
+      "width_mm": 114,
+      "height_mm": 162,
+      "is_active": true,
+      "size_code": "ENV_C6",
+      "size_name": "Envelope C6",
+      "table_name": "mst_print_product_size",
+      "width_inch": 4.49,
+      "height_inch": 6.38,
+      "is_standard": true
+    },
+    {
+      "id": 62,
+      "remarks": "User defined",
+      "category": "ENVELOPE",
+      "width_mm": null,
+      "height_mm": null,
+      "is_active": true,
+      "size_code": "ENV_CUSTOM",
+      "size_name": "Envelope Custom Size",
+      "table_name": "mst_print_product_size",
+      "width_inch": null,
+      "height_inch": null,
+      "is_standard": false
+    },
+    {
+      "id": 55,
+      "remarks": "Common business envelope",
+      "category": "ENVELOPE",
+      "width_mm": 110,
+      "height_mm": 220,
+      "is_active": true,
+      "size_code": "ENV_DL",
+      "size_name": "Envelope DL",
+      "table_name": "mst_print_product_size",
+      "width_inch": 4.33,
+      "height_inch": 8.66,
+      "is_standard": true
+    },
+    {
+      "id": 63,
+      "remarks": "Small outdoor",
+      "category": "FLEX",
+      "width_mm": 610,
+      "height_mm": 914,
+      "is_active": true,
+      "size_code": "FLX_2X3",
+      "size_name": "Flex Banner 2 x 3 ft",
+      "table_name": "mst_print_product_size",
+      "width_inch": 24,
+      "height_inch": 36,
+      "is_standard": true
+    },
+    {
+      "id": 64,
+      "remarks": "Shop display",
+      "category": "FLEX",
+      "width_mm": 914,
+      "height_mm": 1219,
+      "is_active": true,
+      "size_code": "FLX_3X4",
+      "size_name": "Flex Banner 3 x 4 ft",
+      "table_name": "mst_print_product_size",
+      "width_inch": 36,
+      "height_inch": 48,
+      "is_standard": true
+    },
+    {
+      "id": 65,
+      "remarks": "Most common",
+      "category": "FLEX",
+      "width_mm": 914,
+      "height_mm": 1829,
+      "is_active": true,
+      "size_code": "FLX_3X6",
+      "size_name": "Flex Banner 3 x 6 ft",
+      "table_name": "mst_print_product_size",
+      "width_inch": 36,
+      "height_inch": 72,
+      "is_standard": true
+    },
+    {
+      "id": 66,
+      "remarks": "Roadside banner",
+      "category": "FLEX",
+      "width_mm": 1219,
+      "height_mm": 2438,
+      "is_active": true,
+      "size_code": "FLX_4X8",
+      "size_name": "Flex Banner 4 x 8 ft",
+      "table_name": "mst_print_product_size",
+      "width_inch": 48,
+      "height_inch": 96,
+      "is_standard": true
+    },
+    {
+      "id": 67,
+      "remarks": "Large hoarding",
+      "category": "FLEX",
+      "width_mm": 1524,
+      "height_mm": 3048,
+      "is_active": true,
+      "size_code": "FLX_5X10",
+      "size_name": "Flex Banner 5 x 10 ft",
+      "table_name": "mst_print_product_size",
+      "width_inch": 60,
+      "height_inch": 120,
+      "is_standard": true
+    },
+    {
+      "id": 68,
+      "remarks": "Stage background",
+      "category": "FLEX",
+      "width_mm": 3048,
+      "height_mm": 2438,
+      "is_active": true,
+      "size_code": "FLX_BACKDROP",
+      "size_name": "Flex Stage Backdrop",
+      "table_name": "mst_print_product_size",
+      "width_inch": 120,
+      "height_inch": 96,
+      "is_standard": false
+    },
+    {
+      "id": 71,
+      "remarks": "Any custom size",
+      "category": "FLEX",
+      "width_mm": null,
+      "height_mm": null,
+      "is_active": true,
+      "size_code": "FLX_CUSTOM",
+      "size_name": "Flex Custom Size",
+      "table_name": "mst_print_product_size",
+      "width_inch": null,
+      "height_inch": null,
+      "is_standard": false
+    },
+    {
+      "id": 70,
+      "remarks": "Glass branding",
+      "category": "FLEX",
+      "width_mm": null,
+      "height_mm": null,
+      "is_active": true,
+      "size_code": "FLX_ONEWAY",
+      "size_name": "One Way Vision Flex",
+      "table_name": "mst_print_product_size",
+      "width_inch": null,
+      "height_inch": null,
+      "is_standard": false
+    },
+    {
+      "id": 69,
+      "remarks": "Roll-up standee",
+      "category": "FLEX",
+      "width_mm": 610,
+      "height_mm": 1524,
+      "is_active": true,
+      "size_code": "FLX_STANDEE",
+      "size_name": "Standee 2 x 5 ft",
+      "table_name": "mst_print_product_size",
+      "width_inch": 24,
+      "height_inch": 60,
+      "is_standard": true
+    },
+    {
+      "id": 27,
+      "remarks": "Common ruled notebooks",
+      "category": "NOTEBOOK",
+      "width_mm": 152,
+      "height_mm": 203,
+      "is_active": true,
+      "size_code": "NB_6X8",
+      "size_name": "Notebook 6 x 8 inch",
+      "table_name": "mst_print_product_size",
+      "width_inch": 6,
+      "height_inch": 8,
+      "is_standard": true
+    },
+    {
+      "id": 28,
+      "remarks": "School long books",
+      "category": "NOTEBOOK",
+      "width_mm": 178,
+      "height_mm": 229,
+      "is_active": true,
+      "size_code": "NB_7X9",
+      "size_name": "Notebook 7 x 9 inch",
+      "table_name": "mst_print_product_size",
+      "width_inch": 7,
+      "height_inch": 9,
+      "is_standard": true
+    },
+    {
+      "id": 29,
+      "remarks": "Practical books",
+      "category": "NOTEBOOK",
+      "width_mm": 203,
+      "height_mm": 254,
+      "is_active": true,
+      "size_code": "NB_8X10",
+      "size_name": "Notebook 8 x 10 inch",
+      "table_name": "mst_print_product_size",
+      "width_inch": 8,
+      "height_inch": 10,
+      "is_standard": true
+    },
+    {
+      "id": 24,
+      "remarks": "School / college notebooks",
+      "category": "NOTEBOOK",
+      "width_mm": 210,
+      "height_mm": 297,
+      "is_active": true,
+      "size_code": "NB_A4",
+      "size_name": "Notebook A4",
+      "table_name": "mst_print_product_size",
+      "width_inch": 8.27,
+      "height_inch": 11.69,
+      "is_standard": true
+    },
+    {
+      "id": 25,
+      "remarks": "Pocket notebooks",
+      "category": "NOTEBOOK",
+      "width_mm": 148,
+      "height_mm": 210,
+      "is_active": true,
+      "size_code": "NB_A5",
+      "size_name": "Notebook A5",
+      "table_name": "mst_print_product_size",
+      "width_inch": 5.83,
+      "height_inch": 8.27,
+      "is_standard": true
+    },
+    {
+      "id": 26,
+      "remarks": "Registers",
+      "category": "NOTEBOOK",
+      "width_mm": 176,
+      "height_mm": 250,
+      "is_active": true,
+      "size_code": "NB_B5",
+      "size_name": "Notebook B5",
+      "table_name": "mst_print_product_size",
+      "width_inch": 6.93,
+      "height_inch": 9.84,
+      "is_standard": true
+    },
+    {
+      "id": 31,
+      "remarks": "Small notebooks",
+      "category": "NOTEBOOK",
+      "width_mm": 123,
+      "height_mm": 190,
+      "is_active": true,
+      "size_code": "NB_CROWN_1_8",
+      "size_name": "Notebook 1/8 Crown",
+      "table_name": "mst_print_product_size",
+      "width_inch": 4.88,
+      "height_inch": 7.5,
+      "is_standard": true
+    },
+    {
+      "id": 30,
+      "remarks": "Very common Indian notebook",
+      "category": "NOTEBOOK",
+      "width_mm": 143,
+      "height_mm": 222,
+      "is_active": true,
+      "size_code": "NB_DEMY_1_8",
+      "size_name": "Notebook 1/8 Demy",
+      "table_name": "mst_print_product_size",
+      "width_inch": 5.63,
+      "height_inch": 8.75,
+      "is_standard": true
+    },
+    {
+      "id": 32,
+      "remarks": "Private publisher size",
+      "category": "NOTEBOOK",
+      "width_mm": 180,
+      "height_mm": 240,
+      "is_active": true,
+      "size_code": "NB_LONG",
+      "size_name": "Notebook Long (Ruled)",
+      "table_name": "mst_print_product_size",
+      "width_inch": 7.09,
+      "height_inch": 9.45,
+      "is_standard": false
+    },
+    {
+      "id": 73,
+      "remarks": "Custom note book",
+      "category": "NOTEBOOK",
+      "width_mm": null,
+      "height_mm": null,
+      "is_active": true,
+      "size_code": "NOTEBOOK_CUSTOM",
+      "size_name": "Note Book Custom Size",
+      "table_name": "mst_print_product_size",
+      "width_inch": null,
+      "height_inch": null,
+      "is_standard": false
+    },
+    {
+      "id": 51,
+      "remarks": "Retail posters",
+      "category": "POSTER",
+      "width_mm": 305,
+      "height_mm": 457,
+      "is_active": true,
+      "size_code": "POS_12X18",
+      "size_name": "Poster 12 x 18 inch",
+      "table_name": "mst_print_product_size",
+      "width_inch": 12,
+      "height_inch": 18,
+      "is_standard": true
+    },
+    {
+      "id": 52,
+      "remarks": "Cinema posters",
+      "category": "POSTER",
+      "width_mm": 457,
+      "height_mm": 610,
+      "is_active": true,
+      "size_code": "POS_18X24",
+      "size_name": "Poster 18 x 24 inch",
+      "table_name": "mst_print_product_size",
+      "width_inch": 18,
+      "height_inch": 24,
+      "is_standard": true
+    },
+    {
+      "id": 53,
+      "remarks": "Outdoor indoor display",
+      "category": "POSTER",
+      "width_mm": 610,
+      "height_mm": 914,
+      "is_active": true,
+      "size_code": "POS_24X36",
+      "size_name": "Poster 24 x 36 inch",
+      "table_name": "mst_print_product_size",
+      "width_inch": 24,
+      "height_inch": 36,
+      "is_standard": true
+    },
+    {
+      "id": 50,
+      "remarks": "Large display",
+      "category": "POSTER",
+      "width_mm": 594,
+      "height_mm": 841,
+      "is_active": true,
+      "size_code": "POS_A1",
+      "size_name": "Poster A1",
+      "table_name": "mst_print_product_size",
+      "width_inch": 23.39,
+      "height_inch": 33.11,
+      "is_standard": true
+    },
+    {
+      "id": 49,
+      "remarks": "Event posters",
+      "category": "POSTER",
+      "width_mm": 420,
+      "height_mm": 594,
+      "is_active": true,
+      "size_code": "POS_A2",
+      "size_name": "Poster A2",
+      "table_name": "mst_print_product_size",
+      "width_inch": 16.54,
+      "height_inch": 23.39,
+      "is_standard": true
+    },
+    {
+      "id": 48,
+      "remarks": "Most common poster",
+      "category": "POSTER",
+      "width_mm": 297,
+      "height_mm": 420,
+      "is_active": true,
+      "size_code": "POS_A3",
+      "size_name": "Poster A3",
+      "table_name": "mst_print_product_size",
+      "width_inch": 11.69,
+      "height_inch": 16.54,
+      "is_standard": true
+    },
+    {
+      "id": 47,
+      "remarks": "Small posters",
+      "category": "POSTER",
+      "width_mm": 210,
+      "height_mm": 297,
+      "is_active": true,
+      "size_code": "POS_A4",
+      "size_name": "Poster A4",
+      "table_name": "mst_print_product_size",
+      "width_inch": 8.27,
+      "height_inch": 11.69,
+      "is_standard": true
+    },
+    {
+      "id": 54,
+      "remarks": "Custom poster",
+      "category": "POSTER",
+      "width_mm": null,
+      "height_mm": null,
+      "is_active": true,
+      "size_code": "POS_CUSTOM",
+      "size_name": "Poster Custom Size",
+      "table_name": "mst_print_product_size",
+      "width_inch": null,
+      "height_inch": null,
+      "is_standard": false
+    },
+    {
+      "id": 79,
+      "remarks": "1/4 Demy size for booklets",
+      "category": "BOOKLET",
+      "width_mm": 135,
+      "height_mm": 210,
+      "is_active": true,
+      "size_code": "SIZE_1_4_DEMY",
+      "size_name": "1/4 Demy",
+      "table_name": "mst_print_product_size",
+      "width_inch": 5.31,
+      "height_inch": 8.27,
+      "is_standard": false
+    },
+    {
+      "id": 80,
+      "remarks": "1/8 Demy size for booklets",
+      "category": "BOOKLET",
+      "width_mm": 105,
+      "height_mm": 148,
+      "is_active": true,
+      "size_code": "SIZE_1_8_DEMY",
+      "size_name": "1/8 Demy",
+      "table_name": "mst_print_product_size",
+      "width_inch": 4.13,
+      "height_inch": 5.83,
+      "is_standard": false
+    },
+    {
+      "id": 75,
+      "remarks": "Standard A4 size for booklets",
+      "category": "BOOKLET",
+      "width_mm": 210,
+      "height_mm": 297,
+      "is_active": true,
+      "size_code": "SIZE_A4",
+      "size_name": "A4 Size",
+      "table_name": "mst_print_product_size",
+      "width_inch": 8.27,
+      "height_inch": 11.69,
+      "is_standard": true
+    },
+    {
+      "id": 76,
+      "remarks": "Standard A5 size for booklets",
+      "category": "BOOKLET",
+      "width_mm": 148,
+      "height_mm": 210,
+      "is_active": true,
+      "size_code": "SIZE_A5",
+      "size_name": "A5 Size",
+      "table_name": "mst_print_product_size",
+      "width_inch": 5.83,
+      "height_inch": 8.27,
+      "is_standard": true
+    },
+    {
+      "id": 77,
+      "remarks": "Standard A6 size for booklets",
+      "category": "BOOKLET",
+      "width_mm": 105,
+      "height_mm": 148,
+      "is_active": true,
+      "size_code": "SIZE_A6",
+      "size_name": "A6 Size",
+      "table_name": "mst_print_product_size",
+      "width_inch": 4.13,
+      "height_inch": 5.83,
+      "is_standard": true
+    },
+    {
+      "id": 78,
+      "remarks": "Standard B5 size for booklets",
+      "category": "BOOKLET",
+      "width_mm": 176,
+      "height_mm": 250,
+      "is_active": true,
+      "size_code": "SIZE_B5",
+      "size_name": "B5 Size",
+      "table_name": "mst_print_product_size",
+      "width_inch": 6.93,
+      "height_inch": 9.84,
+      "is_standard": true
+    },
+    {
+      "id": 81,
+      "remarks": "Crown size for booklets",
+      "category": "BOOKLET",
+      "width_mm": 184,
+      "height_mm": 260,
+      "is_active": true,
+      "size_code": "SIZE_CROWN",
+      "size_name": "Crown Size",
+      "table_name": "mst_print_product_size",
+      "width_inch": 7.24,
+      "height_inch": 10.24,
+      "is_standard": false
+    },
+    {
+      "id": 86,
+      "remarks": "Custom size for special requirements",
+      "category": "BOOKLET",
+      "width_mm": 0,
+      "height_mm": 0,
+      "is_active": true,
+      "size_code": "SIZE_CUSTOM",
+      "size_name": "Custom Size",
+      "table_name": "mst_print_product_size",
+      "width_inch": 0,
+      "height_inch": 0,
+      "is_standard": false
+    },
+    {
+      "id": 84,
+      "remarks": "Standard event guide size",
+      "category": "BOOKLET",
+      "width_mm": 148,
+      "height_mm": 210,
+      "is_active": true,
+      "size_code": "SIZE_EVENT",
+      "size_name": "Event Guide Size",
+      "table_name": "mst_print_product_size",
+      "width_inch": 5.83,
+      "height_inch": 8.27,
+      "is_standard": true
+    },
+    {
+      "id": 83,
+      "remarks": "Size for technical manuals",
+      "category": "BOOKLET",
+      "width_mm": 180,
+      "height_mm": 260,
+      "is_active": true,
+      "size_code": "SIZE_MANUAL",
+      "size_name": "Manual Size",
+      "table_name": "mst_print_product_size",
+      "width_inch": 7.09,
+      "height_inch": 10.24,
+      "is_standard": true
+    },
+    {
+      "id": 82,
+      "remarks": "Size used for Olympiad booklets",
+      "category": "BOOKLET",
+      "width_mm": 210,
+      "height_mm": 297,
+      "is_active": true,
+      "size_code": "SIZE_OLYMPAD",
+      "size_name": "Olympiad Size",
+      "table_name": "mst_print_product_size",
+      "width_inch": 8.27,
+      "height_inch": 11.69,
+      "is_standard": true
+    },
+    {
+      "id": 85,
+      "remarks": "Square photo booklet size",
+      "category": "BOOKLET",
+      "width_mm": 210,
+      "height_mm": 210,
+      "is_active": true,
+      "size_code": "SIZE_PHOTO",
+      "size_name": "Photo Booklet Size",
+      "table_name": "mst_print_product_size",
+      "width_inch": 8.27,
+      "height_inch": 8.27,
+      "is_standard": false
+    },
+    {
+      "id": 22,
+      "remarks": "Children / art book",
+      "category": "BOOK",
+      "width_mm": 200,
+      "height_mm": 200,
+      "is_active": true,
+      "size_code": "SQ_200",
+      "size_name": "200 x 200 mm",
+      "table_name": "mst_print_product_size",
+      "width_inch": 7.87,
+      "height_inch": 7.87,
+      "is_standard": false
+    },
+    {
+      "id": 23,
+      "remarks": "Coffee table",
+      "category": "BOOK",
+      "width_mm": 210,
+      "height_mm": 210,
+      "is_active": true,
+      "size_code": "SQ_210",
+      "size_name": "210 x 210 mm",
+      "table_name": "mst_print_product_size",
+      "width_inch": 8.27,
+      "height_inch": 8.27,
+      "is_standard": false
+    }
+  ],
+  "print_product_types": [
+    {
+      "id": 1021,
+      "category": "PACKAGING",
+      "table_name": "mst_print_product_type",
+      "description": "Printed paper bag",
+      "product_code": "BAG",
+      "product_name": "Paper Bag",
+      "is_custom_size": true,
+      "is_binding_required": false,
+      "is_printing_required": true,
+      "is_finishing_required": true
+    },
+    {
+      "id": 1025,
+      "category": "ADVERTISING",
+      "table_name": "mst_print_product_type",
+      "description": "Large banner print",
+      "product_code": "BANNER",
+      "product_name": "Banner",
+      "is_custom_size": true,
+      "is_binding_required": false,
+      "is_printing_required": true,
+      "is_finishing_required": true
+    },
+    {
+      "id": 1014,
+      "category": "STATIONERY",
+      "table_name": "mst_print_product_type",
+      "description": "Invoice or bill book",
+      "product_code": "BILL",
+      "product_name": "Bill Book",
+      "is_custom_size": true,
+      "is_binding_required": true,
+      "is_printing_required": true,
+      "is_finishing_required": false
+    },
+    {
+      "id": 1001,
+      "category": "PUBLICATION",
+      "table_name": "mst_print_product_type",
+      "description": "Printed book with binding",
+      "product_code": "BOOK",
+      "product_name": "Book",
+      "is_custom_size": true,
+      "is_binding_required": true,
+      "is_printing_required": true,
+      "is_finishing_required": true
+    },
+    {
+      "id": 1009,
+      "category": "MARKETING",
+      "table_name": "mst_print_product_type",
+      "description": "Small booklet",
+      "product_code": "BOOKLET",
+      "product_name": "Booklet",
+      "is_custom_size": true,
+      "is_binding_required": true,
+      "is_printing_required": true,
+      "is_finishing_required": true
+    },
+    {
+      "id": 1008,
+      "category": "MARKETING",
+      "table_name": "mst_print_product_type",
+      "description": "Marketing brochure",
+      "product_code": "BROCHURE",
+      "product_name": "Brochure",
+      "is_custom_size": true,
+      "is_binding_required": false,
+      "is_printing_required": true,
+      "is_finishing_required": true
+    },
+    {
+      "id": 1027,
+      "category": "PROMOTIONAL",
+      "table_name": "mst_print_product_type",
+      "description": "Wall or desk calendar",
+      "product_code": "CALENDAR",
+      "product_name": "Calendar",
+      "is_custom_size": true,
+      "is_binding_required": true,
+      "is_printing_required": true,
+      "is_finishing_required": true
+    },
+    {
+      "id": 1030,
+      "category": "LARGE_FORMAT",
+      "table_name": "mst_print_product_type",
+      "description": "Canvas printing",
+      "product_code": "CANVAS",
+      "product_name": "Canvas Print",
+      "is_custom_size": true,
+      "is_binding_required": false,
+      "is_printing_required": true,
+      "is_finishing_required": true
+    },
+    {
+      "id": 1018,
+      "category": "PACKAGING",
+      "table_name": "mst_print_product_type",
+      "description": "Printed carton packaging",
+      "product_code": "CARTON",
+      "product_name": "Carton Box",
+      "is_custom_size": true,
+      "is_binding_required": false,
+      "is_printing_required": true,
+      "is_finishing_required": true
+    },
+    {
+      "id": 1007,
+      "category": "MARKETING",
+      "table_name": "mst_print_product_type",
+      "description": "Product catalog",
+      "product_code": "CATALOG",
+      "product_name": "Catalog",
+      "is_custom_size": true,
+      "is_binding_required": true,
+      "is_printing_required": true,
+      "is_finishing_required": true
+    },
+    {
+      "id": 1032,
+      "category": "DOCUMENT",
+      "table_name": "mst_print_product_type",
+      "description": "Printed certificate",
+      "product_code": "CERTIFICATE",
+      "product_name": "Certificate",
+      "is_custom_size": false,
+      "is_binding_required": false,
+      "is_printing_required": true,
+      "is_finishing_required": true
+    },
+    {
+      "id": 1015,
+      "category": "STATIONERY",
+      "table_name": "mst_print_product_type",
+      "description": "Delivery challan book",
+      "product_code": "CHALLAN",
+      "product_name": "Challan Book",
+      "is_custom_size": true,
+      "is_binding_required": true,
+      "is_printing_required": true,
+      "is_finishing_required": false
+    },
+    {
+      "id": 1004,
+      "category": "PUBLICATION",
+      "table_name": "mst_print_product_type",
+      "description": "Personal or corporate diary",
+      "product_code": "DIARY",
+      "product_name": "Diary",
+      "is_custom_size": true,
+      "is_binding_required": true,
+      "is_printing_required": true,
+      "is_finishing_required": true
+    },
+    {
+      "id": 1013,
+      "category": "STATIONERY",
+      "table_name": "mst_print_product_type",
+      "description": "Printed envelope",
+      "product_code": "ENVELOPE",
+      "product_name": "Envelope",
+      "is_custom_size": false,
+      "is_binding_required": false,
+      "is_printing_required": true,
+      "is_finishing_required": false
+    },
+    {
+      "id": 1028,
+      "category": "LARGE_FORMAT",
+      "table_name": "mst_print_product_type",
+      "description": "Flex banner printing",
+      "product_code": "FLEX",
+      "product_name": "Flex Print",
+      "is_custom_size": true,
+      "is_binding_required": false,
+      "is_printing_required": true,
+      "is_finishing_required": true
+    },
+    {
+      "id": 1023,
+      "category": "ADVERTISING",
+      "table_name": "mst_print_product_type",
+      "description": "Promotional flyer",
+      "product_code": "FLYER",
+      "product_name": "Flyer",
+      "is_custom_size": true,
+      "is_binding_required": false,
+      "is_printing_required": true,
+      "is_finishing_required": true
+    },
+    {
+      "id": 1016,
+      "category": "STATIONERY",
+      "table_name": "mst_print_product_type",
+      "description": "Printed forms",
+      "product_code": "FORM",
+      "product_name": "Form",
+      "is_custom_size": true,
+      "is_binding_required": false,
+      "is_printing_required": true,
+      "is_finishing_required": false
+    },
+    {
+      "id": 1033,
+      "category": "DOCUMENT",
+      "table_name": "mst_print_product_type",
+      "description": "Printed ID card",
+      "product_code": "ID_CARD",
+      "product_name": "ID Card",
+      "is_custom_size": false,
+      "is_binding_required": false,
+      "is_printing_required": true,
+      "is_finishing_required": true
+    },
+    {
+      "id": 1034,
+      "category": "EVENT",
+      "table_name": "mst_print_product_type",
+      "description": "Wedding or event invitation",
+      "product_code": "INVITATION",
+      "product_name": "Invitation Card",
+      "is_custom_size": true,
+      "is_binding_required": false,
+      "is_printing_required": true,
+      "is_finishing_required": true
+    },
+    {
+      "id": 1006,
+      "category": "PUBLICATION",
+      "table_name": "mst_print_product_type",
+      "description": "Academic journal",
+      "product_code": "JOURNAL",
+      "product_name": "Journal",
+      "is_custom_size": true,
+      "is_binding_required": true,
+      "is_printing_required": true,
+      "is_finishing_required": true
+    },
+    {
+      "id": 1019,
+      "category": "PACKAGING",
+      "table_name": "mst_print_product_type",
+      "description": "Product label",
+      "product_code": "LABEL",
+      "product_name": "Label",
+      "is_custom_size": true,
+      "is_binding_required": false,
+      "is_printing_required": true,
+      "is_finishing_required": true
+    },
+    {
+      "id": 1024,
+      "category": "ADVERTISING",
+      "table_name": "mst_print_product_type",
+      "description": "Marketing leaflet",
+      "product_code": "LEAFLET",
+      "product_name": "Leaflet",
+      "is_custom_size": true,
+      "is_binding_required": false,
+      "is_printing_required": true,
+      "is_finishing_required": true
+    },
+    {
+      "id": 1012,
+      "category": "STATIONERY",
+      "table_name": "mst_print_product_type",
+      "description": "Printed company letterhead",
+      "product_code": "LETTERHEAD",
+      "product_name": "Letterhead",
+      "is_custom_size": false,
+      "is_binding_required": false,
+      "is_printing_required": true,
+      "is_finishing_required": false
+    },
+    {
+      "id": 1005,
+      "category": "PUBLICATION",
+      "table_name": "mst_print_product_type",
+      "description": "Magazine publication",
+      "product_code": "MAGAZINE",
+      "product_name": "Magazine",
+      "is_custom_size": true,
+      "is_binding_required": true,
+      "is_printing_required": true,
+      "is_finishing_required": true
+    },
+    {
+      "id": 1010,
+      "category": "PUBLICATION",
+      "table_name": "mst_print_product_type",
+      "description": "Daily newspaper",
+      "product_code": "NEWSPAPER",
+      "product_name": "Newspaper",
+      "is_custom_size": true,
+      "is_binding_required": false,
+      "is_printing_required": true,
+      "is_finishing_required": false
+    },
+    {
+      "id": 1002,
+      "category": "PUBLICATION",
+      "table_name": "mst_print_product_type",
+      "description": "Student notebook",
+      "product_code": "NOTEBOOK",
+      "product_name": "Notebook",
+      "is_custom_size": true,
+      "is_binding_required": true,
+      "is_printing_required": true,
+      "is_finishing_required": true
+    },
+    {
+      "id": 1017,
+      "category": "STATIONERY",
+      "table_name": "mst_print_product_type",
+      "description": "Writing pad or note pad",
+      "product_code": "PAD",
+      "product_name": "Writing Pad",
+      "is_custom_size": true,
+      "is_binding_required": true,
+      "is_printing_required": true,
+      "is_finishing_required": false
+    },
+    {
+      "id": 1031,
+      "category": "PHOTO",
+      "table_name": "mst_print_product_type",
+      "description": "Photo printing",
+      "product_code": "PHOTO",
+      "product_name": "Photo Print",
+      "is_custom_size": true,
+      "is_binding_required": false,
+      "is_printing_required": true,
+      "is_finishing_required": true
+    },
+    {
+      "id": 1022,
+      "category": "ADVERTISING",
+      "table_name": "mst_print_product_type",
+      "description": "Advertising poster",
+      "product_code": "POSTER",
+      "product_name": "Poster",
+      "is_custom_size": true,
+      "is_binding_required": false,
+      "is_printing_required": true,
+      "is_finishing_required": true
+    },
+    {
+      "id": 1003,
+      "category": "PUBLICATION",
+      "table_name": "mst_print_product_type",
+      "description": "Office register book",
+      "product_code": "REGISTER",
+      "product_name": "Register",
+      "is_custom_size": true,
+      "is_binding_required": true,
+      "is_printing_required": true,
+      "is_finishing_required": true
+    },
+    {
+      "id": 1026,
+      "category": "ADVERTISING",
+      "table_name": "mst_print_product_type",
+      "description": "Display standee",
+      "product_code": "STANDEE",
+      "product_name": "Standee",
+      "is_custom_size": true,
+      "is_binding_required": false,
+      "is_printing_required": true,
+      "is_finishing_required": true
+    },
+    {
+      "id": 1020,
+      "category": "PACKAGING",
+      "table_name": "mst_print_product_type",
+      "description": "Product hanging tag",
+      "product_code": "TAG",
+      "product_name": "Tag",
+      "is_custom_size": true,
+      "is_binding_required": false,
+      "is_printing_required": true,
+      "is_finishing_required": true
+    },
+    {
+      "id": 1029,
+      "category": "LARGE_FORMAT",
+      "table_name": "mst_print_product_type",
+      "description": "Vinyl printing",
+      "product_code": "VINYL",
+      "product_name": "Vinyl Print",
+      "is_custom_size": true,
+      "is_binding_required": false,
+      "is_printing_required": true,
+      "is_finishing_required": true
+    },
+    {
+      "id": 1011,
+      "category": "STATIONERY",
+      "table_name": "mst_print_product_type",
+      "description": "Business visiting card",
+      "product_code": "VISITING_CARD",
+      "product_name": "Visiting Card",
+      "is_custom_size": false,
+      "is_binding_required": false,
+      "is_printing_required": true,
+      "is_finishing_required": true
+    }
+  ],
+  "job_type_dynamic_fields": {
+    "CUTTING": {
+      "fields": {
+        "required": [
+          "quantity",
+          "cut_size"
+        ]
+      },
+      "category": "POST",
+      "costing_dependencies": [
+        "cutting"
+      ]
+    },
+    "FOLDING": {
+      "fields": {
+        "required": [
+          "quantity",
+          "fold_type"
+        ]
+      },
+      "category": "POST",
+      "costing_dependencies": [
+        "folding"
+      ]
+    },
+    "FULL_UV": {
+      "rules": {
+        "uv_multiplier": 1.5
+      },
+      "fields": {
+        "required": [
+          "customer_id",
+          "material_type",
+          "quantity"
+        ]
+      },
+      "category": "FULL",
+      "workflow": [
+        "DESIGN",
+        "PRINTING",
+        "CURING",
+        "FINISHING"
+      ],
+      "printing_mode": "UV",
+      "costing_dependencies": [
+        "uv_ink",
+        "machine"
+      ]
+    },
+    "CTP_ONLY": {
+      "fields": {
+        "required": [
+          "plate_size",
+          "plate_count"
+        ]
+      },
+      "category": "PREPRESS",
+      "workflow": [
+        "CTP"
+      ],
+      "costing_dependencies": [
+        "plate"
+      ]
+    },
+    "DTP_ONLY": {
+      "fields": {
+        "required": [
+          "customer_id",
+          "pages",
+          "page_size"
+        ]
+      },
+      "category": "SERVICE",
+      "workflow": [
+        "DTP"
+      ],
+      "costing_dependencies": [
+        "dtp"
+      ]
+    },
+    "JOB_WORK": {
+      "fields": {
+        "required": [
+          "labour_type",
+          "hours",
+          "rate"
+        ]
+      },
+      "category": "LABOUR",
+      "costing_dependencies": [
+        "labour"
+      ]
+    },
+    "OUT_BIND": {
+      "fields": {
+        "required": [
+          "vendor_id",
+          "binding_type",
+          "cost"
+        ]
+      },
+      "category": "OUTSOURCE",
+      "costing_dependencies": [
+        "vendor"
+      ]
+    },
+    "PRINT_UV": {
+      "fields": {
+        "required": [
+          "material_type",
+          "quantity"
+        ]
+      },
+      "category": "PRINT_ONLY",
+      "printing_mode": "UV",
+      "costing_dependencies": [
+        "uv"
+      ]
+    },
+    "FULL_FLEX": {
+      "rules": {
+        "area_based": true
+      },
+      "fields": {
+        "required": [
+          "customer_id",
+          "width",
+          "height",
+          "quantity"
+        ]
+      },
+      "category": "FULL",
+      "workflow": [
+        "DESIGN",
+        "PRINTING",
+        "FINISHING"
+      ],
+      "printing_mode": "FLEX",
+      "costing_dependencies": [
+        "area",
+        "material"
+      ]
+    },
+    "OUT_PRINT": {
+      "fields": {
+        "required": [
+          "vendor_id",
+          "job_description",
+          "cost"
+        ]
+      },
+      "category": "OUTSOURCE",
+      "costing_dependencies": [
+        "vendor"
+      ]
+    },
+    "PACKAGING": {
+      "fields": {
+        "required": [
+          "quantity",
+          "package_type"
+        ]
+      },
+      "category": "POST",
+      "costing_dependencies": [
+        "packaging"
+      ]
+    },
+    "LAMINATION": {
+      "fields": {
+        "required": [
+          "lamination_type",
+          "paper_id",
+          "quantity"
+        ]
+      },
+      "category": "POST",
+      "costing_dependencies": [
+        "lamination"
+      ]
+    },
+    "OUT_FINISH": {
+      "fields": {
+        "required": [
+          "vendor_id",
+          "finishing_type",
+          "cost"
+        ]
+      },
+      "category": "OUTSOURCE",
+      "costing_dependencies": [
+        "vendor"
+      ]
+    },
+    "PRINT_FLEX": {
+      "fields": {
+        "required": [
+          "width",
+          "height",
+          "quantity"
+        ]
+      },
+      "category": "PRINT_ONLY",
+      "printing_mode": "FLEX",
+      "costing_dependencies": [
+        "area"
+      ]
+    },
+    "PROOF_ONLY": {
+      "fields": {
+        "required": [
+          "proof_type",
+          "quantity"
+        ]
+      },
+      "category": "PREPRESS",
+      "workflow": [
+        "PRINTING"
+      ],
+      "costing_dependencies": [
+        "proof"
+      ]
+    },
+    "DESIGN_ONLY": {
+      "fields": {
+        "optional": [
+          "software",
+          "reference_file"
+        ],
+        "required": [
+          "customer_id",
+          "design_type",
+          "pages"
+        ]
+      },
+      "category": "SERVICE",
+      "workflow": [
+        "DESIGN"
+      ],
+      "costing_dependencies": [
+        "design"
+      ]
+    },
+    "FINISH_ONLY": {
+      "fields": {
+        "required": [
+          "finishing_type",
+          "quantity"
+        ]
+      },
+      "category": "POST",
+      "workflow": [
+        "FINISHING"
+      ],
+      "costing_dependencies": [
+        "finishing"
+      ]
+    },
+    "FULL_OFFSET": {
+      "rules": {
+        "min_qty": 500,
+        "wastage_percent": 3
+      },
+      "fields": {
+        "optional": [
+          "lamination_type",
+          "binding_type",
+          "finishing_type"
+        ],
+        "required": [
+          "customer_id",
+          "product_type_id",
+          "product_part_id",
+          "quantity",
+          "paper_id",
+          "machine_id",
+          "color_count",
+          "printing_side",
+          "plate_count"
+        ],
+        "conditional": [
+          {
+            "field": "binding_type",
+            "required_if": "is_binding_required=true"
+          },
+          {
+            "field": "lamination_type",
+            "required_if": "is_finishing_required=true"
+          }
+        ]
+      },
+      "costing": {
+        "ink": true,
+        "plate": true,
+        "binding": true,
+        "machine": true,
+        "finishing": true
+      },
+      "modules": {
+        "ctp": true,
+        "dtp": true,
+        "design": true,
+        "binding": true,
+        "printing": true,
+        "finishing": true
+      },
+      "category": "FULL",
+      "workflow": [
+        "DESIGN",
+        "DTP",
+        "CTP",
+        "PRINTING",
+        "BINDING",
+        "FINISHING",
+        "DISPATCH"
+      ],
+      "printing_mode": "OFFSET",
+      "costing_dependencies": [
+        "paper",
+        "ink",
+        "plate",
+        "machine",
+        "binding",
+        "finishing"
+      ]
+    },
+    "FULL_SCREEN": {
+      "rules": {
+        "wastage_percent": 5
+      },
+      "fields": {
+        "required": [
+          "customer_id",
+          "quantity",
+          "screen_count",
+          "color_count"
+        ]
+      },
+      "category": "FULL",
+      "workflow": [
+        "DESIGN",
+        "DTP",
+        "PRINTING",
+        "DRYING",
+        "FINISHING"
+      ],
+      "printing_mode": "SCREEN",
+      "costing_dependencies": [
+        "screen",
+        "ink",
+        "labour"
+      ]
+    },
+    "BINDING_ONLY": {
+      "fields": {
+        "required": [
+          "binding_type",
+          "quantity"
+        ]
+      },
+      "category": "POST",
+      "workflow": [
+        "BINDING"
+      ],
+      "costing_dependencies": [
+        "binding"
+      ]
+    },
+    "FULL_DIGITAL": {
+      "rules": {
+        "wastage_percent": 1
+      },
+      "fields": {
+        "optional": [
+          "paper_id",
+          "finishing_type"
+        ],
+        "required": [
+          "customer_id",
+          "product_type_id",
+          "quantity",
+          "machine_id",
+          "color_mode"
+        ]
+      },
+      "costing": {
+        "click": true
+      },
+      "category": "FULL",
+      "workflow": [
+        "DESIGN",
+        "DTP",
+        "PRINTING",
+        "BINDING",
+        "FINISHING",
+        "DISPATCH"
+      ],
+      "printing_mode": "DIGITAL",
+      "costing_dependencies": [
+        "machine",
+        "click"
+      ]
+    },
+    "PRINT_OFFSET": {
+      "fields": {
+        "required": [
+          "machine_id",
+          "paper_id",
+          "quantity",
+          "color_count"
+        ]
+      },
+      "category": "PRINT_ONLY",
+      "printing_mode": "OFFSET",
+      "costing_dependencies": [
+        "machine",
+        "ink"
+      ]
+    },
+    "PRINT_SCREEN": {
+      "fields": {
+        "required": [
+          "screen_count",
+          "quantity"
+        ]
+      },
+      "category": "PRINT_ONLY",
+      "printing_mode": "SCREEN",
+      "costing_dependencies": [
+        "screen"
+      ]
+    },
+    "PRINT_DIGITAL": {
+      "fields": {
+        "required": [
+          "machine_id",
+          "quantity",
+          "color_mode"
+        ]
+      },
+      "category": "PRINT_ONLY",
+      "printing_mode": "DIGITAL",
+      "costing_dependencies": [
+        "click"
+      ]
+    }
+  }
+}

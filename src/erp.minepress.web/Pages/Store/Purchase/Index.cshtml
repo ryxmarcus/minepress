@@ -1,0 +1,255 @@
+@page
+@model erp.minepress.web.Pages.Store.Purchase.IndexModel
+@{
+    ViewData["Title"] = "Purchase GRNs";
+}
+
+<!-- Hero Header -->
+<div class="store-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);">
+                <i class="bi bi-box-seam" style="font-size:1.5rem;"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="mb-0">Purchase GRNs</h2>
+            <div class="text-white-75">Manage Goods Receipt Notes for purchased materials.</div>
+        </div>
+        <div class="col-auto d-flex gap-2">
+            <button class="btn btn-outline-light btn-sm" onclick="loadGrnList()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+            </button>
+            <a href="/Store/Purchase/Create" class="btn btn-light">
+                <i class="bi bi-plus-lg me-1"></i>New GRN
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Row -->
+<div class="row g-3 mb-3">
+    <div class="col-6 col-md-3">
+        <div class="card card-sm"><div class="card-body"><div class="d-flex align-items-center">
+            <span class="avatar avatar-sm bg-info-lt me-3"><i class="bi bi-box-seam"></i></span>
+            <div><div class="fw-bold fs-3" id="statTotal">0</div><div class="text-secondary small">Total</div></div>
+        </div></div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card card-sm"><div class="card-body"><div class="d-flex align-items-center">
+            <span class="avatar avatar-sm bg-warning-lt me-3"><i class="bi bi-pencil-square"></i></span>
+            <div><div class="fw-bold fs-3" id="statDraft">0</div><div class="text-secondary small">Draft</div></div>
+        </div></div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card card-sm"><div class="card-body"><div class="d-flex align-items-center">
+            <span class="avatar avatar-sm bg-success-lt me-3"><i class="bi bi-check-circle"></i></span>
+            <div><div class="fw-bold fs-3" id="statReceived">0</div><div class="text-secondary small">Received</div></div>
+        </div></div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card card-sm"><div class="card-body"><div class="d-flex align-items-center">
+            <span class="avatar avatar-sm bg-teal-lt me-3"><i class="bi bi-clipboard-check"></i></span>
+            <div><div class="fw-bold fs-3" id="statInspected">0</div><div class="text-secondary small">Inspected</div></div>
+        </div></div></div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card mb-3">
+    <div class="card-body py-2">
+        <div class="row g-2 align-items-center">
+            <div class="col-md-4">
+                <div class="input-icon">
+                    <span class="input-icon-addon"><i class="bi bi-search"></i></span>
+                    <input type="text" id="txtSearch" class="form-control form-control-sm" placeholder="Search GRN no, supplier, invoice..." />
+                </div>
+            </div>
+            <div class="col-md-2">
+                <select id="ddlStatusFilter" class="form-select form-select-sm">
+                    <option value="">All Statuses</option>
+                    <option value="DRAFT">Draft</option>
+                    <option value="RECEIVED">Received</option>
+                    <option value="INSPECTED">Inspected</option>
+                    <option value="CANCELLED">Cancelled</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select id="ddlTypeFilter" class="form-select form-select-sm">
+                    <option value="">All Types</option>
+                    <option value="JOB">Job</option>
+                    <option value="STOCK">Stock</option>
+                    <option value="CONSUMABLE">Consumable</option>
+                </select>
+            </div>
+            <div class="col-auto ms-auto">
+                <span class="text-muted small" id="filteredCount"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- GRN Table -->
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table store-list-table table-hover">
+            <thead>
+                <tr>
+                    <th class="sortable" data-sort="grnNo" style="cursor:pointer;">GRN No <i class="bi bi-arrow-down-up small text-muted"></i></th>
+                    <th class="sortable" data-sort="grnDate" style="cursor:pointer;">Date <i class="bi bi-arrow-down-up small text-muted"></i></th>
+                    <th>Type</th>
+                    <th>Supplier</th>
+                    <th>Invoice No</th>
+                    <th class="text-center">Items</th>
+                    <th class="text-end">Net Amount</th>
+                    <th class="sortable" data-sort="status" style="cursor:pointer;">Status <i class="bi bi-arrow-down-up small text-muted"></i></th>
+                    <th>Remarks</th>
+                    <th class="text-center" style="width:100px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="grnListBody">
+                <tr><td colspan="10" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2"></div>Loading...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Paging Controls -->
+<div class="card mt-2" id="pagingControls" style="display:none;">
+    <div class="card-body py-2">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-muted small">Show</span>
+                <select id="ddlPageSize" class="form-select form-select-sm" style="width:auto;">
+                    <option value="10">10</option>
+                    <option value="25" selected>25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+                <span class="text-muted small">entries</span>
+            </div>
+            <div class="text-muted small" id="pagingInfo"></div>
+            <nav><ul class="pagination pagination-sm mb-0" id="paginationNav"></ul></nav>
+        </div>
+    </div>
+</div>
+
+<div id="emptyState" class="text-center py-5" style="display:none;">
+    <i class="bi bi-box-seam" style="font-size:3rem; opacity:.3;"></i>
+    <div class="text-muted mt-2">No purchase GRNs found</div>
+    <a href="/Store/Purchase/Create" class="btn btn-info mt-3"><i class="bi bi-plus-lg me-1"></i>Create First GRN</a>
+</div>
+
+@section Scripts {
+    <script src="/js/store.js"></script>
+    <script>
+        const API_BASE = '/api/purchase';
+        let allItems = [];
+        let currentPage = 1, pageSize = 25, sortField = 'grnNo', sortDir = 'desc';
+
+        $(document).ready(function () {
+            loadGrnList();
+            $('#txtSearch, #ddlStatusFilter, #ddlTypeFilter').on('input change', function () { currentPage = 1; applyFilters(); });
+            $('#ddlPageSize').on('change', function () { pageSize = parseInt($(this).val()); currentPage = 1; applyFilters(); });
+            $(document).on('click', '.sortable', function () {
+                const field = $(this).data('sort');
+                if (sortField === field) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+                else { sortField = field; sortDir = 'asc'; }
+                $('.sortable i').attr('class', 'bi bi-arrow-down-up small text-muted');
+                $(this).find('i').attr('class', sortDir === 'asc' ? 'bi bi-arrow-up small text-primary' : 'bi bi-arrow-down small text-primary');
+                applyFilters();
+            });
+        });
+
+        function loadGrnList() {
+            $('#grnListBody').html('<tr><td colspan="10" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2"></div>Loading...</td></tr>');
+            $.get(`${API_BASE}/grns`, function (data) {
+                allItems = data;
+                updateStats();
+                applyFilters();
+            }).fail(function () {
+                $('#grnListBody').html('<tr><td colspan="10" class="text-center text-danger py-3"><i class="bi bi-exclamation-circle me-1"></i>Failed to load.</td></tr>');
+            });
+        }
+
+        function updateStats() {
+            $('#statTotal').text(allItems.length);
+            $('#statDraft').text(allItems.filter(e => e.status === 'DRAFT').length);
+            $('#statReceived').text(allItems.filter(e => e.status === 'RECEIVED').length);
+            $('#statInspected').text(allItems.filter(e => e.status === 'INSPECTED').length);
+        }
+
+        function applyFilters() {
+            const q = ($('#txtSearch').val() || '').toLowerCase();
+            const status = $('#ddlStatusFilter').val();
+            const type = $('#ddlTypeFilter').val();
+            let filtered = allItems.filter(e => {
+                if (q && !(e.grnNo || '').toLowerCase().includes(q) && !(e.supplierName || '').toLowerCase().includes(q) && !(e.invoiceNo || '').toLowerCase().includes(q)) return false;
+                if (status && e.status !== status) return false;
+                if (type && e.grnType !== type) return false;
+                return true;
+            });
+            filtered.sort((a, b) => {
+                let va = a[sortField] ?? '', vb = b[sortField] ?? '';
+                if (typeof va === 'string') va = va.toLowerCase();
+                if (typeof vb === 'string') vb = vb.toLowerCase();
+                return va < vb ? (sortDir === 'asc' ? -1 : 1) : va > vb ? (sortDir === 'asc' ? 1 : -1) : 0;
+            });
+            const total = filtered.length, totalPages = Math.max(1, Math.ceil(total / pageSize));
+            if (currentPage > totalPages) currentPage = totalPages;
+            const start = (currentPage - 1) * pageSize;
+            const paged = filtered.slice(start, start + pageSize);
+            $('#filteredCount').text(filtered.length < allItems.length ? `Showing ${filtered.length} of ${allItems.length}` : '');
+            renderTable(paged);
+            StoreUtils.renderPaging(total, totalPages, currentPage, pageSize, p => { currentPage = p; applyFilters(); });
+        }
+
+        function renderTable(data) {
+            if (!data.length) { $('#grnListBody').html(''); $('#emptyState').show(); return; }
+            $('#emptyState').hide();
+            let html = '';
+            data.forEach(e => {
+                const isDraft = e.status === 'DRAFT';
+                html += `<tr>
+                    <td><a href="/Store/Purchase/Details?id=${e.grnId}" class="fw-semibold text-primary text-decoration-none">${esc(e.grnNo)}</a>
+                        <div class="text-muted small">${e.createdOn || ''}</div></td>
+                    <td>${esc(e.grnDate)}</td>
+                    <td><span class="badge bg-info-lt">${e.grnType}</span></td>
+                    <td>${esc(e.supplierName || '-')}</td>
+                    <td>${esc(e.invoiceNo || '-')}</td>
+                    <td class="text-center"><span class="badge bg-primary-lt">${e.itemCount}</span></td>
+                    <td class="text-end">${(e.netAmount || 0).toLocaleString('en-IN', {minimumFractionDigits:2})}</td>
+                    <td><span class="store-status-badge store-status-${(e.status||'').toLowerCase()}">${e.status}</span></td>
+                    <td class="small text-muted" style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(e.remarks||'')}">${esc(e.remarks||'')}</td>
+                    <td class="text-center">
+                        <div class="dropdown">
+                            <button class="btn btn-ghost-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown"><i class="bi bi-three-dots-vertical"></i></button>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <a class="dropdown-item" href="/Store/Purchase/Details?id=${e.grnId}"><i class="bi bi-eye me-2 text-primary"></i>View</a>
+                                ${isDraft ? `<a class="dropdown-item" href="javascript:void(0)" onclick="updateGrnStatus(${e.grnId},'RECEIVED','${esc(e.grnNo)}')"><i class="bi bi-check-circle me-2 text-success"></i>Mark Received</a>` : ''}
+                                ${isDraft ? `<div class="dropdown-divider"></div><a class="dropdown-item text-danger" href="javascript:void(0)" onclick="deleteGrn(${e.grnId},'${esc(e.grnNo)}')"><i class="bi bi-trash me-2"></i>Delete</a>` : ''}
+                            </div>
+                        </div>
+                    </td>
+                </tr>`;
+            });
+            $('#grnListBody').html(html);
+        }
+
+        async function updateGrnStatus(id, status, no) {
+            if (!await Swal2.confirmStatus(no, status)) return;
+            try {
+                await $.ajax({ url: `${API_BASE}/grns/updatestatus`, method: 'POST', contentType: 'application/json', data: JSON.stringify({ id, status }) });
+                Swal2.success(`Status updated to ${status}`); loadGrnList();
+            } catch (err) { Swal2.error(err.responseJSON?.message || 'Failed'); }
+        }
+
+        async function deleteGrn(id, no) {
+            if (!await Swal2.confirmDelete(no)) return;
+            try { await $.ajax({ url: `${API_BASE}/grns/${id}`, method: 'DELETE' }); Swal2.success('Deleted'); loadGrnList(); }
+            catch (err) { Swal2.error(err.responseJSON?.message || 'Failed'); }
+        }
+
+        function esc(v) { return (v||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;'); }
+    </script>
+}

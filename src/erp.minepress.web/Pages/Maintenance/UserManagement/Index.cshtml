@@ -1,0 +1,425 @@
+@page
+@model erp.minepress.web.Pages.Maintenance.UserManagement.IndexModel
+@{
+    ViewData["Title"] = "User Management — Maintenance";
+    ViewData["ContainerClass"] = "container-xl";
+    ViewData["HidePageHeader"] = true;
+}
+
+<!-- ── Page Header ── -->
+<div class="page-header d-print-none mb-3">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-md bg-indigo-lt text-indigo">
+                <i class="bi bi-shield-lock fs-4"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="page-title mb-0">User Management</h2>
+            <div class="text-secondary mt-1">Manage users, roles, permissions &amp; menu access</div>
+        </div>
+        <div class="col-auto">
+            <a href="/Maintenance/UserManagement/Create" class="btn btn-primary btn-sm">
+                <i class="bi bi-person-plus me-1"></i>New User
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- ── KPI Cards ── -->
+<div class="row g-3 mb-3" id="umKpiRow">
+    <div class="col-6 col-lg-3">
+        <div class="card um-kpi" onclick="UmApp.switchTab('users')">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="kpi-icon bg-primary-lt text-primary"><i class="bi bi-people"></i></div>
+                <div>
+                    <div class="kpi-value" id="kpiTotalUsers">—</div>
+                    <div class="kpi-label">Total Users</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card um-kpi" onclick="UmApp.switchTab('users')">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="kpi-icon bg-green-lt text-green"><i class="bi bi-person-check"></i></div>
+                <div>
+                    <div class="kpi-value" id="kpiActiveUsers">—</div>
+                    <div class="kpi-label">Active Users</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card um-kpi" onclick="UmApp.switchTab('roles')">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="kpi-icon bg-purple-lt text-purple"><i class="bi bi-shield"></i></div>
+                <div>
+                    <div class="kpi-value" id="kpiTotalRoles">—</div>
+                    <div class="kpi-label">Roles</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card um-kpi" onclick="UmApp.switchTab('permissions')">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="kpi-icon bg-cyan-lt text-cyan"><i class="bi bi-key"></i></div>
+                <div>
+                    <div class="kpi-value" id="kpiTotalPerms">—</div>
+                    <div class="kpi-label">Permissions</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── AI Insights Bar ── -->
+<div class="card um-ai-card mb-3">
+    <div class="card-body d-flex align-items-center gap-3 py-2">
+        <div class="um-ai-icon"><i class="bi bi-cpu"></i></div>
+        <div class="flex-fill">
+            <div class="fw-semibold small">AI Security Insights</div>
+            <div id="aiInsightText" class="text-secondary" style="font-size:.78rem;">Analyzing user configurations…</div>
+        </div>
+        <div id="aiInsightBadges" class="d-flex gap-2 flex-wrap"></div>
+    </div>
+</div>
+
+<!-- ── Tabs ── -->
+<ul class="nav nav-tabs um-tabs mb-0" id="umTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="tab-users" data-bs-toggle="tab" data-bs-target="#pane-users" type="button" role="tab">
+            <i class="bi bi-people me-1"></i>Users
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-roles" data-bs-toggle="tab" data-bs-target="#pane-roles" type="button" role="tab">
+            <i class="bi bi-shield me-1"></i>Roles
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-permissions" data-bs-toggle="tab" data-bs-target="#pane-permissions" type="button" role="tab">
+            <i class="bi bi-key me-1"></i>Permissions
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-menus" data-bs-toggle="tab" data-bs-target="#pane-menus" type="button" role="tab">
+            <i class="bi bi-list-nested me-1"></i>Menu Access
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content">
+    <!-- ═══════ USERS TAB ═══════ -->
+    <div class="tab-pane fade show active" id="pane-users" role="tabpanel">
+        <div class="card" style="border-top-left-radius:0;border-top-right-radius:0;">
+            <div class="card-header d-flex align-items-center gap-2 flex-wrap">
+                <div class="input-group input-group-sm um-search-bar" style="max-width:320px;">
+                    <span class="input-group-text bg-transparent border-0"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control border-0" id="userSearch" placeholder="Search users…" />
+                </div>
+                <select class="form-select form-select-sm" id="userStatusFilter" style="max-width:140px;">
+                    <option value="">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="locked">Locked</option>
+                </select>
+                <select class="form-select form-select-sm" id="userTypeFilter" style="max-width:150px;">
+                    <option value="">All Types</option>
+                    <option value="EMPLOYEE">Employee</option>
+                    <option value="ADMIN">Admin</option>
+                    <option value="CUSTOMER">Customer</option>
+                    <option value="VENDOR">Vendor</option>
+                    <option value="OTHER">Other</option>
+                </select>
+                <div class="ms-auto d-flex gap-1">
+                    <button class="btn btn-sm btn-outline-primary" onclick="UmApp.loadUsers()"><i class="bi bi-arrow-clockwise"></i></button>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover um-table mb-0">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Code</th>
+                            <th>Department</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>AI Score</th>
+                            <th>Last Login</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userTableBody">
+                        <tr><td colspan="8" class="text-center text-secondary py-4"><i class="bi bi-hourglass-split me-1"></i>Loading…</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                <div class="text-secondary small" id="userPaginationInfo">—</div>
+                <div class="btn-group btn-group-sm" id="userPagination"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ ROLES TAB ═══════ -->
+    <div class="tab-pane fade" id="pane-roles" role="tabpanel">
+        <div class="card" style="border-top-left-radius:0;border-top-right-radius:0;">
+            <div class="card-header d-flex align-items-center gap-2">
+                <h3 class="card-title mb-0"><i class="bi bi-shield me-1"></i>Roles</h3>
+                <div class="ms-auto">
+                    <button class="btn btn-sm btn-primary" onclick="showCreateRoleModal()">
+                        <i class="bi bi-plus me-1"></i>New Role
+                    </button>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover um-table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Role Name</th>
+                            <th>Code</th>
+                            <th>Description</th>
+                            <th>System</th>
+                            <th>Status</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="roleTableBody">
+                        <tr><td colspan="6" class="text-center text-secondary py-4"><i class="bi bi-hourglass-split me-1"></i>Loading…</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ PERMISSIONS TAB ═══════ -->
+    <div class="tab-pane fade" id="pane-permissions" role="tabpanel">
+        <div class="card" style="border-top-left-radius:0;border-top-right-radius:0;">
+            <div class="card-header d-flex align-items-center gap-2">
+                <h3 class="card-title mb-0"><i class="bi bi-key me-1"></i>Permissions</h3>
+                <div class="ms-auto">
+                    <button class="btn btn-sm btn-primary" onclick="showCreatePermModal()">
+                        <i class="bi bi-plus me-1"></i>New Permission
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="input-group input-group-sm um-search-bar mb-3" style="max-width:320px;">
+                    <span class="input-group-text bg-transparent border-0"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control border-0" id="permSearch" placeholder="Search permissions…" oninput="UmApp.filterPermissions()" />
+                </div>
+                <div class="um-perm-grid" id="permGrid">
+                    <div class="text-center text-secondary py-4"><i class="bi bi-hourglass-split me-1"></i>Loading…</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ MENU ACCESS TAB ═══════ -->
+    <div class="tab-pane fade" id="pane-menus" role="tabpanel">
+        <div class="card" style="border-top-left-radius:0;border-top-right-radius:0;">
+            <div class="card-header d-flex align-items-center gap-2">
+                <h3 class="card-title mb-0"><i class="bi bi-list-nested me-1"></i>Menu Access by Role</h3>
+                <div class="ms-auto">
+                    <select class="form-select form-select-sm" id="menuRoleSelect" style="min-width:180px;" onchange="UmApp.loadMenuAccess()">
+                        <option value="">Select Role…</option>
+                    </select>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="menuTreeContainer">
+                    <div class="text-center text-secondary py-4">Select a role to configure menu access</div>
+                </div>
+                <div class="mt-3 text-end d-none" id="menuSaveBar">
+                    <button class="btn btn-primary btn-sm" onclick="UmApp.saveMenuAccess()">
+                        <i class="bi bi-check-lg me-1"></i>Save Menu Access
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════ CREATE / EDIT USER MODAL ═══════ -->
+<div class="modal modal-lg fade um-modal" id="userModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="userModalTitle"><i class="bi bi-person-plus me-2"></i>New User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editUserId" value="" />
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label required">User Code</label>
+                        <input type="text" class="form-control" id="fUserCode" placeholder="e.g. USR001" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label required">Username (Login)</label>
+                        <input type="text" class="form-control" id="fUsername" placeholder="e.g. john.doe" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label required">Full Name</label>
+                        <input type="text" class="form-control" id="fName" placeholder="Full name" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="fEmail" placeholder="email@example.com" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Mobile</label>
+                        <input type="text" class="form-control" id="fMobile" placeholder="Mobile number" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label required">User Type</label>
+                        <select class="form-select" id="fUserType" required>
+                            <option value="">Select…</option>
+                            <option value="EMPLOYEE">Employee</option>
+                            <option value="ADMIN">Admin</option>
+                            <option value="CUSTOMER">Customer</option>
+                            <option value="VENDOR">Vendor</option>
+                            <option value="OTHER">Other</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label required">Department</label>
+                        <select class="form-select" id="fDepartment" required>
+                            <option value="">Select…</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label required">Designation</label>
+                        <select class="form-select" id="fDesignation" required>
+                            <option value="">Select…</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label required">Location</label>
+                        <select class="form-select" id="fLocation" required>
+                            <option value="">Select…</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Employee Code</label>
+                        <input type="text" class="form-control" id="fEmpCode" placeholder="Link to employee" />
+                    </div>
+                    <div class="col-12"><hr class="my-1" /></div>
+                    <div class="col-md-6" id="passwordSection">
+                        <label class="form-label required">Password</label>
+                        <input type="password" class="form-control" id="fPassword" placeholder="Set password" />
+                    </div>
+                    <div class="col-12"><hr class="my-1" /></div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Access & Security Flags</label>
+                        <div class="row g-2">
+                            <div class="col-auto"><div class="form-check"><input class="form-check-input" type="checkbox" id="fIsSystemAdmin" /><label class="form-check-label" for="fIsSystemAdmin">System Admin</label></div></div>
+                            <div class="col-auto"><div class="form-check"><input class="form-check-input" type="checkbox" id="fIsApprovalUser" /><label class="form-check-label" for="fIsApprovalUser">Approval User</label></div></div>
+                            <div class="col-auto"><div class="form-check"><input class="form-check-input" type="checkbox" id="fIsProductionUser" /><label class="form-check-label" for="fIsProductionUser">Production User</label></div></div>
+                            <div class="col-auto"><div class="form-check"><input class="form-check-input" type="checkbox" id="fIsWebAccess" /><label class="form-check-label" for="fIsWebAccess">Web Access</label></div></div>
+                            <div class="col-auto"><div class="form-check"><input class="form-check-input" type="checkbox" id="fIsMobileAccess" /><label class="form-check-label" for="fIsMobileAccess">Mobile Access</label></div></div>
+                        </div>
+                    </div>
+                    <div class="col-12"><hr class="my-1" /></div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Assign Roles</label>
+                        <div id="userRolesContainer" class="d-flex flex-wrap gap-2">
+                            <span class="text-secondary small">Loading roles…</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="UmApp.saveUser()">
+                    <i class="bi bi-check-lg me-1"></i>Save User
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════ CREATE / EDIT ROLE MODAL ═══════ -->
+<div class="modal fade um-modal" id="roleModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="roleModalTitle"><i class="bi bi-shield-plus me-2"></i>New Role</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editRoleId" value="" />
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label required">Role Code</label>
+                        <input type="text" class="form-control" id="fRoleCode" placeholder="e.g. ADMIN" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label required">Role Name</label>
+                        <input type="text" class="form-control" id="fRoleName" placeholder="e.g. Administrator" required />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" id="fRoleDesc" rows="2" placeholder="Describe this role…"></textarea>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Assign Permissions</label>
+                        <div id="rolePermsContainer" class="um-perm-grid">
+                            <span class="text-secondary small">Loading permissions…</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="UmApp.saveRole()">
+                    <i class="bi bi-check-lg me-1"></i>Save Role
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════ CREATE PERMISSION MODAL ═══════ -->
+<div class="modal fade um-modal" id="permModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-key me-2"></i>New Permission</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editPermId" value="" />
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label required">Permission Code</label>
+                        <input type="text" class="form-control" id="fPermCode" placeholder="e.g. USER_CREATE" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label required">Permission Name</label>
+                        <input type="text" class="form-control" id="fPermName" placeholder="e.g. Create Users" required />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Module</label>
+                        <input type="text" class="form-control" id="fPermModule" placeholder="e.g. User Management" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="UmApp.savePermission()">
+                    <i class="bi bi-check-lg me-1"></i>Save Permission
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════ USER DETAIL / VIEW MODAL ═══════ -->
+<!-- Removed: View modal replaced by dedicated Detail page at /Maintenance/UserManagement/Detail/{id} -->
+
+@section Scripts {
+    <script src="/js/user-management.js"></script>
+}

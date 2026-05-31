@@ -1,0 +1,208 @@
+/* ===== MinePress — Item Picker Modal Styles ===== */
+
+/* ══════ Modal Container ══════ */
+.ip-modal-content {
+    border: 0;
+    border-radius: var(--tblr-border-radius-lg);
+    overflow: hidden;
+    box-shadow: 0 24px 80px rgba(0,0,0,.25);
+    display: flex;
+    flex-direction: column;
+    max-height: 88vh;
+}
+
+/* ══════ Header ══════ */
+.ip-header {
+    background: linear-gradient(135deg, #206bc4, #4299e1);
+    color: #fff;
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+}
+.ip-header-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--tblr-border-radius);
+    background: rgba(255,255,255,.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+}
+.ip-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #fff;
+}
+.ip-subtitle {
+    font-size: .8rem;
+    color: rgba(255,255,255,.7);
+}
+
+/* ══════ Toolbar ══════ */
+.ip-toolbar {
+    padding: .75rem 1.25rem;
+    border-bottom: 1px solid var(--tblr-border-color);
+    background: var(--tblr-bg-surface);
+    flex-shrink: 0;
+}
+.ip-filter-wrap,
+.ip-search-wrap {
+    position: relative;
+}
+.ip-filter-icon,
+.ip-search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--tblr-secondary-color);
+    font-size: .85rem;
+    z-index: 2;
+    pointer-events: none;
+}
+.ip-filter-wrap .form-select {
+    padding-left: 2rem;
+}
+.ip-search-wrap .form-control {
+    padding-left: 2.2rem;
+    padding-right: 4rem;
+}
+.ip-spinner {
+    position: absolute;
+    right: 56px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--tblr-primary);
+}
+.ip-kbd {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: .65rem;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background: var(--tblr-bg-surface-secondary, #f1f5f9);
+    border: 1px solid var(--tblr-border-color);
+    color: var(--tblr-secondary-color);
+}
+
+/* ══════ Table ══════ */
+.ip-table-wrap {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    min-height: 200px;
+}
+.ip-table {
+    font-size: .85rem;
+}
+.ip-table thead th {
+    font-weight: 600;
+    font-size: .75rem;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+    color: var(--tblr-secondary-color);
+    background: var(--tblr-bg-surface);
+    border-bottom: 2px solid var(--tblr-border-color);
+    white-space: nowrap;
+}
+.ip-sortable {
+    cursor: pointer;
+    user-select: none;
+    transition: color .15s;
+}
+.ip-sortable:hover {
+    color: var(--tblr-primary) !important;
+}
+.ip-sort-icon {
+    font-size: .7rem;
+    margin-left: 2px;
+    opacity: .4;
+    transition: opacity .15s;
+}
+.ip-sortable:hover .ip-sort-icon {
+    opacity: 1;
+}
+.ip-sort-icon.text-primary {
+    opacity: 1;
+}
+.ip-item-row {
+    transition: background .1s;
+}
+.ip-item-row:hover {
+    background: var(--tblr-primary-bg-subtle) !important;
+}
+.ip-item-row.ip-row-added {
+    animation: ipFlash .6s ease;
+}
+@keyframes ipFlash {
+    0%   { background: var(--tblr-success-bg-subtle); }
+    100% { background: transparent; }
+}
+
+/* Add button */
+.ip-add-btn {
+    font-size: .78rem;
+    padding: 3px 10px;
+    border-radius: var(--tblr-border-radius);
+    transition: all .15s;
+}
+.ip-add-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(32,107,196,.3);
+}
+
+/* ══════ Empty State ══════ */
+.ip-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .5rem;
+    padding: 2rem 0;
+}
+.ip-empty-state > i {
+    font-size: 2.5rem;
+    opacity: .2;
+}
+.ip-empty-state > div {
+    font-weight: 500;
+    color: var(--tblr-secondary-color);
+}
+
+/* ══════ Footer / Paging ══════ */
+.ip-footer {
+    padding: .65rem 1.25rem;
+    border-top: 1px solid var(--tblr-border-color);
+    background: var(--tblr-bg-surface);
+    flex-shrink: 0;
+}
+
+/* ══════ Dark Mode ══════ */
+[data-bs-theme="dark"] .ip-modal-content {
+    box-shadow: 0 16px 48px rgba(0,0,0,.4);
+}
+[data-bs-theme="dark"] .ip-add-btn:hover {
+    box-shadow: 0 4px 12px rgba(var(--tblr-primary-rgb),.4);
+}
+[data-bs-theme="dark"] .ip-row:hover {
+    background: rgba(var(--tblr-primary-rgb),.08);
+}
+
+/* ══════ Responsive ══════ */
+@media (max-width: 768px) {
+    .ip-modal-content {
+        max-height: 95vh;
+    }
+    .ip-header {
+        padding: .75rem 1rem;
+    }
+    .ip-toolbar {
+        padding: .5rem .75rem;
+    }
+    .ip-table-wrap {
+        min-height: 150px;
+    }
+}

@@ -1,0 +1,96 @@
+@page
+@model erp.minepress.web.Pages.Hrms.Overtime.IndexModel
+@{
+    ViewData["Title"] = "Overtime — HRMS";
+}
+
+<div class="hrms-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);">
+                <i class="bi bi-clock-history" style="font-size:1.5rem;"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="mb-0">Overtime</h2>
+            <div class="text-white-75">Track and submit overtime hours</div>
+        </div>
+        <div class="col-auto d-flex gap-2">
+            <button class="btn btn-outline-light btn-sm" onclick="Hrms.loadOvertime()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+            </button>
+            <a href="/Hrms/Overtime/Submit" class="btn btn-light">
+                <i class="bi bi-plus-lg me-1"></i>Submit OT
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row g-3 mb-3">
+    <div class="col-6 col-md-3">
+        <div class="card hrms-stat-card">
+            <div class="card-body text-center">
+                <div class="fw-bold fs-2 text-primary" id="otTotalEntries">—</div>
+                <div class="text-secondary small">Total Entries</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card hrms-stat-card">
+            <div class="card-body text-center">
+                <div class="fw-bold fs-2 text-info" id="otTotalHours">—</div>
+                <div class="text-secondary small">Total Hours</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card hrms-stat-card">
+            <div class="card-body text-center">
+                <div class="fw-bold fs-2 text-success" id="otTotalAmount">—</div>
+                <div class="text-secondary small">Total Amount</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card hrms-stat-card">
+            <div class="card-body text-center">
+                <div class="fw-bold fs-2 text-warning" id="otPendingCount">—</div>
+                <div class="text-secondary small">Pending Approval</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table">
+            <thead>
+                <tr>
+                    <th>OT No</th>
+                    <th>Date</th>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Hours</th>
+                    <th>Rate/Hr</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="overtimeTableBody">
+                <tr>
+                    <td colspan="8" class="text-center text-secondary py-4">
+                        <div class="spinner-border spinner-border-sm me-2" role="status"></div>Loading...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="/js/hrms.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => Hrms.loadOvertime());
+    </script>
+}

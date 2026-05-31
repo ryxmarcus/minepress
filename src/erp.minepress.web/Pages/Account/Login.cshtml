@@ -1,0 +1,175 @@
+@page
+@model erp.minepress.web.Pages.Account.LoginModel
+@{
+    Layout = "_AuthLayout";
+    ViewData["Title"] = "Sign In";
+}
+
+<div class="row g-0 flex-fill">
+    <!-- ── Left Panel: Login Form ── -->
+    <div class="col-12 col-lg-5 col-xl-4 d-flex flex-column">
+        <!-- Accent bar -->
+        <div class="login-accent-bar"></div>
+
+        <div class="d-flex flex-column justify-content-center flex-fill px-4 px-lg-5 py-5">
+            <!-- Logo + Branding -->
+            <div class="text-center mb-4 login-brand-area">
+                <div class="login-logo-wrap mb-3">
+                    <div class="login-logo-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                             stroke-linejoin="round">
+                            <path d="M6 9v6a5 5 0 0 0 10 0V9" />
+                            <path d="M6 9a5 5 0 0 1 10 0" />
+                            <path d="M4 15h16" />
+                            <path d="M9 9v3" />
+                            <path d="M15 9v3" />
+                        </svg>
+                    </div>
+                </div>
+                <h1 class="login-title">MinePress ERP</h1>
+                <p class="login-subtitle">Sign in to your account</p>
+            </div>
+
+            <!-- Error message -->
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <div>@Model.ErrorMessage</div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <!-- Login Card -->
+            <div class="login-card">
+                <form method="post" asp-route-returnUrl="@Model.ReturnUrl" novalidate>
+                    @if (!string.IsNullOrWhiteSpace(Model.TenantToken))
+                    {
+                        <input type="hidden" name="TenantToken" value="@Model.TenantToken" />
+                    }
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <!-- Username -->
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="Input.Username">
+                            <i class="bi bi-person me-1"></i>Username or Email
+                        </label>
+                        <div class="login-input-wrap">
+                            <input asp-for="Input.Username" class="form-control form-control-lg login-input"
+                                   placeholder="Enter username or email" autocomplete="username" autofocus />
+                            <span asp-validation-for="Input.Username" class="text-danger small mt-1 d-block"></span>
+                        </div>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="Input.Password">
+                            <i class="bi bi-shield-lock me-1"></i>Password
+                            <span class="form-label-description">
+                                <a href="#" tabindex="-1" class="login-forgot-link">Forgot password?</a>
+                            </span>
+                        </label>
+                        <div class="input-group input-group-flat login-input-wrap">
+                            <input asp-for="Input.Password" class="form-control form-control-lg login-input"
+                                   placeholder="Your password" autocomplete="current-password" id="passwordInput" />
+                            <span class="input-group-text login-eye-btn">
+                                <a href="#" class="link-secondary" id="togglePassword" title="Show password" data-bs-toggle="tooltip">
+                                    <i class="bi bi-eye fs-5" id="eyeIcon"></i>
+                                </a>
+                            </span>
+                        </div>
+                        <span asp-validation-for="Input.Password" class="text-danger small mt-1 d-block"></span>
+                    </div>
+
+                    <!-- Remember Me -->
+                    <div class="mb-4">
+                        <label class="form-check login-remember">
+                            <input asp-for="Input.RememberMe" class="form-check-input" />
+                            <span class="form-check-label">Remember me on this device</span>
+                        </label>
+                    </div>
+
+                    <!-- Submit -->
+                    <div class="form-footer">
+                        <button type="submit" class="btn btn-primary btn-lg w-100 login-btn" id="btnLogin">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+                        </button>
+                    </div>
+                </form>
+
+                </div>
+        </div>
+
+        <!-- Copyright -->
+        <div class="text-center text-muted small py-3 px-4 login-copyright">
+            <i class="bi bi-c-circle me-1"></i>@DateTime.Now.Year MinePress ERP. All rights reserved.
+        </div>
+    </div>
+
+    <!-- ── Right Panel: Cover Illustration ── -->
+    <div class="col-12 col-lg-7 col-xl-8 d-none d-lg-flex login-cover">
+        <div class="login-cover-inner">
+            <!-- Animated background shapes -->
+            <div class="login-shape login-shape-1"></div>
+            <div class="login-shape login-shape-2"></div>
+            <div class="login-shape login-shape-3"></div>
+
+            <!-- Content overlay -->
+            <div class="login-cover-content">
+                <div class="login-cover-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path d="M6 9v6a5 5 0 0 0 10 0V9" />
+                        <path d="M6 9a5 5 0 0 1 10 0" />
+                        <path d="M4 15h16" />
+                        <path d="M9 9v3" />
+                        <path d="M15 9v3" />
+                    </svg>
+                </div>
+                <h2 class="login-cover-title">Welcome to MinePress</h2>
+                <p class="login-cover-text">
+                    Your all-in-one printing ERP solution.<br />
+                    Manage jobs, calculate costs, and streamline your workflow.
+                </p>
+                <div class="login-cover-features">
+                    <div class="login-feature">
+                        <div class="login-feature-icon">
+                            <i class="bi bi-calculator"></i>
+                        </div>
+                        <div>
+                            <div class="login-feature-title">Rate Calculator</div>
+                            <div class="login-feature-desc">Instant cost estimation</div>
+                        </div>
+                    </div>
+                    <div class="login-feature">
+                        <div class="login-feature-icon">
+                            <i class="bi bi-printer"></i>
+                        </div>
+                        <div>
+                            <div class="login-feature-title">Job Management</div>
+                            <div class="login-feature-desc">Track every print job</div>
+                        </div>
+                    </div>
+                    <div class="login-feature">
+                        <div class="login-feature-icon">
+                            <i class="bi bi-graph-up-arrow"></i>
+                        </div>
+                        <div>
+                            <div class="login-feature-title">Analytics</div>
+                            <div class="login-feature-desc">Business insights at a glance</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="/js/login.js"></script>
+}

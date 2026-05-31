@@ -1,0 +1,483 @@
+@page "{id:long}"
+@model erp.minepress.web.Pages.Maintenance.UserManagement.DetailModel
+@{
+    ViewData["Title"] = "User Details";
+    ViewData["ContainerClass"] = "container-xl";
+    ViewData["HidePageHeader"] = true;
+}
+
+<!-- ═══ Page Header ═══ -->
+<div class="page-header d-print-none mb-3">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-md bg-indigo-lt text-indigo fw-bold fs-4" id="udAvatar">?</span>
+        </div>
+        <div class="col">
+            <h2 class="page-title mb-0" id="udHeroName">Loading…</h2>
+            <div class="text-secondary mt-1 d-flex align-items-center gap-2 flex-wrap">
+                <span id="udHeroCode">—</span>
+                <span id="udHeroUsername">—</span>
+                <span id="udHeroStatus"></span>
+            </div>
+        </div>
+        <div class="col-auto d-flex gap-2">
+            <a href="/Maintenance/UserManagement/AssignAccess/@Model.Id" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-shield-lock me-1"></i>Assign Access
+            </a>
+            <button class="btn btn-outline-secondary btn-sm" id="udEditToggle" onclick="UdApp.toggleEditMode()">
+                <i class="bi bi-pencil me-1"></i><span id="udEditLabel">Edit</span>
+            </button>
+            <a href="/Maintenance/UserManagement" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i>Back
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ AI Bar ═══ -->
+<div class="ud-ai-bar">
+    <div class="ud-ai-icon"><i class="bi bi-stars"></i></div>
+    <div class="flex-fill">
+        <div class="fw-semibold small">AI User Intelligence</div>
+        <div id="udAiHint" class="text-secondary" style="font-size:.78rem;">Analyzing user profile…</div>
+    </div>
+    <div id="udAiBadges" class="d-flex gap-2 flex-wrap"></div>
+</div>
+
+<!-- ═══ Quick Action Bar ═══ -->
+<div class="ud-action-bar" id="udActionBar">
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+        <button class="btn btn-sm btn-outline-primary" onclick="UdApp.resetPassword()" title="Reset Password">
+            <i class="bi bi-key me-1"></i>Reset Password
+        </button>
+        <button class="btn btn-sm btn-outline-warning" id="udToggleActiveBtn" onclick="UdApp.toggleActive()">
+            <i class="bi bi-pause me-1"></i><span id="udToggleActiveLabel">Deactivate</span>
+        </button>
+        <button class="btn btn-sm btn-outline-info" id="udUnlockBtn" onclick="UdApp.unlockUser()" style="display:none;">
+            <i class="bi bi-unlock me-1"></i>Unlock
+        </button>
+        <div class="ms-auto d-flex align-items-center gap-2">
+            <span class="ud-last-saved text-secondary small" id="udLastSaved"></span>
+            <button class="btn btn-sm btn-primary d-none" id="udSaveBtn" onclick="UdApp.saveUser()">
+                <i class="bi bi-check-lg me-1"></i>Save Changes
+            </button>
+            <button class="btn btn-sm btn-outline-secondary d-none" id="udCancelBtn" onclick="UdApp.cancelEdit()">
+                Cancel
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Tabs ═══ -->
+<ul class="nav nav-tabs ud-tabs mb-0" id="udTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="tab-profile" data-bs-toggle="tab" data-bs-target="#pane-profile" type="button" role="tab">
+            <i class="bi bi-person me-1"></i>Profile
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-security" data-bs-toggle="tab" data-bs-target="#pane-security" type="button" role="tab">
+            <i class="bi bi-shield-lock me-1"></i>Security & Access
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-roles" data-bs-toggle="tab" data-bs-target="#pane-roles" type="button" role="tab">
+            <i class="bi bi-shield me-1"></i>Roles
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-permissions" data-bs-toggle="tab" data-bs-target="#pane-permissions" type="button" role="tab">
+            <i class="bi bi-key me-1"></i>Permissions
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-activity" data-bs-toggle="tab" data-bs-target="#pane-activity" type="button" role="tab">
+            <i class="bi bi-clock-history me-1"></i>Login Activity
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-ai" data-bs-toggle="tab" data-bs-target="#pane-ai" type="button" role="tab">
+            <i class="bi bi-cpu me-1"></i>AI Insights
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content">
+    <!-- ═══════ PROFILE TAB ═══════ -->
+    <div class="tab-pane fade show active" id="pane-profile" role="tabpanel">
+        <div class="card ud-tab-card">
+            <div class="card-body">
+                <div class="ud-section">
+                    <div class="ud-section-header">
+                        <i class="bi bi-person-vcard"></i>
+                        <span>Personal Information</span>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="ud-label">Full Name</label>
+                            <div class="ud-view-val" id="vName">—</div>
+                            <input type="text" class="form-control ud-edit-field d-none" id="eName" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="ud-label">Username (Login)</label>
+                            <div class="ud-view-val" id="vUsername">—</div>
+                            <input type="text" class="form-control ud-edit-field d-none" id="eUsername" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="ud-label">User Code</label>
+                            <div class="ud-view-val" id="vUserCode">—</div>
+                            <input type="text" class="form-control ud-edit-field d-none" id="eUserCode" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="ud-label">Employee Code</label>
+                            <div class="ud-view-val" id="vEmployeeCode">—</div>
+                            <input type="text" class="form-control ud-edit-field d-none" id="eEmployeeCode" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="ud-label">Email</label>
+                            <div class="ud-view-val" id="vEmail">—</div>
+                            <input type="email" class="form-control ud-edit-field d-none" id="eEmail" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="ud-label">Mobile</label>
+                            <div class="ud-view-val" id="vMobile">—</div>
+                            <input type="text" class="form-control ud-edit-field d-none" id="eMobile" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ud-section">
+                    <div class="ud-section-header">
+                        <i class="bi bi-building"></i>
+                        <span>Organization</span>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="ud-label">User Type</label>
+                            <div class="ud-view-val" id="vUserType">—</div>
+                            <select class="form-select ud-edit-field d-none" id="eUserType">
+                                <option value="">Select…</option>
+                                <option value="EMPLOYEE">Employee</option>
+                                <option value="ADMIN">Admin</option>
+                                <option value="CUSTOMER">Customer</option>
+                                <option value="VENDOR">Vendor</option>
+                                <option value="OTHER">Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="ud-label">Department</label>
+                            <div class="ud-view-val" id="vDepartment">—</div>
+                            <select class="form-select ud-edit-field d-none" id="eDepartment">
+                                <option value="">Select…</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="ud-label">Designation</label>
+                            <div class="ud-view-val" id="vDesignation">—</div>
+                            <select class="form-select ud-edit-field d-none" id="eDesignation">
+                                <option value="">Select…</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="ud-label">Location</label>
+                            <div class="ud-view-val" id="vLocation">—</div>
+                            <select class="form-select ud-edit-field d-none" id="eLocation">
+                                <option value="">Select…</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="ud-label">Reporting To</label>
+                            <div class="ud-view-val" id="vReportingTo">—</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="ud-label">User Category</label>
+                            <div class="ud-view-val" id="vUserCategory">—</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ud-section">
+                    <div class="ud-section-header">
+                        <i class="bi bi-calendar-event"></i>
+                        <span>Dates</span>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="ud-label">Joining Date</label>
+                            <div class="ud-view-val" id="vJoiningDate">—</div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="ud-label">Exit Date</label>
+                            <div class="ud-view-val" id="vExitDate">—</div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="ud-label">Last Password Change</label>
+                            <div class="ud-view-val" id="vLastPasswordChange">—</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ SECURITY & ACCESS TAB ═══════ -->
+    <div class="tab-pane fade" id="pane-security" role="tabpanel">
+        <div class="card ud-tab-card">
+            <div class="card-body">
+                <div class="ud-section">
+                    <div class="ud-section-header">
+                        <i class="bi bi-shield-check"></i>
+                        <span>Account Status</span>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="ud-status-card" id="udStatusActive">
+                                <div class="ud-status-icon"><i class="bi bi-check-circle"></i></div>
+                                <div class="ud-status-label">Active</div>
+                                <div class="ud-status-val" id="vIsActive">—</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="ud-status-card" id="udStatusLocked">
+                                <div class="ud-status-icon"><i class="bi bi-lock"></i></div>
+                                <div class="ud-status-label">Locked</div>
+                                <div class="ud-status-val" id="vIsLocked">—</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="ud-status-card">
+                                <div class="ud-status-icon"><i class="bi bi-exclamation-triangle"></i></div>
+                                <div class="ud-status-label">Failed Logins</div>
+                                <div class="ud-status-val" id="vFailedLogins">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ud-section">
+                    <div class="ud-section-header">
+                        <i class="bi bi-toggles"></i>
+                        <span>Access Flags</span>
+                    </div>
+                    <div class="ud-flags-grid">
+                        <div class="ud-flag-item">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input ud-flag-switch" type="checkbox" id="fSystemAdmin" disabled />
+                                <label class="form-check-label" for="fSystemAdmin">
+                                    <i class="bi bi-shield-fill-exclamation me-1 text-danger"></i>System Admin
+                                </label>
+                            </div>
+                            <div class="ud-flag-desc">Full system access with all privileges</div>
+                        </div>
+                        <div class="ud-flag-item">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input ud-flag-switch" type="checkbox" id="fApprovalUser" disabled />
+                                <label class="form-check-label" for="fApprovalUser">
+                                    <i class="bi bi-check2-square me-1 text-success"></i>Approval User
+                                </label>
+                            </div>
+                            <div class="ud-flag-desc">Can approve documents and workflows</div>
+                        </div>
+                        <div class="ud-flag-item">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input ud-flag-switch" type="checkbox" id="fProductionUser" disabled />
+                                <label class="form-check-label" for="fProductionUser">
+                                    <i class="bi bi-gear-wide-connected me-1 text-warning"></i>Production User
+                                </label>
+                            </div>
+                            <div class="ud-flag-desc">Access to press/production modules</div>
+                        </div>
+                        <div class="ud-flag-item">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input ud-flag-switch" type="checkbox" id="fWebAccess" disabled />
+                                <label class="form-check-label" for="fWebAccess">
+                                    <i class="bi bi-globe me-1 text-primary"></i>Web Access
+                                </label>
+                            </div>
+                            <div class="ud-flag-desc">Can log in via web browser</div>
+                        </div>
+                        <div class="ud-flag-item">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input ud-flag-switch" type="checkbox" id="fMobileAccess" disabled />
+                                <label class="form-check-label" for="fMobileAccess">
+                                    <i class="bi bi-phone me-1 text-info"></i>Mobile Access
+                                </label>
+                            </div>
+                            <div class="ud-flag-desc">Can log in via mobile app</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ ROLES TAB ═══════ -->
+    <div class="tab-pane fade" id="pane-roles" role="tabpanel">
+        <div class="card ud-tab-card">
+            <div class="card-body">
+                <div class="ud-section">
+                    <div class="ud-section-header">
+                        <i class="bi bi-shield"></i>
+                        <span>Assigned Roles</span>
+                    </div>
+                    <div class="ud-roles-grid" id="udRolesGrid">
+                        <div class="text-center text-secondary py-4"><i class="bi bi-hourglass-split me-1"></i>Loading roles…</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ PERMISSIONS TAB ═══════ -->
+    <div class="tab-pane fade" id="pane-permissions" role="tabpanel">
+        <div class="card ud-tab-card">
+            <div class="card-body">
+                <div class="ud-section">
+                    <div class="ud-section-header">
+                        <i class="bi bi-key"></i>
+                        <span>Assigned Permissions</span>
+                    </div>
+                    <div id="udPermissionsGrid">
+                        <div class="text-center text-secondary py-4"><i class="bi bi-hourglass-split me-1"></i>Loading permissions…</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ LOGIN ACTIVITY TAB ═══════ -->
+    <div class="tab-pane fade" id="pane-activity" role="tabpanel">
+        <div class="card ud-tab-card">
+            <div class="card-body">
+                <div class="ud-section">
+                    <div class="ud-section-header">
+                        <i class="bi bi-clock-history"></i>
+                        <span>Recent Login Sessions</span>
+                    </div>
+                    <div class="ud-login-summary row g-3 mb-3">
+                        <div class="col-md-3">
+                            <div class="ud-mini-stat">
+                                <div class="ud-mini-stat-val" id="vLastLogin">—</div>
+                                <div class="ud-mini-stat-label">Last Login</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="ud-mini-stat">
+                                <div class="ud-mini-stat-val" id="vTotalLogins">—</div>
+                                <div class="ud-mini-stat-label">Recent Sessions</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="ud-mini-stat">
+                                <div class="ud-mini-stat-val" id="vFailedCount">0</div>
+                                <div class="ud-mini-stat-label">Failed Attempts</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="ud-mini-stat">
+                                <div class="ud-mini-stat-val" id="vAccountAge">—</div>
+                                <div class="ud-mini-stat-label">Account Age</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover ud-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Login Time</th>
+                                    <th>Logout Time</th>
+                                    <th>IP Address</th>
+                                    <th>Channel</th>
+                                    <th>Duration</th>
+                                </tr>
+                            </thead>
+                            <tbody id="udLoginTableBody">
+                                <tr><td colspan="5" class="text-center text-secondary py-4"><i class="bi bi-hourglass-split me-1"></i>Loading…</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ AI INSIGHTS TAB ═══════ -->
+    <div class="tab-pane fade" id="pane-ai" role="tabpanel">
+        <div class="card ud-tab-card">
+            <div class="card-body">
+                <div class="ud-section">
+                    <div class="ud-section-header">
+                        <i class="bi bi-cpu"></i>
+                        <span>AI Health Analysis</span>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <div class="ud-ai-card">
+                                <div class="ud-ai-card-icon"><i class="bi bi-heart-pulse"></i></div>
+                                <div class="ud-ai-card-val" id="vAiScore">—</div>
+                                <div class="ud-ai-card-label">Health Score</div>
+                                <div class="ud-ai-progress">
+                                    <div class="ud-ai-progress-bar" id="vAiScoreBar" style="width:0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="ud-ai-card">
+                                <div class="ud-ai-card-icon"><i class="bi bi-bell"></i></div>
+                                <div class="ud-ai-card-val" id="vAiAlerts">0</div>
+                                <div class="ud-ai-card-label">Active Alerts</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="ud-ai-card">
+                                <div class="ud-ai-card-icon"><i class="bi bi-robot"></i></div>
+                                <div class="ud-ai-card-val" id="vAiAutoConfig">—</div>
+                                <div class="ud-ai-card-label">Auto-Configured</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ud-section">
+                    <div class="ud-section-header">
+                        <i class="bi bi-lightbulb"></i>
+                        <span>AI Recommendations</span>
+                    </div>
+                    <div id="udAiRecommendations" class="ud-ai-recs">
+                        <div class="text-center text-secondary py-4"><i class="bi bi-hourglass-split me-1"></i>Generating recommendations…</div>
+                    </div>
+                </div>
+
+                <div class="ud-section">
+                    <div class="ud-section-header">
+                        <i class="bi bi-graph-up"></i>
+                        <span>AI Review Timeline</span>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="ud-label">Last AI Review</label>
+                            <div class="ud-view-val" id="vAiLastReviewed">—</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center h-100">
+                                <button class="btn btn-sm btn-outline-primary" onclick="UdApp.runAiAnalysis()">
+                                    <i class="bi bi-arrow-clockwise me-1"></i>Re-run AI Analysis
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<input type="hidden" id="udUserId" value="@Model.Id" />
+
+@section Styles {
+    <link href="/css/user-detail.css" rel="stylesheet" />
+}
+
+@section Scripts {
+    <script src="/js/user-detail.js"></script>
+}

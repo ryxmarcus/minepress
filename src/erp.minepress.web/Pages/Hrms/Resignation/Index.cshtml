@@ -1,0 +1,58 @@
+@page
+@model erp.minepress.web.Pages.Hrms.Resignation.IndexModel
+@{
+    ViewData["Title"] = "Resignation — HRMS";
+}
+
+<div class="hrms-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);">
+                <i class="bi bi-box-arrow-right" style="font-size:1.5rem;"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="mb-0">Resignation</h2>
+            <div class="text-white-75">View your resignation requests and status</div>
+        </div>
+        <div class="col-auto d-flex gap-2">
+            <button class="btn btn-outline-light btn-sm" onclick="Hrms.loadResignations()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+            </button>
+            <a href="/Hrms/Resignation/Submit" class="btn btn-light">
+                <i class="bi bi-plus-lg me-1"></i>Submit Resignation
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table">
+            <thead>
+                <tr>
+                    <th>Resignation No</th>
+                    <th>Resignation Date</th>
+                    <th>Reason</th>
+                    <th>Last Working Day</th>
+                    <th>Notice Period (Days)</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="resignationTableBody">
+                <tr>
+                    <td colspan="6" class="text-center text-secondary py-4">
+                        <div class="spinner-border spinner-border-sm me-2" role="status"></div>Loading...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="/js/hrms.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => Hrms.loadResignations());
+    </script>
+}

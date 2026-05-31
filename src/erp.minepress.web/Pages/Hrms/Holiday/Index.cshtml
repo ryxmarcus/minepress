@@ -1,0 +1,94 @@
+@page
+@model erp.minepress.web.Pages.Hrms.Holiday.IndexModel
+@{
+    ViewData["Title"] = "Holidays — HRMS";
+}
+
+<!-- Hero Header -->
+<div class="hrms-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);">
+                <i class="bi bi-calendar-event" style="font-size:1.5rem;"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="mb-0">Holiday Calendar</h2>
+            <div class="text-white-75">Company holidays and optional holidays</div>
+        </div>
+        <div class="col-auto">
+            <select class="form-select form-select-sm bg-transparent text-white border-white-50" id="holidayYear" style="width:auto;">
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <!-- Holiday List -->
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Holiday List</h3>
+                <div class="card-actions">
+                    <span class="badge bg-success-lt" id="holidayCount">0 holidays</span>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table">
+                    <thead>
+                        <tr>
+                            <th>Holiday</th>
+                            <th>Date</th>
+                            <th>Day</th>
+                            <th>Type</th>
+                        </tr>
+                    </thead>
+                    <tbody id="holidayTableBody">
+                        <tr>
+                            <td colspan="4" class="text-center text-secondary py-4">
+                                <div class="spinner-border spinner-border-sm me-2" role="status"></div>Loading...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upcoming Holidays -->
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="bi bi-calendar-heart me-2"></i>Upcoming</h3>
+            </div>
+            <div class="list-group list-group-flush" id="upcomingHolidays">
+                <div class="list-group-item text-center text-secondary py-3">Loading...</div>
+            </div>
+        </div>
+        <div class="card mt-3">
+            <div class="card-body text-center">
+                <div class="fs-1 fw-bold text-primary" id="remainingCount">—</div>
+                <div class="text-secondary">Holidays remaining this year</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="/js/hrms.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const yearSel = document.getElementById('holidayYear');
+            const currentYear = new Date().getFullYear();
+            for (let y = currentYear + 1; y >= currentYear - 2; y--) {
+                const opt = document.createElement('option');
+                opt.value = y; opt.textContent = y;
+                if (y === currentYear) opt.selected = true;
+                yearSel.appendChild(opt);
+            }
+
+            Hrms.loadHolidays();
+            yearSel.addEventListener('change', () => Hrms.loadHolidays(yearSel.value));
+        });
+    </script>
+}

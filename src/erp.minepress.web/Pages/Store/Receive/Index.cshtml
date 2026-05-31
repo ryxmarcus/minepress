@@ -1,0 +1,255 @@
+@page
+@model erp.minepress.web.Pages.Store.Receive.IndexModel
+@{
+    ViewData["Title"] = "Store Receives";
+}
+
+<!-- Hero Header -->
+<div class="store-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);">
+                <i class="bi bi-box-arrow-in-down" style="font-size:1.5rem;"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="mb-0">Store Receives</h2>
+            <div class="text-white-75">Manage material receive notes from purchases, returns, and adjustments.</div>
+        </div>
+        <div class="col-auto d-flex gap-2">
+            <button class="btn btn-outline-light btn-sm" onclick="loadReceiveList()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+            </button>
+            <a href="/Store/Receive/Create" class="btn btn-light">
+                <i class="bi bi-plus-lg me-1"></i>New Receive
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Row -->
+<div class="row g-3 mb-3">
+    <div class="col-6 col-md-3">
+        <div class="card card-sm"><div class="card-body"><div class="d-flex align-items-center">
+            <span class="avatar avatar-sm bg-success-lt me-3"><i class="bi bi-box-arrow-in-down"></i></span>
+            <div><div class="fw-bold fs-3" id="statTotal">0</div><div class="text-secondary small">Total</div></div>
+        </div></div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card card-sm"><div class="card-body"><div class="d-flex align-items-center">
+            <span class="avatar avatar-sm bg-warning-lt me-3"><i class="bi bi-pencil-square"></i></span>
+            <div><div class="fw-bold fs-3" id="statDraft">0</div><div class="text-secondary small">Draft</div></div>
+        </div></div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card card-sm"><div class="card-body"><div class="d-flex align-items-center">
+            <span class="avatar avatar-sm bg-success-lt me-3"><i class="bi bi-check-circle"></i></span>
+            <div><div class="fw-bold fs-3" id="statReceived">0</div><div class="text-secondary small">Received</div></div>
+        </div></div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card card-sm"><div class="card-body"><div class="d-flex align-items-center">
+            <span class="avatar avatar-sm bg-secondary-lt me-3"><i class="bi bi-x-circle"></i></span>
+            <div><div class="fw-bold fs-3" id="statCancelled">0</div><div class="text-secondary small">Cancelled</div></div>
+        </div></div></div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card mb-3">
+    <div class="card-body py-2">
+        <div class="row g-2 align-items-center">
+            <div class="col-md-4">
+                <div class="input-icon">
+                    <span class="input-icon-addon"><i class="bi bi-search"></i></span>
+                    <input type="text" id="txtSearch" class="form-control form-control-sm" placeholder="Search receive no, GRN no, supplier..." />
+                </div>
+            </div>
+            <div class="col-md-2">
+                <select id="ddlStatusFilter" class="form-select form-select-sm">
+                    <option value="">All Statuses</option>
+                    <option value="DRAFT">Draft</option>
+                    <option value="RECEIVED">Received</option>
+                    <option value="PARTIALLY_RECEIVED">Partial</option>
+                    <option value="CANCELLED">Cancelled</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select id="ddlTypeFilter" class="form-select form-select-sm">
+                    <option value="">All Types</option>
+                    <option value="PURCHASE">Purchase</option>
+                    <option value="RETURN">Return</option>
+                    <option value="STOCK_ADJUSTMENT">Stock Adjustment</option>
+                </select>
+            </div>
+            <div class="col-auto ms-auto">
+                <span class="text-muted small" id="filteredCount"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Receive Table -->
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table store-list-table table-hover">
+            <thead>
+                <tr>
+                    <th class="sortable" data-sort="receiveNo" style="cursor:pointer;">Receive No <i class="bi bi-arrow-down-up small text-muted"></i></th>
+                    <th class="sortable" data-sort="receiveDate" style="cursor:pointer;">Date <i class="bi bi-arrow-down-up small text-muted"></i></th>
+                    <th>Type</th>
+                    <th>GRN No</th>
+                    <th>Supplier</th>
+                    <th class="text-center">Items</th>
+                    <th class="text-end">Amount</th>
+                    <th class="sortable" data-sort="status" style="cursor:pointer;">Status <i class="bi bi-arrow-down-up small text-muted"></i></th>
+                    <th>Remarks</th>
+                    <th class="text-center" style="width:100px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="receiveListBody">
+                <tr><td colspan="10" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2"></div>Loading...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Paging Controls -->
+<div class="card mt-2" id="pagingControls" style="display:none;">
+    <div class="card-body py-2">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-muted small">Show</span>
+                <select id="ddlPageSize" class="form-select form-select-sm" style="width:auto;">
+                    <option value="10">10</option>
+                    <option value="25" selected>25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+                <span class="text-muted small">entries</span>
+            </div>
+            <div class="text-muted small" id="pagingInfo"></div>
+            <nav><ul class="pagination pagination-sm mb-0" id="paginationNav"></ul></nav>
+        </div>
+    </div>
+</div>
+
+<div id="emptyState" class="text-center py-5" style="display:none;">
+    <i class="bi bi-box-arrow-in-down" style="font-size:3rem; opacity:.3;"></i>
+    <div class="text-muted mt-2">No store receives found</div>
+    <a href="/Store/Receive/Create" class="btn btn-success mt-3"><i class="bi bi-plus-lg me-1"></i>Create First Receive</a>
+</div>
+
+@section Scripts {
+    <script src="/js/store.js"></script>
+    <script>
+        const API_BASE = '/api/store';
+        let allItems = [];
+        let currentPage = 1, pageSize = 25, sortField = 'receiveNo', sortDir = 'desc';
+
+        $(document).ready(function () {
+            loadReceiveList();
+            $('#txtSearch, #ddlStatusFilter, #ddlTypeFilter').on('input change', function () { currentPage = 1; applyFilters(); });
+            $('#ddlPageSize').on('change', function () { pageSize = parseInt($(this).val()); currentPage = 1; applyFilters(); });
+            $(document).on('click', '.sortable', function () {
+                const field = $(this).data('sort');
+                if (sortField === field) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+                else { sortField = field; sortDir = 'asc'; }
+                $('.sortable i').attr('class', 'bi bi-arrow-down-up small text-muted');
+                $(this).find('i').attr('class', sortDir === 'asc' ? 'bi bi-arrow-up small text-primary' : 'bi bi-arrow-down small text-primary');
+                applyFilters();
+            });
+        });
+
+        function loadReceiveList() {
+            $('#receiveListBody').html('<tr><td colspan="10" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2"></div>Loading...</td></tr>');
+            $.get(`${API_BASE}/receives`, function (data) {
+                allItems = data;
+                updateStats();
+                applyFilters();
+            }).fail(function () {
+                $('#receiveListBody').html('<tr><td colspan="10" class="text-center text-danger py-3"><i class="bi bi-exclamation-circle me-1"></i>Failed to load.</td></tr>');
+            });
+        }
+
+        function updateStats() {
+            $('#statTotal').text(allItems.length);
+            $('#statDraft').text(allItems.filter(e => e.status === 'DRAFT').length);
+            $('#statReceived').text(allItems.filter(e => e.status === 'RECEIVED').length);
+            $('#statCancelled').text(allItems.filter(e => e.status === 'CANCELLED').length);
+        }
+
+        function applyFilters() {
+            const q = ($('#txtSearch').val() || '').toLowerCase();
+            const status = $('#ddlStatusFilter').val();
+            const type = $('#ddlTypeFilter').val();
+            let filtered = allItems.filter(e => {
+                if (q && !(e.receiveNo || '').toLowerCase().includes(q) && !(e.grnNo || '').toLowerCase().includes(q) && !(e.supplierName || '').toLowerCase().includes(q)) return false;
+                if (status && e.status !== status) return false;
+                if (type && e.receiveType !== type) return false;
+                return true;
+            });
+            filtered.sort((a, b) => {
+                let va = a[sortField] ?? '', vb = b[sortField] ?? '';
+                if (typeof va === 'string') va = va.toLowerCase();
+                if (typeof vb === 'string') vb = vb.toLowerCase();
+                return va < vb ? (sortDir === 'asc' ? -1 : 1) : va > vb ? (sortDir === 'asc' ? 1 : -1) : 0;
+            });
+            const total = filtered.length, totalPages = Math.max(1, Math.ceil(total / pageSize));
+            if (currentPage > totalPages) currentPage = totalPages;
+            const start = (currentPage - 1) * pageSize;
+            const paged = filtered.slice(start, start + pageSize);
+            $('#filteredCount').text(filtered.length < allItems.length ? `Showing ${filtered.length} of ${allItems.length}` : '');
+            renderTable(paged);
+            StoreUtils.renderPaging(total, totalPages, currentPage, pageSize, p => { currentPage = p; applyFilters(); });
+        }
+
+        function renderTable(data) {
+            if (!data.length) { $('#receiveListBody').html(''); $('#emptyState').show(); return; }
+            $('#emptyState').hide();
+            let html = '';
+            data.forEach(e => {
+                const isDraft = e.status === 'DRAFT';
+                html += `<tr>
+                    <td><a href="/Store/Receive/Details?id=${e.receiveId}" class="fw-semibold text-primary text-decoration-none">${esc(e.receiveNo)}</a>
+                        <div class="text-muted small">${e.createdOn || ''}</div></td>
+                    <td>${esc(e.receiveDate)}</td>
+                    <td><span class="badge bg-green-lt">${e.receiveType}</span></td>
+                    <td>${esc(e.grnNo || '-')}</td>
+                    <td>${esc(e.supplierName || '-')}</td>
+                    <td class="text-center"><span class="badge bg-primary-lt">${e.itemCount}</span></td>
+                    <td class="text-end">${(e.totalAmount || 0).toLocaleString('en-IN', {minimumFractionDigits:2})}</td>
+                    <td><span class="store-status-badge store-status-${(e.status||'').toLowerCase()}">${e.status}</span></td>
+                    <td class="small text-muted" style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(e.remarks||'')}">${esc(e.remarks||'')}</td>
+                    <td class="text-center">
+                        <div class="dropdown">
+                            <button class="btn btn-ghost-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown"><i class="bi bi-three-dots-vertical"></i></button>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <a class="dropdown-item" href="/Store/Receive/Details?id=${e.receiveId}"><i class="bi bi-eye me-2 text-primary"></i>View</a>
+                                ${isDraft ? `<a class="dropdown-item" href="javascript:void(0)" onclick="updateReceiveStatus(${e.receiveId},'RECEIVED','${esc(e.receiveNo)}')"><i class="bi bi-check-circle me-2 text-success"></i>Mark Received</a>` : ''}
+                                ${isDraft ? `<div class="dropdown-divider"></div><a class="dropdown-item text-danger" href="javascript:void(0)" onclick="deleteReceive(${e.receiveId},'${esc(e.receiveNo)}')"><i class="bi bi-trash me-2"></i>Delete</a>` : ''}
+                            </div>
+                        </div>
+                    </td>
+                </tr>`;
+            });
+            $('#receiveListBody').html(html);
+        }
+
+        async function updateReceiveStatus(id, status, no) {
+            if (!await Swal2.confirmStatus(no, status)) return;
+            try {
+                await $.ajax({ url: `${API_BASE}/receives/updatestatus`, method: 'POST', contentType: 'application/json', data: JSON.stringify({ id, status }) });
+                Swal2.success(`Status updated to ${status}`); loadReceiveList();
+            } catch (err) { Swal2.error(err.responseJSON?.message || 'Failed'); }
+        }
+
+        async function deleteReceive(id, no) {
+            if (!await Swal2.confirmDelete(no)) return;
+            try { await $.ajax({ url: `${API_BASE}/receives/${id}`, method: 'DELETE' }); Swal2.success('Deleted'); loadReceiveList(); }
+            catch (err) { Swal2.error(err.responseJSON?.message || 'Failed'); }
+        }
+
+        function esc(v) { return (v||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;'); }
+    </script>
+}

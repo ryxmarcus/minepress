@@ -1,0 +1,323 @@
+@page
+@model erp.minepress.web.Pages.Enquiry.DetailsModel
+@{
+    ViewData["Title"] = "Enquiry Details";
+    ViewData["HidePageHeader"] = true;
+}
+
+<!-- Loading Spinner (shown while fetching) -->
+<div id="detailsLoader" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status"></div>
+    <div class="text-muted mt-2">Loading enquiry details...</div>
+</div>
+
+<!-- Error State -->
+<div id="detailsError" class="text-center py-5" style="display:none;">
+    <i class="bi bi-exclamation-triangle text-danger" style="font-size:3rem;"></i>
+    <div class="text-muted mt-2" id="errorMessage">Failed to load enquiry.</div>
+    <a href="/Enquiry" class="btn btn-primary mt-3"><i class="bi bi-arrow-left me-1"></i>Back to List</a>
+</div>
+
+<!-- Main Content (hidden until loaded) -->
+<div id="detailsContent" style="display:none;">
+
+    <!-- ═══ Header Bar ═══ -->
+    <div class="enq-detail-hero d-print-none">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <a href="/Enquiry" class="btn btn-ghost-light btn-sm rounded-circle" title="Back to list">
+                    <i class="bi bi-arrow-left fs-5"></i>
+                </a>
+                <div>
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <h2 class="mb-0 text-white" id="hdEnquiryNo"></h2>
+                        <span class="enq-status-badge enq-status-pill" id="hdStatus"></span>
+                        <span class="badge bg-dark bg-opacity-25" id="hdPriority"></span>
+                    </div>
+                    <div class="text-white-50 small mt-1">
+                        <i class="bi bi-calendar3 me-1"></i><span id="hdDate"></span>
+                        <span class="mx-2">·</span>
+                        <i class="bi bi-person me-1"></i><span id="hdCreatedBy"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+                <a class="btn btn-outline-light btn-sm" id="btnPrintEnquiry" href="javascript:void(0)" target="_blank">
+                    <i class="bi bi-printer me-1"></i>Print
+                </a>
+                <div class="dropdown">
+                    <button class="btn btn-light btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="bi bi-gear me-1"></i>Actions
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end">
+                        <a class="dropdown-item" href="javascript:void(0)" id="btnEditEnquiry">
+                            <i class="bi bi-pencil me-2 text-info"></i>Edit Enquiry
+                        </a>
+                        <a class="dropdown-item" href="javascript:void(0)" id="btnConvertQuotation">
+                            <i class="bi bi-arrow-right-circle me-2 text-success"></i>Convert to Quotation
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="javascript:void(0)" id="btnSubmitEnquiry">
+                            <i class="bi bi-send me-2 text-primary"></i>Submit
+                        </a>
+                        <a class="dropdown-item" href="javascript:void(0)" id="btnCancelEnquiry">
+                            <i class="bi bi-x-circle me-2 text-warning"></i>Cancel
+                        </a>
+                        <a class="dropdown-item" href="javascript:void(0)" id="btnCloseEnquiry">
+                            <i class="bi bi-lock me-2 text-secondary"></i>Close
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="javascript:void(0)" id="btnSendNotification">
+                            <i class="bi bi-bell me-2 text-warning"></i>Send Notification
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ Tab Navigation ═══ -->
+    <ul class="nav nav-tabs enq-detail-tabs d-print-none" id="detailTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="tab-overview" data-bs-toggle="tab" data-bs-target="#pane-overview" type="button">
+                <i class="bi bi-info-circle me-1"></i>Overview
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-items" data-bs-toggle="tab" data-bs-target="#pane-items" type="button">
+                <i class="bi bi-list-ul me-1"></i>Items <span class="badge bg-primary ms-1" id="tabItemCount">0</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-costing" data-bs-toggle="tab" data-bs-target="#pane-costing" type="button">
+                <i class="bi bi-calculator me-1"></i>Costing
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-bom" data-bs-toggle="tab" data-bs-target="#pane-bom" type="button">
+                <i class="bi bi-box-seam me-1"></i>BOM
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-timeline" data-bs-toggle="tab" data-bs-target="#pane-timeline" type="button">
+                <i class="bi bi-clock-history me-1"></i>Timeline
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-activities" data-bs-toggle="tab" data-bs-target="#pane-activities" type="button">
+                <i class="bi bi-activity me-1"></i>Customer Activities
+            </button>
+        </li>
+    </ul>
+
+    <!-- ═══ Tab Content ═══ -->
+    <div class="tab-content mt-3" id="detailTabContent">
+
+        <!-- ── Overview Pane ── -->
+        <div class="tab-pane fade show active" id="pane-overview" role="tabpanel">
+            <div class="row g-3">
+                <!-- Customer Card -->
+                <div class="col-lg-4">
+                    <div class="card enq-detail-card h-100">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="bi bi-person-circle me-2 text-primary"></i>Customer</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <span class="avatar avatar-lg rounded-circle enq-detail-avatar" id="custAvatar"></span>
+                                <div>
+                                    <div class="fw-bold fs-4" id="custName"></div>
+                                    <div class="text-muted small" id="custCode"></div>
+                                </div>
+                            </div>
+                            <div class="enq-detail-info-list">
+                                <div class="enq-detail-info-item">
+                                    <i class="bi bi-receipt text-muted"></i>
+                                    <span class="text-muted">GST No</span>
+                                    <strong id="custGst">-</strong>
+                                </div>
+                                <div class="enq-detail-info-item">
+                                    <i class="bi bi-envelope text-muted"></i>
+                                    <span class="text-muted">Email</span>
+                                    <strong id="custEmail">-</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Card -->
+                <div class="col-lg-4">
+                    <div class="card enq-detail-card h-100">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="bi bi-telephone me-2 text-info"></i>Contact Person</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="enq-detail-info-list">
+                                <div class="enq-detail-info-item">
+                                    <i class="bi bi-person text-muted"></i>
+                                    <span class="text-muted">Name</span>
+                                    <strong id="contactName">-</strong>
+                                </div>
+                                <div class="enq-detail-info-item">
+                                    <i class="bi bi-phone text-muted"></i>
+                                    <span class="text-muted">Mobile</span>
+                                    <strong id="contactMobile">-</strong>
+                                </div>
+                                <div class="enq-detail-info-item">
+                                    <i class="bi bi-envelope text-muted"></i>
+                                    <span class="text-muted">Email</span>
+                                    <strong id="contactEmail">-</strong>
+                                </div>
+                                <div class="enq-detail-info-item">
+                                    <i class="bi bi-megaphone text-muted"></i>
+                                    <span class="text-muted">Source</span>
+                                    <strong id="enqSource">-</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Details Card -->
+                <div class="col-lg-4">
+                    <div class="card enq-detail-card h-100">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="bi bi-clipboard-data me-2 text-orange"></i>Enquiry Info</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="enq-detail-info-list">
+                                <div class="enq-detail-info-item">
+                                    <i class="bi bi-calendar-event text-muted"></i>
+                                    <span class="text-muted">Expected Delivery</span>
+                                    <strong id="enqDelivery">Not set</strong>
+                                </div>
+                                <div class="enq-detail-info-item">
+                                    <i class="bi bi-flag text-muted"></i>
+                                    <span class="text-muted">Priority</span>
+                                    <strong id="enqPriority">-</strong>
+                                </div>
+                                <div class="enq-detail-info-item">
+                                    <i class="bi bi-hash text-muted"></i>
+                                    <span class="text-muted">Total Items</span>
+                                    <strong id="enqItemCount">0</strong>
+                                </div>
+                            </div>
+                            <div class="mt-3 p-2 rounded" style="background:var(--tblr-bg-surface-secondary);">
+                                <div class="small text-muted mb-1"><i class="bi bi-chat-left-text me-1"></i>Remarks</div>
+                                <div class="small" id="enqRemarks"><em class="text-muted">No remarks</em></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Summary Cards -->
+            <div class="row g-3 mt-1">
+                <div class="col-md-4">
+                    <div class="card bg-primary-lt border-0">
+                        <div class="card-body py-3 text-center">
+                            <div class="text-primary small fw-semibold text-uppercase">Total Items</div>
+                            <div class="fs-1 fw-bold text-primary" id="sumItemCount">0</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-success-lt border-0">
+                        <div class="card-body py-3 text-center">
+                            <div class="text-success small fw-semibold text-uppercase">Total Quantity</div>
+                            <div class="fs-1 fw-bold text-success" id="sumTotalQty">0</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-azure-lt border-0">
+                        <div class="card-body py-3 text-center">
+                            <div class="text-azure small fw-semibold text-uppercase">Estimated Value</div>
+                            <div class="fs-1 fw-bold text-azure" id="sumEstValue">₹0.00</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Items Pane ── -->
+        <div class="tab-pane fade" id="pane-items" role="tabpanel">
+            <div id="itemsContainer"></div>
+        </div>
+
+        <!-- ── Costing Pane ── -->
+        <div class="tab-pane fade" id="pane-costing" role="tabpanel">
+            <div id="costingContainer">
+                <div class="text-center py-4 text-muted">
+                    <i class="bi bi-calculator" style="font-size:2rem;opacity:.3;"></i>
+                    <div class="mt-2">Costing data will appear here for items with rate calculations.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── BOM Pane ── -->
+        <div class="tab-pane fade" id="pane-bom" role="tabpanel">
+            <div id="bomContainer">
+                <div class="text-center py-4 text-muted">
+                    <i class="bi bi-box-seam" style="font-size:2rem;opacity:.3;"></i>
+                    <div class="mt-2">Bill of Materials will appear here for items with rate calculations.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Timeline Pane ── -->
+        <div class="tab-pane fade" id="pane-timeline" role="tabpanel">
+            <div class="card">
+                <div class="card-body">
+                    <div id="timelineContainer">
+                        <div class="text-center py-4 text-muted">
+                            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                            <div class="mt-2">Loading timeline...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Customer Activities Pane ── -->
+        <div class="tab-pane fade" id="pane-activities" role="tabpanel">
+            <div id="activitiesContainer">
+                <div class="text-center py-4 text-muted">
+                    <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                    <div class="mt-2">Loading customer activities...</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <script src="/js/customer-activity.js"></script>
+    <script src="/js/enquiry-details.js"></script>
+    <script>
+        $(document).ready(function () {
+            const id = @Model.Id;
+            if (id > 0) {
+                EnquiryDetails.load(id);
+            } else {
+                $('#detailsLoader').hide();
+                $('#detailsError').show();
+                $('#errorMessage').text('Invalid enquiry ID.');
+            }
+
+            // Handle tab from query string
+            const params = new URLSearchParams(window.location.search);
+            const tab = params.get('tab');
+            if (tab) {
+                const tabBtn = document.getElementById('tab-' + tab);
+                    if (tabBtn) new minepress.Tab(tabBtn).show();
+            }
+            if (params.get('print') === '1') {
+                setTimeout(() => window.print(), 800);
+            }
+        });
+    </script>
+}

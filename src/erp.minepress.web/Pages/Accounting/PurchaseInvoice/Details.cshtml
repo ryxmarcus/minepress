@@ -1,0 +1,140 @@
+@page
+@model erp.minepress.web.Pages.Accounting.PurchaseInvoice.DetailsModel
+@{
+    ViewData["Title"] = "Purchase Invoice Details";
+}
+
+<!-- Action Bar -->
+<div class="d-flex justify-content-between align-items-center mb-3 d-print-none">
+    <div class="d-flex gap-2">
+        <a href="/Accounting/PurchaseInvoice" class="btn btn-ghost-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>Back to List
+        </a>
+    </div>
+    <div class="d-flex gap-2">
+        <button class="btn btn-outline-primary btn-sm" onclick="window.print()">
+            <i class="bi bi-printer me-1"></i>Print
+        </button>
+    </div>
+</div>
+
+<!-- Invoice Print Preview -->
+<div class="acc-invoice-preview" id="invoicePreview">
+    <div class="text-center text-muted py-5">
+        <div class="spinner-border spinner-border-sm me-2"></div>Loading purchase invoice...
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const ACC_API = '/api/accounting';
+
+        $(document).ready(function () {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            if (id) loadInvoice(id);
+            else $('#invoicePreview').html('<div class="text-center text-danger py-5">No invoice ID specified.</div>');
+        });
+
+        function loadInvoice(id) {
+            $.get(`${ACC_API}/purchase-invoice/${id}`, function (d) {
+                renderInvoice(d);
+            }).fail(function () {
+                $('#invoicePreview').html('<div class="text-center text-danger py-5"><i class="bi bi-exclamation-circle me-2"></i>Failed to load invoice.</div>');
+            });
+        }
+
+        function renderInvoice(d) {
+            let itemsHtml = '';
+            let seq = 0;
+            (d.items || []).forEach(item => {
+                seq++;
+                itemsHtml += `<tr>
+                    <td class="text-center">${seq}</td>
+                    <td>${esc(item.description)}<br/><small class="text-muted">${esc(item.hsnSacCode || '')}</small></td>
+                    <td class="text-end">${fmtNum(item.quantity)}</td>
+                    <td class="text-end">${fmtCurrency(item.unitRate)}</td>
+                    <td class="text-end">${fmtCurrency(item.taxableValue)}</td>
+                    <td class="text-center small">${item.cgstPercent > 0 ? fmtNum(item.cgstPercent) + '%' : '-'}</td>
+                    <td class="text-center small">${item.sgstPercent > 0 ? fmtNum(item.sgstPercent) + '%' : '-'}</td>
+                    <td class="text-center small">${item.igstPercent > 0 ? fmtNum(item.igstPercent) + '%' : '-'}</td>
+                    <td class="text-end">${fmtCurrency(item.totalTaxAmount)}</td>
+                    <td class="text-end fw-semibold">${fmtCurrency(item.lineTotal)}</td>
+                </tr>`;
+            });
+
+            const statusCls = { 'DRAFT': 'acc-status-draft', 'POSTED': 'acc-status-posted', 'PAID': 'acc-status-paid', 'PARTIALLY_PAID': 'acc-status-partial', 'CANCELLED': 'acc-status-cancelled' }[d.status] || 'bg-secondary-lt';
+
+            const html = `
+            <div class="acc-invoice-header">
+                <div class="row">
+                    <div class="col-6">
+                        <h3 class="mb-1">${esc(d.companyName)}</h3>
+                    </div>
+                    <div class="col-6 text-end">
+                        <h2 class="text-primary mb-1">PURCHASE INVOICE</h2>
+                        <div class="fw-bold fs-4">${esc(d.invoiceNo)}</div>
+                        <div class="text-muted">${esc(d.invoiceDate)}</div>
+                        <span class="acc-status-badge ${statusCls} mt-1">${d.status?.replace(/_/g, ' ')}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-6">
+                    <div class="text-muted small mb-1">Supplier</div>
+                    <h5 class="mb-1">${esc(d.supplierName)}</h5>
+                    <div class="small"><strong>Code:</strong> ${esc(d.supplierCode || '')}</div>
+                    ${d.supplierGst ? `<div class="small"><strong>GSTIN:</strong> ${esc(d.supplierGst)}</div>` : ''}
+                </div>
+                <div class="col-6 text-end">
+                    ${d.supplierInvoiceNo ? `<div class="small"><strong>Supplier Inv #:</strong> ${esc(d.supplierInvoiceNo)}</div>` : ''}
+                    ${d.dueDate ? `<div class="small"><strong>Due Date:</strong> ${esc(d.dueDate)}</div>` : ''}
+                </div>
+            </div>
+
+            <table class="table table-bordered table-sm mb-4">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-center" style="width:40px;">#</th>
+                        <th>Description</th>
+                        <th class="text-end" style="width:70px;">Qty</th>
+                        <th class="text-end" style="width:90px;">Rate</th>
+                        <th class="text-end" style="width:100px;">Taxable</th>
+                        <th class="text-center" style="width:60px;">CGST</th>
+                        <th class="text-center" style="width:60px;">SGST</th>
+                        <th class="text-center" style="width:60px;">IGST</th>
+                        <th class="text-end" style="width:90px;">Tax</th>
+                        <th class="text-end" style="width:100px;">Total</th>
+                    </tr>
+                </thead>
+                <tbody>${itemsHtml}</tbody>
+            </table>
+
+            <div class="row">
+                <div class="col-6"></div>
+                <div class="col-6">
+                    <table class="table table-borderless table-sm mb-0">
+                        <tr><td class="text-muted">Subtotal</td><td class="text-end">${fmtCurrency(d.subtotalAmount)}</td></tr>
+                        ${d.discountAmount > 0 ? `<tr><td class="text-muted">Discount</td><td class="text-end text-danger">-${fmtCurrency(d.discountAmount)}</td></tr>` : ''}
+                        <tr><td class="text-muted">Taxable</td><td class="text-end">${fmtCurrency(d.taxableAmount)}</td></tr>
+                        ${d.cgstAmount > 0 ? `<tr><td class="text-muted">CGST</td><td class="text-end">${fmtCurrency(d.cgstAmount)}</td></tr>` : ''}
+                        ${d.sgstAmount > 0 ? `<tr><td class="text-muted">SGST</td><td class="text-end">${fmtCurrency(d.sgstAmount)}</td></tr>` : ''}
+                        ${d.igstAmount > 0 ? `<tr><td class="text-muted">IGST</td><td class="text-end">${fmtCurrency(d.igstAmount)}</td></tr>` : ''}
+                        ${d.tdsAmount > 0 ? `<tr><td class="text-muted">TDS</td><td class="text-end text-danger">-${fmtCurrency(d.tdsAmount)}</td></tr>` : ''}
+                        ${d.roundOff !== 0 ? `<tr><td class="text-muted">Round Off</td><td class="text-end">${fmtCurrency(d.roundOff)}</td></tr>` : ''}
+                        <tr class="border-top fw-bold fs-5"><td>Grand Total</td><td class="text-end text-primary">${fmtCurrency(d.grandTotal)}</td></tr>
+                        ${d.paidAmount > 0 ? `<tr><td class="text-muted">Paid</td><td class="text-end text-success">${fmtCurrency(d.paidAmount)}</td></tr>` : ''}
+                        ${d.balanceAmount > 0 ? `<tr class="text-danger fw-semibold"><td>Balance Due</td><td class="text-end">${fmtCurrency(d.balanceAmount)}</td></tr>` : ''}
+                    </table>
+                </div>
+            </div>`;
+
+            $('#invoicePreview').html(html);
+        }
+
+        function fmtCurrency(v) { return v != null ? '₹' + Number(v).toLocaleString('en-IN', { minimumFractionDigits: 2 }) : '₹0.00'; }
+        function fmtNum(v) { return v != null ? Number(v).toLocaleString('en-IN') : '0'; }
+        function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.appendChild(document.createTextNode(s)); return d.innerHTML; }
+    </script>
+}

@@ -1,0 +1,183 @@
+@*
+    Shared Add Item Modal — used by Enquiry, Quotation, Job Create pages.
+    Usage: <partial name="_AddItemModalPartial" />
+    Requires: add-item-modal.js, hsn-sac-selector.js
+    All IDs prefixed "aim" (Add Item Modal).
+    JS: AddItemModal.init({ title, avatarClass, confirmStyle, gstTypeGetter, onPrepare, onConfirm })
+*@
+
+<div class="modal modal-blur fade" id="aimModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content aim-modal-content">
+
+            <!-- ── Header ── -->
+            <div class="modal-header aim-modal-header">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="avatar avatar-sm aim-modal-avatar" id="aimModalAvatar">
+                        <i class="bi bi-plus-circle-fill"></i>
+                    </span>
+                    <div>
+                        <h5 class="modal-title mb-0" id="aimModalTitle">Add Item</h5>
+                        <div class="small text-secondary">Item details, pricing &amp; tax</div>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- ── Body ── -->
+            <div class="modal-body aim-modal-body">
+
+                <!-- § 0 · Rate Calculator Estimate (shown when calc has results) -->
+                <div class="aim-calc-banner mb-3" id="aimCalcBanner" style="display:none;">
+                    <div class="aim-section-label mb-2">
+                        <i class="bi bi-calculator-fill text-orange me-1"></i>Rate Calculator Estimate
+                    </div>
+                    <div class="aim-est-grid">
+                        <div class="aim-est-item">
+                            <div class="aim-est-label">Gross Amount</div>
+                            <div class="aim-est-val" id="aimEstGross">₹0.00</div>
+                        </div>
+                        <div class="aim-est-item">
+                            <div class="aim-est-label">GST / Tax</div>
+                            <div class="aim-est-val" id="aimEstTax">₹0.00</div>
+                        </div>
+                        <div class="aim-est-item">
+                            <div class="aim-est-label">Net Total</div>
+                            <div class="aim-est-val aim-est-highlight" id="aimEstNet">₹0.00</div>
+                        </div>
+                        <div class="aim-est-item">
+                            <div class="aim-est-label">Cost / Unit</div>
+                            <div class="aim-est-val" id="aimEstUnit">₹0.00</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- § 1 · Item Details -->
+                <div class="aim-section mb-3">
+                    <div class="aim-section-label">
+                        <i class="bi bi-box me-1"></i>Item Details
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label class="form-label">
+                                Product Name <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text"><i class="bi bi-tag"></i></span>
+                                <input type="text" id="aimItemName" class="form-control"
+                                       placeholder="e.g. Business Card, Brochure, Banner…"
+                                       autocomplete="off" />
+                                <button type="button" id="aimSuggestBtn"
+                                        class="btn btn-outline-secondary"
+                                        title="Auto-fill name &amp; description from calculator specs">
+                                    <i class="bi bi-stars me-1"></i>Smart
+                                </button>
+                            </div>
+                            <div class="invalid-feedback" id="aimItemNameErr">Product name is required.</div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Quantity</label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text"><i class="bi bi-hash"></i></span>
+                                <input type="number" id="aimItemQty" class="form-control" min="1" value="1" />
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">
+                                Description <span class="text-secondary fw-normal small">(optional)</span>
+                            </label>
+                            <textarea id="aimItemDesc" class="form-control form-control-sm" rows="2"
+                                      placeholder="Specifications, additional notes…"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- § 2 · Pricing & Tax -->
+                <div class="aim-section">
+                    <div class="aim-section-label">
+                        <i class="bi bi-currency-rupee me-1"></i>Pricing &amp; Tax
+                    </div>
+                    <div class="row g-3">
+
+                        <!-- Gross Amount (editable) -->
+                        <div class="col-sm-4">
+                            <label class="form-label">
+                                Gross Amount
+                                <span class="badge bg-azure-lt text-azure ms-1" style="font-size:.58rem;vertical-align:middle;">editable</span>
+                            </label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text fw-bold">₹</span>
+                                <input type="number" id="aimGrossAmount" class="form-control"
+                                       min="0" step="0.01" value="0" />
+                            </div>
+                        </div>
+
+                        <!-- Discount % -->
+                        <div class="col-sm-4">
+                            <label class="form-label">Discount %</label>
+                            <div class="input-group input-group-sm">
+                                <input type="number" id="aimDiscountPct" class="form-control"
+                                       min="0" max="100" step="0.01" value="0" />
+                                <span class="input-group-text"><i class="bi bi-percent"></i></span>
+                            </div>
+                        </div>
+
+                        <!-- Net Total (computed) -->
+                        <div class="col-sm-4">
+                            <label class="form-label">Net Total</label>
+                            <div class="aim-total-card">
+                                <span class="aim-total-label">After Tax</span>
+                                <span class="aim-total-value" id="aimNetTotal">₹0.00</span>
+                            </div>
+                        </div>
+
+                        <!-- HSN / SAC Tax Selector -->
+                        <div class="col-12">
+                            <partial name="_HsnSacTaxPartial" />
+                        </div>
+
+                        <!-- GST Breakdown strip -->
+                        <div class="col-12">
+                            <div class="aim-gst-strip">
+                                <div class="aim-gst-item">
+                                    <i class="bi bi-shield-fill-check text-teal me-1"></i>
+                                    <span class="text-secondary">GST:</span>
+                                    <strong id="aimGstTypeText">Intra-State</strong>
+                                </div>
+                                <div class="aim-gst-item">
+                                    <span class="text-secondary">Taxable:</span>
+                                    <strong id="aimTaxable">₹0.00</strong>
+                                </div>
+                                <div class="aim-gst-item" id="aimCgstWrap">
+                                    <span class="text-secondary">CGST:</span>
+                                    <strong id="aimCgst">₹0.00</strong>
+                                </div>
+                                <div class="aim-gst-item" id="aimSgstWrap">
+                                    <span class="text-secondary">SGST:</span>
+                                    <strong id="aimSgst">₹0.00</strong>
+                                </div>
+                                <div class="aim-gst-item d-none" id="aimIgstWrap">
+                                    <span class="text-secondary">IGST:</span>
+                                    <strong id="aimIgst">₹0.00</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div><!-- /modal-body -->
+
+            <!-- ── Footer ── -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ghost-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x me-1"></i>Cancel
+                </button>
+                <button type="button" id="aimConfirmBtn" class="btn btn-primary">
+                    <i class="bi bi-plus-lg me-1"></i>Add Item
+                </button>
+            </div>
+
+        </div><!-- /modal-content -->
+    </div>
+</div>

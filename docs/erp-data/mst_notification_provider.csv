@@ -1,0 +1,5 @@
+"provider_id","provider_name","channel","provider_type","config_json","is_active","is_default","priority","rate_limit_per_min","rate_limit_per_hour","created_on"
+1,"SMTP_DEFAULT","EMAIL","SMTP","{""host"": ""smtp.gmail.com"", ""port"": 587, ""use_ssl"": true, ""from_name"": ""MinePress ERP"", ""from_email"": ""noreply@minepress.io""}",True,True,1,60,1000,"2026-02-20 12:23:56.013525"
+2,"TWILIO_SMS","SMS","TWILIO","{""auth_token"": """", ""account_sid"": """", ""from_number"": """"}",True,True,1,60,1000,"2026-02-20 12:23:56.013525"
+4,"FIREBASE_PUSH","PUSH","FIREBASE","{""project_id"": """", ""server_key"": """"}",True,True,1,60,1000,"2026-02-20 12:23:56.013525"
+3,"TWILIO_WHATSAPP","WHATSAPP","TWILIO","{""api_url"": ""https://api.twilio.com/2010-04-01"", ""auth_token"": ""your_auth_token"", ""account_sid"": ""ACxxxxxxxxxxxxxxxxxxxxxxxx"", ""from_number"": ""whatsapp:+14155238886""}",True,True,1,60,1000,"2026-02-20 12:23:56.013525"

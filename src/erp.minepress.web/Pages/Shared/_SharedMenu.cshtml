@@ -1,0 +1,142 @@
+@using erp.minepress.web.Services
+@using erp.minepress.web.Helpers
+@inject IMenuService MenuService
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    var currentUser = HttpContextAccessor.HttpContext?.Session.GetObject<UserSessionData>("CurrentUser");
+    var menus = new List<MenuNode>();
+    if (currentUser != null)
+    {
+        menus = await MenuService.GetMenuForDepartmentAsync(currentUser.DepartmentId, currentUser.IsSystemAdmin);
+    }
+}
+<ul class="navbar-nav flex-wrap">
+    @foreach (var parent in menus)
+    {
+        if (parent.Children.Count == 0)
+        {
+            <li class="nav-item">
+                <a class="nav-link" href="@parent.RouteUrl">
+                    <span class="nav-link-icon d-md-none d-lg-inline-block">
+                        @if (!string.IsNullOrEmpty(parent.IconSvg))
+                        {
+                            @Html.Raw(parent.IconSvg)
+                        }
+                        else if (!string.IsNullOrEmpty(parent.Icon))
+                        {
+                            <i class="bi bi-@parent.Icon icon"></i>
+                        }
+                    </span>
+                    <span class="nav-link-title">@parent.MenuName</span>
+                </a>
+            </li>
+        }
+        else
+        {
+            var sections = parent.Children
+                .GroupBy(c => c.SectionName ?? "")
+                .ToList();
+
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle"
+                   href="#navbar-@parent.MenuCode"
+                   data-bs-toggle="dropdown"
+                   data-bs-auto-close="outside"
+                   role="button"
+                   aria-expanded="false">
+                    <span class="nav-link-icon d-md-none d-lg-inline-block">
+                        @if (!string.IsNullOrEmpty(parent.IconSvg))
+                        {
+                            @Html.Raw(parent.IconSvg)
+                        }
+                        else if (!string.IsNullOrEmpty(parent.Icon))
+                        {
+                            <i class="bi bi-@parent.Icon icon"></i>
+                        }
+                    </span>
+                    <span class="nav-link-title">@parent.MenuName</span>
+                </a>
+                <div class="dropdown-menu">
+                    <div class="dropdown-menu-columns">
+                        @if (sections.Count > 1)
+                        {
+                            @* Multiple sections — each section becomes a column *@
+                            foreach (var grp in sections)
+                            {
+                                <div class="dropdown-menu-column">
+                                    @if (!string.IsNullOrEmpty(grp.Key))
+                                    {
+                                        <span class="dropdown-header">@grp.Key</span>
+                                    }
+                                    @foreach (var child in grp)
+                                    {
+                                        <a class="dropdown-item" href="@child.RouteUrl">
+                                            @if (!string.IsNullOrEmpty(child.Icon))
+                                            {
+                                                <i class="bi bi-@child.Icon me-2"></i>
+                                            }
+                                            @child.MenuName
+                                            @if (!string.IsNullOrEmpty(child.BadgeText))
+                                            {
+                                                <span class="badge badge-sm @(child.BadgeClass ?? "bg-primary") text-uppercase ms-auto">@child.BadgeText</span>
+                                            }
+                                        </a>
+                                    }
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            @* Single section — split items evenly into two columns *@
+                            var allChildren = parent.Children;
+                            var half = (int)Math.Ceiling(allChildren.Count / 2.0);
+                            var col1 = allChildren.Take(half).ToList();
+                            var col2 = allChildren.Skip(half).ToList();
+                            var sectionKey = sections.FirstOrDefault()?.Key ?? "";
+
+                            <div class="dropdown-menu-column">
+                                @if (!string.IsNullOrEmpty(sectionKey))
+                                {
+                                    <span class="dropdown-header">@sectionKey</span>
+                                }
+                                @foreach (var child in col1)
+                                {
+                                    <a class="dropdown-item" href="@child.RouteUrl">
+                                        @if (!string.IsNullOrEmpty(child.Icon))
+                                        {
+                                            <i class="bi bi-@child.Icon me-2"></i>
+                                        }
+                                        @child.MenuName
+                                        @if (!string.IsNullOrEmpty(child.BadgeText))
+                                        {
+                                            <span class="badge badge-sm @(child.BadgeClass ?? "bg-primary") text-uppercase ms-auto">@child.BadgeText</span>
+                                        }
+                                    </a>
+                                }
+                            </div>
+                            @if (col2.Count > 0)
+                            {
+                                <div class="dropdown-menu-column">
+                                    @foreach (var child in col2)
+                                    {
+                                        <a class="dropdown-item" href="@child.RouteUrl">
+                                            @if (!string.IsNullOrEmpty(child.Icon))
+                                            {
+                                                <i class="bi bi-@child.Icon me-2"></i>
+                                            }
+                                            @child.MenuName
+                                            @if (!string.IsNullOrEmpty(child.BadgeText))
+                                            {
+                                                <span class="badge badge-sm @(child.BadgeClass ?? "bg-primary") text-uppercase ms-auto">@child.BadgeText</span>
+                                            }
+                                        </a>
+                                    }
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </li>
+        }
+    }
+</ul>

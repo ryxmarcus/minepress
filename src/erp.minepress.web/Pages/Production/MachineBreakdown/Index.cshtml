@@ -1,0 +1,266 @@
+@page
+@model erp.minepress.web.Pages.Production.MachineBreakdown.IndexModel
+@{
+    ViewData["Title"] = "Machine Breakdown Tracker";
+    ViewData["ContainerClass"] = "container-xl";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/production.css" />
+}
+
+<!-- ═══ Hero ═══ -->
+<div class="prod-hero prod-hero-modern prod-hero-breakdown d-print-none">
+    <div class="prod-hero-pattern"></div>
+    <div class="row align-items-center position-relative">
+        <div class="col-auto">
+            <div class="prod-hero-icon-wrap prod-hero-icon-danger">
+                <i class="bi bi-lightning-charge"></i>
+                <span class="prod-hero-icon-pulse prod-hero-icon-pulse-danger"></span>
+            </div>
+        </div>
+        <div class="col">
+            <h2 class="mb-1 fw-bold">Machine Breakdown Tracker</h2>
+            <div class="text-white-75">
+                <i class="bi bi-cpu me-1"></i>Report · Track · Resolve · Fault analysis · Downtime analytics
+            </div>
+        </div>
+        <div class="col-auto d-flex gap-2">
+            <button class="btn btn-outline-light btn-sm" onclick="ProdBreakdown.refresh()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+            </button>
+            <button class="btn btn-light btn-sm" onclick="ProdBreakdown.openCreateModal()">
+                <i class="bi bi-plus-lg me-1"></i>Report Breakdown
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Insight Cards ═══ -->
+<div class="row g-3 mb-3">
+    <div class="col-6 col-lg-3">
+        <div class="card prod-insight-card prod-insight-glow">
+            <div class="card-body py-3">
+                <div class="d-flex align-items-center">
+                    <div class="prod-insight-icon bg-danger-lt"><i class="bi bi-exclamation-triangle text-danger"></i></div>
+                    <div class="ms-3">
+                        <div class="text-muted small text-uppercase fw-semibold" style="letter-spacing:.03em;">Open</div>
+                        <div class="h3 mb-0 prod-stat-counter" id="bdStatOpen">—</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card prod-insight-card prod-insight-glow">
+            <div class="card-body py-3">
+                <div class="d-flex align-items-center">
+                    <div class="prod-insight-icon bg-warning-lt"><i class="bi bi-wrench text-warning"></i></div>
+                    <div class="ms-3">
+                        <div class="text-muted small text-uppercase fw-semibold" style="letter-spacing:.03em;">In Progress</div>
+                        <div class="h3 mb-0 prod-stat-counter" id="bdStatInProgress">—</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card prod-insight-card prod-insight-glow">
+            <div class="card-body py-3">
+                <div class="d-flex align-items-center">
+                    <div class="prod-insight-icon bg-success-lt"><i class="bi bi-check-circle text-success"></i></div>
+                    <div class="ms-3">
+                        <div class="text-muted small text-uppercase fw-semibold" style="letter-spacing:.03em;">Resolved</div>
+                        <div class="h3 mb-0 prod-stat-counter" id="bdStatResolved">—</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card prod-insight-card prod-insight-glow">
+            <div class="card-body py-3">
+                <div class="d-flex align-items-center">
+                    <div class="prod-insight-icon bg-cyan-lt"><i class="bi bi-clock-history text-cyan"></i></div>
+                    <div class="ms-3">
+                        <div class="text-muted small text-uppercase fw-semibold" style="letter-spacing:.03em;">Avg Downtime</div>
+                        <div class="h3 mb-0 prod-stat-counter"><span id="bdStatAvgDowntime">—</span> <small class="text-muted">min</small></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Filter & Table ═══ -->
+<div class="card prod-filter-card mb-3 d-print-none">
+    <div class="card-body py-2">
+        <div class="row g-2 align-items-end">
+            <div class="col-auto">
+                <label class="form-label">Machine</label>
+                <select class="form-select form-select-sm" id="bdFilterMachine" onchange="ProdBreakdown.refresh()">
+                    <option value="">All Machines</option>
+                </select>
+            </div>
+            <div class="col-auto">
+                <label class="form-label">Status</label>
+                <select class="form-select form-select-sm" id="bdFilterStatus" onchange="ProdBreakdown.refresh()">
+                    <option value="">All Statuses</option>
+                    <option value="Open">Open</option>
+                    <option value="Assigned">Assigned</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Resolved">Resolved</option>
+                    <option value="Closed">Closed</option>
+                </select>
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-sm btn-ghost-secondary" onclick="$('#bdFilterMachine,#bdFilterStatus').val('');ProdBreakdown.refresh();">
+                    <i class="bi bi-x-lg me-1"></i>Clear
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table prod-breakdown-table" id="bdTable">
+            <thead>
+                <tr>
+                    <th>Machine</th>
+                    <th>Fault</th>
+                    <th>Category</th>
+                    <th>Severity</th>
+                    <th>Start Time</th>
+                    <th>Downtime</th>
+                    <th>Technician</th>
+                    <th>Status</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="bdTableBody">
+                <tr><td colspan="9" class="prod-empty"><i class="bi bi-tools"></i>Loading breakdowns...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ═══ Create / Edit Modal ═══ -->
+<div class="modal modal-blur fade" id="bdModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bdModalTitle">Report Breakdown</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="bdEditId" value="0" />
+
+                <div class="mb-3 p-2 rounded" style="background:var(--tblr-bg-surface-secondary);">
+                    <div class="fw-semibold small text-muted mb-2"><i class="bi bi-gear me-1"></i>Machine &amp; Fault Info</div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label required">Machine</label>
+                            <select class="form-select" id="bdMachineId"></select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Fault Code</label>
+                            <input type="text" class="form-control" id="bdFaultCode" placeholder="e.g. MECH-001" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Fault Category</label>
+                            <select class="form-select" id="bdFaultCategory">
+                                <option value="">-- Select --</option>
+                                <option value="Mechanical">Mechanical</option>
+                                <option value="Electrical">Electrical</option>
+                                <option value="Software">Software</option>
+                                <option value="Operator Error">Operator Error</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Severity Level</label>
+                            <select class="form-select" id="bdSeverityLevel">
+                                <option value="">-- Select --</option>
+                                <option value="Low">Low</option>
+                                <option value="Medium">Medium</option>
+                                <option value="High">High</option>
+                                <option value="Critical">Critical</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Fault Description</label>
+                            <textarea class="form-control" id="bdFaultDescription" rows="2"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3 p-2 rounded" style="background:var(--tblr-bg-surface-secondary);">
+                    <div class="fw-semibold small text-muted mb-2"><i class="bi bi-clock me-1"></i>Timeline &amp; Personnel</div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label required">Breakdown Start</label>
+                            <input type="datetime-local" class="form-control" id="bdStartTime" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Breakdown End</label>
+                            <input type="datetime-local" class="form-control" id="bdEndTime" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Reported By</label>
+                            <input type="text" class="form-control" id="bdReportedBy" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Technician Name</label>
+                            <input type="text" class="form-control" id="bdTechnicianName" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-0 p-2 rounded" style="background:var(--tblr-bg-surface-secondary);">
+                    <div class="fw-semibold small text-muted mb-2"><i class="bi bi-tools me-1"></i>Resolution Details</div>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label">Root Cause</label>
+                            <textarea class="form-control" id="bdRootCause" rows="2"></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Corrective Action</label>
+                            <textarea class="form-control" id="bdCorrectiveAction" rows="2"></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Preventive Action</label>
+                            <textarea class="form-control" id="bdPreventiveAction" rows="2"></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Spare Parts Used</label>
+                            <textarea class="form-control" id="bdSparePartsUsed" rows="2"></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Repair Cost (₹)</label>
+                            <input type="number" class="form-control" id="bdRepairCost" step="0.01" min="0" />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Remarks</label>
+                            <textarea class="form-control" id="bdRemarks" rows="2"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-primary" onclick="ProdBreakdown.save()">
+                    <i class="bi bi-check-lg me-1"></i>Save
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/production-breakdown.js"></script>
+    <script>
+        $(function () {
+            ProdBreakdown.init();
+        });
+    </script>
+}

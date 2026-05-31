@@ -1,0 +1,211 @@
+/* ═══════════════════════════════════════════════
+   MinePress ERP — HRMS Module Styles
+   ═══════════════════════════════════════════════ */
+
+/* ── Hero Header ── */
+.hrms-hero {
+    background: linear-gradient(135deg, #066fd1 0%, #0a4f95 50%, #08386a 100%);
+    color: #fff;
+    margin: -1rem -1rem 1rem -1rem;
+    padding: 1.5rem 1.5rem;
+    border-radius: 0 0 .75rem .75rem;
+}
+
+.hrms-hero h2 {
+    color: #fff;
+    font-weight: 700;
+}
+
+.hrms-hero .text-white-75 {
+    color: rgba(255, 255, 255, .75) !important;
+}
+
+.bg-white-10 {
+    background-color: rgba(255, 255, 255, .1) !important;
+}
+
+.border-white-25 {
+    border-color: rgba(255, 255, 255, .25) !important;
+}
+
+/* ── Stat Cards ── */
+.hrms-stat-card {
+    transition: transform .2s ease, box-shadow .2s ease;
+    cursor: default;
+    border: 1px solid transparent;
+}
+
+.hrms-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .08);
+    border-color: var(--tblr-primary);
+}
+
+/* ── Module Cards (HRMS Landing) ── */
+.hrms-module-card {
+    transition: transform .2s ease, box-shadow .2s ease;
+    text-decoration: none;
+    color: inherit;
+    border: 1px solid var(--tblr-border-color);
+}
+
+.hrms-module-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 .5rem 1.5rem rgba(0, 0, 0, .1);
+    border-color: var(--tblr-primary);
+    color: inherit;
+    text-decoration: none;
+}
+
+.hrms-module-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: .5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+/* ── Status Badges ── */
+.hrms-badge-pending {
+    background: rgba(247, 168, 21, .1);
+    color: #f7a815;
+    border: 1px solid rgba(247, 168, 21, .2);
+    font-weight: 600;
+    font-size: .75rem;
+    padding: .25rem .5rem;
+    border-radius: .25rem;
+}
+
+.hrms-badge-approved {
+    background: rgba(47, 179, 68, .1);
+    color: #2fb344;
+    border: 1px solid rgba(47, 179, 68, .2);
+    font-weight: 600;
+    font-size: .75rem;
+    padding: .25rem .5rem;
+    border-radius: .25rem;
+}
+
+.hrms-badge-rejected {
+    background: rgba(214, 57, 57, .1);
+    color: #d63939;
+    border: 1px solid rgba(214, 57, 57, .2);
+    font-weight: 600;
+    font-size: .75rem;
+    padding: .25rem .5rem;
+    border-radius: .25rem;
+}
+
+.hrms-badge-active {
+    background: rgba(6, 111, 209, .1);
+    color: #066fd1;
+    border: 1px solid rgba(6, 111, 209, .2);
+    font-weight: 600;
+    font-size: .75rem;
+    padding: .25rem .5rem;
+    border-radius: .25rem;
+}
+
+.hrms-badge-closed {
+    background: rgba(134, 142, 150, .1);
+    color: #868e96;
+    border: 1px solid rgba(134, 142, 150, .2);
+    font-weight: 600;
+    font-size: .75rem;
+    padding: .25rem .5rem;
+    border-radius: .25rem;
+}
+
+/* ── Quick Stats Row (Landing) ── */
+.hrms-quick-stat {
+    text-align: center;
+    padding: 1rem;
+}
+
+.hrms-quick-stat .stat-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.hrms-quick-stat .stat-label {
+    font-size: .8rem;
+    color: var(--tblr-secondary);
+}
+
+/* ── Activity List ── */
+.hrms-activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: .75rem;
+    padding: .75rem 0;
+    border-bottom: 1px solid var(--tblr-border-color);
+}
+
+.hrms-activity-item:last-child {
+    border-bottom: none;
+}
+
+.hrms-activity-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: .875rem;
+}
+
+/* ── Leave Balance Compact ── */
+.leave-balance-compact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+}
+
+.leave-balance-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .375rem;
+    padding: .375rem .75rem;
+    border-radius: 2rem;
+    font-size: .8rem;
+    background: var(--tblr-bg-surface);
+    border: 1px solid var(--tblr-border-color);
+}
+
+.leave-balance-chip .chip-count {
+    font-weight: 700;
+    color: var(--tblr-primary);
+}
+
+/* ── Table Enhancements ── */
+.table-vcenter td {
+    vertical-align: middle;
+}
+
+/* ══════ Dark Mode ══════ */
+[data-bs-theme="dark"] .hrms-stat-card:hover {
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.2);
+}
+[data-bs-theme="dark"] .hrms-module-card:hover {
+    box-shadow: 0 .5rem 1.5rem rgba(0,0,0,.2);
+}
+
+/* ── Print ── */
+@media print {
+    .hrms-hero, .d-print-none { display: none !important; }
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .hrms-hero {
+        padding: 1rem;
+    }
+    .hrms-hero h2 {
+        font-size: 1.25rem;
+    }
+}

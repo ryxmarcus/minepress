@@ -1,0 +1,118 @@
+@page
+@model erp.minepress.web.Pages.Hrms.Advance.ApplyModel
+@{
+    ViewData["Title"] = "Request Advance — HRMS";
+}
+
+<div class="hrms-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);">
+                <i class="bi bi-cash-coin" style="font-size:1.5rem;"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="mb-0">Request Salary Advance</h2>
+            <div class="text-white-75">Submit a new salary advance request</div>
+        </div>
+        <div class="col-auto">
+            <a href="/Hrms/Advance" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-arrow-left me-1"></i>Back to Advances
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Advance Application</h3>
+            </div>
+            <div class="card-body">
+                <form id="advanceApplyForm">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label required">Advance Date</label>
+                            <input type="date" class="form-control" id="advanceDate" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label required">Advance Amount (₹)</label>
+                            <input type="number" class="form-control" id="advanceAmount" min="1" step="100" placeholder="e.g. 10000" required />
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label required">Repayment Months</label>
+                            <input type="number" class="form-control" id="advanceRepayMonths" min="1" max="24" placeholder="e.g. 3" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Monthly Deduction</label>
+                            <input type="text" class="form-control" id="advanceMonthlyDeduction" readonly />
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send me-1"></i>Submit Request
+                        </button>
+                        <a href="/Hrms/Advance" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Info Card -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h3 class="card-title"><i class="bi bi-info-circle me-1"></i>Guidelines</h3>
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    <li>Maximum salary advance is limited to 2 months' basic salary.</li>
+                    <li>Repayment will be deducted from your monthly salary.</li>
+                    <li>Only one active advance is allowed at a time.</li>
+                    <li>Approval is subject to manager and HR review.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="/js/hrms.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const amountEl = document.getElementById('advanceAmount');
+            const monthsEl = document.getElementById('advanceRepayMonths');
+            const deductEl = document.getElementById('advanceMonthlyDeduction');
+
+            function calcDeduction() {
+                const amt = parseFloat(amountEl.value) || 0;
+                const months = parseInt(monthsEl.value) || 0;
+                if (amt > 0 && months > 0) {
+                    deductEl.value = '₹ ' + (amt / months).toLocaleString('en-IN', { maximumFractionDigits: 0 });
+                } else {
+                    deductEl.value = '';
+                }
+            }
+
+            amountEl.addEventListener('input', calcDeduction);
+            monthsEl.addEventListener('input', calcDeduction);
+
+            document.getElementById('advanceApplyForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const payload = {
+                    advanceDate: document.getElementById('advanceDate').value,
+                    advanceAmount: parseFloat(amountEl.value),
+                    repaymentMonths: parseInt(monthsEl.value)
+                };
+
+                const res = await Hrms.post('advances/apply', payload);
+                if (res) {
+                    Swal.fire({ icon: 'success', title: 'Advance Requested', text: res.message, timer: 2000 });
+                    setTimeout(() => window.location.href = '/Hrms/Advance', 2000);
+                }
+            });
+        });
+    </script>
+}

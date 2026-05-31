@@ -1,0 +1,97 @@
+@page
+@model erp.minepress.web.Pages.Hrms.Loan.IndexModel
+@{
+    ViewData["Title"] = "Loans — HRMS";
+}
+
+<div class="hrms-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);">
+                <i class="bi bi-bank" style="font-size:1.5rem;"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="mb-0">Loan Management</h2>
+            <div class="text-white-75">View your loans, EMIs and outstanding balances</div>
+        </div>
+        <div class="col-auto d-flex gap-2">
+            <button class="btn btn-outline-light btn-sm" onclick="Hrms.loadLoans()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+            </button>
+            <a href="/Hrms/Loan/Apply" class="btn btn-light">
+                <i class="bi bi-plus-lg me-1"></i>Apply Loan
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row g-3 mb-3" id="loanSummaryCards">
+    <div class="col-6 col-md-3">
+        <div class="card hrms-stat-card">
+            <div class="card-body text-center">
+                <div class="fw-bold fs-2 text-purple" id="loanActiveCount">—</div>
+                <div class="text-secondary small">Active Loans</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card hrms-stat-card">
+            <div class="card-body text-center">
+                <div class="fw-bold fs-2 text-primary" id="loanTotalAmount">—</div>
+                <div class="text-secondary small">Total Loan</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card hrms-stat-card">
+            <div class="card-body text-center">
+                <div class="fw-bold fs-2 text-warning" id="loanOutstanding">—</div>
+                <div class="text-secondary small">Outstanding</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card hrms-stat-card">
+            <div class="card-body text-center">
+                <div class="fw-bold fs-2 text-info" id="loanMonthlyEmi">—</div>
+                <div class="text-secondary small">Monthly EMI</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table">
+            <thead>
+                <tr>
+                    <th>Loan No</th>
+                    <th>Type</th>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>Interest</th>
+                    <th>Tenure</th>
+                    <th>EMI</th>
+                    <th>Outstanding</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="loanTableBody">
+                <tr>
+                    <td colspan="9" class="text-center text-secondary py-4">
+                        <div class="spinner-border spinner-border-sm me-2" role="status"></div>Loading...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="/js/hrms.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => Hrms.loadLoans());
+    </script>
+}

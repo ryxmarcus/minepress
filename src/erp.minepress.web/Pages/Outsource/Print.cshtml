@@ -1,0 +1,565 @@
+@page
+@model erp.minepress.web.Pages.Outsource.PrintModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Print Outsource Order - MinePress ERP</title>
+    <link href="/dist/css/minepress.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <style>
+        /* ══════ Outsource Print Styles ══════ */
+        body { background: #f4f6fa; }
+
+        .print-page {
+            max-width: 900px;
+            margin: 2rem auto;
+        }
+
+        /* Toolbar (hidden on print) */
+        .print-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: .75rem 1.25rem;
+            background: #fff;
+            border-radius: var(--tblr-border-radius-lg);
+            box-shadow: 0 1px 4px rgba(0,0,0,.06);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Main print card */
+        .print-card {
+            background: #fff;
+            border-radius: var(--tblr-border-radius-lg);
+            box-shadow: 0 2px 16px rgba(0,0,0,.06);
+            overflow: hidden;
+        }
+        .print-card-body { padding: 2.5rem; }
+
+        /* Header band */
+        .print-header {
+            background: linear-gradient(135deg, #6f42c1, #e040fb);
+            color: #fff;
+            padding: 2rem 2.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .print-header::after {
+            content: '';
+            position: absolute;
+            right: -40px;
+            top: -40px;
+            width: 180px;
+            height: 180px;
+            background: rgba(255,255,255,.06);
+            border-radius: 50%;
+        }
+        .print-header .company-name { font-size: 1.5rem; font-weight: 800; letter-spacing: .5px; }
+        .print-header .company-detail { font-size: .82rem; opacity: .85; margin-top: .25rem; }
+
+        /* Outsource number banner */
+        .print-os-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            padding: 1.25rem 0;
+            border-bottom: 2px solid var(--tblr-border-color);
+            margin-bottom: 1.5rem;
+        }
+        .print-os-number { font-size: 1.6rem; font-weight: 800; color: #6f42c1; }
+        .print-os-date { font-size: .9rem; color: var(--tblr-secondary-color); }
+
+        /* Status badge (print-safe) */
+        .print-status {
+            display: inline-block;
+            padding: 4px 16px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: .78rem;
+            letter-spacing: .3px;
+        }
+        .print-status-created          { background: #fff3cd; color: #856404; }
+        .print-status-vendor_assigned   { background: #cff4fc; color: #055160; }
+        .print-status-material_sent     { background: #d0ecf5; color: #0c5460; }
+        .print-status-vendor_ack        { background: #e0f7f5; color: #0c7b5a; }
+        .print-status-process_started   { background: #e0f7fa; color: #0c7b8a; }
+        .print-status-process_done      { background: #e8eaf6; color: #3949ab; }
+        .print-status-quality           { background: #d1e7dd; color: #0f5132; }
+        .print-status-received          { background: #d1e7dd; color: #0f5132; }
+        .print-status-delayed           { background: #fff3e0; color: #e65100; }
+        .print-status-rework            { background: #fff3e0; color: #e65100; }
+        .print-status-payment           { background: #fff9e6; color: #856404; }
+        .print-status-closed            { background: #e2e3e5; color: #41464b; }
+        .print-status-cancelled         { background: #f8d7da; color: #842029; }
+
+        /* Address blocks */
+        .print-addresses { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 1.5rem; }
+        .print-address-block h6 {
+            font-size: .7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--tblr-secondary-color);
+            font-weight: 700;
+            margin-bottom: .5rem;
+            padding-bottom: .35rem;
+            border-bottom: 2px solid var(--tblr-border-color);
+        }
+        .print-address-name { font-weight: 700; font-size: 1rem; margin-bottom: .25rem; }
+        .print-address-line { font-size: .82rem; color: var(--tblr-secondary-color); line-height: 1.6; }
+
+        /* Info grid */
+        .print-info-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: .75rem;
+            margin-bottom: 1.5rem;
+        }
+        .print-info-box {
+            background: #f8f9fc;
+            border-radius: var(--tblr-border-radius);
+            padding: .65rem .75rem;
+            text-align: center;
+        }
+        .print-info-label {
+            font-size: .65rem;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            color: var(--tblr-secondary-color);
+            font-weight: 700;
+        }
+        .print-info-value { font-size: .95rem; font-weight: 700; margin-top: .15rem; }
+
+        /* Items table */
+        .print-items-table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; }
+        .print-items-table thead th {
+            background: #f0f0f8;
+            font-size: .72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            color: var(--tblr-secondary-color);
+            padding: .65rem .75rem;
+            border-bottom: 2px solid var(--tblr-border-color);
+        }
+        .print-items-table tbody td {
+            padding: .75rem;
+            border-bottom: 1px solid #eef0f3;
+            font-size: .85rem;
+            vertical-align: top;
+        }
+        .print-items-table tbody tr:last-child td { border-bottom: 2px solid var(--tblr-border-color); }
+        .print-item-name { font-weight: 700; color: var(--tblr-body-color); }
+        .print-item-process { font-size: .75rem; color: var(--tblr-secondary-color); margin-top: .15rem; }
+
+        /* Totals section */
+        .print-totals {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 1.5rem;
+        }
+        .print-totals-table { width: 320px; }
+        .print-totals-table tr td { padding: .5rem .75rem; font-size: .88rem; }
+        .print-totals-table tr td:first-child { color: var(--tblr-secondary-color); text-align: right; }
+        .print-totals-table tr td:last-child { font-weight: 600; text-align: right; }
+        .print-totals-table .total-row td {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #6f42c1;
+            border-top: 2px solid #6f42c1;
+            padding-top: .75rem;
+        }
+
+        /* Remarks */
+        .print-remarks {
+            background: #f8f5fc;
+            border-radius: var(--tblr-border-radius);
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #6f42c1;
+        }
+        .print-remarks-title {
+            font-size: .7rem;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            color: var(--tblr-secondary-color);
+            font-weight: 700;
+            margin-bottom: .35rem;
+        }
+
+        /* Footer */
+        .print-footer {
+            text-align: center;
+            padding: 1.5rem 0 .5rem;
+            border-top: 1px solid var(--tblr-border-color);
+            color: var(--tblr-secondary-color);
+            font-size: .78rem;
+        }
+
+        /* ── Print media ── */
+        @@media print {
+            body { background: #fff !important; }
+            .print-toolbar { display: none !important; }
+            .print-page { margin: 0; max-width: 100%; }
+            .print-card { box-shadow: none; border-radius: 0; }
+            .print-header {
+                background: linear-gradient(135deg, #6f42c1, #e040fb) !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .print-status, .print-info-box, .print-remarks {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .print-items-table thead th {
+                background: #f0f0f8 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+
+        /* Loading */
+        .print-loader { text-align: center; padding: 4rem 0; }
+    </style>
+</head>
+<body>
+    <!-- Loader -->
+    <div id="printLoader" class="print-loader">
+        <div class="spinner-border text-purple" role="status"></div>
+        <div class="text-muted mt-2">Loading outsource order...</div>
+    </div>
+
+    <!-- Error -->
+    <div id="printError" class="text-center py-5" style="display:none;">
+        <i class="bi bi-exclamation-triangle text-danger" style="font-size:3rem;"></i>
+        <div class="text-muted mt-2" id="printErrorMsg">Failed to load outsource order.</div>
+        <a href="/Outsource" class="btn btn-primary mt-3"><i class="bi bi-arrow-left me-1"></i>Back to List</a>
+    </div>
+
+    <!-- Print Content -->
+    <div id="printContent" class="print-page" style="display:none;">
+
+        <!-- Toolbar -->
+        <div class="print-toolbar d-print-none">
+            <div class="d-flex align-items-center gap-2">
+                <a href="/Outsource" class="btn btn-ghost-secondary btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i>Back to List
+                </a>
+                <a href="javascript:void(0)" id="btnViewDetails" class="btn btn-ghost-primary btn-sm">
+                    <i class="bi bi-eye me-1"></i>View Details
+                </a>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-outline-purple btn-sm" id="btnEmailVendor">
+                    <i class="bi bi-envelope me-1"></i>Email to Vendor
+                </button>
+                <button class="btn btn-purple btn-sm" onclick="window.print()">
+                    <i class="bi bi-printer me-1"></i>Print
+                </button>
+            </div>
+        </div>
+
+        <!-- Print Card -->
+        <div class="print-card">
+            <!-- Header Band -->
+            <div class="print-header">
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                    <div>
+                        <div class="company-name" id="pCompanyName">MinePress ERP</div>
+                        <div class="company-detail" id="pCompanyAddress"></div>
+                        <div class="company-detail" id="pCompanyContact"></div>
+                    </div>
+                    <div class="text-end">
+                        <div class="company-detail" id="pCompanyGst"></div>
+                        <div class="company-detail" id="pCompanyPan"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="print-card-body">
+                <!-- Outsource Number Banner -->
+                <div class="print-os-banner">
+                    <div>
+                        <div class="print-os-number" id="pOutsourceNo"></div>
+                        <div class="print-os-date"><i class="bi bi-calendar3 me-1"></i><span id="pOutsourceDate"></span></div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="print-status" id="pStatus"></span>
+                    </div>
+                </div>
+
+                <!-- Addresses -->
+                <div class="print-addresses">
+                    <div class="print-address-block">
+                        <h6>Vendor</h6>
+                        <div class="print-address-name" id="pVendorName"></div>
+                        <div class="print-address-line" id="pVendorCode"></div>
+                        <div class="print-address-line" id="pVendorGst"></div>
+                        <div class="print-address-line" id="pVendorEmail"></div>
+                        <div class="print-address-line" id="pVendorAddress"></div>
+                    </div>
+                    <div class="print-address-block">
+                        <h6>Job Reference</h6>
+                        <div class="print-address-name" id="pJobNo"></div>
+                        <div class="print-address-line" id="pCustomerName"></div>
+                        <div class="print-address-line" id="pEnquiryNo"></div>
+                        <div class="print-address-line" id="pQuotationNo"></div>
+                    </div>
+                </div>
+
+                <!-- Info Grid -->
+                <div class="print-info-grid">
+                    <div class="print-info-box">
+                        <div class="print-info-label">Process Type</div>
+                        <div class="print-info-value" id="pProcessType">-</div>
+                    </div>
+                    <div class="print-info-box">
+                        <div class="print-info-label">Total Items</div>
+                        <div class="print-info-value" id="pItemCount">0</div>
+                    </div>
+                    <div class="print-info-box">
+                        <div class="print-info-label">Total Quantity</div>
+                        <div class="print-info-value" id="pTotalQty">0</div>
+                    </div>
+                    <div class="print-info-box">
+                        <div class="print-info-label">Expected Delivery</div>
+                        <div class="print-info-value" id="pDelivery">-</div>
+                    </div>
+                </div>
+
+                <!-- Items Table -->
+                <table class="print-items-table">
+                    <thead>
+                        <tr>
+                            <th style="width:40px;">#</th>
+                            <th>Product / Process</th>
+                            <th style="width:80px;" class="text-center">Qty</th>
+                            <th style="width:110px;" class="text-end">Rate</th>
+                            <th style="width:120px;" class="text-end">Amount</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pItemsBody"></tbody>
+                </table>
+
+                <!-- Totals -->
+                <div class="print-totals">
+                    <table class="print-totals-table">
+                        <tr>
+                            <td>Total Quantity</td>
+                            <td id="pSumQty">0</td>
+                        </tr>
+                        <tr class="total-row">
+                            <td>Total Amount</td>
+                            <td id="pSumAmount">₹0.00</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Remarks -->
+                <div class="print-remarks" id="pRemarksSection" style="display:none;">
+                    <div class="print-remarks-title"><i class="bi bi-chat-left-text me-1"></i>Remarks</div>
+                    <div id="pRemarks"></div>
+                </div>
+
+                <!-- Footer -->
+                <div class="print-footer">
+                    <p class="mb-1">This is a system generated outsource order document.</p>
+                    <small>Generated on <span id="pPrintDate"></span> · MinePress ERP</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script>
+        const OS_API = '/api/outsource';
+        let _osData = null;
+
+        $(document).ready(function () {
+            const id = @Model.Id;
+            if (id <= 0) {
+                showError('Invalid outsource ID.');
+                return;
+            }
+            loadOutsource(id);
+        });
+
+        function loadOutsource(id) {
+            $.get(`${OS_API}/detail/${id}`)
+                .done(function (d) {
+                    _osData = d;
+                    renderPrint(d);
+                    loadCompanyInfo();
+                    $('#printLoader').hide();
+                    $('#printContent').show();
+
+                    // Auto print if requested
+                    const params = new URLSearchParams(window.location.search);
+                    if (params.get('auto') === '1') {
+                        setTimeout(() => window.print(), 600);
+                    }
+                })
+                .fail(function (err) {
+                    showError(err.responseJSON?.message || 'Failed to load outsource order.');
+                });
+        }
+
+        function loadCompanyInfo() {
+            $.get(`${OS_API}/company-info`)
+                .done(function (c) {
+                    $('#pCompanyName').text(c.name || 'MinePress ERP');
+                    const addr = [c.addressLine1, c.addressLine2, c.pincode].filter(Boolean).join(', ');
+                    $('#pCompanyAddress').text(addr);
+                    const contact = [c.contactPerson, c.contactNo].filter(Boolean).join(' · ');
+                    if (contact) $('#pCompanyContact').text(contact);
+                    if (c.gstin) $('#pCompanyGst').html(`<strong>GSTIN:</strong> ${esc(c.gstin)}`);
+                    if (c.panNo) $('#pCompanyPan').html(`<strong>PAN:</strong> ${esc(c.panNo)}`);
+                })
+                .fail(function () { /* company info is optional */ });
+        }
+
+        function renderPrint(d) {
+            // Header
+            $('#pOutsourceNo').text(d.outsourceNo);
+            $('#pOutsourceDate').text(d.outsourceDate);
+            $('#btnViewDetails').attr('href', `/Outsource/Details?id=${d.outsourceId}`);
+
+            // Status
+            const statusKey = (d.status || '').toLowerCase().replace(/_/g, '_');
+            const statusMap = {
+                'outsource_created': 'print-status-created',
+                'vendor_assigned': 'print-status-vendor_assigned',
+                'material_sent': 'print-status-material_sent',
+                'vendor_acknowledged': 'print-status-vendor_ack',
+                'process_started': 'print-status-process_started',
+                'process_completed': 'print-status-process_done',
+                'quality_checked': 'print-status-quality',
+                'material_received': 'print-status-received',
+                'return_delayed': 'print-status-delayed',
+                'rework_required': 'print-status-rework',
+                'rework_sent': 'print-status-rework',
+                'rework_completed': 'print-status-quality',
+                'payment_initiated': 'print-status-payment',
+                'payment_completed': 'print-status-payment',
+                'outsource_closed': 'print-status-closed',
+                'outsource_cancelled': 'print-status-cancelled'
+            };
+            $('#pStatus').addClass(statusMap[statusKey] || '').text(fmtStatus(d.status));
+
+            // Vendor
+            $('#pVendorName').text(d.vendorName || '-');
+            if (d.vendorCode) $('#pVendorCode').html(`<i class="bi bi-hash me-1"></i>${esc(d.vendorCode)}`);
+            if (d.vendorGst) $('#pVendorGst').html(`<i class="bi bi-receipt me-1"></i>GST: ${esc(d.vendorGst)}`);
+            if (d.vendorEmail) $('#pVendorEmail').html(`<i class="bi bi-envelope me-1"></i>${esc(d.vendorEmail)}`);
+            if (d.vendorAddress) $('#pVendorAddress').html(`<i class="bi bi-geo-alt me-1"></i>${esc(d.vendorAddress)}`);
+
+            // Job reference
+            $('#pJobNo').text(d.jobNo ? `Job: ${d.jobNo}` : '-');
+            if (d.customerName) $('#pCustomerName').html(`<i class="bi bi-person me-1"></i>Customer: ${esc(d.customerName)}`);
+            if (d.enquiryNo) $('#pEnquiryNo').html(`<i class="bi bi-file-earmark-text me-1"></i>Enquiry: ${esc(d.enquiryNo)}`);
+            if (d.quotationNo) $('#pQuotationNo').html(`<i class="bi bi-file-earmark-richtext me-1"></i>Quotation: ${esc(d.quotationNo)}`);
+
+            // Info grid
+            const items = d.items || [];
+            $('#pProcessType').text(d.processType || '-');
+            $('#pItemCount').text(items.length);
+            $('#pTotalQty').text((d.totalQuantity ?? 0).toLocaleString('en-IN'));
+            $('#pDelivery').text(d.expectedDeliveryDate || '-');
+
+            // Items table
+            let html = '';
+            let sumQty = 0, sumAmt = 0;
+
+            items.forEach((item, idx) => {
+                const qty = item.quantity ?? 0;
+                const rate = item.rate;
+                const amt = item.amount ?? 0;
+                sumQty += qty;
+                sumAmt += amt;
+
+                html += `<tr>
+                    <td class="text-center fw-semibold">${item.itemSequence || idx + 1}</td>
+                    <td>
+                        <div class="print-item-name">${esc(item.productName || '-')}</div>
+                        ${item.processName ? `<div class="print-item-process">${esc(item.processName)}</div>` : ''}
+                    </td>
+                    <td class="text-center">${qty.toLocaleString('en-IN')}</td>
+                    <td class="text-end">${rate != null ? fmt(rate) : '-'}</td>
+                    <td class="text-end fw-semibold">${fmt(amt)}</td>
+                    <td><span style="font-size:.75rem;">${fmtStatus(item.status)}</span></td>
+                </tr>`;
+            });
+
+            if (items.length === 0) {
+                html = '<tr><td colspan="6" class="text-center text-muted py-3">No items in this outsource order.</td></tr>';
+            }
+
+            $('#pItemsBody').html(html);
+
+            // Totals
+            $('#pSumQty').text(sumQty.toLocaleString('en-IN'));
+            $('#pSumAmount').text(fmt(sumAmt));
+
+            // Remarks
+            if (d.remarks) {
+                $('#pRemarks').text(d.remarks);
+                $('#pRemarksSection').show();
+            }
+
+            // Print date
+            $('#pPrintDate').text(new Date().toLocaleString('en-IN', { dateStyle: 'long', timeStyle: 'short' }));
+
+            // Email button
+            $('#btnEmailVendor').off('click').on('click', function () {
+                emailToVendor(d.outsourceId);
+            });
+        }
+
+        async function emailToVendor(outsourceId) {
+            const $btn = $('#btnEmailVendor');
+            const origHtml = $btn.html();
+            $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span>Sending…');
+
+            try {
+                const res = await $.ajax({
+                    url: `${OS_API}/send-email-vendor`,
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ outsourceId })
+                });
+                $btn.html('<i class="bi bi-check-lg me-1"></i>Sent!').addClass('btn-success').removeClass('btn-outline-purple');
+                setTimeout(() => { $btn.html(origHtml).removeClass('btn-success').addClass('btn-outline-purple').prop('disabled', false); }, 3000);
+            } catch (err) {
+                $btn.html(origHtml).prop('disabled', false);
+                alert(err.responseJSON?.message || 'Failed to send email to vendor.');
+            }
+        }
+
+        function fmt(n) {
+            if (n == null || isNaN(n)) return '₹0.00';
+            return '₹' + Number(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function fmtStatus(s) { return s ? s.replace(/_/g, ' ') : 'N/A'; }
+
+        function esc(val) {
+            return (val || '').toString()
+                .replaceAll('&', '&amp;').replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;').replaceAll('"', '&quot;');
+        }
+
+        function showError(msg) {
+            $('#printLoader').hide();
+            $('#printErrorMsg').text(msg);
+            $('#printError').show();
+        }
+    </script>
+</body>
+</html>

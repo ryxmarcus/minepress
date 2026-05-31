@@ -1,0 +1,59 @@
+<Solution>
+  <Folder Name="/docs/" />
+  <Folder Name="/docs/ai-data/" />
+  <Folder Name="/docs/context-files/">
+    <File Path="../../Users/NanuSanu/Downloads/context.db" />
+    <File Path="../../Users/NanuSanu/Downloads/copilot_execution_plan.json" />
+    <File Path="docs/context-files/mine_press_erp_copilot_context.md" />
+  </Folder>
+  <Folder Name="/docs/database-files/">
+    <File Path="docs/database-files/Complete-DB-Schema.sql" />
+    <File Path="docs/database-files/vw_job_costing_master_json.sql" />
+  </Folder>
+  <Folder Name="/docs/erp-data/">
+    <File Path="context.md" />
+    <File Path="docs/erp-data/Complete Workflow for Printing ERP.txt" />
+    <File Path="docs/erp-data/mst_department.csv" />
+    <File Path="docs/erp-data/mst_job_type.csv" />
+    <File Path="docs/erp-data/mst_menu.csv" />
+    <File Path="docs/erp-data/mst_module.csv" />
+    <File Path="docs/erp-data/mst_notification_provider.csv" />
+    <File Path="docs/erp-data/mst_notification_template.csv" />
+    <File Path="docs/erp-data/mst_permission.csv" />
+    <File Path="docs/erp-data/mst_process.csv" />
+    <File Path="docs/erp-data/mst_process_department_map.csv" />
+    <File Path="docs/erp-data/mst_process_notification_config.csv" />
+    <File Path="docs/erp-data/mst_process_role_map.csv" />
+    <File Path="docs/erp-data/mst_role.csv" />
+    <File Path="docs/erp-data/mst_sub_process.csv" />
+    <File Path="docs/erp-data/Pint-only-job-type-workspaces.txt" />
+    <File Path="docs/erp-data/rate-calculator-data.json" />
+    <File Path="docs/erp-data/sql_menu_reset_and_seed.sql" />
+  </Folder>
+  <Folder Name="/docs/erp-script/">
+    <File Path="docs/erp-script/help.txt" />
+    <File Path="docs/erp-script/minepress-db-tenant.sql" />
+    <File Path="docs/erp-script/Trnas-Data-Delete-Script.sql" />
+    <File Path="docs/erp-script/workflow_tables_seed_data.sql" />
+    <File Path="docs/erp-script/workflow_tables_seed_data_simple.sql" />
+  </Folder>
+  <Folder Name="/docs/process-flow-doc/">
+    <File Path="docs/COMPLETE_WORKFLOW_IMPLEMENTATION_GUIDE.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/erp.minepress.agentic.ai/erp.minepress.agentic.ai.csproj" />
+    <Project Path="src/erp.minepress.app/erp.minepress.app.csproj" />
+    <Project Path="src/erp.minepress.application/erp.minepress.application.csproj" />
+    <Project Path="src/erp.minepress.bff.service/erp.minepress.bff.service.csproj" />
+    <Project Path="src/erp.minepress.bff/erp.minepress.bff.csproj" />
+    <Project Path="src/erp.minepress.domain/erp.minepress.domain.csproj" />
+    <Project Path="src/erp.minepress.frameworks/erp.minepress.frameworks.csproj" />
+    <Project Path="src/erp.minepress.infrastructure/erp.minepress.infrastructure.csproj" />
+    <Project Path="src/erp.minepress.notification/erp.minepress.notification.csproj" />
+    <Project Path="src/erp.minepress.persistence/erp.minepress.persistence.csproj" />
+    <Project Path="src/erp.minepress.printingcostingengine/erp.minepress.printingcostingengine.csproj" />
+    <Project Path="src/erp.minepress.tenants/erp.minepress.tenants.csproj" />
+    <Project Path="src/erp.minepress.web/erp.minepress.web.csproj" />
+    <Project Path="src/erp.minepress.webapi/erp.minepress.webapi.csproj" />
+  </Folder>
+</Solution>

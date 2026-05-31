@@ -1,0 +1,217 @@
+@page "/PartyPortal/Profile"
+@model erp.minepress.web.Pages.PartyPortal.ProfileModel
+@{
+    Layout = "_LayoutParty";
+    ViewData["Title"] = "My Profile";
+}
+
+<!-- Page Header -->
+<div class="page-header d-print-none mb-4">
+    <div class="container-xl">
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <a href="/PartyPortal" class="btn btn-outline-secondary btn-sm me-2">
+                    <i class="bi bi-arrow-left me-1"></i>Back
+                </a>
+            </div>
+            <div class="col">
+                <h2 class="page-title mb-0">
+                    <i class="bi bi-person-circle me-2"></i>My Profile
+                </h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-xl">
+    <!-- Loading Spinner -->
+    <div id="profileLoading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status"></div>
+        <div class="text-muted small mt-2">Loading profile...</div>
+    </div>
+
+    <!-- Profile Content (hidden until loaded) -->
+    <div id="profileContent" style="display:none;">
+        <div class="row g-4">
+            <!-- Left Column: Profile Card -->
+            <div class="col-lg-4">
+                <!-- Identity Card -->
+                <div class="card pp-profile-card mb-4">
+                    <div class="pp-profile-banner"></div>
+                    <div class="card-body text-center pt-0">
+                        <div class="pp-profile-avatar mx-auto" id="profileAvatar">
+                            <span id="profileInitial"></span>
+                        </div>
+                        <h3 class="mb-1 mt-2" id="profileName"></h3>
+                        <div class="text-secondary small mb-2" id="profileCode"></div>
+                        <div id="profileRoleBadges" class="mb-3"></div>
+                        <div class="d-flex justify-content-center gap-2 flex-wrap">
+                            <span class="badge bg-green-lt" id="profileStatus"></span>
+                            <span class="badge bg-azure-lt" id="profileSince"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Info Card -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="bi bi-info-circle me-2"></i>Quick Info</h3>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush">
+                            <div class="list-group-item">
+                                <div class="row align-items-center">
+                                    <div class="col-auto"><i class="bi bi-envelope text-blue"></i></div>
+                                    <div class="col">
+                                        <div class="text-secondary small">Email</div>
+                                        <div class="fw-medium" id="infoEmail">—</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="list-group-item">
+                                <div class="row align-items-center">
+                                    <div class="col-auto"><i class="bi bi-phone text-green"></i></div>
+                                    <div class="col">
+                                        <div class="text-secondary small">Mobile</div>
+                                        <div class="fw-medium" id="infoMobile">—</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="list-group-item">
+                                <div class="row align-items-center">
+                                    <div class="col-auto"><i class="bi bi-building text-purple"></i></div>
+                                    <div class="col">
+                                        <div class="text-secondary small">GST No</div>
+                                        <div class="fw-medium" id="infoGst">—</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="list-group-item">
+                                <div class="row align-items-center">
+                                    <div class="col-auto"><i class="bi bi-credit-card text-orange"></i></div>
+                                    <div class="col">
+                                        <div class="text-secondary small">PAN No</div>
+                                        <div class="fw-medium" id="infoPan">—</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Change Password Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="bi bi-shield-lock me-2"></i>Change Password</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Current Password</label>
+                            <input type="password" class="form-control" id="currentPassword" placeholder="Enter current password" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">New Password</label>
+                            <input type="password" class="form-control" id="newPassword" placeholder="Enter new password" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Confirm New Password</label>
+                            <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm new password" />
+                        </div>
+                        <button class="btn btn-primary w-100" onclick="PartyProfile.changePassword()">
+                            <i class="bi bi-check-lg me-1"></i>Update Password
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Editable Details -->
+            <div class="col-lg-8">
+                <!-- Contact & Address (Editable) -->
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3 class="card-title mb-0"><i class="bi bi-pencil-square me-2"></i>Contact & Address</h3>
+                        <div>
+                            <button class="btn btn-ghost-secondary btn-sm me-1" id="btnCancelEdit" style="display:none;" onclick="PartyProfile.cancelEdit()">
+                                <i class="bi bi-x-lg me-1"></i>Cancel
+                            </button>
+                            <button class="btn btn-primary btn-sm" id="btnEditSave" onclick="PartyProfile.toggleEdit()">
+                                <i class="bi bi-pencil me-1"></i>Edit
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" id="editEmail" disabled />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Mobile</label>
+                                <input type="text" class="form-control" id="editMobile" disabled />
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Address Line 1</label>
+                                <input type="text" class="form-control" id="editAddress1" disabled />
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Address Line 2</label>
+                                <input type="text" class="form-control" id="editAddress2" disabled />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">City</label>
+                                <input type="text" class="form-control" id="editCity" disabled readonly />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">PIN Code</label>
+                                <input type="text" class="form-control" id="editPin" disabled />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Addresses -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="bi bi-geo-alt me-2"></i>Registered Addresses</h3>
+                    </div>
+                    <div class="card-body p-0" id="addressesContainer">
+                        <div class="pp-empty-state py-4">
+                            <i class="bi bi-geo"></i>
+                            <p>No addresses found</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contacts -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="bi bi-people me-2"></i>Contact Persons</h3>
+                    </div>
+                    <div class="card-body p-0" id="contactsContainer">
+                        <div class="pp-empty-state py-4">
+                            <i class="bi bi-person-lines-fill"></i>
+                            <p>No contacts found</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bank Details -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="bi bi-bank me-2"></i>Bank Details</h3>
+                    </div>
+                    <div class="card-body p-0" id="banksContainer">
+                        <div class="pp-empty-state py-4">
+                            <i class="bi bi-safe"></i>
+                            <p>No bank details found</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="/js/party-profile.js"></script>
+}

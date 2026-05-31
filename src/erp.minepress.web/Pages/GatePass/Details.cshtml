@@ -1,0 +1,201 @@
+@page
+@model erp.minepress.web.Pages.GatePass.DetailsModel
+@{
+    ViewData["Title"] = "Gate Pass Details";
+}
+
+<!-- Hero -->
+<div class="ch-hero d-print-none" style="background: linear-gradient(135deg, #198754, #20c997);">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);">
+                <i class="bi bi-shield-check" style="font-size:1.5rem;"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="mb-0" id="gpHeroTitle">Loading...</h2>
+            <div class="text-white-75" id="gpHeroSubtitle"></div>
+        </div>
+        <div class="col-auto d-flex gap-2">
+            <span class="badge bg-light text-dark fs-6" id="gpHeroStatus"></span>
+            <div class="dropdown" id="gpActionsWrap">
+                <button class="btn btn-outline-light btn-sm dropdown-toggle" data-bs-toggle="dropdown"><i class="bi bi-lightning me-1"></i>Actions</button>
+                <div class="dropdown-menu dropdown-menu-end" id="gpActionsMenu"></div>
+            </div>
+            <a href="/GatePass" class="btn btn-outline-light btn-sm"><i class="bi bi-arrow-left me-1"></i>Back</a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <!-- Gate Pass Info -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header"><h3 class="card-title mb-0"><i class="bi bi-shield-check me-2 text-success"></i>Gate Pass Info</h3></div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-6"><div class="ch-info-label">Gate Pass No</div><div class="ch-info-value" id="gpNo">—</div></div>
+                    <div class="col-6"><div class="ch-info-label">Date</div><div class="ch-info-value" id="gpDate">—</div></div>
+                    <div class="col-6"><div class="ch-info-label">Type</div><div class="ch-info-value" id="gpType">—</div></div>
+                    <div class="col-6"><div class="ch-info-label">Status</div><div class="ch-info-value" id="gpStatus">—</div></div>
+                    <div class="col-6"><div class="ch-info-label">Total Qty</div><div class="ch-info-value" id="gpTotalQty">—</div></div>
+                    <div class="col-6"><div class="ch-info-label">Purpose</div><div class="ch-info-value" id="gpPurpose">—</div></div>
+                    <div class="col-12"><div class="ch-info-label">Remarks</div><div class="ch-info-value" id="gpRemarks">—</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transport & Reference -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header"><h3 class="card-title mb-0"><i class="bi bi-truck me-2 text-azure"></i>Transport & Reference</h3></div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-6"><div class="ch-info-label">Vehicle No</div><div class="ch-info-value" id="gpVehicle">—</div></div>
+                    <div class="col-6"><div class="ch-info-label">Driver</div><div class="ch-info-value" id="gpDriver">—</div></div>
+                    <div class="col-6"><div class="ch-info-label">Driver Contact</div><div class="ch-info-value" id="gpDriverContact">—</div></div>
+                    <div class="col-6"><div class="ch-info-label">Reference Type</div><div class="ch-info-value" id="gpRefType">—</div></div>
+                    <div class="col-6"><div class="ch-info-label">Reference No</div><div class="ch-info-value" id="gpRefNo">—</div></div>
+                    <div class="col-6"><div class="ch-info-label">Reference Date</div><div class="ch-info-value" id="gpRefDate">—</div></div>
+                    <div class="col-6"><div class="ch-info-label">Company</div><div class="ch-info-value" id="gpCompany">—</div></div>
+                    <div class="col-6"><div class="ch-info-label">Created By</div><div class="ch-info-value" id="gpCreatedBy">—</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Linked Challan -->
+    <div class="col-md-6" id="linkedChallanCard" style="display:none;">
+        <div class="card ch-gatepass-card">
+            <div class="card-header"><h3 class="card-title mb-0"><i class="bi bi-link-45deg me-2 text-primary"></i>Linked Challan</h3></div>
+            <div class="card-body" id="linkedChallanBody"></div>
+        </div>
+    </div>
+
+    <!-- Items -->
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header"><h3 class="card-title mb-0"><i class="bi bi-list-check me-2 text-primary"></i>Items</h3></div>
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table">
+                    <thead>
+                        <tr>
+                            <th style="width:40px;">#</th>
+                            <th>Description</th>
+                            <th class="text-center">Quantity</th>
+                            <th class="text-center">Received</th>
+                            <th class="text-center">Pending</th>
+                            <th>Status</th>
+                            <th>Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody id="gpItemsBody">
+                        <tr><td colspan="7" class="text-center text-muted py-3">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const GP_API = '/api/gatepass';
+        const gpId = @Model.Id;
+        let gpData = null;
+
+        $(document).ready(function () { loadGpDetail(); });
+
+        function loadGpDetail() {
+            $.get(`${GP_API}/detail/${gpId}`, function (data) {
+                gpData = data;
+                document.title = `${data.gatePassNo} — MinePress ERP`;
+                $('#gpHeroTitle').text(data.gatePassNo);
+                $('#gpHeroSubtitle').text(`${data.gatepassType || ''} • ${data.gatePassDate}`);
+                const sc = data.status === 'ISSUED' ? 'bg-info' : data.status === 'APPROVED' ? 'bg-success' : data.status === 'COMPLETED' ? 'bg-green' : data.status === 'CANCELLED' ? 'bg-danger' : 'bg-secondary';
+                $('#gpHeroStatus').attr('class', `badge ${sc} fs-6`).text(data.status);
+
+                // Actions
+                let menuHtml = '';
+                if (data.status === 'ISSUED') {
+                    menuHtml += `<a class="dropdown-item" href="javascript:void(0)" onclick="updateGpStatus('APPROVED')"><i class="bi bi-check-circle me-2 text-success"></i>Approve</a>`;
+                    menuHtml += `<a class="dropdown-item text-danger" href="javascript:void(0)" onclick="updateGpStatus('CANCELLED')"><i class="bi bi-x-circle me-2"></i>Cancel</a>`;
+                } else if (data.status === 'APPROVED') {
+                    menuHtml += `<a class="dropdown-item" href="javascript:void(0)" onclick="updateGpStatus('COMPLETED')"><i class="bi bi-check-all me-2 text-success"></i>Complete</a>`;
+                }
+                if (!menuHtml) menuHtml = `<div class="dropdown-item text-muted small">No actions available</div>`;
+                $('#gpActionsMenu').html(menuHtml);
+
+                // Info
+                $('#gpNo').text(data.gatePassNo);
+                $('#gpDate').text(data.gatePassDate);
+                $('#gpType').html(`<span class="badge ${data.gatepassType === 'OUTWARD' ? 'bg-azure-lt' : 'bg-teal-lt'}">${esc(data.gatepassType || '—')}</span>`);
+                $('#gpStatus').html(`<span class="badge ${sc}">${esc(data.status)}</span>`);
+                $('#gpTotalQty').text(data.totalQuantity != null ? Number(data.totalQuantity).toLocaleString('en-IN') : '—');
+                $('#gpPurpose').text(data.purpose || '—');
+                $('#gpRemarks').text(data.remarks || '—');
+                $('#gpVehicle').text(data.vehicleNo || '—');
+                $('#gpDriver').text(data.driverName || '—');
+                $('#gpDriverContact').text(data.driverContact || '—');
+                $('#gpRefType').text(data.referenceType || '—');
+                $('#gpRefNo').text(data.referenceNo || '—');
+                $('#gpRefDate').text(data.referenceDate || '—');
+                $('#gpCompany').text(data.companyName || '—');
+                $('#gpCreatedBy').text(`${data.createdByName || '—'} • ${data.createdOn || ''}`);
+
+                // Linked Challan
+                if (data.linkedChallan) {
+                    const lc = data.linkedChallan;
+                    $('#linkedChallanBody').html(`
+                        <div class="row g-2">
+                            <div class="col-6"><div class="ch-info-label">Challan No</div><div class="ch-info-value"><a href="/Challan/Details?id=${lc.challanId}" class="text-decoration-none">${esc(lc.challanNo)}</a></div></div>
+                            <div class="col-6"><div class="ch-info-label">Date</div><div class="ch-info-value">${esc(lc.challanDate)}</div></div>
+                            <div class="col-6"><div class="ch-info-label">Customer</div><div class="ch-info-value">${esc(lc.customerName)}</div></div>
+                            <div class="col-6"><div class="ch-info-label">Job</div><div class="ch-info-value"><a href="/Job/Details?id=${lc.jobId}" class="badge bg-purple-lt text-decoration-none">${esc(lc.jobNo)}</a></div></div>
+                            <div class="col-6"><div class="ch-info-label">Status</div><div class="ch-info-value">${esc(lc.status)}</div></div>
+                            <div class="col-6"><div class="ch-info-label">Total Qty</div><div class="ch-info-value">${lc.totalQty != null ? Number(lc.totalQty).toLocaleString('en-IN') : '—'}</div></div>
+                        </div>
+                    `);
+                    $('#linkedChallanCard').show();
+                }
+
+                // Items
+                const items = data.items || [];
+                if (!items.length) {
+                    $('#gpItemsBody').html('<tr><td colspan="7" class="text-center text-muted py-3">No items</td></tr>');
+                    return;
+                }
+                let iHtml = '';
+                items.forEach((item, idx) => {
+                    const isc = item.status === 'PENDING' ? 'bg-warning-lt' : item.status === 'RECEIVED' ? 'bg-success-lt' : 'bg-secondary-lt';
+                    iHtml += `<tr>
+                        <td class="text-muted">${item.itemSequence || idx + 1}</td>
+                        <td class="fw-semibold">${esc(item.description || '')}</td>
+                        <td class="text-center">${item.quantity ?? '—'}</td>
+                        <td class="text-center">${item.receivedQuantity ?? '—'}</td>
+                        <td class="text-center">${item.pendingQuantity ?? '—'}</td>
+                        <td><span class="badge ${isc}">${esc(item.status || '—')}</span></td>
+                        <td class="small text-muted">${esc(item.remarks || '')}</td>
+                    </tr>`;
+                });
+                $('#gpItemsBody').html(iHtml);
+
+            }).fail(function () {
+                Swal2.error('Failed to load gate pass details.');
+            });
+        }
+
+        async function updateGpStatus(status) {
+            const confirmed = await Swal2.confirm('Update Status', `Change gate pass status to <strong>${status}</strong>?`, { icon: 'question', confirmText: 'Yes, Update', confirmClass: 'btn btn-primary' });
+            if (!confirmed) return;
+            try {
+                await $.ajax({ url: `${GP_API}/updatestatus`, method: 'POST', contentType: 'application/json', data: JSON.stringify({ gatePassId: gpId, status }) });
+                Swal2.success(`Status updated to ${status}`);
+                loadGpDetail();
+            } catch (err) { Swal2.error(err.responseJSON?.message || 'Failed to update status'); }
+        }
+
+        function esc(v) { return (v || '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;'); }
+    </script>
+}

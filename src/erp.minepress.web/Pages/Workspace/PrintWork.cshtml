@@ -1,0 +1,663 @@
+@page
+@using System.Linq
+@using System.Text.Json
+@model erp.minepress.web.Pages.Workspace.PrintWorkModel
+@{
+    ViewData["Title"] = "Print Work";
+    ViewData["ContainerClass"] = "container-fluid";
+    ViewData["HidePageHeader"] = true;
+
+    // ── Parse config_data (hyb_job_rate_calculator) ───────────────────────
+    var hasRateJson = !string.IsNullOrWhiteSpace(Model.JobRateConfigJson);
+    System.Text.Json.JsonDocument? rateDoc = null;
+    System.Text.Json.JsonElement root = default;
+    System.Text.Json.JsonElement jobTypeEl = default;
+    var workflowStages = new List<string>();
+    var bindingTypes   = new List<string>();
+    var finishingTypes = new List<string>();
+    var parts          = new List<System.Text.Json.JsonElement>();
+
+    string ReadText(System.Text.Json.JsonElement parent, string prop)
+    {
+        if (parent.ValueKind is System.Text.Json.JsonValueKind.Null or System.Text.Json.JsonValueKind.Undefined)
+            return string.Empty;
+        if (!parent.TryGetProperty(prop, out var item) || item.ValueKind == System.Text.Json.JsonValueKind.Null || item.ValueKind == System.Text.Json.JsonValueKind.Undefined)
+            return string.Empty;
+        return item.ValueKind == System.Text.Json.JsonValueKind.String ? (item.GetString() ?? string.Empty) : item.ToString();
+    }
+
+    List<string> ReadArray(System.Text.Json.JsonElement parent, string prop)
+    {
+        if (parent.ValueKind is System.Text.Json.JsonValueKind.Null or System.Text.Json.JsonValueKind.Undefined)
+            return new List<string>();
+        if (!parent.TryGetProperty(prop, out var arr) || arr.ValueKind != System.Text.Json.JsonValueKind.Array)
+            return new List<string>();
+        return arr.EnumerateArray()
+            .Select(x => x.ValueKind == System.Text.Json.JsonValueKind.String ? x.GetString() ?? string.Empty : x.ToString())
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .ToList();
+    }
+
+    var parsed = false;
+    if (hasRateJson)
+    {
+        try
+        {
+            rateDoc        = System.Text.Json.JsonDocument.Parse(Model.JobRateConfigJson!);
+            root           = rateDoc.RootElement;
+            jobTypeEl      = root.TryGetProperty("jobType", out var _jt) ? _jt : default;
+            workflowStages = jobTypeEl.ValueKind != System.Text.Json.JsonValueKind.Undefined ? ReadArray(jobTypeEl, "workflowStages") : new List<string>();
+            bindingTypes   = root.TryGetProperty("binding",   out var bindingEl)   ? ReadArray(bindingEl,   "bindingTypes")   : new List<string>();
+            finishingTypes = root.TryGetProperty("finishing", out var finishingEl) ? ReadArray(finishingEl, "finishingTypes") : new List<string>();
+            parts          = root.TryGetProperty("productParts", out var partsEl) && partsEl.ValueKind == System.Text.Json.JsonValueKind.Array
+                                 ? partsEl.EnumerateArray().ToList()
+                                 : new List<System.Text.Json.JsonElement>();
+            parsed = true;
+        }
+        catch { parsed = false; }
+    }
+
+    // ── Per-part summary from config_data ─────────────────────────────────
+    var summaryQuantity    = 0;
+    var summarySides       = 1;
+    var summaryColorsTotal = 0;
+
+    var partSummaryRows = new List<(string PartName, int Pages, int Colors, string Paper,
+                                    int NetSheets, int Wastage, int TotalSheets, int Impressions, int Plates)>();
+
+    if (parsed)
+    {
+        var qtyStr = ReadText(root, "quantity");
+        int.TryParse(qtyStr, out summaryQuantity);
+
+        var sidesText = ReadText(root, "sides");
+        summarySides = (sidesText.Contains("Both") || sidesText == "2") ? 2 : 1;
+
+        foreach (var p in parts)
+        {
+            var spec     = p.TryGetProperty("specification", out var specE) ? specE : default;
+            var pagesStr = ReadText(spec, "pages");
+            var colorStr = ReadText(spec, "color");
+            var paper    = ReadText(spec, "paper");
+            var pName    = ReadText(p,    "partName");
+
+            int.TryParse(pagesStr, out int pagesInt);
+            int.TryParse(colorStr, out int colorInt);
+            if (colorInt == 0) colorInt = 1;
+
+            int netSh       = summaryQuantity;
+            int wastage     = (int)Math.Ceiling(netSh * 0.10);
+            int totalSh     = netSh + wastage;
+            int impressions = totalSh * summarySides;
+            int plates      = colorInt;
+
+            summaryColorsTotal += colorInt;
+            partSummaryRows.Add((pName, pagesInt, colorInt, paper, netSh, wastage, totalSh, impressions, plates));
+        }
+
+        if (partSummaryRows.Count == 0 && summaryQuantity > 0)
+        {
+            var printColorsStr = ReadText(root, "printColors");
+            int.TryParse(printColorsStr, out int fallbackColors);
+            if (fallbackColors == 0) fallbackColors = 1;
+            summaryColorsTotal = fallbackColors;
+
+            int netSh   = summaryQuantity;
+            int wastage = (int)Math.Ceiling(netSh * 0.10);
+            int totalSh = netSh + wastage;
+            partSummaryRows.Add(("—", 0, fallbackColors, "—", netSh, wastage, totalSh, totalSh * summarySides, fallbackColors));
+        }
+    }
+
+    var aggNet     = partSummaryRows.Sum(r => r.NetSheets);
+    var aggWastage = partSummaryRows.Sum(r => r.Wastage);
+    var aggTotal   = partSummaryRows.Sum(r => r.TotalSheets);
+    var aggImp     = partSummaryRows.Sum(r => r.Impressions);
+    var aggPlates  = partSummaryRows.Sum(r => r.Plates);
+    var inkMin     = (int)Math.Round(aggTotal * Math.Max(1, summaryColorsTotal) * 1.5);
+    var inkMax     = (int)Math.Round(aggTotal * Math.Max(1, summaryColorsTotal) * 2.0);
+    var inkDisplay = inkMin >= 1000
+                        ? $"~{inkMin / 1000.0:F1}–{inkMax / 1000.0:F1} kg"
+                        : $"~{inkMin}–{inkMax} gm";
+    var hasSummary = partSummaryRows.Count > 0 && summaryQuantity > 0;
+}
+
+<!-- Page Header -->
+<div class="page-header d-print-none mb-3">
+    <div class="container-xl">
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <span class="avatar avatar-md bg-blue-lt text-blue">
+                    <i class="bi bi-printer-fill fs-3"></i>
+                </span>
+            </div>
+            <div class="col">
+                <h2 class="page-title mb-0">Print Work</h2>
+                <div class="text-secondary mt-1">Task #@Model.TaskId • @Model.UserFullName</div>
+            </div>
+            <div class="col-auto d-flex gap-2">
+                <button class="btn btn-outline-secondary btn-sm" id="prwRefreshBtn">
+                    <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+                </button>
+                <a href="/Workspace/MyTasks" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>Back to My Tasks
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 3-Column Layout -->
+<div class="pw-create-layout">
+
+    <!-- ═══════ LEFT SIDEBAR ═══════ -->
+    <aside class="pw-create-sidebar pw-create-sidebar-left">
+
+        <!-- Task Summary -->
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="avatar avatar-xs bg-teal-lt text-teal"><i class="bi bi-clipboard-check"></i></span>
+                    <h3 class="card-title mb-0">Task Summary</h3>
+                </div>
+            </div>
+            <div class="card-body" id="prwTaskSummary">
+                <div class="text-center py-4"><div class="spinner-border spinner-border-sm"></div></div>
+            </div>
+        </div>
+
+        <!-- Part-wise Execution -->
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="avatar avatar-xs bg-azure-lt text-azure"><i class="bi bi-list-check"></i></span>
+                    <h3 class="card-title mb-0">Part-wise Execution</h3>
+                </div>
+            </div>
+            <div class="card-body" id="prwPartsWrap">
+                <div class="text-secondary small">Loading parts...</div>
+            </div>
+        </div>
+
+        <!-- Final Summary -->
+        <div class="card prw-summary-card">
+            <div class="card-header prw-summary-card-header">
+                <div class="d-flex align-items-center justify-content-between w-100">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="avatar avatar-xs prw-summary-avatar"><i class="bi bi-calculator-fill"></i></span>
+                        <h3 class="card-title mb-0">Final Summary</h3>
+                    </div>
+                    <span class="prw-summary-live-dot" title="Live calculation"></span>
+                </div>
+            </div>
+            <div class="card-body p-0" id="prwPrintSummary" data-has-config="@(hasSummary ? "true" : "false")">
+                @if (hasSummary)
+                {
+                    <div class="prw-summary-ai-badge"><i class="bi bi-cpu-fill me-1"></i>Config Estimate</div>
+
+                    @* ── Per-part rows (only when multiple parts) ── *@
+                    @if (partSummaryRows.Count > 1)
+                    {
+                        foreach (var pr in partSummaryRows)
+                        {
+                            <div class="prw-summary-part-block">
+                                <div class="prw-summary-part-title">
+                                    <i class="bi bi-box-seam me-1"></i>@pr.PartName
+                                    @if (pr.Pages > 0)
+                                    {
+                                        <span class="prw-summary-part-badge">@pr.Pages pp</span>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(pr.Paper) && pr.Paper != "—")
+                                    {
+                                        <span class="prw-summary-part-badge prw-summary-paper-badge">@pr.Paper</span>
+                                    }
+                                </div>
+                                <div class="prw-summary-table">
+                                    <div class="prw-summary-row">
+                                        <div class="prw-summary-key"><i class="bi bi-file-earmark-text me-2"></i>Net Sheets</div>
+                                        <div class="prw-summary-val">@pr.NetSheets.ToString("N0")</div>
+                                    </div>
+                                    <div class="prw-summary-row prw-summary-wastage">
+                                        <div class="prw-summary-key"><i class="bi bi-percent me-2"></i>Wastage (10%)</div>
+                                        <div class="prw-summary-val">@pr.Wastage.ToString("N0")</div>
+                                    </div>
+                                    <div class="prw-summary-row prw-summary-total">
+                                        <div class="prw-summary-key"><i class="bi bi-layers-fill me-2"></i>Total Sheets</div>
+                                        <div class="prw-summary-val">@pr.TotalSheets.ToString("N0")</div>
+                                    </div>
+                                    <div class="prw-summary-row">
+                                        <div class="prw-summary-key"><i class="bi bi-printer-fill me-2"></i>Impressions</div>
+                                        <div class="prw-summary-val">@pr.Impressions.ToString("N0")</div>
+                                    </div>
+                                    <div class="prw-summary-row">
+                                        <div class="prw-summary-key"><i class="bi bi-grid-3x3-gap-fill me-2"></i>Plates (@pr.Colors color@(pr.Colors != 1 ? "s" : ""))</div>
+                                        <div class="prw-summary-val">@pr.Plates.ToString("N0")</div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        <div class="prw-summary-sep"><i class="bi bi-sigma me-1"></i>Total Across All Parts</div>
+                    }
+
+                    @* ── Aggregate / single-part totals ── *@
+                    <div class="prw-summary-table @(partSummaryRows.Count > 1 ? "prw-summary-table-agg" : "")">
+                        <div class="prw-summary-row">
+                            <div class="prw-summary-key"><i class="bi bi-file-earmark-text me-2"></i>Net Sheets</div>
+                            <div class="prw-summary-val">@aggNet.ToString("N0")</div>
+                        </div>
+                        <div class="prw-summary-row prw-summary-wastage">
+                            <div class="prw-summary-key"><i class="bi bi-percent me-2"></i>Wastage (10%)</div>
+                            <div class="prw-summary-val">@aggWastage.ToString("N0")</div>
+                        </div>
+                        <div class="prw-summary-row prw-summary-total">
+                            <div class="prw-summary-key"><i class="bi bi-layers-fill me-2"></i>Total Sheets</div>
+                            <div class="prw-summary-val">@aggTotal.ToString("N0")</div>
+                        </div>
+                        <div class="prw-summary-row">
+                            <div class="prw-summary-key"><i class="bi bi-printer-fill me-2"></i>Total Impressions</div>
+                            <div class="prw-summary-val">@aggImp.ToString("N0")</div>
+                        </div>
+                        <div class="prw-summary-row">
+                            <div class="prw-summary-key"><i class="bi bi-grid-3x3-gap-fill me-2"></i>Plates (@summaryColorsTotal color@(summaryColorsTotal != 1 ? "s" : ""))</div>
+                            <div class="prw-summary-val">@aggPlates.ToString("N0")</div>
+                        </div>
+                        <div class="prw-summary-row prw-summary-ink">
+                            <div class="prw-summary-key"><i class="bi bi-droplet-fill me-2"></i>Ink Required</div>
+                            <div class="prw-summary-val">@inkDisplay</div>
+                        </div>
+                    </div>
+                    <div class="prw-summary-note"><i class="bi bi-info-circle me-1"></i>Based on 10% press wastage. Ink is an offset estimate.</div>
+                }
+                else
+                {
+                    <div class="prw-summary-empty"><i class="bi bi-calculator me-2"></i>No job config data available.</div>
+                }
+            </div>
+        </div>
+    </aside>
+
+    <!-- ═══════ CENTER: Printing Input Table ═══════ -->
+    <main class="pw-create-main">
+
+        <!-- Printing Details — Vertical Card Navigator -->
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex align-items-center gap-2 flex-grow-1">
+                    <span class="avatar avatar-sm bg-blue text-white"><i class="bi bi-printer-fill"></i></span>
+                    <div>
+                        <h3 class="card-title mb-0">Printing Details</h3>
+                        <div class="text-secondary" style="font-size:.75rem;">Enter machine, colors, SL range and sheet counts per part</div>
+                    </div>
+                </div>
+                <div class="ms-auto d-flex align-items-center gap-2">
+                    <label class="form-check mb-0 d-flex align-items-center gap-1" title="Select all parts">
+                        <input type="checkbox" id="prwSelectAll" class="form-check-input mt-0">
+                        <span class="form-check-label small">Select All</span>
+                    </label>
+                    <button class="btn btn-sm btn-outline-primary" id="prwAddRowBtn" title="Add custom part">
+                        <i class="bi bi-plus-lg me-1"></i>Add Part
+                    </button>
+                </div>
+            </div>
+
+            <!-- Part navigation strip (hidden until >1 part) -->
+            <div class="prw-nav-strip d-none" id="prwNavStrip">
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <button class="btn btn-sm btn-outline-secondary px-2" id="prwNavFirst" title="First part"><i class="bi bi-chevron-double-left"></i></button>
+                    <button class="btn btn-sm btn-outline-secondary px-2" id="prwNavPrev" title="Previous part"><i class="bi bi-chevron-left"></i> Prev</button>
+                    <div id="prwNavTabs" class="d-flex gap-1 flex-wrap flex-grow-1 justify-content-center"></div>
+                    <button class="btn btn-sm btn-outline-secondary px-2" id="prwNavNext" title="Next part">Next <i class="bi bi-chevron-right"></i></button>
+                    <button class="btn btn-sm btn-outline-secondary px-2" id="prwNavLast" title="Last part"><i class="bi bi-chevron-double-right"></i></button>
+                </div>
+            </div>
+
+            <!-- Totals summary bar -->
+            <div class="prw-totals-bar" id="prwTotalsBar">
+                <div class="prw-total-item">
+                    <span>Colors</span><strong id="prwTotalColors">—</strong>
+                </div>
+                <div class="prw-total-item">
+                    <span>Plates</span><strong id="prwTotalPlates">0</strong>
+                </div>
+                <div class="prw-total-item">
+                    <span>Required</span><strong id="prwTotalRequired">0</strong>
+                </div>
+                <div class="prw-total-item">
+                    <span>Printed</span><strong id="prwTotalPrinted">0</strong>
+                </div>
+                <div class="prw-total-item prw-total-balance">
+                    <span>Balance</span><strong id="prwTotalBalance">0</strong>
+                </div>
+            </div>
+
+            <!-- Vertical part cards container -->
+            <div class="card-body" id="prwPartsContainer">
+                <div class="text-center py-5 text-secondary" id="prwLoadingMsg">
+                    <div class="spinner-border spinner-border-sm me-2"></div>Loading printing data...
+                </div>
+            </div>
+        </div>
+
+        <!-- Work Notes -->
+        @if (parsed)
+        {
+            <div class="card mt-3 pw-rate-card">
+                <div class="pw-rate-card-hero">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="avatar avatar-sm bg-blue text-white"><i class="bi bi-calculator-fill"></i></span>
+                            <div>
+                                <div class="fw-bold text-white" style="font-size:.97rem;">Job Rate Calculator Config</div>
+                                <div style="font-size:.75rem;color:rgba(255,255,255,.65);margin-top:.1rem;">
+                                    <i class="bi bi-tag me-1"></i>@(jobTypeEl.ValueKind == System.Text.Json.JsonValueKind.Object ? ReadText(jobTypeEl, "value") : "—")
+                                    <span class="mx-2 opacity-50">·</span>
+                                    <i class="bi bi-box-seam me-1"></i>@ReadText(root, "productType")
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-sm btn-ghost-light rounded-pill px-3" type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#prwRateCollapse_@(Model.TaskId)"
+                                aria-expanded="true"
+                                aria-controls="prwRateCollapse_@(Model.TaskId)">
+                            <i class="bi bi-chevron-up" id="prwRateToggleIcon_@(Model.TaskId)"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="collapse show" id="prwRateCollapse_@(Model.TaskId)">
+                    <div class="card-body pw-rate-body">
+
+                        @* ── Key metrics row ─────────────────────── *@
+                        <div class="pw-rate-summary-grid">
+                            <div class="pw-rate-stat">
+                                <span><i class="bi bi-rulers me-1"></i>Product Size</span>
+                                <strong>@(string.IsNullOrWhiteSpace(ReadText(root, "productSize")) ? "—" : ReadText(root, "productSize"))</strong>
+                            </div>
+                            <div class="pw-rate-stat">
+                                <span><i class="bi bi-aspect-ratio me-1"></i>Trim Size</span>
+                                <strong>@ReadText(root, "trimWidth") × @ReadText(root, "trimHeight") mm</strong>
+                            </div>
+                            <div class="pw-rate-stat">
+                                <span><i class="bi bi-hash me-1"></i>Quantity</span>
+                                <strong>@ReadText(root, "quantity")</strong>
+                            </div>
+                            <div class="pw-rate-stat">
+                                <span><i class="bi bi-layers me-1"></i>Sides</span>
+                                <strong>@(ReadText(root, "sides") == "1" ? "Single Side" : ReadText(root, "sides") == "2" ? "Both Sides" : ReadText(root, "sides"))</strong>
+                            </div>
+                            @{
+                                var printingMode = ReadText(root, "printingMode");
+                                var printSizeName = ReadText(root, "printSize");
+                                var printColors = ReadText(root, "printColors");
+                                var platesReceived = ReadText(root, "platesReceived");
+                            }
+                            @if (!string.IsNullOrWhiteSpace(printSizeName))
+                            {
+                                <div class="pw-rate-stat">
+                                    <span><i class="bi bi-file-earmark me-1"></i>Print Size</span>
+                                    <strong>@printSizeName</strong>
+                                </div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(printColors))
+                            {
+                                <div class="pw-rate-stat">
+                                    <span><i class="bi bi-palette me-1"></i>Colors</span>
+                                    <strong>@printColors</strong>
+                                </div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(platesReceived) && platesReceived != "0")
+                            {
+                                <div class="pw-rate-stat">
+                                    <span><i class="bi bi-grid-3x3-gap me-1"></i>Plates Received</span>
+                                    <strong>@platesReceived</strong>
+                                </div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(printingMode))
+                            {
+                                <div class="pw-rate-stat">
+                                    <span><i class="bi bi-printer me-1"></i>Printing Mode</span>
+                                    <strong>@printingMode</strong>
+                                </div>
+                            }
+                        </div>
+
+                        @if (workflowStages.Count > 0)
+                        {
+                            <div class="pw-rate-section">
+                                <div class="pw-rate-section-title"><i class="bi bi-diagram-3"></i>Workflow Stages</div>
+                                <div class="pw-rate-chip-wrap">
+                                    @foreach (var stage in workflowStages)
+                                    {
+                                        <span class="pw-rate-chip">@stage</span>
+                                    }
+                                </div>
+                            </div>
+                        }
+
+                        @if (bindingTypes.Count > 0 || finishingTypes.Count > 0)
+                        {
+                            <div class="pw-rate-section pw-rate-process-grid">
+                                @if (bindingTypes.Count > 0)
+                                {
+                                    <div class="pw-rate-process-box">
+                                        <div class="pw-rate-process-title"><i class="bi bi-link-45deg"></i>Binding</div>
+                                        <ul class="pw-rate-list">
+                                            @foreach (var item in bindingTypes) { <li>@item</li> }
+                                        </ul>
+                                    </div>
+                                }
+                                @if (finishingTypes.Count > 0)
+                                {
+                                    <div class="pw-rate-process-box">
+                                        <div class="pw-rate-process-title"><i class="bi bi-stars"></i>Finishing</div>
+                                        <ul class="pw-rate-list">
+                                            @foreach (var item in finishingTypes) { <li>@item</li> }
+                                        </ul>
+                                    </div>
+                                }
+                            </div>
+                        }
+
+                        @if (parts.Count > 0)
+                        {
+                            <div class="pw-rate-section">
+                                <div class="pw-rate-section-title"><i class="bi bi-box-seam"></i>Part-wise Process Plan</div>
+                                <div class="pw-rate-parts-grid">
+                                    @foreach (var part in parts)
+                                    {
+                                        var partName = ReadText(part, "partName");
+                                        var spec = part.TryGetProperty("specification", out var specEl) ? specEl : default;
+                                        var design = part.TryGetProperty("designDtp", out var designEl) ? designEl : default;
+                                        var ctp = part.TryGetProperty("ctpPlates", out var ctpEl) ? ctpEl : default;
+                                        var printing = part.TryGetProperty("printing", out var printEl) ? printEl : default;
+                                        var designItems = design.ValueKind == System.Text.Json.JsonValueKind.Object ? ReadArray(design, "designItems") : new List<string>();
+
+                                        <div class="pw-rate-part-card">
+                                            <div class="pw-rate-part-title">@partName</div>
+                                            <div class="pw-rate-part-spec">
+                                                <span><i class="bi bi-files"></i>@ReadText(spec, "pages") pages</span>
+                                                <span><i class="bi bi-palette"></i>@ReadText(spec, "color") color</span>
+                                                <span><i class="bi bi-layers"></i>@ReadText(spec, "paper")</span>
+                                            </div>
+                                            <div class="pw-rate-process-lines">
+                                                <div><label>Design / DTP</label><p>@(designItems.Count > 0 ? string.Join(" • ", designItems) : "—")</p></div>
+                                                <div><label>CTP / Plates</label><p>@ReadText(ctp, "plateName")</p></div>
+                                                <div><label>Printing</label><p>@ReadText(printing, "machineName")</p></div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+        else if (hasRateJson)
+        {
+            <div class="card mt-3 pw-rate-card">
+                <div class="pw-rate-card-hero">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="avatar avatar-sm bg-blue text-white"><i class="bi bi-filetype-json"></i></span>
+                            <div class="fw-bold text-white" style="font-size:.97rem;">Job Details</div>
+                        </div>
+                        <button class="btn btn-sm btn-ghost-light rounded-pill px-3" type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#prwRateCollapse_@(Model.TaskId)"
+                                aria-expanded="true"
+                                aria-controls="prwRateCollapse_@(Model.TaskId)">
+                            <i class="bi bi-chevron-up" id="prwRateToggleIcon_@(Model.TaskId)"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="collapse show" id="prwRateCollapse_@(Model.TaskId)">
+                    <div class="card-body">
+                        <pre class="pw-rate-json-fallback">@Model.JobRateConfigJson</pre>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Work Notes -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="avatar avatar-xs bg-yellow-lt text-yellow"><i class="bi bi-pencil-square"></i></span>
+                    <h3 class="card-title mb-0">Work Notes</h3>
+                </div>
+            </div>
+            <div class="card-body">
+                <textarea class="form-control" rows="4" id="prwNotes" placeholder="Enter printing work details, observations or issues..."></textarea>
+            </div>
+        </div>
+    </main>
+
+    <!-- ═══════ RIGHT SIDEBAR: Actions ═══════ -->
+    <aside class="pw-create-sidebar pw-create-sidebar-right">
+
+        <!-- Quick Info -->
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="avatar avatar-xs bg-cyan-lt text-cyan"><i class="bi bi-info-circle-fill"></i></span>
+                    <h3 class="card-title mb-0">Quick Info</h3>
+                </div>
+            </div>
+            <div class="card-body" id="prwQuickInfo">
+                <div class="text-secondary small mb-2">
+                    <i class="bi bi-briefcase me-1"></i><span id="prwJobNo">Job: —</span>
+                </div>
+                <div class="text-secondary small mb-2">
+                    <i class="bi bi-person me-1"></i><span id="prwPartyName">Customer: —</span>
+                </div>
+                <div class="text-secondary small mb-2">
+                    <i class="bi bi-printer me-1"></i><span id="prwProcessName">Process: —</span>
+                </div>
+                <div class="text-secondary small">
+                    <i class="bi bi-flag me-1"></i><span id="prwPriority">Priority: —</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Allocated Machine & Workforce -->
+        <div class="card" id="prwAllocationCard">
+            <div class="card-header">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="avatar avatar-xs bg-orange-lt text-orange"><i class="bi bi-cpu-fill"></i></span>
+                    <h3 class="card-title mb-0">Machine & Workforce</h3>
+                </div>
+            </div>
+            <div class="card-body p-0" id="prwAllocationWrap">
+                <div class="px-3 py-2 text-secondary small">Loading allocation...</div>
+            </div>
+        </div>
+
+        <!-- Print Progress Summary -->
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="avatar avatar-xs bg-green-lt text-green"><i class="bi bi-bar-chart-fill"></i></span>
+                    <h3 class="card-title mb-0">Print Progress</h3>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between small text-secondary mb-1">
+                        <span>Sheets Printed</span>
+                        <span id="prwProgressPct">0%</span>
+                    </div>
+                    <div class="progress" style="height:8px;">
+                        <div class="progress-bar bg-success" id="prwProgressBar" style="width:0%"></div>
+                    </div>
+                </div>
+                <div class="small text-secondary">
+                    <div class="d-flex justify-content-between">
+                        <span>Total Required</span><strong id="prwSummaryRequired">0</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mt-1">
+                        <span>Total Printed</span><strong id="prwSummaryPrinted">0</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mt-1">
+                        <span>Balance</span><strong id="prwSummaryBalance">0</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <button type="button" id="prwStartBtn" class="btn w-100 py-2 btn-outline-primary">
+            <i class="bi bi-play-fill me-2"></i>Start Step
+        </button>
+
+        <button type="button" id="prwSaveBtn" class="btn w-100 py-2 btn-outline-secondary">
+            <i class="bi bi-save me-2"></i>Save Progress
+        </button>
+
+        <button type="button" id="prwCompleteBtn" class="btn w-100 py-2" style="background:#10b981;color:#fff;">
+            <i class="bi bi-check-lg me-2"></i>Complete Step
+        </button>
+    </aside>
+</div>
+
+@section Styles {
+    <style>
+        /* Rate card hero header */
+        .pw-rate-card-hero {
+            padding: .9rem 1.1rem;
+            background: linear-gradient(135deg, #1a56db 0%, #0d3b9e 100%);
+            border-radius: calc(var(--tblr-card-border-radius, .375rem) - 1px) calc(var(--tblr-card-border-radius, .375rem) - 1px) 0 0;
+        }
+        [data-bs-theme="dark"] .pw-rate-card-hero {
+            background: linear-gradient(135deg, #1743a8 0%, #0b2a72 100%);
+        }
+    </style>
+}
+
+@section Scripts {
+    <script src="/js/workspace-print-work.js"></script>
+    <script>
+        const prwTaskId = @Model.TaskId;
+        document.addEventListener('DOMContentLoaded', function () { PrintWork.init(prwTaskId); });
+    </script>
+    <script>
+        (function () {
+            setTimeout(() => {
+                document.querySelectorAll('[id^="prwRateCollapse_"]').forEach(collapseEl => {
+                    const iconId = collapseEl.id.replace('prwRateCollapse_', 'prwRateToggleIcon_');
+                    const iconEl = document.getElementById(iconId);
+                    if (!iconEl) return;
+                    collapseEl.addEventListener('show.bs.collapse', function () {
+                        iconEl.classList.remove('bi-chevron-down');
+                        iconEl.classList.add('bi-chevron-up');
+                    });
+                    collapseEl.addEventListener('hide.bs.collapse', function () {
+                        iconEl.classList.remove('bi-chevron-up');
+                        iconEl.classList.add('bi-chevron-down');
+                    });
+                });
+            }, 50);
+        })();
+    </script>
+}

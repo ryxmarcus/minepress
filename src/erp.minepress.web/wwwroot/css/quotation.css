@@ -1,0 +1,284 @@
+/* ===== MinePress Quotation Module — CSS ===== */
+
+/* ══════ Quotation Hero ══════ */
+.qt-hero,
+.qt-detail-hero {
+    background: linear-gradient(135deg, #198754, #20c997);
+    color: #fff;
+    padding: 1.25rem 1.5rem;
+    border-radius: var(--tblr-border-radius-lg);
+    margin-bottom: 1rem;
+}
+
+/* ══════ List Page ══════ */
+.qt-list-table th {
+    font-weight: 600; font-size: .8rem;
+    text-transform: uppercase; letter-spacing: .5px;
+    color: var(--tblr-secondary-color);
+}
+.qt-list-table tbody tr { transition: background .1s; }
+.qt-list-table tbody tr:hover { background: var(--tblr-primary-bg-subtle); }
+
+.qt-status-badge {
+    font-size: .72rem; font-weight: 600;
+    padding: 3px 10px; border-radius: var(--tblr-border-radius-pill);
+    display: inline-block;
+}
+.qt-status-pill { font-size: .8rem; padding: 4px 14px; }
+.qt-status-draft { background: var(--tblr-warning-bg-subtle); color: var(--tblr-yellow); }
+.qt-status-sent { background: var(--tblr-info-bg-subtle); color: var(--tblr-info); }
+.qt-status-approved { background: var(--tblr-success-bg-subtle); color: var(--tblr-green); }
+.qt-status-revised { background: var(--tblr-purple-bg-subtle); color: var(--tblr-purple); }
+.qt-status-closed { background: var(--tblr-secondary-bg-subtle); color: var(--tblr-secondary); }
+.qt-status-cancelled { background: var(--tblr-danger-bg-subtle); color: var(--tblr-red); }
+
+/* Action dropdown */
+.qt-action-dropdown {
+    min-width: 220px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.12);
+    border-radius: var(--tblr-border-radius-lg);
+    padding: .25rem 0;
+}
+.qt-action-dropdown .dropdown-header {
+    font-size: .68rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .5px;
+    color: var(--tblr-secondary-color);
+    padding: .5rem .75rem .25rem;
+}
+.qt-action-dropdown .dropdown-item {
+    font-size: .82rem; padding: .4rem .75rem;
+    transition: all .15s;
+}
+.qt-action-dropdown .dropdown-item:hover {
+    background: var(--tblr-primary-bg-subtle);
+}
+
+/* ══════ Details Page ══════ */
+
+/* Tab navigation */
+.qt-detail-tabs {
+    border-bottom: 2px solid var(--tblr-border-color);
+}
+.qt-detail-tabs .nav-link {
+    font-weight: 600; font-size: .85rem;
+    color: var(--tblr-secondary-color);
+    border: none; border-bottom: 3px solid transparent;
+    padding: .65rem 1.1rem; margin-bottom: -2px;
+    transition: all .2s;
+}
+.qt-detail-tabs .nav-link:hover {
+    color: var(--tblr-primary);
+    border-bottom-color: var(--tblr-border-color);
+}
+.qt-detail-tabs .nav-link.active {
+    color: var(--tblr-primary);
+    border-bottom-color: var(--tblr-primary);
+    background: transparent;
+}
+
+/* Detail cards */
+.qt-detail-card {
+    border: var(--tblr-border-width) solid var(--tblr-border-color);
+    transition: box-shadow .2s;
+}
+.qt-detail-card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,.06);
+}
+.qt-detail-card .card-header {
+    background: transparent;
+    border-bottom: 1px solid var(--tblr-border-color);
+    padding: .75rem 1rem;
+}
+.qt-detail-card .card-header .card-title {
+    font-size: .85rem; margin: 0;
+}
+
+/* Customer avatar */
+.qt-detail-avatar {
+    width: 52px; height: 52px;
+    background: linear-gradient(135deg, #198754, #20c997);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 1rem; flex-shrink: 0;
+}
+
+/* Info list */
+.qt-detail-info-list {
+    display: flex; flex-direction: column; gap: .6rem;
+}
+.qt-detail-info-item {
+    display: grid;
+    grid-template-columns: 20px 1fr 1.2fr;
+    gap: .5rem; align-items: center; font-size: .82rem;
+}
+.qt-detail-info-item i { font-size: .85rem; }
+
+/* Item detail cards */
+.qt-item-detail-card {
+    border: var(--tblr-border-width) solid var(--tblr-border-color);
+    border-left: 4px solid #198754;
+    transition: all .2s;
+}
+.qt-item-detail-card:hover {
+    border-left-color: #20c997;
+    box-shadow: 0 4px 16px rgba(0,0,0,.06);
+}
+
+/* Metric boxes */
+.qt-detail-metric {
+    background: var(--tblr-bg-surface-secondary);
+    border-radius: var(--tblr-border-radius);
+    padding: .5rem .65rem; text-align: center;
+}
+.qt-detail-metric-label {
+    font-size: .68rem; text-transform: uppercase;
+    letter-spacing: .4px; color: var(--tblr-secondary-color);
+    font-weight: 600;
+}
+.qt-detail-metric-value {
+    font-size: .9rem; font-weight: 700;
+    color: var(--tblr-body-color); margin-top: .15rem;
+}
+
+/* ══════ Create Page — 3-Column Layout ══════ */
+
+/* Three-column grid: 3 + 6 + 3 (mirrors Enquiry Create) */
+.qt-create-layout {
+    display: grid;
+    grid-template-columns: 3fr 6fr 3fr;
+    gap: 1rem;
+    align-items: start;
+    padding: 0 .5rem;
+}
+
+/* Sidebars: sticky + scrollable */
+.qt-create-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+    position: sticky;
+    top: .75rem;
+    max-height: calc(100vh - 1.5rem);
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+.qt-create-sidebar::-webkit-scrollbar { width: 3px; }
+.qt-create-sidebar::-webkit-scrollbar-thumb { background: var(--tblr-border-color); border-radius: 3px; }
+
+/* Center (main) */
+.qt-create-main {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+}
+
+/* ── Offcanvas Rate Calculator Drawer ── */
+.qt-drawer {
+    width: 720px !important;
+    max-width: 92vw;
+}
+.qt-drawer .offcanvas-header {
+    padding: .75rem 1.25rem;
+    background: var(--tblr-bg-surface);
+}
+.qt-drawer-body {
+    padding: 1rem 1.25rem;
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+.qt-drawer-body::-webkit-scrollbar { width: 4px; }
+.qt-drawer-body::-webkit-scrollbar-thumb { background: var(--tblr-border-color); border-radius: 4px; }
+.qt-drawer-body .card { box-shadow: none; border: var(--tblr-border-width) solid var(--tblr-border-color); }
+.qt-drawer-body .row { margin-left: 0; margin-right: 0; }
+.qt-drawer-body > #rateCalculatorWidget { min-width: 0; overflow: hidden; }
+
+/* Offcanvas footer (sticky Add Item button) */
+.qt-drawer .offcanvas-footer {
+    background: var(--tblr-bg-surface);
+}
+
+/* ── Estimate button (center column) — green-themed ── */
+.qt-estimate-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    border-radius: var(--tblr-border-radius-lg);
+    font-size: .95rem;
+    transition: all .2s;
+    border: 2px dashed var(--tblr-green);
+    background: var(--tblr-green-lt);
+    color: var(--tblr-green);
+}
+.qt-estimate-btn:hover {
+    background: var(--tblr-green);
+    color: #fff;
+    border-style: solid;
+    box-shadow: 0 4px 12px rgba(var(--tblr-green-rgb), .3);
+}
+
+/* ── Items list ── */
+.qt-items-list {
+    min-height: 60px;
+}
+
+/* ── Item chips ── */
+.qt-item-chip {
+    border: var(--tblr-border-width) solid var(--tblr-border-color);
+    border-radius: var(--tblr-border-radius);
+    padding: .6rem .75rem;
+    margin-bottom: .5rem;
+    position: relative;
+    transition: all .15s;
+}
+.qt-item-chip:hover { border-color: var(--tblr-green); box-shadow: 0 2px 8px rgba(0,0,0,.04); }
+.qt-item-chip .btn-close { position: absolute; top: .4rem; right: .4rem; font-size: .5rem; }
+.qt-item-name { font-weight: 600; font-size: .825rem; }
+.qt-item-meta { font-size: .73rem; color: var(--tblr-secondary-color); }
+.qt-item-price { font-weight: 700; color: var(--tblr-green); font-size: .9rem; }
+
+/* ══════ Dark Mode ══════ */
+[data-bs-theme="dark"] .qt-detail-avatar {
+    background: linear-gradient(135deg, #2b8a3e, #38d9a9);
+}
+[data-bs-theme="dark"] .qt-item-detail-card {
+    border-left-color: #51cf66;
+}
+[data-bs-theme="dark"] .qt-item-detail-card:hover {
+    border-left-color: #69db7c;
+    box-shadow: 0 4px 16px rgba(0,0,0,.2);
+}
+[data-bs-theme="dark"] .qt-detail-card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,.2);
+}
+[data-bs-theme="dark"] .qt-action-dropdown {
+    box-shadow: 0 8px 32px rgba(0,0,0,.3);
+}
+[data-bs-theme="dark"] .qt-item-chip:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,.15);
+}
+.qt-item-row input[type="text"],
+.qt-item-row input[type="number"] {
+    font-size: .82rem;
+}
+.qt-calc-gross,
+.qt-calc-tax,
+.qt-calc-net {
+    font-size: .82rem;
+    white-space: nowrap;
+}
+
+/* ── Responsive ── */
+@media (max-width: 991px) {
+    .qt-create-layout {
+        grid-template-columns: 1fr;
+        padding: 0;
+    }
+    .qt-create-sidebar { position: static; max-height: none; }
+    .qt-create-main { order: -1; }
+    .qt-create-sidebar-right { order: 1; }
+}
+@media (max-width: 767px) {
+    .qt-create-layout { grid-template-columns: 1fr; gap: .75rem; }
+}

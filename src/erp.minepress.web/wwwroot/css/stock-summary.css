@@ -1,0 +1,168 @@
+/* ═══════════════════════════════════════════
+   Stock Summary Report — .ss-* prefix
+   ═══════════════════════════════════════════ */
+
+/* ── Insight Cards ── */
+.ss-insight-card {
+    border: none;
+    border-radius: .75rem;
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+.ss-insight-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,0,0,.08);
+}
+.ss-insight-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: .75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+/* ── Category Cards ── */
+.ss-category-card {
+    border: none;
+    border-radius: .75rem;
+    overflow: hidden;
+}
+.ss-category-header {
+    background: var(--tblr-bg-surface-secondary, #f8fafc);
+    border-bottom: 1px solid var(--tblr-border-color, #e9ecef);
+    transition: background .15s ease;
+}
+.ss-category-header:hover {
+    background: var(--tblr-bg-surface-tertiary, #f0f4f8);
+}
+.ss-collapse-icon {
+    transition: transform .2s ease;
+    font-size: .85rem;
+    color: var(--tblr-secondary, #6c757d);
+}
+.ss-category-header[aria-expanded="false"] .ss-collapse-icon,
+.ss-category-header.collapsed .ss-collapse-icon {
+    transform: rotate(-90deg);
+}
+
+/* ── Stock Table ── */
+.ss-stock-table thead th {
+    background: var(--tblr-bg-surface-secondary, #fafbfc);
+    font-size: .75rem;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    color: var(--tblr-secondary, #6c757d);
+    border-bottom: 2px solid var(--tblr-border-color, #e9ecef);
+    white-space: nowrap;
+}
+.ss-stock-table tbody td {
+    font-size: .85rem;
+    vertical-align: middle;
+}
+
+/* ── Low / Zero Stock Rows ── */
+.ss-low-stock-row {
+    background: rgba(255, 193, 7, .04) !important;
+}
+.ss-zero-stock-row {
+    background: rgba(220, 53, 69, .03) !important;
+}
+
+/* ── Subtotal Row ── */
+.ss-subtotal-row {
+    background: var(--tblr-bg-surface-secondary, #f0f4f8) !important;
+    border-top: 2px solid var(--tblr-border-color, #dee2e6);
+}
+.ss-subtotal-row td {
+    font-size: .8rem !important;
+}
+
+/* ── Grand Total Card ── */
+.ss-grand-total-card {
+    border: none;
+    border-radius: .75rem;
+    background: var(--tblr-bg-surface-secondary, #f8f9fa);
+    margin-top: 1rem;
+}
+.ss-grand-total-card .h4 {
+    font-size: 1.25rem;
+}
+
+/* ── Drill-down Links ── */
+.ss-drill-link {
+    text-decoration: none;
+    border-bottom: 1px dashed currentColor;
+    transition: opacity .15s;
+}
+.ss-drill-link:hover {
+    opacity: .75;
+    text-decoration: none;
+}
+
+/* ── Print Header ── */
+.ss-print-header {
+    text-align: center;
+    border-bottom: 2px solid #333;
+    padding-bottom: .5rem;
+}
+
+/* ── Dark Mode ── */
+[data-bs-theme="dark"] .ss-insight-card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,.25);
+}
+[data-bs-theme="dark"] .ss-category-header {
+    background: rgba(255,255,255,.03);
+    border-bottom-color: rgba(255,255,255,.08);
+}
+[data-bs-theme="dark"] .ss-category-header:hover {
+    background: rgba(255,255,255,.06);
+}
+[data-bs-theme="dark"] .ss-stock-table thead th {
+    background: rgba(255,255,255,.03);
+    color: rgba(255,255,255,.5);
+    border-bottom-color: rgba(255,255,255,.08);
+}
+[data-bs-theme="dark"] .ss-low-stock-row {
+    background: rgba(255, 193, 7, .06) !important;
+}
+[data-bs-theme="dark"] .ss-zero-stock-row {
+    background: rgba(220, 53, 69, .06) !important;
+}
+[data-bs-theme="dark"] .ss-subtotal-row {
+    background: rgba(255,255,255,.04) !important;
+    border-top-color: rgba(255,255,255,.1);
+}
+[data-bs-theme="dark"] .ss-grand-total-card {
+    background: rgba(255,255,255,.03);
+}
+[data-bs-theme="dark"] .ss-collapse-icon {
+    color: rgba(255,255,255,.5);
+}
+
+/* ── Print Styles ── */
+@@media print {
+    .d-print-none,
+    .store-hero,
+    .ss-insight-card:hover {
+        transform: none !important;
+        box-shadow: none !important;
+    }
+    .ss-category-card {
+        break-inside: avoid;
+        margin-bottom: .5rem !important;
+    }
+    .ss-stock-table {
+        font-size: .7rem !important;
+    }
+    .ss-stock-table thead th {
+        font-size: .65rem !important;
+    }
+    .ss-grand-total-card {
+        background: #f8f9fa !important;
+        break-inside: avoid;
+    }
+    .collapse:not(.show) {
+        display: block !important;
+    }
+}

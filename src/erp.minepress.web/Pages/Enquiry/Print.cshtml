@@ -1,0 +1,563 @@
+@page
+@model erp.minepress.web.Pages.Enquiry.PrintModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Print Enquiry - MinePress ERP</title>
+    <link href="/dist/css/minepress.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <style>
+        /* ══════ Enquiry Print Styles ══════ */
+        body { background: #f4f6fa; }
+
+        .print-page {
+            max-width: 900px;
+            margin: 2rem auto;
+        }
+
+        /* Toolbar (hidden on print) */
+        .print-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: .75rem 1.25rem;
+            background: #fff;
+            border-radius: var(--tblr-border-radius-lg);
+            box-shadow: 0 1px 4px rgba(0,0,0,.06);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Main print card */
+        .print-card {
+            background: #fff;
+            border-radius: var(--tblr-border-radius-lg);
+            box-shadow: 0 2px 16px rgba(0,0,0,.06);
+            overflow: hidden;
+        }
+        .print-card-body { padding: 2.5rem; }
+
+        /* Header band */
+        .print-header {
+            background: linear-gradient(135deg, #066fd1, #0ca5e9);
+            color: #fff;
+            padding: 2rem 2.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .print-header::after {
+            content: '';
+            position: absolute;
+            right: -40px;
+            top: -40px;
+            width: 180px;
+            height: 180px;
+            background: rgba(255,255,255,.06);
+            border-radius: 50%;
+        }
+        .print-header .company-name { font-size: 1.5rem; font-weight: 800; letter-spacing: .5px; }
+        .print-header .company-detail { font-size: .82rem; opacity: .85; margin-top: .25rem; }
+
+        /* Enquiry number banner */
+        .print-enq-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            padding: 1.25rem 0;
+            border-bottom: 2px solid var(--tblr-border-color);
+            margin-bottom: 1.5rem;
+        }
+        .print-enq-number { font-size: 1.6rem; font-weight: 800; color: #066fd1; }
+        .print-enq-date { font-size: .9rem; color: var(--tblr-secondary-color); }
+
+        /* Status badge (print-safe) */
+        .print-status {
+            display: inline-block;
+            padding: 4px 16px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: .78rem;
+            letter-spacing: .3px;
+        }
+        .print-status-draft { background: #fff3cd; color: #856404; }
+        .print-status-submitted { background: #cff4fc; color: #055160; }
+        .print-status-converted { background: #d1e7dd; color: #0f5132; }
+        .print-status-closed { background: #e2e3e5; color: #41464b; }
+        .print-status-cancelled { background: #f8d7da; color: #842029; }
+
+        /* Priority badge */
+        .print-priority {
+            display: inline-block;
+            padding: 3px 12px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: .72rem;
+        }
+        .print-priority-low { background: #e2e3e5; color: #41464b; }
+        .print-priority-normal { background: #cfe2ff; color: #084298; }
+        .print-priority-high { background: #fff3cd; color: #856404; }
+        .print-priority-urgent { background: #f8d7da; color: #842029; }
+
+        /* Address blocks */
+        .print-addresses { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 1.5rem; }
+        .print-address-block h6 {
+            font-size: .7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--tblr-secondary-color);
+            font-weight: 700;
+            margin-bottom: .5rem;
+            padding-bottom: .35rem;
+            border-bottom: 2px solid var(--tblr-border-color);
+        }
+        .print-address-name { font-weight: 700; font-size: 1rem; margin-bottom: .25rem; }
+        .print-address-line { font-size: .82rem; color: var(--tblr-secondary-color); line-height: 1.6; }
+
+        /* Items table */
+        .print-items-table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; }
+        .print-items-table thead th {
+            background: #f0f4f8;
+            font-size: .72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            color: var(--tblr-secondary-color);
+            padding: .65rem .75rem;
+            border-bottom: 2px solid var(--tblr-border-color);
+        }
+        .print-items-table tbody td {
+            padding: .75rem;
+            border-bottom: 1px solid #eef0f3;
+            font-size: .85rem;
+            vertical-align: top;
+        }
+        .print-items-table tbody tr:last-child td { border-bottom: 2px solid var(--tblr-border-color); }
+        .print-item-name { font-weight: 700; color: var(--tblr-body-color); }
+        .print-item-desc { font-size: .75rem; color: var(--tblr-secondary-color); margin-top: .15rem; }
+        .print-item-badges { display: flex; gap: .35rem; flex-wrap: wrap; margin-top: .3rem; }
+        .print-item-badge {
+            font-size: .65rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            background: #eef0f8;
+            color: #4263eb;
+        }
+
+        /* Totals section */
+        .print-totals {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 1.5rem;
+        }
+        .print-totals-table { width: 320px; }
+        .print-totals-table tr td { padding: .5rem .75rem; font-size: .88rem; }
+        .print-totals-table tr td:first-child { color: var(--tblr-secondary-color); text-align: right; }
+        .print-totals-table tr td:last-child { font-weight: 600; text-align: right; }
+        .print-totals-table .total-row td {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #066fd1;
+            border-top: 2px solid #066fd1;
+            padding-top: .75rem;
+        }
+
+        /* Remarks */
+        .print-remarks {
+            background: #f8f9fc;
+            border-radius: var(--tblr-border-radius);
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #066fd1;
+        }
+        .print-remarks-title {
+            font-size: .7rem;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            color: var(--tblr-secondary-color);
+            font-weight: 700;
+            margin-bottom: .35rem;
+        }
+
+        /* Footer */
+        .print-footer {
+            text-align: center;
+            padding: 1.5rem 0 .5rem;
+            border-top: 1px solid var(--tblr-border-color);
+            color: var(--tblr-secondary-color);
+            font-size: .78rem;
+        }
+
+        /* Enquiry info grid */
+        .print-info-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: .75rem;
+            margin-bottom: 1.5rem;
+        }
+        .print-info-box {
+            background: #f8f9fc;
+            border-radius: var(--tblr-border-radius);
+            padding: .65rem .75rem;
+            text-align: center;
+        }
+        .print-info-label {
+            font-size: .65rem;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            color: var(--tblr-secondary-color);
+            font-weight: 700;
+        }
+        .print-info-value { font-size: .95rem; font-weight: 700; margin-top: .15rem; }
+
+        /* ── Print media ── */
+        @@media print {
+            body { background: #fff !important; }
+            .print-toolbar { display: none !important; }
+            .print-page { margin: 0; max-width: 100%; }
+            .print-card { box-shadow: none; border-radius: 0; }
+            .print-header {
+                background: linear-gradient(135deg, #066fd1, #0ca5e9) !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .print-status, .print-priority, .print-item-badge, .print-info-box, .print-remarks {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .print-items-table thead th {
+                background: #f0f4f8 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+
+        /* Loading */
+        .print-loader { text-align: center; padding: 4rem 0; }
+    </style>
+</head>
+<body>
+    <!-- Loader -->
+    <div id="printLoader" class="print-loader">
+        <div class="spinner-border text-primary" role="status"></div>
+        <div class="text-muted mt-2">Loading enquiry...</div>
+    </div>
+
+    <!-- Error -->
+    <div id="printError" class="text-center py-5" style="display:none;">
+        <i class="bi bi-exclamation-triangle text-danger" style="font-size:3rem;"></i>
+        <div class="text-muted mt-2" id="printErrorMsg">Failed to load enquiry.</div>
+        <a href="/Enquiry" class="btn btn-primary mt-3"><i class="bi bi-arrow-left me-1"></i>Back to List</a>
+    </div>
+
+    <!-- Print Content -->
+    <div id="printContent" class="print-page" style="display:none;">
+
+        <!-- Toolbar -->
+        <div class="print-toolbar d-print-none">
+            <div class="d-flex align-items-center gap-2">
+                <a href="/Enquiry" class="btn btn-ghost-secondary btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i>Back to List
+                </a>
+                <a href="javascript:void(0)" id="btnViewDetails" class="btn btn-ghost-primary btn-sm">
+                    <i class="bi bi-eye me-1"></i>View Details
+                </a>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-primary btn-sm" onclick="window.print()">
+                    <i class="bi bi-printer me-1"></i>Print
+                </button>
+            </div>
+        </div>
+
+        <!-- Print Card -->
+        <div class="print-card">
+            <!-- Header Band -->
+            <div class="print-header">
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                    <div>
+                        <div class="company-name" id="pCompanyName">MinePress ERP</div>
+                        <div class="company-detail" id="pCompanyAddress"></div>
+                        <div class="company-detail" id="pCompanyContact"></div>
+                    </div>
+                    <div class="text-end">
+                        <div class="company-detail" id="pCompanyGst"></div>
+                        <div class="company-detail" id="pCompanyPan"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="print-card-body">
+                <!-- Enquiry Number Banner -->
+                <div class="print-enq-banner">
+                    <div>
+                        <div class="print-enq-number" id="pEnquiryNo"></div>
+                        <div class="print-enq-date"><i class="bi bi-calendar3 me-1"></i><span id="pEnquiryDate"></span></div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="print-status" id="pStatus"></span>
+                        <span class="print-priority" id="pPriority"></span>
+                    </div>
+                </div>
+
+                <!-- Addresses -->
+                <div class="print-addresses">
+                    <div class="print-address-block">
+                        <h6>Customer</h6>
+                        <div class="print-address-name" id="pCustName"></div>
+                        <div class="print-address-line" id="pCustCode"></div>
+                        <div class="print-address-line" id="pCustGst"></div>
+                        <div class="print-address-line" id="pCustEmail"></div>
+                    </div>
+                    <div class="print-address-block">
+                        <h6>Contact Person</h6>
+                        <div class="print-address-name" id="pContactName"></div>
+                        <div class="print-address-line" id="pContactMobile"></div>
+                        <div class="print-address-line" id="pContactEmail"></div>
+                        <div class="print-address-line" id="pSource"></div>
+                    </div>
+                </div>
+
+                <!-- Info Grid -->
+                <div class="print-info-grid">
+                    <div class="print-info-box">
+                        <div class="print-info-label">Total Items</div>
+                        <div class="print-info-value" id="pItemCount">0</div>
+                    </div>
+                    <div class="print-info-box">
+                        <div class="print-info-label">Total Quantity</div>
+                        <div class="print-info-value" id="pTotalQty">0</div>
+                    </div>
+                    <div class="print-info-box">
+                        <div class="print-info-label">Expected Delivery</div>
+                        <div class="print-info-value" id="pDelivery">-</div>
+                    </div>
+                    <div class="print-info-box">
+                        <div class="print-info-label">Estimated Value</div>
+                        <div class="print-info-value text-success" id="pEstValue">₹0.00</div>
+                    </div>
+                </div>
+
+                <!-- Items Table -->
+                <table class="print-items-table">
+                    <thead>
+                        <tr>
+                            <th style="width:40px;">#</th>
+                            <th>Product</th>
+                            <th style="width:70px;" class="text-center">Qty</th>
+                            <th style="width:70px;" class="text-center">Pages</th>
+                            <th style="width:100px;" class="text-end">Cost/Unit</th>
+                            <th style="width:110px;" class="text-end">Subtotal</th>
+                            <th style="width:90px;" class="text-end">Tax</th>
+                            <th style="width:110px;" class="text-end">Net Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pItemsBody"></tbody>
+                </table>
+
+                <!-- Totals -->
+                <div class="print-totals">
+                    <table class="print-totals-table">
+                        <tr>
+                            <td>Subtotal</td>
+                            <td id="pSubtotal">₹0.00</td>
+                        </tr>
+                        <tr>
+                            <td>Tax</td>
+                            <td id="pTax">₹0.00</td>
+                        </tr>
+                        <tr class="total-row">
+                            <td>Net Total</td>
+                            <td id="pNetTotal">₹0.00</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Remarks -->
+                <div class="print-remarks" id="pRemarksSection" style="display:none;">
+                    <div class="print-remarks-title"><i class="bi bi-chat-left-text me-1"></i>Remarks</div>
+                    <div id="pRemarks"></div>
+                </div>
+
+                <!-- Footer -->
+                <div class="print-footer">
+                    <p class="mb-1">Thank you for your enquiry. We look forward to serving you!</p>
+                    <small>Generated on <span id="pPrintDate"></span> · MinePress ERP</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            const id = @Model.Id;
+            if (id <= 0) {
+                showError('Invalid enquiry ID.');
+                return;
+            }
+
+            loadEnquiry(id);
+        });
+
+        function loadEnquiry(id) {
+            $.get(`/api/enquiry/detail/${id}`)
+                .done(function (d) {
+                    renderPrint(d);
+                    loadCompanyInfo(d.companyId);
+                    $('#printLoader').hide();
+                    $('#printContent').show();
+
+                    // Auto print if requested
+                    const params = new URLSearchParams(window.location.search);
+                    if (params.get('auto') === '1') {
+                        setTimeout(() => window.print(), 600);
+                    }
+                })
+                .fail(function (err) {
+                    showError(err.responseJSON?.message || 'Failed to load enquiry.');
+                });
+        }
+
+        function loadCompanyInfo(companyId) {
+            $.get(`/api/enquiry/company-info`)
+                .done(function (c) {
+                    $('#pCompanyName').text(c.name || 'MinePress ERP');
+                    const addr = [c.addressLine1, c.addressLine2, c.pincode].filter(Boolean).join(', ');
+                    $('#pCompanyAddress').text(addr);
+                    const contact = [c.contactPerson, c.contactNo].filter(Boolean).join(' · ');
+                    if (contact) $('#pCompanyContact').text(contact);
+                    if (c.gstin) $('#pCompanyGst').html(`<strong>GSTIN:</strong> ${esc(c.gstin)}`);
+                    if (c.panNo) $('#pCompanyPan').html(`<strong>PAN:</strong> ${esc(c.panNo)}`);
+                })
+                .fail(function () { /* company info is optional */ });
+        }
+
+        function renderPrint(d) {
+            // Enquiry header
+            $('#pEnquiryNo').text(d.enquiryNo);
+            $('#pEnquiryDate').text(d.enquiryDate);
+            $('#btnViewDetails').attr('href', `/Enquiry/Details?id=${d.enquiryId}`);
+
+            // Status
+            const statusCls = {
+                'DRAFT': 'print-status-draft', 'SUBMITTED': 'print-status-submitted',
+                'CONVERTED': 'print-status-converted', 'CLOSED': 'print-status-closed',
+                'CANCELLED': 'print-status-cancelled'
+            }[d.status] || '';
+            $('#pStatus').addClass(statusCls).text(d.status || 'N/A');
+
+            // Priority
+            const priCls = {
+                'LOW': 'print-priority-low', 'NORMAL': 'print-priority-normal',
+                'HIGH': 'print-priority-high', 'URGENT': 'print-priority-urgent'
+            }[d.priority] || 'print-priority-normal';
+            $('#pPriority').addClass(priCls).text(d.priority || '-');
+
+            // Customer
+            $('#pCustName').text(d.customerName || '-');
+            if (d.customerCode) $('#pCustCode').html(`<i class="bi bi-hash me-1"></i>${esc(d.customerCode)}`);
+            if (d.customerGst) $('#pCustGst').html(`<i class="bi bi-receipt me-1"></i>GST: ${esc(d.customerGst)}`);
+            if (d.customerEmail) $('#pCustEmail').html(`<i class="bi bi-envelope me-1"></i>${esc(d.customerEmail)}`);
+
+            // Contact
+            $('#pContactName').text(d.contactPerson || '-');
+            if (d.contactMobile) $('#pContactMobile').html(`<i class="bi bi-phone me-1"></i>${esc(d.contactMobile)}`);
+            if (d.contactEmail) $('#pContactEmail').html(`<i class="bi bi-envelope me-1"></i>${esc(d.contactEmail)}`);
+            if (d.enquirySource) $('#pSource').html(`<i class="bi bi-megaphone me-1"></i>Source: ${esc(d.enquirySource)}`);
+
+            // Info grid
+            const items = d.items || [];
+            const totalQty = items.reduce((s, i) => s + (i.quantity || 0), 0);
+            const estValue = items.reduce((s, i) => s + (i.rateCalc?.netTotal || 0), 0);
+
+            $('#pItemCount').text(items.length);
+            $('#pTotalQty').text(totalQty.toLocaleString('en-IN'));
+            $('#pDelivery').text(d.expectedDeliveryDate || '-');
+            $('#pEstValue').text(fmt(estValue));
+
+            // Items table
+            let html = '';
+            let totGrand = 0, totTax = 0, totNet = 0;
+
+            items.forEach((item, idx) => {
+                const rc = item.rateCalc;
+                const costUnit = rc ? fmt(rc.costPerUnit) : '-';
+                const grand = rc ? fmt(rc.grandTotal) : '-';
+                const tax = rc ? fmt(rc.taxAmount) : '-';
+                const net = rc ? fmt(rc.netTotal) : '-';
+
+                if (rc) {
+                    totGrand += rc.grandTotal || 0;
+                    totTax += rc.taxAmount || 0;
+                    totNet += rc.netTotal || 0;
+                }
+
+                let badges = '';
+                if (item.jobTypeName) badges += `<span class="print-item-badge">${esc(item.jobTypeName)}</span>`;
+                if (item.productTypeName) badges += `<span class="print-item-badge">${esc(item.productTypeName)}</span>`;
+                if (item.productSizeName) badges += `<span class="print-item-badge">${esc(item.productSizeName)}</span>`;
+                if (item.printingMethod) badges += `<span class="print-item-badge">${esc(item.printingMethod)}</span>`;
+
+                html += `<tr>
+                    <td class="text-center fw-semibold">${item.itemSequence || idx + 1}</td>
+                    <td>
+                        <div class="print-item-name">${esc(item.productName)}</div>
+                        ${item.productDescription ? `<div class="print-item-desc">${esc(item.productDescription)}</div>` : ''}
+                        ${badges ? `<div class="print-item-badges">${badges}</div>` : ''}
+                    </td>
+                    <td class="text-center">${(item.quantity || 0).toLocaleString('en-IN')}</td>
+                    <td class="text-center">${item.noOfPages || '-'}</td>
+                    <td class="text-end">${costUnit}</td>
+                    <td class="text-end">${grand}</td>
+                    <td class="text-end">${tax}</td>
+                    <td class="text-end fw-semibold">${net}</td>
+                </tr>`;
+            });
+
+            if (items.length === 0) {
+                html = '<tr><td colspan="8" class="text-center text-muted py-3">No items in this enquiry.</td></tr>';
+            }
+
+            $('#pItemsBody').html(html);
+
+            // Totals
+            $('#pSubtotal').text(fmt(totGrand));
+            $('#pTax').text(fmt(totTax));
+            $('#pNetTotal').text(fmt(totNet));
+
+            // Remarks
+            if (d.remarks) {
+                $('#pRemarks').text(d.remarks);
+                $('#pRemarksSection').show();
+            }
+
+            // Print date
+            $('#pPrintDate').text(new Date().toLocaleString('en-IN', { dateStyle: 'long', timeStyle: 'short' }));
+        }
+
+        function fmt(n) {
+            if (n == null || isNaN(n)) return '₹0.00';
+            return '₹' + Number(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function esc(val) {
+            return (val || '').toString()
+                .replaceAll('&', '&amp;').replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;').replaceAll('"', '&quot;');
+        }
+
+        function showError(msg) {
+            $('#printLoader').hide();
+            $('#printErrorMsg').text(msg);
+            $('#printError').show();
+        }
+    </script>
+</body>
+</html>

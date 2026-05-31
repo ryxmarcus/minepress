@@ -1,0 +1,503 @@
+@page
+@model erp.minepress.web.Pages.Outsource.CreateModel
+@{
+    ViewData["Title"] = "Create Outsource Order";
+}
+
+<div class="os-hero d-print-none mb-3">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);">
+                <i class="bi bi-box-arrow-up-right" style="font-size:1.5rem;"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="mb-0">Create Outsource Order</h2>
+            <div class="text-white-75">Select job items and assign to a vendor for outsourcing.</div>
+        </div>
+        <div class="col-auto">
+            <a href="/Outsource" class="btn btn-outline-light btn-sm"><i class="bi bi-arrow-left me-1"></i>Back to List</a>
+        </div>
+    </div>
+</div>
+
+<!-- Step Progress -->
+<div class="d-flex justify-content-center mb-4" id="stepIndicator">
+    <div class="d-flex gap-4">
+        <div class="text-center os-step active" id="stepInd1">
+            <span class="avatar avatar-sm bg-purple text-white">1</span>
+            <div class="small fw-bold mt-1">Select Job</div>
+        </div>
+        <div class="d-flex align-items-center text-muted"><i class="bi bi-chevron-right"></i></div>
+        <div class="text-center os-step" id="stepInd2">
+            <span class="avatar avatar-sm bg-secondary-lt">2</span>
+            <div class="small fw-bold mt-1">Assign Vendor</div>
+        </div>
+        <div class="d-flex align-items-center text-muted"><i class="bi bi-chevron-right"></i></div>
+        <div class="text-center os-step" id="stepInd3">
+            <span class="avatar avatar-sm bg-secondary-lt">3</span>
+            <div class="small fw-bold mt-1">Select Items</div>
+        </div>
+        <div class="d-flex align-items-center text-muted"><i class="bi bi-chevron-right"></i></div>
+        <div class="text-center os-step" id="stepInd4">
+            <span class="avatar avatar-sm bg-secondary-lt">4</span>
+            <div class="small fw-bold mt-1">Review & Save</div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Step 1: Select Job ═══ -->
+<div class="card mb-3" id="stepJob">
+    <div class="card-header">
+        <h3 class="card-title"><i class="bi bi-briefcase me-2 text-purple"></i>Step 1 — Select Job</h3>
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Search Job</label>
+                <div class="input-icon">
+                    <span class="input-icon-addon"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control" id="jobSearch" placeholder="Type job no. or customer name…" />
+                </div>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">&nbsp;</label>
+                <div id="selectedJobBadge" class="d-none">
+                    <span class="badge bg-purple fs-6 px-3 py-2" id="jobBadge"></span>
+                    <button class="btn btn-ghost-danger btn-sm ms-2" onclick="clearJobSelection()"><i class="bi bi-x"></i></button>
+                </div>
+            </div>
+        </div>
+        <div id="jobResults" class="mt-3"></div>
+    </div>
+</div>
+
+<!-- ═══ Step 2: Assign Vendor ═══ -->
+<div class="card mb-3 d-none" id="stepVendor">
+    <div class="card-header">
+        <h3 class="card-title"><i class="bi bi-person-check me-2 text-purple"></i>Step 2 — Assign Vendor</h3>
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-8 col-lg-6">
+                <label class="form-label">Search Vendor</label>
+                <div class="position-relative">
+                    <div class="input-icon">
+                        <span class="input-icon-addon"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control" id="vendorSearch" placeholder="Type vendor name, code, mobile, email…" autocomplete="off" />
+                    </div>
+                    <div class="os-vendor-results d-none" id="vendorResults"></div>
+                </div>
+            </div>
+        </div>
+        <!-- Selected vendor card -->
+        <div class="d-none mt-3" id="selectedVendorCard">
+            <div class="card border-purple">
+                <div class="card-body py-2 px-3 d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="fw-bold" id="selVendorName"></div>
+                        <div class="small text-muted" id="selVendorMeta"></div>
+                    </div>
+                    <button class="btn btn-ghost-danger btn-sm" onclick="clearVendorSelection()" title="Remove"><i class="bi bi-x-lg"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-footer text-end">
+        <button class="btn btn-outline-secondary me-2" onclick="goToStep(1)"><i class="bi bi-arrow-left me-1"></i>Back</button>
+        <button class="btn btn-purple d-none" id="btnVendorNext" onclick="goToStep(3)"><i class="bi bi-arrow-right me-1"></i>Next: Select Items</button>
+    </div>
+</div>
+
+<!-- ═══ Step 3: Select Items & Process ═══ -->
+<div class="card mb-3 d-none" id="stepItems">
+    <div class="card-header">
+        <h3 class="card-title"><i class="bi bi-list-check me-2 text-purple"></i>Step 3 — Items & Process</h3>
+    </div>
+    <div class="card-body">
+        <div class="row g-3 mb-3">
+            <div class="col-md-4">
+                <label class="form-label">Process Type</label>
+                <input type="text" class="form-control" id="processType" placeholder="e.g., CNC Machining, Heat Treatment" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Expected Delivery</label>
+                <input type="date" class="form-control" id="expectedDelivery" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Remarks</label>
+                <input type="text" class="form-control" id="osRemarks" placeholder="Optional remarks" />
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-vcenter" id="itemTable">
+                <thead>
+                    <tr>
+                        <th class="w-1"><input type="checkbox" id="checkAll" class="form-check-input" /></th>
+                        <th>Item</th>
+                        <th>Description</th>
+                        <th class="text-end">Job Qty</th>
+                        <th class="text-end">Already Out</th>
+                        <th class="text-end">Pending</th>
+                        <th>OS Qty</th>
+                        <th>Process</th>
+                        <th>Rate</th>
+                        <th class="text-end">Amount</th>
+                    </tr>
+                </thead>
+                <tbody id="itemBody">
+                    <tr><td colspan="10" class="text-center text-muted py-3">Select a job first.</td></tr>
+                </tbody>
+                <tfoot>
+                    <tr class="fw-bold">
+                        <td colspan="6" class="text-end">Totals:</td>
+                        <td class="text-end" id="totalQty">0</td>
+                        <td></td>
+                        <td></td>
+                        <td class="text-end" id="totalAmt">₹0.00</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    <div class="card-footer text-end">
+        <button class="btn btn-outline-secondary me-2" onclick="goToStep(2)"><i class="bi bi-arrow-left me-1"></i>Back</button>
+        <button class="btn btn-purple" onclick="goToStep(4)"><i class="bi bi-arrow-right me-1"></i>Next: Review</button>
+    </div>
+</div>
+
+<!-- ═══ Step 4: Review ═══ -->
+<div class="card mb-3 d-none" id="stepReview">
+    <div class="card-header"><h3 class="card-title"><i class="bi bi-check2-square me-2 text-purple"></i>Step 4 — Review & Confirm</h3></div>
+    <div class="card-body" id="reviewContent"></div>
+    <div class="card-footer text-end">
+        <button class="btn btn-outline-secondary me-2" onclick="goToStep(3)"><i class="bi bi-arrow-left me-1"></i>Back</button>
+        <button class="btn btn-purple" id="btnSave" onclick="saveOutsource()">
+            <i class="bi bi-check-lg me-1"></i>Create Outsource Order
+        </button>
+    </div>
+</div>
+
+<!-- AI Insights Panel -->
+<div class="os-ai-panel d-none mt-3" id="aiInsights">
+    <h5 class="mb-2"><i class="bi bi-lightbulb me-2 text-purple"></i>Insights</h5>
+    <div id="aiInsightList"></div>
+</div>
+
+@section Scripts {
+<script>
+    const OS_API = '/api/outsource';
+    let selectedJob = null, selectedVendor = null, allVendors = [], jobItems = [];
+    let currentStep = 1;
+
+    $(function () {
+        // Pre-fill from query param
+        const fromJobId = '@Model.FromJobId';
+        if (fromJobId) selectJob(parseInt(fromJobId));
+
+        $('#jobSearch').on('input', debounce(searchJobs, 300));
+        $('#vendorSearch').on('input', debounce(searchVendors, 300));
+        $('#checkAll').on('change', function () {
+            $('#itemBody .item-check').prop('checked', this.checked).trigger('change');
+        });
+
+        // Close vendor results on outside click
+        $(document).on('click', function (e) {
+            if (!$(e.target).closest('#vendorSearch, #vendorResults').length) {
+                $('#vendorResults').addClass('d-none');
+            }
+        });
+    });
+
+    function debounce(fn, ms) { let t; return function (...a) { clearTimeout(t); t = setTimeout(() => fn.apply(this, a), ms); }; }
+
+    function goToStep(step) {
+        currentStep = step;
+        ['stepJob','stepVendor','stepItems','stepReview'].forEach((id, i) => {
+            const el = $(`#${id}`);
+            if (i + 1 <= step) el.removeClass('d-none'); else el.addClass('d-none');
+        });
+        for (let i = 1; i <= 4; i++) {
+            const ind = $(`#stepInd${i}`);
+            ind.find('.avatar').removeClass('bg-purple text-white bg-success-lt bg-secondary-lt');
+            if (i < step) ind.find('.avatar').addClass('bg-success-lt');
+            else if (i === step) ind.find('.avatar').addClass('bg-purple text-white');
+            else ind.find('.avatar').addClass('bg-secondary-lt');
+        }
+        if (step === 4) buildReview();
+    }
+
+    // ── Step 1: Job Search ──
+    async function searchJobs() {
+        const q = $('#jobSearch').val();
+        if (!q || q.length < 2) { $('#jobResults').html(''); return; }
+        try {
+            const jobs = await $.get('/api/job/search?q=' + encodeURIComponent(q));
+            if (!jobs.length) { $('#jobResults').html('<div class="text-muted small">No jobs found.</div>'); return; }
+            let html = '<div class="list-group list-group-flush">';
+            jobs.forEach(j => {
+                html += `<a class="list-group-item list-group-item-action" href="javascript:void(0)" onclick="selectJob(${j.jobId})">
+                    <div class="d-flex justify-content-between">
+                        <div><strong>${j.jobNo}</strong> <span class="text-muted ms-2">${j.customerName || ''}</span></div>
+                        <span class="badge bg-purple-lt">${j.productName || ''}</span>
+                    </div>
+                    <div class="small text-muted">Qty: ${j.quantity ?? '-'} | Amount: ₹${(j.netAmount ?? 0).toLocaleString('en-IN')}</div>
+                </a>`;
+            });
+            html += '</div>';
+            $('#jobResults').html(html);
+        } catch (e) { console.error(e); }
+    }
+
+    async function selectJob(jobId) {
+        try {
+            const data = await $.get(`${OS_API}/from-job/${jobId}`);
+            selectedJob = data;
+            $('#jobBadge').text(`${data.jobNo} — ${data.customerName || ''}`);
+            $('#selectedJobBadge').removeClass('d-none');
+            $('#jobResults').html('');
+            loadJobItems(data.items);
+            goToStep(2);
+        } catch (e) { Swal2.error(e.responseJSON?.message || 'Failed to load job data'); }
+    }
+
+    function clearJobSelection() {
+        selectedJob = null;
+        $('#selectedJobBadge').addClass('d-none');
+        $('#jobBadge').text('');
+        jobItems = [];
+        goToStep(1);
+    }
+
+    // ── Step 2: Vendor Search & Selection ──
+    async function searchVendors() {
+        const q = ($('#vendorSearch').val() || '').trim();
+        if (q.length < 2) { $('#vendorResults').addClass('d-none'); return; }
+        try {
+            allVendors = await $.get(`${OS_API}/vendors`);
+            const ql = q.toLowerCase();
+            const filtered = allVendors.filter(v =>
+                `${v.vendorName} ${v.vendorCode} ${v.vendorEmail} ${v.vendorMobile || ''} ${v.serviceArea}`.toLowerCase().includes(ql)
+            );
+            renderVendorResults(filtered);
+        } catch (e) { console.error(e); }
+    }
+
+    function renderVendorResults(vendors) {
+        const $el = $('#vendorResults');
+        if (!vendors.length) {
+            $el.html('<div class="os-vendor-result-item text-muted">No vendors found.</div>').removeClass('d-none');
+            return;
+        }
+        let html = '';
+        vendors.forEach(v => {
+            html += `<div class="os-vendor-result-item" onclick="selectVendor(${v.vendorId})">
+                <div class="fw-bold">${v.vendorName}</div>
+                <div class="small text-muted">${[v.vendorCode, v.vendorMobile, v.vendorEmail, v.serviceArea].filter(Boolean).join(' • ')}</div>
+                <div class="small text-muted">${v.vendorType || ''}</div>
+            </div>`;
+        });
+        $el.html(html).removeClass('d-none');
+    }
+
+    function selectVendor(vendorId) {
+        selectedVendor = allVendors.find(v => v.vendorId === vendorId);
+        if (!selectedVendor) return;
+        $('#vendorSearch').val('');
+        $('#vendorResults').addClass('d-none');
+        $('#selVendorName').text(selectedVendor.vendorName);
+        $('#selVendorMeta').text([selectedVendor.vendorCode, selectedVendor.vendorMobile, selectedVendor.vendorEmail, selectedVendor.serviceArea, selectedVendor.vendorType].filter(Boolean).join(' • '));
+        $('#selectedVendorCard').removeClass('d-none');
+        $('#btnVendorNext').removeClass('d-none');
+    }
+
+    function clearVendorSelection() {
+        selectedVendor = null;
+        $('#selectedVendorCard').addClass('d-none');
+        $('#btnVendorNext').addClass('d-none');
+        $('#vendorSearch').val('').focus();
+    }
+
+    // ── Step 3: Items ──
+    function loadJobItems(items) {
+        jobItems = items || [];
+        if (!items || !items.length) {
+            $('#itemBody').html('<tr><td colspan="10" class="text-center text-muted py-3">No items in this job.</td></tr>');
+            return;
+        }
+        let html = '';
+        items.forEach((item, i) => {
+            const maxQty = item.pendingQuantity;
+            html += `<tr class="os-item-row" data-idx="${i}">
+                <td><input type="checkbox" class="form-check-input item-check" data-idx="${i}" ${maxQty > 0 ? '' : 'disabled'} /></td>
+                <td class="fw-semibold">${item.productName || `Item ${item.itemSequence}`}</td>
+                <td class="small text-muted">${item.productDescription || '—'}</td>
+                <td class="text-end">${item.jobQuantity}</td>
+                <td class="text-end text-orange">${item.alreadyOutsourced}</td>
+                <td class="text-end fw-bold ${maxQty <= 0 ? 'text-danger' : 'text-success'}">${maxQty}</td>
+                <td><input type="number" class="form-control form-control-sm os-qty" data-idx="${i}" min="0" max="${maxQty}" value="${maxQty > 0 ? maxQty : 0}" style="width:80px;" /></td>
+                <td><input type="text" class="form-control form-control-sm os-process-name" data-idx="${i}" placeholder="Process" /></td>
+                <td><input type="number" class="form-control form-control-sm os-rate" data-idx="${i}" min="0" step="0.01" value="0" style="width:90px;" /></td>
+                <td class="text-end fw-semibold os-row-amount" data-idx="${i}">₹0.00</td>
+            </tr>`;
+        });
+        $('#itemBody').html(html);
+
+        // Recalc on qty/rate change
+        $('#itemBody').on('input', '.os-qty, .os-rate', function () {
+            const idx = $(this).data('idx');
+            recalcRow(idx);
+            recalcTotals();
+        });
+    }
+
+    function recalcRow(idx) {
+        const qty = parseFloat($(`.os-qty[data-idx="${idx}"]`).val()) || 0;
+        const rate = parseFloat($(`.os-rate[data-idx="${idx}"]`).val()) || 0;
+        const amt = qty * rate;
+        $(`.os-row-amount[data-idx="${idx}"]`).text('₹' + amt.toLocaleString('en-IN', { minimumFractionDigits: 2 }));
+    }
+
+    function recalcTotals() {
+        let totalQty = 0, totalAmt = 0;
+        $('#itemBody .item-check:checked').each(function () {
+            const idx = $(this).data('idx');
+            totalQty += parseFloat($(`.os-qty[data-idx="${idx}"]`).val()) || 0;
+            const qty = parseFloat($(`.os-qty[data-idx="${idx}"]`).val()) || 0;
+            const rate = parseFloat($(`.os-rate[data-idx="${idx}"]`).val()) || 0;
+            totalAmt += qty * rate;
+        });
+        $('#totalQty').text(totalQty.toLocaleString('en-IN'));
+        $('#totalAmt').text('₹' + totalAmt.toLocaleString('en-IN', { minimumFractionDigits: 2 }));
+    }
+
+    // ── Step 4: Review ──
+    function buildReview() {
+        if (!selectedJob || !selectedVendor) { Swal2.error('Please complete all steps.'); goToStep(1); return; }
+
+        const items = getSelectedItems();
+        if (!items.length) { Swal2.error('Please select at least one item.'); goToStep(3); return; }
+
+        let totalQty = items.reduce((s, i) => s + i.quantity, 0);
+        let totalAmt = items.reduce((s, i) => s + i.amount, 0);
+
+        let html = `
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="os-info-label">Job</div>
+                    <div class="os-info-value">${selectedJob.jobNo} — ${selectedJob.customerName || ''}</div>
+                </div>
+                <div class="col-md-6">
+                    <div class="os-info-label">Vendor</div>
+                    <div class="os-info-value">${selectedVendor.vendorName} (${selectedVendor.vendorCode || ''})</div>
+                </div>
+                <div class="col-md-4">
+                    <div class="os-info-label">Process Type</div>
+                    <div class="os-info-value">${$('#processType').val() || '—'}</div>
+                </div>
+                <div class="col-md-4">
+                    <div class="os-info-label">Expected Delivery</div>
+                    <div class="os-info-value">${$('#expectedDelivery').val() || '—'}</div>
+                </div>
+                <div class="col-md-4">
+                    <div class="os-info-label">Remarks</div>
+                    <div class="os-info-value">${$('#osRemarks').val() || '—'}</div>
+                </div>
+            </div>
+            <hr class="my-3"/>
+            <h5>Items (${items.length})</h5>
+            <table class="table table-sm table-vcenter">
+                <thead><tr><th>#</th><th>Product</th><th>Process</th><th class="text-end">Qty</th><th class="text-end">Rate</th><th class="text-end">Amount</th></tr></thead>
+                <tbody>`;
+        items.forEach((item, i) => {
+            html += `<tr>
+                <td>${i + 1}</td><td>${item.productName || '—'}</td><td>${item.processName || '—'}</td>
+                <td class="text-end">${item.quantity}</td><td class="text-end">${item.rate?.toFixed(2)}</td>
+                <td class="text-end fw-bold">₹${item.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+            </tr>`;
+        });
+        html += `</tbody><tfoot><tr class="fw-bold"><td colspan="3">Total</td><td class="text-end">${totalQty}</td><td></td><td class="text-end">₹${totalAmt.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td></tr></tfoot></table>`;
+
+        $('#reviewContent').html(html);
+    }
+
+    function getSelectedItems() {
+        const items = [];
+        $('#itemBody .item-check:checked').each(function () {
+            const idx = $(this).data('idx');
+            const ji = jobItems[idx];
+            const qty = parseFloat($(`.os-qty[data-idx="${idx}"]`).val()) || 0;
+            const rate = parseFloat($(`.os-rate[data-idx="${idx}"]`).val()) || 0;
+            items.push({
+                jobItemId: ji.jobItemId,
+                itemSequence: ji.itemSequence,
+                productName: ji.productName,
+                processName: $(`.os-process-name[data-idx="${idx}"]`).val() || '',
+                quantity: qty,
+                rate: rate,
+                amount: qty * rate,
+                uomId: ji.uomId,
+                remarks: ''
+            });
+        });
+        return items;
+    }
+
+    // ── Save ──
+    async function saveOutsource() {
+        const items = getSelectedItems();
+        if (!items.length) { Swal2.error('No items selected.'); return; }
+
+        const totalQty = items.reduce((s, i) => s + i.quantity, 0);
+        const totalAmt = items.reduce((s, i) => s + i.amount, 0);
+
+        const payload = {
+            jobId: selectedJob.jobId,
+            vendorId: selectedVendor.vendorId,
+            processType: $('#processType').val() || null,
+            totalQuantity: totalQty,
+            totalAmount: totalAmt,
+            expectedDeliveryDate: $('#expectedDelivery').val() || null,
+            remarks: $('#osRemarks').val() || null,
+            items: items
+        };
+
+        try {
+            Swal2.showLoading('Creating outsource order…');
+            const res = await $.ajax({
+                url: `${OS_API}/save`, method: 'POST',
+                contentType: 'application/json', data: JSON.stringify(payload)
+            });
+            Swal2.hideLoading();
+            const emailResult = await Swal.fire({
+                icon: 'success', title: 'Outsource Created!',
+                html: `<strong>${res.outsourceNo}</strong> has been created successfully.<br><small class="text-muted">Would you like to email this outsource order to the vendor?</small>`,
+                showCancelButton: true,
+                confirmButtonText: '<i class="bi bi-envelope me-1"></i>Email to Vendor',
+                cancelButtonText: 'View Details',
+                confirmButtonColor: '#6f42c1'
+            });
+            if (emailResult.isConfirmed) {
+                try {
+                    Swal2.showLoading('Sending email…');
+                    await $.ajax({
+                        url: `${OS_API}/send-email-vendor`, method: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({ outsourceId: res.outsourceId })
+                    });
+                    Swal2.hideLoading();
+                    await Swal.fire({ icon: 'success', title: 'Email Sent!', text: 'Outsource order emailed to vendor.', timer: 2000, showConfirmButton: false });
+                } catch (emailErr) {
+                    Swal2.hideLoading();
+                    await Swal.fire({ icon: 'warning', title: 'Email Failed', text: emailErr.responseJSON?.message || 'Could not send email. You can retry from the details page.', confirmButtonText: 'OK' });
+                }
+            }
+            window.location.href = `/Outsource/Details?id=${res.outsourceId}`;
+        } catch (err) {
+            Swal2.hideLoading();
+            Swal2.error(err.responseJSON?.message || 'Failed to save outsource order.');
+        }
+    }
+</script>
+}

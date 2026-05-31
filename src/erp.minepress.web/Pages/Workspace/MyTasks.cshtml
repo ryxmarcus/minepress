@@ -1,0 +1,119 @@
+@page
+@model erp.minepress.web.Pages.Workspace.MyTasksModel
+@{
+    ViewData["Title"] = "My Tasks";
+}
+
+<div class="ws-my-tasks-page">
+    <!-- ═══ Hero Header ═══ -->
+    <div class="ws-hero d-print-none">
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <span class="avatar avatar-lg ws-hero-avatar">
+                    <i class="bi bi-list-task" style="font-size:1.5rem;"></i>
+                </span>
+            </div>
+            <div class="col">
+                <h2 class="mb-1">My Tasks</h2>
+                <div class="text-white-75 d-flex align-items-center gap-2">
+                    <span class="badge bg-white text-dark">
+                        <i class="bi bi-person-circle me-1"></i>@Model.UserFullName
+                    </span>
+                    <span class="badge bg-white text-dark">
+                        <i class="bi bi-building me-1"></i>@Model.DeptCode — @Model.DeptName
+                    </span>
+                </div>
+            </div>
+            <div class="col-auto d-flex gap-2 flex-wrap">
+                <a href="/Workspace" class="btn btn-outline-light btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i>Back to Workspace
+                </a>
+                <button class="btn btn-outline-light btn-sm" onclick="Workspace.refreshTasks()">
+                    <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ Filter Tabs ═══ -->
+    <div class="row g-3 mb-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body py-2">
+                    <div class="d-flex align-items-center flex-wrap gap-2">
+                        <div class="btn-group" role="group" id="taskFilterGroup">
+                            <button type="button" class="btn btn-outline-primary btn-sm active" data-filter="pending">
+                                <i class="bi bi-hourglass-split me-1"></i>Pending <span class="badge bg-primary ms-1" id="badgePending">0</span>
+                            </button>
+                            <button type="button" class="btn btn-outline-primary btn-sm" data-filter="in_progress">
+                                <i class="bi bi-play-circle me-1"></i>In Progress <span class="badge bg-cyan ms-1" id="badgeInProgress">0</span>
+                            </button>
+                            <button type="button" class="btn btn-outline-primary btn-sm" data-filter="completed">
+                                <i class="bi bi-check-circle me-1"></i>Completed <span class="badge bg-success ms-1" id="badgeCompleted">0</span>
+                            </button>
+                            <button type="button" class="btn btn-outline-primary btn-sm" data-filter="assigned">
+                                <i class="bi bi-send-check me-1"></i>Assigned by Me <span class="badge bg-orange ms-1" id="badgeAssigned">0</span>
+                            </button>
+                            <button type="button" class="btn btn-outline-primary btn-sm" data-filter="overdue">
+                                <i class="bi bi-exclamation-triangle me-1"></i>Overdue <span class="badge bg-danger ms-1" id="badgeOverdue">0</span>
+                            </button>
+                        </div>
+                        <div class="ms-auto d-flex gap-2">
+                            <select class="form-select form-select-sm" id="taskPriorityFilter" style="width:auto;">
+                                <option value="">All Priorities</option>
+                                <option value="URGENT">Urgent</option>
+                                <option value="HIGH">High</option>
+                                <option value="NORMAL">Normal</option>
+                                <option value="LOW">Low</option>
+                            </select>
+                            <div class="input-group input-group-sm" style="width:220px;">
+                                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                <input type="text" class="form-control" placeholder="Search tasks..." id="taskSearchInput" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ Tasks List ═══ -->
+    <div class="row g-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body p-0" id="wsTasksList">
+                    <div class="text-center py-5 text-secondary">
+                        <div class="spinner-border spinner-border-sm me-2"></div>Loading tasks...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ Task Detail Modal ═══ -->
+    <div class="modal modal-blur fade" id="taskDetailModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-info-circle me-2"></i>Task Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="taskDetailBody">
+                    <div class="text-center py-4"><div class="spinner-border"></div></div>
+                </div>
+                <div class="modal-footer" id="taskDetailFooter"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link href="/css/workspace.css" rel="stylesheet" />
+}
+
+@section Scripts {
+    <script src="/js/workspace.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => Workspace.initMyTasks());
+    </script>
+}

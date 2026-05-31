@@ -1,0 +1,955 @@
+@page
+@model erp.minepress.web.Pages.Accounting.SalesInvoice.CreateModel
+@{
+    ViewData["Title"] = "Create Sales Invoice";
+}
+
+<link rel="stylesheet" href="~/css/hsn-sac-picker.css" />
+
+<!-- Hero Header -->
+<div class="acc-hero acc-hero-compact d-print-none">
+    <div class="d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-receipt-cutoff" style="font-size:1.1rem; opacity:.85;"></i>
+            <h4 class="mb-0" id="pageTitle">New Sales Invoice</h4>
+        </div>
+        <a href="/Accounting/SalesInvoice" class="btn btn-outline-light btn-sm py-0 px-2" style="font-size:.78rem;">
+            <i class="bi bi-arrow-left me-1"></i>Back
+        </a>
+    </div>
+</div>
+
+<!-- Wizard Steps -->
+<ul class="acc-wizard-steps acc-wizard-compact d-print-none" id="wizardSteps">
+    <li class="active" id="ws1"><span class="step-label">Customer</span></li>
+    <li id="ws2"><span class="step-label">Jobs</span></li>
+    <li id="ws3"><span class="step-label">Items</span></li>
+    <li id="ws4"><span class="step-label">Finalize</span></li>
+</ul>
+
+<form id="invoiceForm" autocomplete="off">
+    <input type="hidden" id="hfSalesInvoiceId" value="0" />
+    <input type="hidden" id="hfJobId" />
+    <input type="hidden" id="hfQuotationId" />
+
+    <!-- ═══════ SECTION 1: Customer & Invoice Info ═══════ -->
+    <div id="section1">
+        <div class="row g-2 mb-2">
+            <!-- Left: Customer Selection -->
+            <div class="col-lg-7">
+                <div class="card acc-section-card h-100">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="bi bi-person-badge text-primary"></i>Customer Details</h3>
+                    </div>
+                    <div class="card-body py-2 px-3">
+                        <div class="mb-2">
+                            <label class="form-label mb-1" style="font-size:.78rem;">Select Customer <span class="text-danger">*</span></label>
+                            <select id="ddlCustomer" class="form-select form-select-sm" required>
+                                <option value="">Search customer...</option>
+                            </select>
+                        </div>
+
+                        <!-- Customer Info (hidden until selected) -->
+                        <div id="customerInfoPanel" style="display:none;">
+                            <div class="acc-customer-card has-data mb-2 p-2">
+                                <div class="d-flex align-items-start gap-2">
+                                    <i class="bi bi-geo-alt-fill text-primary" style="font-size:1rem; margin-top:1px;"></i>
+                                    <div class="flex-fill" style="font-size:.82rem;">
+                                        <strong class="d-block" id="custName"></strong>
+                                        <div id="custFullAddress" class="text-muted" style="font-size:.78rem; line-height:1.4;"></div>
+                                        <div class="d-flex flex-wrap gap-2 mt-1" style="font-size:.75rem;">
+                                            <span id="custGstDisplay" style="display:none;"><strong>GSTIN:</strong> <span id="custGstNo"></span></span>
+                                            <span id="custMobileDisplay" style="display:none;"><strong>Ph:</strong> <span id="custMobile"></span></span>
+                                            <span id="custEmailDisplay" style="display:none;"><strong>Email:</strong> <span id="custEmail"></span></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- State, Place of Supply & Tax Type -->
+                            <div class="row g-2">
+                                <div class="col-md-4">
+                                    <label class="form-label mb-1" style="font-size:.75rem;">State <span class="text-danger">*</span></label>
+                                    <select id="ddlState" class="form-select form-select-sm" required>
+                                        <option value="">Select...</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label mb-1" style="font-size:.75rem;">Place of Supply <span class="text-danger">*</span></label>
+                                    <select id="ddlPlaceOfSupply" class="form-select form-select-sm" required>
+                                        <option value="">Select...</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 d-flex align-items-end pb-1">
+                                    <div id="taxTypeIndicator"></div>
+                                </div>
+                            </div>
+                            <small class="text-muted d-block" id="taxLogicHint" style="font-size:.7rem;"></small>
+                        </div>
+
+                        <!-- No customer selected placeholder -->
+                        <div id="customerPlaceholder" class="acc-customer-card text-center py-3">
+                            <i class="bi bi-person-plus" style="font-size:1.5rem; opacity:.3;"></i>
+                            <div class="text-muted mt-1" style="font-size:.78rem;">Select a customer to view details</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Invoice Details -->
+            <div class="col-lg-5">
+                <div class="card acc-section-card h-100">
+                    <div class="card-header py-2 px-3">
+                        <h3 class="card-title"><i class="bi bi-calendar-event text-success"></i>Invoice Details</h3>
+                    </div>
+                    <div class="card-body py-2 px-3">
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <label class="form-label mb-1" style="font-size:.78rem;">Invoice Date <span class="text-danger">*</span></label>
+                                <input type="date" id="txtInvoiceDate" class="form-control form-control-sm" required />
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label mb-1" style="font-size:.78rem;">Due Date</label>
+                                <input type="date" id="txtDueDate" class="form-control form-control-sm" />
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label mb-1" style="font-size:.78rem;">Payment Term</label>
+                                <select id="ddlPaymentTerm" class="form-select form-select-sm">
+                                    <option value="">Select payment term</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ SECTION 2: Pending Jobs Selection ═══════ -->
+    <div id="section2">
+        <div class="card acc-section-card mb-2">
+            <div class="card-header py-2 px-3 d-flex align-items-center justify-content-between">
+                <h3 class="card-title"><i class="bi bi-briefcase text-warning"></i>Pending Jobs</h3>
+                <div class="d-flex align-items-center gap-2">
+                    <div class="acc-mode-toggle" id="modeToggle">
+                        <button type="button" class="mode-btn active" data-mode="multi" onclick="setJobMode('multi')">
+                            <i class="bi bi-collection me-1"></i>Multi
+                        </button>
+                        <button type="button" class="mode-btn" data-mode="single" onclick="setJobMode('single')">
+                            <i class="bi bi-1-circle me-1"></i>Single
+                        </button>
+                    </div>
+                    <span class="badge bg-primary-lt" style="font-size:.7rem;" id="selectedJobCount">0 selected</span>
+                </div>
+            </div>
+            <div class="acc-job-panel" id="jobListPanel">
+                <div class="acc-job-empty" id="jobEmptyState">
+                    <i class="bi bi-inbox"></i>
+                    <div class="empty-title">No pending jobs</div>
+                    <div class="empty-sub">Select a customer to load pending jobs</div>
+                </div>
+                <div id="jobListBody"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ SECTION 3: Line Items ═══════ -->
+    <div id="section3">
+        <div class="card acc-section-card mb-2">
+            <div class="card-header py-2 px-3 d-flex align-items-center">
+                <h3 class="card-title"><i class="bi bi-list-ol text-info"></i>Invoice Items</h3>
+                <button type="button" class="btn btn-primary btn-sm ms-auto py-0 px-2" style="font-size:.78rem;" onclick="addItemRow()">
+                    <i class="bi bi-plus-lg me-1"></i>Add
+                </button>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table" id="itemsTable">
+                    <thead>
+                        <tr>
+                            <th style="width:30px;">#</th>
+                            <th style="min-width:200px;">Description</th>
+                            <th style="width:90px;">HSN/SAC</th>
+                            <th style="width:70px;">Qty</th>
+                            <th style="width:90px;">Rate</th>
+                            <th style="width:65px;">Disc %</th>
+                            <th style="width:95px;">Taxable</th>
+                            <th class="tax-col-cgst" style="width:65px;">CGST %</th>
+                            <th class="tax-col-sgst" style="width:65px;">SGST %</th>
+                            <th class="tax-col-igst" style="width:65px;">IGST %</th>
+                            <th style="width:90px;">Tax</th>
+                            <th style="width:100px;">Total</th>
+                            <th style="width:36px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="itemsBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ SECTION 4: Totals, Notes, Actions ═══════ -->
+    <div id="section4">
+        <div class="row g-2 mb-2">
+            <!-- Notes Column -->
+            <div class="col-lg-6">
+                <div class="card acc-section-card h-100">
+                    <div class="card-header py-2 px-3">
+                        <h3 class="card-title"><i class="bi bi-chat-left-text text-secondary"></i>Notes</h3>
+                    </div>
+                    <div class="card-body py-2 px-3">
+                        <div class="mb-2">
+                            <label class="form-label mb-1" style="font-size:.78rem;">Remarks</label>
+                            <textarea id="txtRemarks" class="form-control form-control-sm" rows="1" placeholder="Special remarks..."></textarea>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label mb-1" style="font-size:.78rem;">Terms &amp; Conditions</label>
+                            <textarea id="txtTerms" class="form-control form-control-sm" rows="1" placeholder="Payment / delivery terms..."></textarea>
+                        </div>
+                        <div>
+                            <label class="form-label mb-1" style="font-size:.78rem;">Internal Notes</label>
+                            <textarea id="txtNotes" class="form-control form-control-sm" rows="1" placeholder="Not visible on invoice"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Totals Column -->
+            <div class="col-lg-6">
+                <div class="acc-totals-card">
+                    <div class="totals-row"><span class="label">Subtotal (before discount)</span><span class="value" id="dispSubtotal">₹0.00</span></div>
+                    <div class="totals-row"><span class="label">Total Discount</span><span class="value text-danger" id="dispDiscount">-₹0.00</span></div>
+                    <div class="totals-row" style="border-top:1px dashed var(--tblr-border-color);"><span class="label">Taxable Amount</span><span class="value" id="dispTaxable">₹0.00</span></div>
+                    <div class="totals-row tax-row-cgst"><span class="label">CGST</span><span class="value" id="dispCgst">₹0.00</span></div>
+                    <div class="totals-row tax-row-sgst"><span class="label">SGST</span><span class="value" id="dispSgst">₹0.00</span></div>
+                    <div class="totals-row tax-row-igst"><span class="label">IGST</span><span class="value" id="dispIgst">₹0.00</span></div>
+                    <div class="totals-row">
+                        <span class="label">Round Off</span>
+                        <span class="value">
+                            <input type="number" id="txtRoundOff" class="form-control form-control-sm text-end" style="width:90px; display:inline-block;" value="0" step="0.01" onchange="calcTotals()" />
+                        </span>
+                    </div>
+                    <div class="totals-row grand">
+                        <span class="label">Grand Total</span>
+                        <span class="value" id="dispGrandTotal" style="font-size:1.2rem;">₹0.00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ Sticky Action Bar ═══════ -->
+    <div class="acc-action-bar acc-action-compact d-print-none">
+        <div class="d-flex justify-content-between align-items-center">
+            <span class="text-muted" id="statusHint" style="font-size:.78rem;">
+                <i class="bi bi-info-circle me-1"></i>Fill customer &amp; select jobs to create invoice
+            </span>
+            <div class="d-flex gap-2">
+                <a href="/Accounting/SalesInvoice" class="btn btn-ghost-secondary btn-sm">Cancel</a>
+                <button type="button" class="btn btn-primary btn-sm px-3" onclick="saveInvoice()" id="btnSave">
+                    <i class="bi bi-check-lg me-1"></i>Save
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        const ACC_API = '/api/accounting';
+        let itemSeq = 0;
+        let jobMode = 'multi'; // 'multi' or 'single'
+        let selectedJobs = {};
+        let pendingJobs = [];
+        let currentTaxType = 'INTRA_STATE'; // INTRA_STATE => CGST+SGST, INTER_STATE => IGST
+        let customerData = null;
+        let statesList = [];
+
+        $(document).ready(function () {
+            $('#txtInvoiceDate').val(new Date().toISOString().split('T')[0]);
+            loadStates();
+            loadPaymentTerms();
+
+            // Init Select2 with AJAX search
+            $('#ddlCustomer').select2({
+                theme: 'bootstrap-5',
+                placeholder: 'Search customer by name or code...',
+                allowClear: true,
+                ajax: {
+                    url: `${ACC_API}/parties`,
+                    dataType: 'json',
+                    delay: 300,
+                    data: params => ({ q: params.term }),
+                    processResults: data => ({ results: data.map(p => ({ id: p.id, text: `${p.text} (${p.code || ''})` })) }),
+                    cache: true
+                },
+                minimumInputLength: 1
+            });
+
+            $('#ddlCustomer').on('change', function () {
+                const partyId = $(this).val();
+                if (partyId) {
+                    loadPartyDetail(partyId);
+                    loadPendingJobs(partyId);
+                    updateWizard(2);
+                } else {
+                    clearCustomerData();
+                    updateWizard(1);
+                }
+            });
+
+            // Place of Supply change — recalculate tax type
+            $('#ddlPlaceOfSupply').on('change', function () {
+                $(this).removeClass('is-invalid');
+                if (customerData) {
+                    recalcTaxType(customerData.companyStateId);
+                }
+            });
+
+            // State change — also recalculate tax type
+            $('#ddlState').on('change', function () {
+                if (customerData) {
+                    recalcTaxType(customerData.companyStateId);
+                }
+            });
+
+            // Payment term auto-sets due date
+            $('#ddlPaymentTerm').on('change', function () {
+                const opt = $(this).find(':selected');
+                const days = opt.data('days');
+                if (days && $('#txtInvoiceDate').val()) {
+                    const d = new Date($('#txtInvoiceDate').val());
+                    d.setDate(d.getDate() + parseInt(days));
+                    $('#txtDueDate').val(d.toISOString().split('T')[0]);
+                }
+            });
+
+            // Check query params for pre-fill
+            const params = new URLSearchParams(window.location.search);
+            const fromJobId = params.get('FromJobId');
+            const fromEnquiryId = params.get('FromEnquiryId');
+            const editId = params.get('id');
+
+            if (fromJobId) {
+                loadFromJob(fromJobId);
+            } else if (fromEnquiryId) {
+                loadFromEnquiry(fromEnquiryId);
+            } else if (editId) {
+                loadForEdit(editId);
+            }
+        });
+
+        // ── Load Party Details ──
+        function loadPartyDetail(partyId) {
+            $.get(`${ACC_API}/party-detail/${partyId}`, function (d) {
+                customerData = d;
+                $('#customerPlaceholder').hide();
+                $('#customerInfoPanel').show();
+                $('#custName').text(d.name);
+
+                // Build consolidated address
+                let addrParts = [];
+                const ba = d.billingAddress;
+                if (ba) {
+                    if (ba.addressLine1) addrParts.push(esc(ba.addressLine1));
+                    if (ba.addressLine2) addrParts.push(esc(ba.addressLine2));
+                    if (ba.landmark) addrParts.push(esc(ba.landmark));
+                    let city = [ba.cityName, ba.districtName].filter(Boolean).join(', ');
+                    if (city) addrParts.push(esc(city));
+                    if (ba.stateName) addrParts.push(esc(ba.stateName));
+                    if (ba.postalCode) addrParts.push('PIN: ' + esc(ba.postalCode));
+                }
+                if (addrParts.length > 0) {
+                    $('#custFullAddress').html(addrParts.join(', ')).show();
+                } else {
+                    $('#custFullAddress').hide();
+                }
+
+                // GSTIN, Mobile, Email
+                if (d.gstno) { $('#custGstNo').text(d.gstno); $('#custGstDisplay').show(); } else { $('#custGstDisplay').hide(); }
+                if (d.mobile) { $('#custMobile').text(d.mobile); $('#custMobileDisplay').show(); } else { $('#custMobileDisplay').hide(); }
+                if (d.email) { $('#custEmail').text(d.email); $('#custEmailDisplay').show(); } else { $('#custEmailDisplay').hide(); }
+
+                // Auto-populate State from billing address
+                if (d.billingAddress?.stateId) {
+                    $('#ddlState').val(d.billingAddress.stateId);
+                }
+
+                // Place of Supply auto-fill from shipping (delivery) address state
+                const deliveryAddr = d.shippingAddress || d.billingAddress;
+                if (deliveryAddr?.stateId) {
+                    $('#ddlPlaceOfSupply').val(deliveryAddr.stateId);
+                } else {
+                    $('#ddlPlaceOfSupply').val('');
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Place of Supply Required',
+                        text: 'Delivery address does not have a state. Please select Place of Supply manually.',
+                        confirmButtonText: 'OK'
+                    });
+                    $('#ddlPlaceOfSupply').addClass('is-invalid');
+                }
+
+                // Recalculate tax type based on selected Place of Supply
+                recalcTaxType(d.companyStateId);
+
+            }).fail(function () {
+                Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to load customer details.' });
+            });
+        }
+
+        function applyTaxType() {
+            const isIntra = currentTaxType === 'INTRA_STATE';
+            const stateName = $('#ddlState option:selected').text().trim() || 'State';
+            const posName = $('#ddlPlaceOfSupply option:selected').text().trim() || 'Place of Supply';
+            if (isIntra) {
+                $('#taxTypeIndicator').html('<span class="acc-tax-indicator intra-state"><i class="bi bi-arrow-left-right"></i>CGST + SGST</span>');
+                $('#taxLogicHint').text(`Same state (${stateName}) → CGST + SGST`);
+                $('.tax-col-cgst, .tax-col-sgst, .tax-row-cgst, .tax-row-sgst').show();
+                $('.tax-col-igst, .tax-row-igst').hide();
+            } else {
+                $('#taxTypeIndicator').html('<span class="acc-tax-indicator inter-state"><i class="bi bi-signpost-2"></i>IGST</span>');
+                $('#taxLogicHint').text(`${stateName} ≠ ${posName} → IGST`);
+                $('.tax-col-cgst, .tax-col-sgst, .tax-row-cgst, .tax-row-sgst').hide();
+                $('.tax-col-igst, .tax-row-igst').show();
+            }
+            // Convert existing row tax percentages then recalculate
+            convertRowsTaxType();
+            recalcAllRows();
+        }
+
+        // Load states from master table
+        function loadStates() {
+            $.get(`${ACC_API}/states`, function (data) {
+                statesList = data;
+                data.forEach(s => {
+                    const label = s.gstStateCode ? `${s.name} (${s.gstStateCode})` : s.name;
+                    $('#ddlState').append(`<option value="${s.id}">${esc(label)}</option>`);
+                    $('#ddlPlaceOfSupply').append(`<option value="${s.id}">${esc(label)}</option>`);
+                });
+            }).fail(function () {});
+        }
+
+        // Recalculate tax type: Place of Supply vs State dropdown (billing/seller state)
+        function recalcTaxType(companyStateId) {
+            const posStateId = parseInt($('#ddlPlaceOfSupply').val()) || 0;
+            const stateId = parseInt($('#ddlState').val()) || 0;
+            if (posStateId && stateId) {
+                currentTaxType = posStateId === stateId ? 'INTRA_STATE' : 'INTER_STATE';
+            } else if (posStateId && companyStateId) {
+                currentTaxType = posStateId === companyStateId ? 'INTRA_STATE' : 'INTER_STATE';
+            } else if (customerData) {
+                currentTaxType = customerData.taxType || 'INTRA_STATE';
+            }
+            applyTaxType();
+        }
+
+        function clearCustomerData() {
+            customerData = null;
+            $('#customerInfoPanel').hide();
+            $('#customerPlaceholder').show();
+            $('#custFullAddress').html('').hide();
+            $('#custGstDisplay, #custMobileDisplay, #custEmailDisplay').hide();
+            $('#taxTypeIndicator').html('');
+            $('#taxLogicHint').text('');
+            $('#ddlState').val('');
+            $('#ddlPlaceOfSupply').val('').removeClass('is-invalid');
+            pendingJobs = [];
+            selectedJobs = {};
+            renderJobList();
+            $('#statusHint').html('<i class="bi bi-info-circle me-1"></i>Fill customer & select jobs to create invoice');
+        }
+
+        // ── Load Pending Jobs ──
+        function loadPendingJobs(partyId) {
+            $.get(`${ACC_API}/pending-jobs/${partyId}`, function (data) {
+                pendingJobs = data;
+                selectedJobs = {};
+                renderJobList();
+                if (data.length > 0) {
+                    updateWizard(2);
+                    $('#statusHint').html(`<i class="bi bi-briefcase me-1"></i><strong>${data.length}</strong> pending job(s) found — select to add to invoice`);
+                } else {
+                    $('#statusHint').html('<i class="bi bi-info-circle me-1"></i>No pending jobs. You can add items manually.');
+                }
+            }).fail(function () {});
+        }
+
+        function renderJobList() {
+            if (!pendingJobs.length) {
+                $('#jobEmptyState').show();
+                $('#jobListBody').html('');
+                $('#selectedJobCount').text('0 selected');
+                return;
+            }
+            $('#jobEmptyState').hide();
+            let html = '';
+            pendingJobs.forEach(j => {
+                const isSelected = !!selectedJobs[j.jobId];
+                html += `<div class="acc-job-item ${isSelected ? 'selected' : ''}" data-job-id="${j.jobId}" onclick="toggleJob(${j.jobId})">
+                    <div class="job-check">${isSelected ? '<i class="bi bi-check2"></i>' : ''}</div>
+                    <div class="job-info">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="job-no">${esc(j.jobNo)}</span>
+                            <span class="badge bg-blue-lt" style="font-size:.68rem;">${esc(j.statusCode || '')}</span>
+                            ${j.progressPercent != null ? `<div class="progress" style="width:60px; height:5px;"><div class="progress-bar bg-success" style="width:${j.progressPercent}%"></div></div>` : ''}
+                        </div>
+                        <div class="job-desc">${esc(j.productName || '')} ${esc(j.productDescription || '')} — Qty: ${j.quantity || 0}</div>
+                        <div class="job-date">${esc(j.jobDate)}</div>
+                    </div>
+                    <div class="job-amount">${fmtCurrency(j.netAmount)}</div>
+                </div>`;
+            });
+            $('#jobListBody').html(html);
+            updateSelectedCount();
+        }
+
+        function toggleJob(jobId) {
+            if (jobMode === 'single') {
+                // Single mode: clear others
+                const wasSelected = !!selectedJobs[jobId];
+                selectedJobs = {};
+                if (!wasSelected) selectedJobs[jobId] = true;
+            } else {
+                // Multi mode: toggle
+                if (selectedJobs[jobId]) delete selectedJobs[jobId];
+                else selectedJobs[jobId] = true;
+            }
+            renderJobList();
+            populateItemsFromJobs();
+        }
+
+        function setJobMode(mode) {
+            jobMode = mode;
+            $('#modeToggle .mode-btn').removeClass('active');
+            $(`#modeToggle .mode-btn[data-mode="${mode}"]`).addClass('active');
+            if (mode === 'single' && Object.keys(selectedJobs).length > 1) {
+                // Keep only the first selected
+                const firstKey = Object.keys(selectedJobs)[0];
+                selectedJobs = {};
+                selectedJobs[firstKey] = true;
+                renderJobList();
+                populateItemsFromJobs();
+            }
+        }
+
+        function updateSelectedCount() {
+            const count = Object.keys(selectedJobs).length;
+            $('#selectedJobCount').text(`${count} selected`);
+        }
+
+        // ── Populate Items from Selected Jobs ──
+        function populateItemsFromJobs() {
+            // Clear existing rows
+            $('#itemsBody').html('');
+            itemSeq = 0;
+
+            const selIds = Object.keys(selectedJobs).map(Number);
+            if (selIds.length === 0) {
+                calcTotals();
+                updateWizard(2);
+                return;
+            }
+
+            // Store job ids for save
+            if (selIds.length === 1) {
+                $('#hfJobId').val(selIds[0]);
+            } else {
+                $('#hfJobId').val('');
+            }
+
+            selIds.forEach(jid => {
+                const job = pendingJobs.find(j => j.jobId === jid);
+                if (!job || !job.items) return;
+                job.items.forEach(item => {
+                    addItemRow(item);
+                });
+            });
+
+            if ($('#itemsBody tr').length === 0) addItemRow();
+            calcTotals();
+            updateWizard(3);
+        }
+
+        // ── Payment Terms ──
+        function loadPaymentTerms() {
+            $.get(`${ACC_API}/payment-terms`, function (data) {
+                data.forEach(t => {
+                    $('#ddlPaymentTerm').append(`<option value="${t.id}" data-days="${t.dueDays || 0}">${esc(t.text)}</option>`);
+                });
+            }).fail(function () {});
+        }
+
+        // ── Pre-fill from Job / Enquiry / Edit ──
+        function loadFromJob(jobId) {
+            $.get(`${ACC_API}/job-invoice-data/${jobId}`, function (d) {
+                $('#hfJobId').val(d.jobId);
+                if (d.partyId) {
+                    const opt = new Option(`${d.customerName || 'Customer'}`, d.partyId, true, true);
+                    $('#ddlCustomer').append(opt).trigger('change');
+                }
+                d.items.forEach(item => addItemRow(item));
+                if (d.items.length === 0) addItemRow();
+                calcTotals();
+                updateWizard(3);
+            }).fail(function () {
+                Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to load job data.' });
+            });
+        }
+
+        function loadFromEnquiry(enquiryId) {
+            $.get(`${ACC_API}/enquiry-invoice-data/${enquiryId}`, function (d) {
+                if (d.partyId) {
+                    const opt = new Option(`${d.customerName || 'Customer'}`, d.partyId, true, true);
+                    $('#ddlCustomer').append(opt).trigger('change');
+                }
+                d.items.forEach(item => addItemRow(item));
+                if (d.items.length === 0) addItemRow();
+                calcTotals();
+                updateWizard(3);
+            }).fail(function () {
+                Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to load enquiry data.' });
+            });
+        }
+
+        function loadForEdit(id) {
+            $('#pageTitle').text('Edit Sales Invoice');
+            $.get(`${ACC_API}/sales-invoice/${id}`, function (d) {
+                $('#hfSalesInvoiceId').val(d.salesInvoiceId);
+                $('#txtInvoiceDate').val(d.invoiceDate ? parseDisplayDate(d.invoiceDate) : '');
+                $('#txtDueDate').val(d.dueDate ? parseDisplayDate(d.dueDate) : '');
+                if (d.partyId) {
+                    const opt = new Option(d.customerName || 'Customer', d.partyId, true, true);
+                    $('#ddlCustomer').append(opt).trigger('change');
+                }
+                // Restore Place of Supply by matching state name
+                if (d.placeOfSupply) {
+                    const matchFn = () => {
+                        const match = statesList.find(s => s.name === d.placeOfSupply);
+                        if (match) {
+                            $('#ddlPlaceOfSupply').val(match.id);
+                            $('#ddlState').val(match.id);
+                        } else {
+                            // If no match in dropdown, set first option and warn
+                            $('#ddlPlaceOfSupply').val('');
+                        }
+                    };
+                    if (statesList.length > 0) matchFn();
+                    else setTimeout(matchFn, 500);
+                }
+                if (d.paymentTermId) $('#ddlPaymentTerm').val(d.paymentTermId);
+                if (d.jobId) { $('#hfJobId').val(d.jobId); }
+                $('#txtTerms').val(d.termsConditions || '');
+                $('#txtNotes').val(d.internalNotes || '');
+                $('#txtRoundOff').val(d.roundOff || 0);
+                (d.items || []).forEach(item => addItemRow(item));
+                if (!d.items || d.items.length === 0) addItemRow();
+                calcTotals();
+                updateWizard(4);
+            }).fail(function () {
+                Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to load invoice.' });
+            });
+        }
+
+        function parseDisplayDate(str) {
+            const months = { Jan:'01',Feb:'02',Mar:'03',Apr:'04',May:'05',Jun:'06',Jul:'07',Aug:'08',Sep:'09',Oct:'10',Nov:'11',Dec:'12' };
+            const parts = str.split('-');
+            if (parts.length === 3 && months[parts[1]]) return `${parts[2]}-${months[parts[1]]}-${parts[0]}`;
+            return str;
+        }
+
+        // ── Wizard Step Indicator ──
+        function updateWizard(step) {
+            for (let i = 1; i <= 4; i++) {
+                const el = $(`#ws${i}`);
+                el.removeClass('active completed');
+                if (i < step) el.addClass('completed');
+                else if (i === step) el.addClass('active');
+            }
+        }
+
+        // ── Item Row Management ──
+        function addItemRow(item) {
+            itemSeq++;
+            const n = itemSeq;
+            const isIntra = currentTaxType === 'INTRA_STATE';
+
+            // For items from jobs, apply tax type conversion
+            let cgstP = item?.cgstPercent || 0;
+            let sgstP = item?.sgstPercent || 0;
+            let igstP = item?.igstPercent || 0;
+
+            // Auto-apply tax type if item has tax defined
+            if (item && (cgstP > 0 || sgstP > 0 || igstP > 0)) {
+                const totalRate = cgstP + sgstP + igstP;
+                if (isIntra) {
+                    cgstP = totalRate / 2;
+                    sgstP = totalRate / 2;
+                    igstP = 0;
+                } else {
+                    igstP = totalRate;
+                    cgstP = 0;
+                    sgstP = 0;
+                }
+            }
+
+            const html = `<tr id="row_${n}">
+                <td class="text-muted small">${n}</td>
+                <td><input type="text" class="form-control form-control-sm" id="desc_${n}" value="${esc(item?.description || '')}" required placeholder="Item description" /></td>
+                <td><input type="text" class="form-control form-control-sm" id="hsn_${n}" value="${esc(item?.hsnSacCode || '')}" placeholder="HSN/SAC" /></td>
+                <td><input type="number" class="form-control form-control-sm text-end" id="qty_${n}" value="${item?.quantity || 0}" min="0" step="0.01" onchange="calcRow(${n})" /></td>
+                <td><input type="number" class="form-control form-control-sm text-end" id="rate_${n}" value="${item?.unitRate || 0}" min="0" step="0.01" onchange="calcRow(${n})" /></td>
+                <td><input type="number" class="form-control form-control-sm text-end" id="discP_${n}" value="${item?.discountPercent || 0}" min="0" max="100" step="0.01" onchange="calcRow(${n})" /></td>
+                <td><span class="form-control-plaintext text-end small fw-semibold" id="taxable_${n}">${fmt(item?.taxableValue || 0)}</span></td>
+                <td class="tax-col-cgst"><input type="number" class="form-control form-control-sm text-end" id="cgstP_${n}" value="${cgstP}" min="0" step="0.01" onchange="calcRow(${n})" /></td>
+                <td class="tax-col-sgst"><input type="number" class="form-control form-control-sm text-end" id="sgstP_${n}" value="${sgstP}" min="0" step="0.01" onchange="calcRow(${n})" /></td>
+                <td class="tax-col-igst"><input type="number" class="form-control form-control-sm text-end" id="igstP_${n}" value="${igstP}" min="0" step="0.01" onchange="calcRow(${n})" /></td>
+                <td><span class="form-control-plaintext text-end small" id="tax_${n}">${fmt(item?.totalTaxAmount || 0)}</span></td>
+                <td><span class="form-control-plaintext text-end fw-semibold" id="total_${n}">${fmt(item?.lineTotal || 0)}</span></td>
+                <td><button type="button" class="btn btn-ghost-danger btn-sm" onclick="removeRow(${n})"><i class="bi bi-trash"></i></button></td>
+            </tr>`;
+            $('#itemsBody').append(html);
+
+            // Apply column visibility based on tax type
+            const isIntraCol = currentTaxType === 'INTRA_STATE';
+            if (isIntraCol) {
+                $('.tax-col-igst').hide();
+                $('.tax-col-cgst, .tax-col-sgst').show();
+            } else {
+                $('.tax-col-cgst, .tax-col-sgst').hide();
+                $('.tax-col-igst').show();
+            }
+
+            // Attach HSN/SAC picker to the new row's HSN input
+            const hsnInput = document.getElementById(`hsn_${n}`);
+            if (hsnInput && window.HsnSacPicker) {
+                const pickerInstance = HsnSacPicker.attach(hsnInput, {
+                    onSelect: function (hsnItem) {
+                        applyHsnTaxRates(n, hsnItem);
+                    },
+                    onClear: function () {
+                        clearHsnTaxRates(n);
+                    }
+                });
+                // If editing and item already has an HSN code, mark it as selected
+                if (item?.hsnSacCode) {
+                    pickerInstance.setCode(item.hsnSacCode, item.hsnDescription || '', item.defaultGstRate || (cgstP + sgstP + igstP));
+                }
+            }
+        }
+
+        function removeRow(n) {
+            $(`#row_${n}`).remove();
+            calcTotals();
+        }
+
+        function calcRow(n) {
+            const qty = parseFloat($(`#qty_${n}`).val()) || 0;
+            const rate = parseFloat($(`#rate_${n}`).val()) || 0;
+            const discP = parseFloat($(`#discP_${n}`).val()) || 0;
+            const gross = qty * rate;
+            const discAmt = round2(gross * discP / 100);
+            const taxable = round2(gross - discAmt);
+            const cgstP = parseFloat($(`#cgstP_${n}`).val()) || 0;
+            const sgstP = parseFloat($(`#sgstP_${n}`).val()) || 0;
+            const igstP = parseFloat($(`#igstP_${n}`).val()) || 0;
+            const cgstAmt = round2(taxable * cgstP / 100);
+            const sgstAmt = round2(taxable * sgstP / 100);
+            const igstAmt = round2(taxable * igstP / 100);
+            const totalTax = round2(cgstAmt + sgstAmt + igstAmt);
+            const lineTotal = round2(taxable + totalTax);
+
+            $(`#taxable_${n}`).text(fmt(taxable));
+            $(`#tax_${n}`).text(fmt(totalTax));
+            $(`#total_${n}`).text(fmt(lineTotal));
+            calcTotals();
+            updateWizard(4);
+        }
+
+        // Convert existing row tax percentages when tax type changes (CGST+SGST ↔ IGST)
+        function convertRowsTaxType() {
+            const isIntra = currentTaxType === 'INTRA_STATE';
+            $('#itemsBody tr').each(function () {
+                const n = $(this).attr('id')?.replace('row_', '');
+                if (!n) return;
+                const cgstP = parseFloat($(`#cgstP_${n}`).val()) || 0;
+                const sgstP = parseFloat($(`#sgstP_${n}`).val()) || 0;
+                const igstP = parseFloat($(`#igstP_${n}`).val()) || 0;
+                const totalRate = cgstP + sgstP + igstP;
+                if (totalRate <= 0) return;
+                if (isIntra) {
+                    $(`#cgstP_${n}`).val((totalRate / 2).toFixed(2));
+                    $(`#sgstP_${n}`).val((totalRate / 2).toFixed(2));
+                    $(`#igstP_${n}`).val('0');
+                } else {
+                    $(`#igstP_${n}`).val(totalRate.toFixed(2));
+                    $(`#cgstP_${n}`).val('0');
+                    $(`#sgstP_${n}`).val('0');
+                }
+            });
+        }
+
+        function recalcAllRows() {
+            $('#itemsBody tr').each(function () {
+                const n = $(this).attr('id')?.replace('row_', '');
+                if (n) calcRow(parseInt(n));
+            });
+        }
+
+        function calcTotals() {
+            let subtotal = 0, discount = 0, taxable = 0, cgst = 0, sgst = 0, igst = 0;
+            $('#itemsBody tr').each(function () {
+                const n = $(this).attr('id')?.replace('row_', '');
+                if (!n) return;
+                const qty = parseFloat($(`#qty_${n}`).val()) || 0;
+                const rate = parseFloat($(`#rate_${n}`).val()) || 0;
+                const discP = parseFloat($(`#discP_${n}`).val()) || 0;
+                const gross = qty * rate;
+                const discAmt = round2(gross * discP / 100);
+                const tax = round2(gross - discAmt);
+                const cgstP = parseFloat($(`#cgstP_${n}`).val()) || 0;
+                const sgstP = parseFloat($(`#sgstP_${n}`).val()) || 0;
+                const igstP = parseFloat($(`#igstP_${n}`).val()) || 0;
+                subtotal += gross;
+                discount += discAmt;
+                taxable += tax;
+                cgst += round2(tax * cgstP / 100);
+                sgst += round2(tax * sgstP / 100);
+                igst += round2(tax * igstP / 100);
+            });
+            const roundOff = parseFloat($('#txtRoundOff').val()) || 0;
+            const grand = round2(taxable + cgst + sgst + igst + roundOff);
+
+            $('#dispSubtotal').text(fmtCurrency(subtotal));
+            $('#dispDiscount').text('-' + fmtCurrency(discount));
+            $('#dispTaxable').text(fmtCurrency(taxable));
+            $('#dispCgst').text(fmtCurrency(cgst));
+            $('#dispSgst').text(fmtCurrency(sgst));
+            $('#dispIgst').text(fmtCurrency(igst));
+            $('#dispGrandTotal').text(fmtCurrency(grand));
+        }
+
+        // ── Save Invoice ──
+        async function saveInvoice() {
+            const items = [];
+            let valid = true;
+            $('#itemsBody tr').each(function () {
+                const n = $(this).attr('id')?.replace('row_', '');
+                if (!n) return;
+                const desc = $(`#desc_${n}`).val()?.trim();
+                if (!desc) { valid = false; $(`#desc_${n}`).addClass('is-invalid'); return; }
+                $(`#desc_${n}`).removeClass('is-invalid');
+                const qty = parseFloat($(`#qty_${n}`).val()) || 0;
+                const rate = parseFloat($(`#rate_${n}`).val()) || 0;
+                const discP = parseFloat($(`#discP_${n}`).val()) || 0;
+                const gross = qty * rate;
+                const discAmt = round2(gross * discP / 100);
+                const taxableVal = round2(gross - discAmt);
+                const cgstP = parseFloat($(`#cgstP_${n}`).val()) || 0;
+                const sgstP = parseFloat($(`#sgstP_${n}`).val()) || 0;
+                const igstP = parseFloat($(`#igstP_${n}`).val()) || 0;
+                const cgstAmt = round2(taxableVal * cgstP / 100);
+                const sgstAmt = round2(taxableVal * sgstP / 100);
+                const igstAmt = round2(taxableVal * igstP / 100);
+                const totalTax = round2(cgstAmt + sgstAmt + igstAmt);
+                items.push({
+                    description: desc,
+                    hsnSacCode: $(`#hsn_${n}`).val()?.trim() || null,
+                    quantity: qty, unitRate: rate,
+                    discountPercent: discP, discountAmount: discAmt,
+                    taxableValue: taxableVal,
+                    cgstPercent: cgstP, cgstAmount: cgstAmt,
+                    sgstPercent: sgstP, sgstAmount: sgstAmt,
+                    igstPercent: igstP, igstAmount: igstAmt,
+                    totalTaxAmount: totalTax,
+                    lineTotal: round2(taxableVal + totalTax)
+                });
+            });
+
+            if (!valid) { Swal.fire({ icon: 'warning', title: 'Validation', text: 'Please fill in all item descriptions.' }); return; }
+            if (items.length === 0) { Swal.fire({ icon: 'warning', title: 'No Items', text: 'Add at least one line item.' }); return; }
+            if (!$('#ddlCustomer').val()) { Swal.fire({ icon: 'warning', title: 'Customer Required', text: 'Please select a customer.' }); return; }
+            if (!$('#ddlState').val()) { Swal.fire({ icon: 'warning', title: 'State Required', text: 'Please select a state.' }); return; }
+            if (!$('#ddlPlaceOfSupply').val()) {
+                $('#ddlPlaceOfSupply').addClass('is-invalid');
+                Swal.fire({ icon: 'warning', title: 'Place of Supply Required', text: 'Please select the Place of Supply.' }); return;
+            }
+
+            // Resolve Place of Supply name from state list
+            const posId = parseInt($('#ddlPlaceOfSupply').val());
+            const posState = statesList.find(s => s.id === posId);
+            const placeOfSupplyName = posState ? posState.name : '';
+
+            const payload = {
+                salesInvoiceId: parseInt($('#hfSalesInvoiceId').val()) || 0,
+                invoiceDate: $('#txtInvoiceDate').val(),
+                dueDate: $('#txtDueDate').val() || null,
+                partyId: parseInt($('#ddlCustomer').val()),
+                jobId: parseInt($('#hfJobId').val()) || null,
+                quotationId: parseInt($('#hfQuotationId').val()) || null,
+                placeOfSupply: placeOfSupplyName || null,
+                paymentTermId: parseInt($('#ddlPaymentTerm').val()) || null,
+                roundOff: parseFloat($('#txtRoundOff').val()) || 0,
+                termsConditions: $('#txtTerms').val()?.trim() || null,
+                internalNotes: [$('#txtRemarks').val()?.trim(), $('#txtNotes').val()?.trim()].filter(Boolean).join('\n---\n') || null,
+                items: items
+            };
+
+            try {
+                Swal.fire({ title: 'Saving invoice...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                const result = await $.ajax({
+                    url: `${ACC_API}/sales-invoice/save`,
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(payload)
+                });
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Invoice Saved!',
+                    html: `<div class="text-center"><strong>${esc(result.invoiceNo)}</strong><br/><small class="text-muted">Notification sent to customer &amp; accounts team</small></div>`,
+                    timer: 2500,
+                    showConfirmButton: false
+                });
+                setTimeout(() => { window.location.href = `/Accounting/SalesInvoice/Details?id=${result.salesInvoiceId}`; }, 2000);
+            } catch (err) {
+                Swal.fire({ icon: 'error', title: 'Error', text: err.responseJSON?.message || 'Failed to save invoice.' });
+            }
+        }
+
+        // ── HSN/SAC Picker → Tax Rate Auto-Fill ──
+        function applyHsnTaxRates(n, hsnItem) {
+            const gstRate = parseFloat(hsnItem.defaultGstRate) || 0;
+            const isIntra = currentTaxType === 'INTRA_STATE';
+
+            if (isIntra) {
+                // Use specific CGST/SGST rates if available, else split the default rate
+                const cgst = hsnItem.cgstRate != null ? parseFloat(hsnItem.cgstRate) : (gstRate / 2);
+                const sgst = hsnItem.sgstRate != null ? parseFloat(hsnItem.sgstRate) : (gstRate / 2);
+                $(`#cgstP_${n}`).val(cgst.toFixed(2));
+                $(`#sgstP_${n}`).val(sgst.toFixed(2));
+                $(`#igstP_${n}`).val('0');
+            } else {
+                // Use specific IGST rate if available, else use the full default rate
+                const igst = hsnItem.igstRate != null ? parseFloat(hsnItem.igstRate) : gstRate;
+                $(`#igstP_${n}`).val(igst.toFixed(2));
+                $(`#cgstP_${n}`).val('0');
+                $(`#sgstP_${n}`).val('0');
+            }
+
+            calcRow(n);
+        }
+
+        function clearHsnTaxRates(n) {
+            $(`#cgstP_${n}`).val('0');
+            $(`#sgstP_${n}`).val('0');
+            $(`#igstP_${n}`).val('0');
+            calcRow(n);
+        }
+
+        // ── Utilities ──
+        function round2(v) { return Math.round(v * 100) / 100; }
+        function fmt(v) { return Number(v).toFixed(2); }
+        function fmtCurrency(v) { return '₹' + Number(v).toLocaleString('en-IN', { minimumFractionDigits: 2 }); }
+        function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.appendChild(document.createTextNode(s)); return d.innerHTML; }
+    </script>
+    <script src="~/js/hsn-sac-picker.js"></script>
+}

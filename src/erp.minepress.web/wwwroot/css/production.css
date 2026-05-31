@@ -1,0 +1,1190 @@
+/* ═══════════════════════════════════════════
+   Press / Production Module — .prod-* prefix
+   ═══════════════════════════════════════════ */
+
+/* ── Hero ── */
+.prod-hero {
+    background: linear-gradient(135deg, #1565c0, #42a5f5);
+    color: #fff;
+    padding: 1.25rem 1.5rem;
+    border-radius: var(--tblr-border-radius-lg);
+    margin-bottom: 1rem;
+}
+.prod-hero .text-white-75 { color: rgba(255,255,255,.75); }
+
+/* ── Insight Cards ── */
+.prod-insight-card {
+    border: none;
+    border-radius: .75rem;
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+.prod-insight-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,0,0,.08);
+}
+.prod-insight-icon {
+    width: 48px; height: 48px;
+    border-radius: .75rem;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.25rem;
+}
+
+/* ── Machine Swim Lane Board ── */
+.prod-board {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: .5rem;
+    min-height: 420px;
+}
+.prod-lane {
+    min-width: 280px;
+    max-width: 320px;
+    flex-shrink: 0;
+    border-radius: .75rem;
+    border: 1px solid var(--tblr-border-color, #e9ecef);
+    background: var(--tblr-bg-surface, #fff);
+    display: flex;
+    flex-direction: column;
+}
+.prod-lane-header {
+    padding: .75rem 1rem;
+    border-bottom: 1px solid var(--tblr-border-color, #e9ecef);
+    background: var(--tblr-bg-surface-secondary, #f8fafc);
+    border-radius: .75rem .75rem 0 0;
+    font-weight: 600;
+    font-size: .85rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.prod-lane-body {
+    flex: 1;
+    padding: .5rem;
+    min-height: 80px;
+    overflow-y: auto;
+    max-height: 560px;
+}
+.prod-lane-body.drag-over {
+    background: var(--tblr-primary-bg-subtle, rgba(32,107,196,.06));
+    border: 2px dashed var(--tblr-primary, #206bc4);
+    border-radius: 0 0 .65rem .65rem;
+}
+.prod-lane-count {
+    font-size: .7rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: var(--tblr-border-radius-pill);
+}
+
+/* ── Unallocated Jobs Pool ── */
+.prod-pool {
+    border: 1px solid var(--tblr-border-color, #e9ecef);
+    border-radius: .75rem;
+    background: var(--tblr-bg-surface, #fff);
+    min-height: 150px;
+}
+.prod-pool-header {
+    padding: .75rem 1rem;
+    border-bottom: 1px solid var(--tblr-border-color, #e9ecef);
+    background: var(--tblr-bg-surface-secondary, #f8fafc);
+    border-radius: .75rem .75rem 0 0;
+    font-weight: 600;
+    font-size: .85rem;
+}
+.prod-pool-body {
+    padding: .5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    max-height: 280px;
+    overflow-y: auto;
+}
+
+/* ── Job Card (Draggable) ── */
+.prod-job-card {
+    width: 100%;
+    border: 1px solid var(--tblr-border-color, #e9ecef);
+    border-radius: .5rem;
+    padding: .6rem .75rem;
+    background: var(--tblr-bg-surface, #fff);
+    cursor: grab;
+    transition: transform .12s ease, box-shadow .12s ease, opacity .12s;
+    position: relative;
+    font-size: .82rem;
+}
+.prod-pool-body .prod-job-card {
+    width: calc(50% - .25rem);
+    min-width: 200px;
+}
+.prod-job-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 12px rgba(0,0,0,.08);
+}
+.prod-job-card.dragging {
+    opacity: .5;
+    transform: rotate(2deg);
+    box-shadow: 0 6px 24px rgba(0,0,0,.15);
+}
+.prod-job-card .prod-job-no {
+    font-weight: 700;
+    font-size: .78rem;
+    color: var(--tblr-primary, #206bc4);
+}
+.prod-job-card .prod-job-product {
+    font-size: .78rem;
+    color: var(--tblr-body-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.prod-job-card .prod-job-meta {
+    font-size: .7rem;
+    color: var(--tblr-secondary, #6c757d);
+}
+
+/* ── Priority Badges ── */
+.prod-priority-urgent { background: var(--tblr-danger-bg-subtle); color: var(--tblr-red); }
+.prod-priority-high   { background: var(--tblr-orange-bg-subtle, #fff3e0); color: var(--tblr-orange, #e67700); }
+.prod-priority-normal { background: var(--tblr-azure-bg-subtle); color: var(--tblr-azure); }
+.prod-priority-low    { background: var(--tblr-secondary-bg-subtle, #f5f5f5); color: var(--tblr-secondary-color); }
+
+/* ── Machine Status Indicators ── */
+.prod-status-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+.prod-status-running  { background: var(--tblr-green); animation: prod-pulse 1.5s infinite; }
+.prod-status-idle     { background: var(--tblr-secondary, #adb5bd); }
+.prod-status-maint    { background: var(--tblr-orange, #e67700); animation: prod-pulse 2s infinite; }
+.prod-status-breakdown { background: var(--tblr-red, #d63939); animation: prod-pulse 1s infinite; }
+
+@@keyframes prod-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .4; }
+}
+
+/* ── AI Suggestion Panel ── */
+.prod-ai-panel {
+    border: 1px solid var(--tblr-border-color, #e9ecef);
+    border-radius: .75rem;
+    background: var(--tblr-bg-surface, #fff);
+}
+.prod-ai-header {
+    padding: .6rem 1rem;
+    border-bottom: 1px solid var(--tblr-border-color, #e9ecef);
+    background: linear-gradient(135deg, rgba(32,107,196,.04), rgba(32,107,196,.08));
+    border-radius: .75rem .75rem 0 0;
+    font-weight: 600;
+    font-size: .82rem;
+}
+.prod-ai-suggestion {
+    padding: .5rem .75rem;
+    border-bottom: 1px solid var(--tblr-border-color-translucent, rgba(0,0,0,.05));
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    transition: background .1s;
+    cursor: pointer;
+}
+.prod-ai-suggestion:last-child { border-bottom: none; }
+.prod-ai-suggestion:hover { background: var(--tblr-primary-bg-subtle, rgba(32,107,196,.04)); }
+.prod-ai-score {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: .85rem;
+}
+.prod-ai-score-high   { background: var(--tblr-green-bg-subtle); color: var(--tblr-green); border: 2px solid var(--tblr-green); }
+.prod-ai-score-medium { background: var(--tblr-azure-bg-subtle); color: var(--tblr-azure); border: 2px solid var(--tblr-azure); }
+.prod-ai-score-low    { background: var(--tblr-orange-bg-subtle, #fff3e0); color: var(--tblr-orange, #e67700); border: 2px solid var(--tblr-orange, #e67700); }
+.prod-ai-reasons {
+    font-size: .72rem;
+    color: var(--tblr-secondary, #6c757d);
+}
+.prod-ai-badge {
+    font-size: .65rem; font-weight: 600;
+    padding: 2px 8px;
+    border-radius: var(--tblr-border-radius-pill);
+}
+
+/* ── Sequence Number ── */
+.prod-seq-badge {
+    position: absolute;
+    top: -.4rem; left: -.4rem;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--tblr-primary, #206bc4);
+    color: #fff;
+    font-size: .65rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 1px 4px rgba(0,0,0,.15);
+}
+
+/* ── Maintenance Table ── */
+.prod-maint-table thead th {
+    background: var(--tblr-bg-surface-secondary, #fafbfc);
+    font-size: .75rem;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    color: var(--tblr-secondary, #6c757d);
+    border-bottom: 2px solid var(--tblr-border-color, #e9ecef);
+    white-space: nowrap;
+}
+.prod-maint-table tbody td {
+    font-size: .85rem;
+    vertical-align: middle;
+}
+.prod-maint-overdue {
+    background: rgba(220, 53, 69, .04) !important;
+}
+.prod-maint-due-soon {
+    background: rgba(255, 193, 7, .04) !important;
+}
+
+/* ── Machine Card (Dashboard) ── */
+.prod-machine-card {
+    border: none;
+    border-radius: .75rem;
+    transition: transform .15s ease, box-shadow .15s ease;
+    overflow: hidden;
+}
+.prod-machine-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,0,0,.08);
+}
+.prod-machine-card-header {
+    padding: .75rem 1rem;
+    font-weight: 600;
+    font-size: .82rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.prod-machine-specs {
+    font-size: .72rem;
+    color: var(--tblr-secondary, #6c757d);
+}
+.prod-machine-specs dt { font-weight: 600; }
+
+/* ── Empty State ── */
+.prod-empty {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: var(--tblr-secondary, #adb5bd);
+    font-size: .82rem;
+}
+.prod-empty i { font-size: 2rem; display: block; margin-bottom: .5rem; }
+
+/* ── Dark Mode ── */
+[data-bs-theme="dark"] .prod-insight-card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,.25);
+}
+[data-bs-theme="dark"] .prod-lane {
+    background: var(--tblr-bg-surface, #1e293b);
+    border-color: rgba(255,255,255,.08);
+}
+[data-bs-theme="dark"] .prod-lane-header {
+    background: rgba(255,255,255,.03);
+    border-bottom-color: rgba(255,255,255,.08);
+}
+[data-bs-theme="dark"] .prod-lane-body.drag-over {
+    background: rgba(32,107,196,.12);
+    border-color: var(--tblr-primary);
+}
+[data-bs-theme="dark"] .prod-pool {
+    background: var(--tblr-bg-surface, #1e293b);
+    border-color: rgba(255,255,255,.08);
+}
+[data-bs-theme="dark"] .prod-pool-header {
+    background: rgba(255,255,255,.03);
+    border-bottom-color: rgba(255,255,255,.08);
+}
+[data-bs-theme="dark"] .prod-job-card {
+    background: var(--tblr-bg-surface, #1e293b);
+    border-color: rgba(255,255,255,.1);
+}
+[data-bs-theme="dark"] .prod-job-card:hover {
+    box-shadow: 0 3px 12px rgba(0,0,0,.25);
+}
+[data-bs-theme="dark"] .prod-ai-panel {
+    background: var(--tblr-bg-surface, #1e293b);
+    border-color: rgba(255,255,255,.08);
+}
+[data-bs-theme="dark"] .prod-ai-header {
+    background: linear-gradient(135deg, rgba(32,107,196,.08), rgba(32,107,196,.15));
+    border-bottom-color: rgba(255,255,255,.08);
+}
+[data-bs-theme="dark"] .prod-ai-suggestion:hover {
+    background: rgba(32,107,196,.1);
+}
+[data-bs-theme="dark"] .prod-maint-table thead th {
+    background: rgba(255,255,255,.03);
+    color: rgba(255,255,255,.5);
+    border-bottom-color: rgba(255,255,255,.08);
+}
+[data-bs-theme="dark"] .prod-maint-overdue {
+    background: rgba(220, 53, 69, .08) !important;
+}
+[data-bs-theme="dark"] .prod-maint-due-soon {
+    background: rgba(255, 193, 7, .08) !important;
+}
+[data-bs-theme="dark"] .prod-machine-card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,.25);
+}
+
+/* ── Print ── */
+@@media print {
+    .prod-hero, .d-print-none { display: none !important; }
+    .prod-board { flex-wrap: wrap; }
+    .prod-lane { break-inside: avoid; min-width: 45%; }
+    .prod-job-card { box-shadow: none !important; border: 1px solid #ccc; }
+}
+
+/* ═══════════════════════════════════════════
+   Filter Card
+   ═══════════════════════════════════════════ */
+.prod-filter-card {
+    border: 1px solid var(--tblr-border-color, #e9ecef);
+    border-radius: .75rem;
+    background: var(--tblr-bg-surface, #fff);
+}
+.prod-filter-card .form-label {
+    font-weight: 600;
+    color: var(--tblr-secondary, #6c757d);
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    font-size: .68rem !important;
+}
+
+/* ═══════════════════════════════════════════
+   Manpower Allocation Card
+   ═══════════════════════════════════════════ */
+.prod-manpower-card {
+    border: 1px solid var(--tblr-border-color, #e9ecef);
+    border-radius: .75rem;
+    background: var(--tblr-bg-surface, #fff);
+    box-shadow: 0 2px 12px rgba(0,0,0,.06);
+}
+.prod-manpower-card .card-header {
+    background: linear-gradient(135deg, rgba(0,163,194,.04), rgba(0,163,194,.08));
+    border-bottom: 1px solid var(--tblr-border-color, #e9ecef);
+    border-radius: .75rem .75rem 0 0;
+}
+
+/* ── Employee List ── */
+.prod-emp-list {
+    border: 1px solid var(--tblr-border-color, #e9ecef);
+    border-radius: .5rem;
+    max-height: 320px;
+    overflow-y: auto;
+    min-height: 120px;
+    background: var(--tblr-bg-surface-secondary, #fafbfc);
+}
+.prod-emp-item {
+    padding: .5rem .75rem;
+    border-bottom: 1px solid var(--tblr-border-color-translucent, rgba(0,0,0,.05));
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: background .1s;
+}
+.prod-emp-item:last-child { border-bottom: none; }
+.prod-emp-item:hover {
+    background: var(--tblr-primary-bg-subtle, rgba(32,107,196,.04));
+}
+.prod-emp-item.prod-emp-assigned {
+    background: rgba(47, 179, 68, .04);
+}
+.prod-emp-list::-webkit-scrollbar { width: 5px; }
+.prod-emp-list::-webkit-scrollbar-thumb { background: var(--tblr-border-color); border-radius: 3px; }
+
+/* ═══════════════════════════════════════════
+   Machine Lane — Allocated Jobs Box
+   ═══════════════════════════════════════════ */
+.prod-alloc-box {
+    padding: .4rem .6rem;
+    border-bottom: 1px solid var(--tblr-border-color, #e9ecef);
+    background: var(--tblr-bg-surface-secondary, #f8fafc);
+    font-size: .75rem;
+}
+.prod-alloc-box-header {
+    font-weight: 600;
+    font-size: .7rem;
+    color: var(--tblr-secondary, #6c757d);
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    margin-bottom: .35rem;
+}
+.prod-alloc-item {
+    padding: .3rem .5rem;
+    border-radius: .35rem;
+    background: var(--tblr-bg-surface, #fff);
+    border: 1px solid var(--tblr-border-color-translucent, rgba(0,0,0,.05));
+    margin-bottom: .3rem;
+}
+.prod-alloc-item:last-child { margin-bottom: 0; }
+.prod-alloc-jobno {
+    font-weight: 700;
+    font-size: .72rem;
+    color: var(--tblr-primary, #206bc4);
+}
+.prod-alloc-emps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .25rem;
+}
+.prod-emp-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .2rem;
+    padding: 1px 6px;
+    border-radius: var(--tblr-border-radius-pill);
+    background: var(--tblr-cyan-bg-subtle, #e0f7fa);
+    color: var(--tblr-cyan, #0ca678);
+    font-size: .65rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+.prod-emp-chip i { font-size: .6rem; }
+
+/* ═══════════════════════════════════════════
+   Machine Lane — Employee Avatar Bar
+   ═══════════════════════════════════════════ */
+.prod-emp-bar {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin-top: .35rem;
+}
+.prod-emp-avatar {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--tblr-primary-lt, #d2e3fc);
+    color: var(--tblr-primary, #206bc4);
+    font-size: .6rem;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    border: 1.5px solid var(--tblr-bg-surface, #fff);
+    cursor: default;
+}
+.prod-emp-avatar-primary {
+    background: var(--tblr-green-lt, #d3f9d8);
+    color: var(--tblr-green, #2fb344);
+    border-color: var(--tblr-green, #2fb344);
+}
+.prod-emp-avatar-more {
+    background: var(--tblr-secondary-bg-subtle, #f5f5f5);
+    color: var(--tblr-secondary, #6c757d);
+    font-size: .55rem;
+}
+
+/* ── Machine Lane — Employee Chip Bar (icons + names) ── */
+.prod-emp-bar-chips {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 3px;
+    margin-top: .35rem;
+}
+.prod-emp-chip-primary {
+    background: var(--tblr-green-bg-subtle, #d3f9d8) !important;
+    color: var(--tblr-green, #2fb344) !important;
+}
+.prod-emp-chip-more {
+    background: var(--tblr-secondary-bg-subtle, #f5f5f5) !important;
+    color: var(--tblr-secondary, #6c757d) !important;
+    font-style: italic;
+}
+
+/* ── Delete Button on Allocated Jobs ── */
+.prod-alloc-delete-btn {
+    font-size: .65rem;
+    line-height: 1;
+    opacity: .5;
+    transition: opacity .15s;
+}
+.prod-alloc-item:hover .prod-alloc-delete-btn {
+    opacity: 1;
+}
+
+/* ═══════════════════════════════════════════
+   Dark Mode — Filter / Manpower / Alloc Box
+   ═══════════════════════════════════════════ */
+[data-bs-theme="dark"] .prod-filter-card {
+    background: var(--tblr-bg-surface, #1e293b);
+    border-color: rgba(255,255,255,.08);
+}
+[data-bs-theme="dark"] #manpowerModal .modal-content {
+    background: var(--tblr-bg-surface, #1e293b);
+    border-color: rgba(255,255,255,.08);
+}
+[data-bs-theme="dark"] #manpowerModal .modal-header {
+    background: linear-gradient(135deg, rgba(0,163,194,.06), rgba(0,163,194,.12));
+    border-bottom-color: rgba(255,255,255,.08);
+}
+[data-bs-theme="dark"] .prod-emp-list {
+    background: rgba(255,255,255,.02);
+    border-color: rgba(255,255,255,.08);
+}
+[data-bs-theme="dark"] .prod-emp-item:hover {
+    background: rgba(32,107,196,.1);
+}
+[data-bs-theme="dark"] .prod-emp-item.prod-emp-assigned {
+    background: rgba(47,179,68,.08);
+}
+[data-bs-theme="dark"] .prod-alloc-box {
+    background: rgba(255,255,255,.02);
+    border-bottom-color: rgba(255,255,255,.08);
+}
+[data-bs-theme="dark"] .prod-alloc-item {
+    background: var(--tblr-bg-surface, #1e293b);
+    border-color: rgba(255,255,255,.08);
+}
+[data-bs-theme="dark"] .prod-emp-chip {
+    background: rgba(0,163,194,.12);
+    color: var(--tblr-cyan, #0ca678);
+}
+[data-bs-theme="dark"] .prod-emp-avatar {
+    border-color: var(--tblr-bg-surface, #1e293b);
+}
+[data-bs-theme="dark"] .prod-emp-chip-primary {
+    background: rgba(47,179,68,.12) !important;
+    color: var(--tblr-green, #2fb344) !important;
+}
+[data-bs-theme="dark"] .prod-emp-chip-more {
+    background: rgba(255,255,255,.06) !important;
+    color: var(--tblr-secondary, #6c757d) !important;
+}
+
+/* ═══════════════════════════════════════════
+   Maintenance Lane Overlay
+   ═══════════════════════════════════════════ */
+.prod-lane-maintenance {
+    position: relative;
+    opacity: .7;
+    pointer-events: auto;
+}
+.prod-lane-maintenance::after {
+    content: '🔧 Maintenance Due';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(230,119,0,.06);
+    border: 2px dashed var(--tblr-orange, #e67700);
+    border-radius: .75rem;
+    color: var(--tblr-orange, #e67700);
+    font-weight: 700;
+    font-size: .85rem;
+    pointer-events: none;
+    z-index: 5;
+}
+
+/* ═══════════════════════════════════════════
+   Breakdown Lane Overlay
+   ═══════════════════════════════════════════ */
+.prod-lane-breakdown {
+    position: relative;
+    opacity: .7;
+    pointer-events: auto;
+}
+.prod-lane-breakdown::after {
+    content: '⚠ Breakdown Active';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(214,57,57,.06);
+    border: 2px dashed var(--tblr-red, #d63939);
+    border-radius: .75rem;
+    color: var(--tblr-red, #d63939);
+    font-weight: 700;
+    font-size: .85rem;
+    pointer-events: none;
+    z-index: 5;
+}
+
+/* ── Breakdown Info Badge (Lane Header) ── */
+.prod-breakdown-badge {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .25rem;
+}
+
+/* ── Breakdown Table ── */
+.prod-breakdown-table thead th {
+    background: var(--tblr-bg-surface-secondary, #fafbfc);
+    font-size: .75rem;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    color: var(--tblr-secondary, #6c757d);
+    border-bottom: 2px solid var(--tblr-border-color, #e9ecef);
+    white-space: nowrap;
+}
+.prod-breakdown-table tbody td {
+    font-size: .85rem;
+    vertical-align: middle;
+}
+.prod-breakdown-critical {
+    background: rgba(220, 53, 69, .04) !important;
+}
+.prod-breakdown-high {
+    background: rgba(230, 119, 0, .04) !important;
+}
+
+/* ═══════════════════════════════════════════
+   Draggable Employee Chips (Board)
+   ═══════════════════════════════════════════ */
+.prod-emp-draggable {
+    cursor: grab;
+    transition: transform .12s ease, box-shadow .12s ease, opacity .12s;
+    user-select: none;
+    position: relative;
+    padding-right: 16px;
+}
+.prod-emp-draggable:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,.1);
+}
+.prod-emp-dragging {
+    opacity: .4;
+    transform: rotate(3deg) scale(.95);
+    box-shadow: 0 4px 16px rgba(0,0,0,.18);
+}
+
+/* ── Grip Icon ── */
+.prod-emp-grip {
+    font-size: .55rem;
+    opacity: .35;
+    cursor: grab;
+    margin-right: 1px;
+    transition: opacity .15s;
+}
+.prod-emp-draggable:hover .prod-emp-grip {
+    opacity: .7;
+}
+
+/* ── Delete X Button on Chips ── */
+.prod-emp-delete-x {
+    font-size: .6rem;
+    cursor: pointer;
+    opacity: 0;
+    position: absolute;
+    top: -2px;
+    right: 1px;
+    color: var(--tblr-red, #d63939);
+    transition: opacity .15s, transform .1s;
+    line-height: 1;
+}
+.prod-emp-draggable:hover .prod-emp-delete-x {
+    opacity: .7;
+}
+.prod-emp-delete-x:hover {
+    opacity: 1 !important;
+    transform: scale(1.2);
+}
+
+/* ═══════════════════════════════════════════
+   Employee Drop Zone Highlight (Lane Header)
+   ═══════════════════════════════════════════ */
+.prod-emp-drop-zone {
+    transition: background .15s, border-color .15s, box-shadow .15s;
+}
+.prod-emp-drop-highlight {
+    background: var(--tblr-cyan-bg-subtle, rgba(0,163,194,.08)) !important;
+    border-color: var(--tblr-cyan, #0ca678) !important;
+    box-shadow: inset 0 0 0 2px var(--tblr-cyan, #0ca678);
+    border-radius: .75rem .75rem 0 0;
+}
+
+/* ═══════════════════════════════════════════
+   Modern Hero — AI-themed hero with pattern
+   ═══════════════════════════════════════════ */
+.prod-hero-modern {
+    position: relative;
+    overflow: hidden;
+    padding: 1.5rem 1.75rem;
+    border-radius: var(--tblr-border-radius-lg);
+    margin-bottom: 1rem;
+    color: #fff;
+}
+.prod-hero-modern .text-white-75 { color: rgba(255,255,255,.75); }
+
+.prod-hero-pattern {
+    position: absolute;
+    inset: 0;
+    background-image:
+        radial-gradient(circle at 20% 50%, rgba(255,255,255,.06) 1px, transparent 1px),
+        radial-gradient(circle at 80% 20%, rgba(255,255,255,.04) 1px, transparent 1px),
+        radial-gradient(circle at 60% 80%, rgba(255,255,255,.05) 1px, transparent 1px);
+    background-size: 40px 40px, 60px 60px, 50px 50px;
+    pointer-events: none;
+    z-index: 0;
+}
+.prod-hero-modern .row { position: relative; z-index: 1; }
+
+/* Hero colour variants */
+.prod-hero-maintenance { background: linear-gradient(135deg, #e67700 0%, #f59f00 100%); }
+.prod-hero-breakdown  { background: linear-gradient(135deg, #c92a2a 0%, #e03131 60%, #ff6b6b 100%); }
+.prod-hero-dashboard  { background: linear-gradient(135deg, #1864ab 0%, #228be6 40%, #4dabf7 100%); }
+.prod-hero-icon-primary { background: rgba(255,255,255,.2); }
+.prod-hero-icon-pulse-primary { border-color: rgba(100,180,255,.4); }
+
+/* Hero animated icon wrap */
+.prod-hero-icon-wrap {
+    position: relative;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: #fff;
+    background: rgba(255,255,255,.15);
+    backdrop-filter: blur(4px);
+}
+.prod-hero-icon-warning { background: rgba(255,255,255,.2); }
+.prod-hero-icon-danger  { background: rgba(255,255,255,.2); }
+
+/* Pulse animation on icon */
+.prod-hero-icon-pulse {
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,.3);
+    animation: prodIconPulse 2s ease-in-out infinite;
+}
+.prod-hero-icon-pulse-warning { border-color: rgba(255,200,0,.4); }
+.prod-hero-icon-pulse-danger  { border-color: rgba(255,100,100,.4); }
+
+@keyframes prodIconPulse {
+    0%, 100% { transform: scale(1); opacity: .6; }
+    50%      { transform: scale(1.18); opacity: 0; }
+}
+
+/* ═══════════════════════════════════════════
+   Insight Glow Cards + Stat Counter
+   ═══════════════════════════════════════════ */
+.prod-insight-glow {
+    border: 1px solid rgba(0,0,0,.06);
+    box-shadow: 0 1px 6px rgba(0,0,0,.04);
+    transition: transform .18s ease, box-shadow .18s ease;
+}
+.prod-insight-glow:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 24px rgba(0,0,0,.09);
+}
+.prod-stat-counter {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    letter-spacing: -.02em;
+}
+
+/* ═══════════════════════════════════════════
+   Filter Card
+   ═══════════════════════════════════════════ */
+.prod-filter-card {
+    border: 1px solid rgba(0,0,0,.06);
+    border-radius: .75rem;
+    background: var(--tblr-bg-surface);
+}
+.prod-filter-card .form-label {
+    font-size: .72rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    font-weight: 600;
+    color: var(--tblr-muted);
+    margin-bottom: .2rem;
+}
+
+/* ═══════════════════════════════════════════
+   Repair Status Summary Row
+   ═══════════════════════════════════════════ */
+.prod-repair-summary .card {
+    border: none;
+    border-radius: .65rem;
+    transition: transform .12s;
+}
+.prod-repair-summary .card:hover { transform: translateY(-2px); }
+
+/* ═══════════════════════════════════════════
+   Dashboard — Hero Glow Orbs
+   ═══════════════════════════════════════════ */
+.prod-hero-glow-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: .18;
+    pointer-events: none;
+    z-index: 0;
+}
+.prod-hero-glow-orb-1 {
+    width: 200px; height: 200px;
+    background: rgba(255,255,255,.3);
+    top: -40px; right: 10%;
+    animation: prodOrbFloat 8s ease-in-out infinite;
+}
+.prod-hero-glow-orb-2 {
+    width: 150px; height: 150px;
+    background: rgba(100,200,255,.25);
+    bottom: -30px; left: 15%;
+    animation: prodOrbFloat 10s ease-in-out infinite reverse;
+}
+@keyframes prodOrbFloat {
+    0%, 100% { transform: translate(0, 0); }
+    50%      { transform: translate(20px, -15px); }
+}
+
+/* ═══════════════════════════════════════════
+   Dashboard — KPI Cards
+   ═══════════════════════════════════════════ */
+.prod-kpi-card {
+    border-radius: .75rem;
+}
+.prod-kpi-icon-wrap {
+    width: 48px; height: 48px;
+    border-radius: .65rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+}
+.prod-kpi-bar {
+    height: 4px;
+    border-radius: 2px;
+    background: var(--tblr-border-color);
+    display: flex;
+    overflow: hidden;
+}
+.prod-kpi-segment {
+    height: 100%;
+    transition: width .6s ease;
+}
+
+/* ═══════════════════════════════════════════
+   Dashboard — Live Indicator
+   ═══════════════════════════════════════════ */
+.prod-live-dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #51cf66;
+    box-shadow: 0 0 6px rgba(81,207,102,.6);
+}
+.prod-live-pulse {
+    animation: prodLivePulse .8s ease-out;
+}
+@keyframes prodLivePulse {
+    0%   { box-shadow: 0 0 0 0 rgba(81,207,102,.7); }
+    100% { box-shadow: 0 0 0 10px rgba(81,207,102,0); }
+}
+
+/* ═══════════════════════════════════════════
+   Dashboard — Donut Chart
+   ═══════════════════════════════════════════ */
+.prod-donut-chart {
+    position: relative;
+    width: 180px; height: 180px;
+}
+.prod-donut-svg {
+    width: 100%; height: 100%;
+    transform: rotate(-90deg);
+}
+.prod-donut-seg {
+    transition: stroke-dasharray .6s ease, stroke-dashoffset .6s ease;
+}
+.prod-donut-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ═══════════════════════════════════════════
+   Dashboard — Horizontal Bar Chart
+   ═══════════════════════════════════════════ */
+.prod-hbar-chart {
+    display: flex;
+    flex-direction: column;
+    gap: .55rem;
+}
+.prod-hbar-item {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+.prod-hbar-label {
+    width: 90px;
+    font-size: .72rem;
+    font-weight: 600;
+    text-align: right;
+    color: var(--tblr-muted);
+    flex-shrink: 0;
+}
+.prod-hbar-track {
+    flex: 1;
+    height: 8px;
+    border-radius: 4px;
+    background: var(--tblr-border-color);
+    overflow: hidden;
+}
+.prod-hbar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width .6s ease;
+}
+.prod-hbar-value {
+    width: 28px;
+    font-size: .75rem;
+    font-weight: 700;
+    text-align: left;
+    flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════
+   Dashboard — Severity Bars
+   ═══════════════════════════════════════════ */
+.prod-severity-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.prod-severity-bar-track {
+    height: 4px;
+    border-radius: 2px;
+    background: var(--tblr-border-color);
+    margin-top: .25rem;
+    overflow: hidden;
+}
+.prod-severity-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width .5s ease;
+}
+
+/* ═══════════════════════════════════════════
+   Dashboard — Feed Icons
+   ═══════════════════════════════════════════ */
+.prod-feed-icon {
+    width: 32px; height: 32px;
+    border-radius: .5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .85rem;
+    flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════
+   Dashboard — Quick Navigation Cards
+   ═══════════════════════════════════════════ */
+.prod-quick-nav-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .5rem;
+    padding: 1rem .5rem;
+    border-radius: .75rem;
+    border: 1px solid var(--tblr-border-color);
+    text-decoration: none;
+    color: inherit;
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+.prod-quick-nav-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 16px rgba(0,0,0,.08);
+    border-color: var(--tblr-primary);
+    color: inherit;
+    text-decoration: none;
+}
+.prod-quick-nav-icon {
+    width: 42px; height: 42px;
+    border-radius: .6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+.prod-quick-nav-label {
+    font-size: .72rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* ═══════════════════════════════════════════
+   Dark Mode — Dashboard
+   ═══════════════════════════════════════════ */
+[data-bs-theme="dark"] .prod-kpi-bar {
+    background: rgba(255,255,255,.08);
+}
+[data-bs-theme="dark"] .prod-hbar-track,
+[data-bs-theme="dark"] .prod-severity-bar-track {
+    background: rgba(255,255,255,.08);
+}
+[data-bs-theme="dark"] .prod-quick-nav-card {
+    border-color: rgba(255,255,255,.08);
+}
+[data-bs-theme="dark"] .prod-quick-nav-card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,.25);
+    border-color: var(--tblr-primary);
+}
+[data-bs-theme="dark"] .prod-hero-glow-orb-1 {
+    background: rgba(255,255,255,.1);
+}
+[data-bs-theme="dark"] .prod-hero-glow-orb-2 {
+    background: rgba(100,200,255,.08);
+}
+
+/* ═══════════════════════════════════════════
+   Dark Mode — Modern Hero + Insight + Filter
+   ═══════════════════════════════════════════ */
+[data-bs-theme="dark"] .prod-hero-modern {
+    box-shadow: 0 2px 12px rgba(0,0,0,.3);
+}
+[data-bs-theme="dark"] .prod-hero-pattern {
+    background-image:
+        radial-gradient(circle at 20% 50%, rgba(255,255,255,.03) 1px, transparent 1px),
+        radial-gradient(circle at 80% 20%, rgba(255,255,255,.02) 1px, transparent 1px),
+        radial-gradient(circle at 60% 80%, rgba(255,255,255,.025) 1px, transparent 1px);
+}
+[data-bs-theme="dark"] .prod-insight-glow {
+    border-color: rgba(255,255,255,.06);
+    box-shadow: 0 1px 6px rgba(0,0,0,.2);
+}
+[data-bs-theme="dark"] .prod-insight-glow:hover {
+    box-shadow: 0 6px 24px rgba(0,0,0,.3);
+}
+[data-bs-theme="dark"] .prod-filter-card {
+    border-color: rgba(255,255,255,.06);
+    background: var(--tblr-bg-surface-secondary);
+}
+
+/* ═══════════════════════════════════════════
+   Dark Mode — Maintenance / Drag-Drop
+   ═══════════════════════════════════════════ */
+[data-bs-theme="dark"] .prod-lane-maintenance::after {
+    background: rgba(230,119,0,.1);
+    border-color: var(--tblr-orange, #e67700);
+    color: var(--tblr-orange, #e67700);
+}
+[data-bs-theme="dark"] .prod-lane-breakdown::after {
+    background: rgba(214,57,57,.1);
+    border-color: var(--tblr-red, #d63939);
+    color: var(--tblr-red, #d63939);
+}
+[data-bs-theme="dark"] .prod-breakdown-table thead th {
+    background: rgba(255,255,255,.03);
+    color: rgba(255,255,255,.5);
+    border-bottom-color: rgba(255,255,255,.08);
+}
+[data-bs-theme="dark"] .prod-breakdown-critical {
+    background: rgba(220, 53, 69, .08) !important;
+}
+[data-bs-theme="dark"] .prod-breakdown-high {
+    background: rgba(230, 119, 0, .08) !important;
+}
+[data-bs-theme="dark"] .prod-emp-draggable:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,.25);
+}
+[data-bs-theme="dark"] .prod-emp-dragging {
+    box-shadow: 0 4px 16px rgba(0,0,0,.35);
+}
+[data-bs-theme="dark"] .prod-emp-drop-highlight {
+    background: rgba(0,163,194,.12) !important;
+    box-shadow: inset 0 0 0 2px var(--tblr-cyan, #0ca678);
+}
+
+/* ═══════════════════════════════════════════
+   Maintenance & Breakdown Alert Panels
+   (used in Scheduling, Tracking, Utilization)
+   ═══════════════════════════════════════════ */
+.prod-alert-panel {
+    border-radius: .75rem;
+    border: 1px solid var(--tblr-border-color, #e9ecef);
+    overflow: hidden;
+}
+.prod-alert-header {
+    padding: .55rem 1rem;
+    font-weight: 600;
+    font-size: .82rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.prod-alert-header-maint {
+    background: linear-gradient(135deg, rgba(230,119,0,.08), rgba(255,193,7,.08));
+    border-bottom: 1px solid rgba(230,119,0,.15);
+}
+.prod-alert-header-breakdown {
+    background: linear-gradient(135deg, rgba(214,57,57,.08), rgba(255,107,107,.08));
+    border-bottom: 1px solid rgba(214,57,57,.15);
+}
+.prod-alert-body {
+    max-height: 240px;
+    overflow-y: auto;
+}
+.prod-alert-item {
+    padding: .5rem 1rem;
+    border-bottom: 1px solid var(--tblr-border-color-translucent, rgba(0,0,0,.05));
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    font-size: .82rem;
+    transition: background .1s;
+}
+.prod-alert-item:last-child { border-bottom: none; }
+.prod-alert-item:hover { background: var(--tblr-bg-surface-secondary, #f8fafc); }
+.prod-alert-icon {
+    width: 36px; height: 36px;
+    border-radius: .5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+.prod-alert-empty {
+    text-align: center;
+    padding: 1.25rem 1rem;
+    color: var(--tblr-secondary, #adb5bd);
+    font-size: .82rem;
+}
+
+/* Dark mode — Alert panels */
+[data-bs-theme="dark"] .prod-alert-panel {
+    border-color: rgba(255,255,255,.08);
+}
+[data-bs-theme="dark"] .prod-alert-header-maint {
+    background: linear-gradient(135deg, rgba(230,119,0,.12), rgba(255,193,7,.06));
+    border-bottom-color: rgba(230,119,0,.2);
+}
+[data-bs-theme="dark"] .prod-alert-header-breakdown {
+    background: linear-gradient(135deg, rgba(214,57,57,.12), rgba(255,107,107,.06));
+    border-bottom-color: rgba(214,57,57,.2);
+}
+[data-bs-theme="dark"] .prod-alert-item:hover {
+    background: rgba(255,255,255,.03);
+}
+
+/* ── Breakdown badge on schedule table rows ── */
+.prod-row-breakdown {
+    background: rgba(214,57,57,.04) !important;
+}
+.prod-row-maint-due {
+    background: rgba(230,119,0,.04) !important;
+}
+[data-bs-theme="dark"] .prod-row-breakdown {
+    background: rgba(214,57,57,.08) !important;
+}
+[data-bs-theme="dark"] .prod-row-maint-due {
+    background: rgba(230,119,0,.08) !important;
+}

@@ -1,0 +1,360 @@
+@page
+@model erp.minepress.web.Pages.Hrms.Attendance.IndexModel
+@{
+    ViewData["Title"] = "Attendance — HRMS";
+}
+
+<div class="hrms-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);">
+                <i class="bi bi-person-check" style="font-size:1.5rem;"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="mb-0">Employee Attendance</h2>
+            <div class="text-white-75 d-flex align-items-center gap-2">
+                View your daily attendance records and summary
+                <span class="badge bg-white-lt text-white border border-white-25 ms-1" id="attPeriodLabel" style="font-size:.75rem;"></span>
+            </div>
+        </div>
+        <div class="col-auto d-flex gap-2">
+            <div class="input-group input-group-sm" style="width:180px;">
+                <input type="month" class="form-control bg-white-10 text-white border-white-25" id="attendanceMonth" />
+            </div>
+            <button class="btn btn-outline-light btn-sm" onclick="loadAttendanceData()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row g-3 mb-3">
+    <div class="col-6 col-lg-2">
+        <div class="card hrms-stat-card">
+            <div class="card-body text-center">
+                <div class="fw-bold fs-2 text-primary" id="attTotalDays">—</div>
+                <div class="text-secondary small">Total Days</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-2">
+        <div class="card hrms-stat-card">
+            <div class="card-body text-center">
+                <div class="fw-bold fs-2 text-success" id="attPresent">—</div>
+                <div class="text-secondary small">Present</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-2">
+        <div class="card hrms-stat-card">
+            <div class="card-body text-center">
+                <div class="fw-bold fs-2 text-danger" id="attAbsent">—</div>
+                <div class="text-secondary small">Absent</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-2">
+        <div class="card hrms-stat-card">
+            <div class="card-body text-center">
+                <div class="fw-bold fs-2 text-warning" id="attHalfDay">—</div>
+                <div class="text-secondary small">Half Day</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-2">
+        <div class="card hrms-stat-card">
+            <div class="card-body text-center">
+                <div class="fw-bold fs-2 text-info" id="attTotalHours">—</div>
+                <div class="text-secondary small">Total Hours</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-2">
+        <div class="card hrms-stat-card">
+            <div class="card-body text-center">
+                <div class="fw-bold fs-2 text-purple" id="attOvertimeHours">—</div>
+                <div class="text-secondary small">OT Hours</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Punch In / Punch Out Widget ═══ -->
+<div class="row g-3 mb-3" id="hrmsAttPunchSection">
+    <div class="col-lg-5">
+        <div class="card punch-card h-100">
+            <div class="punch-card-glow"></div>
+            <div class="card-body p-0">
+                <div class="row g-0 align-items-stretch">
+                    <!-- Clock & Button -->
+                    <div class="col-md-5 punch-clock-section">
+                        <div class="punch-clock-inner">
+                            <div class="punch-live-clock" id="hrmsAttClock">--:--:--</div>
+                            <div class="punch-live-date" id="hrmsAttDate"></div>
+                            <div class="punch-btn-container mt-3">
+                                <button class="punch-btn punch-btn-in" id="hrmsAttPunchBtn" onclick="HrmsAttPunch.doPunch()" disabled>
+                                    <span class="punch-btn-icon"><i class="bi bi-finger-print"></i></span>
+                                    <span class="punch-btn-text" id="hrmsAttBtnText">Loading...</span>
+                                </button>
+                            </div>
+                            <div class="punch-status-badge mt-2" id="hrmsAttStatusBadge">
+                                <span class="badge bg-secondary-lt"><i class="bi bi-circle me-1"></i>Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Details -->
+                    <div class="col-md-7 punch-details-section">
+                        <div class="p-3">
+                            <h4 class="mb-3 fw-bold"><i class="bi bi-stopwatch me-2 text-primary"></i>Today's Attendance</h4>
+                            <div class="row g-2 mb-3">
+                                <div class="col-6">
+                                    <div class="punch-info-card punch-info-in">
+                                        <div class="punch-info-icon"><i class="bi bi-box-arrow-in-right"></i></div>
+                                        <div class="punch-info-label">Punch In</div>
+                                        <div class="punch-info-value" id="hrmsAttInTime">--:--</div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="punch-info-card punch-info-out">
+                                        <div class="punch-info-icon"><i class="bi bi-box-arrow-right"></i></div>
+                                        <div class="punch-info-label">Punch Out</div>
+                                        <div class="punch-info-value" id="hrmsAttOutTime">--:--</div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="punch-info-card punch-info-hours">
+                                        <div class="punch-info-icon"><i class="bi bi-hourglass-split"></i></div>
+                                        <div class="punch-info-label">Work Hours</div>
+                                        <div class="punch-info-value" id="hrmsAttWorkHours">0h 0m</div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="punch-info-card punch-info-shift">
+                                        <div class="punch-info-icon"><i class="bi bi-sun"></i></div>
+                                        <div class="punch-info-label">Shift</div>
+                                        <div class="punch-info-value" id="hrmsAttShift">—</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Progress -->
+                            <div id="hrmsAttProgressSection" style="display:none;">
+                                <div class="d-flex justify-content-between small mb-1">
+                                    <span class="text-secondary">Work Progress</span>
+                                    <span class="fw-bold text-primary" id="hrmsAttProgressPct">0%</span>
+                                </div>
+                                <div class="progress punch-progress">
+                                    <div class="progress-bar punch-progress-bar" id="hrmsAttProgressBar" role="progressbar" style="width:0%"></div>
+                                </div>
+                                <div class="d-flex justify-content-between mt-1" style="font-size:.65rem;">
+                                    <span class="text-secondary">0h</span>
+                                    <span class="text-secondary">8h (Standard)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Check In</th>
+                    <th>Check Out</th>
+                    <th>Total Hours</th>
+                    <th>OT Hours</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="attendanceTableBody">
+                <tr>
+                    <td colspan="6" class="text-center text-secondary py-4">
+                        <div class="spinner-border spinner-border-sm me-2" role="status"></div>Loading...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="/js/hrms.js"></script>
+    <script>
+        // ── Attendance Page Punch Widget ──────────────────────────────────────
+        const HrmsAttPunch = (() => {
+            const API = '/api/dashboard';
+            let _state = 'NOT_PUNCHED';
+            let _workSeconds = 0;
+            let _checkInTime = null;
+            let _clockInterval = null;
+            let _timerInterval = null;
+
+            function $(id) { return document.getElementById(id); }
+
+            // Live clock
+            function startClock() {
+                if (_clockInterval) return;
+                function tick() {
+                    const now = new Date();
+                    const pad = n => String(n).padStart(2, '0');
+                    const c = $('hrmsAttClock');
+                    const d = $('hrmsAttDate');
+                    if (c) c.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+                    if (d) d.textContent = now.toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
+                }
+                tick();
+                _clockInterval = setInterval(tick, 1000);
+            }
+
+            // Work timer
+            function startTimer() {
+                if (_timerInterval) return;
+                _timerInterval = setInterval(() => {
+                    if (_checkInTime) _workSeconds = Math.floor((Date.now() - _checkInTime.getTime()) / 1000);
+                    else _workSeconds++;
+                    renderProgress();
+                }, 1000);
+            }
+            function stopTimer() { if (_timerInterval) { clearInterval(_timerInterval); _timerInterval = null; } }
+
+            function renderProgress() {
+                const h = Math.floor(_workSeconds / 3600);
+                const m = Math.floor((_workSeconds % 3600) / 60);
+                const wh = $('hrmsAttWorkHours');
+                if (wh) wh.textContent = `${h}h ${m}m`;
+
+                const pct = Math.min(100, (_workSeconds / 28800) * 100);
+                const bar = $('hrmsAttProgressBar');
+                const pctEl = $('hrmsAttProgressPct');
+                const sec = $('hrmsAttProgressSection');
+                if (bar) {
+                    bar.style.width = pct + '%';
+                    bar.className = 'progress-bar punch-progress-bar' +
+                        (pct >= 100 ? ' bg-success' : pct >= 75 ? ' bg-primary' : pct >= 50 ? ' bg-info' : ' bg-warning');
+                }
+                if (pctEl) pctEl.textContent = Math.round(pct) + '%';
+                if (sec) sec.style.display = '';
+            }
+
+            function renderState() {
+                const btn = $('hrmsAttPunchBtn');
+                const btnText = $('hrmsAttBtnText');
+                const badge = $('hrmsAttStatusBadge');
+                if (!btn) return;
+
+                btn.disabled = false;
+                if (_state === 'NOT_PUNCHED') {
+                    btn.className = 'punch-btn punch-btn-in';
+                    if (btnText) btnText.textContent = 'Punch In';
+                    if (badge) badge.innerHTML = '<span class="badge bg-warning-lt"><i class="bi bi-circle me-1"></i>Not Punched In</span>';
+                    stopTimer();
+                    $('hrmsAttProgressSection') && ($('hrmsAttProgressSection').style.display = 'none');
+                } else if (_state === 'PUNCHED_IN') {
+                    btn.className = 'punch-btn punch-btn-out';
+                    if (btnText) btnText.textContent = 'Punch Out';
+                    if (badge) badge.innerHTML = '<span class="badge bg-success-lt"><i class="bi bi-check-circle me-1"></i>Checked In — Working</span>';
+                    renderProgress();
+                    startTimer();
+                } else {
+                    btn.className = 'punch-btn punch-btn-done';
+                    btn.disabled = true;
+                    if (btnText) btnText.textContent = 'Day Complete';
+                    if (badge) badge.innerHTML = '<span class="badge bg-primary-lt"><i class="bi bi-check-all me-1"></i>Day Completed</span>';
+                    stopTimer();
+                }
+            }
+
+            async function loadStatus() {
+                try {
+                    const res = await fetch(`${API}/punch-status`);
+                    const data = res.ok ? await res.json() : null;
+                    if (!data || !data.hasEmployee) {
+                        showNoEmployee();
+                        return;
+                    }
+
+                    _state = data.punchState || 'NOT_PUNCHED';
+                    _workSeconds = data.workSeconds || 0;
+                    _checkInTime = data.checkIn ? new Date(data.checkIn) : null;
+
+                    const inEl = $('hrmsAttInTime');
+                    const outEl = $('hrmsAttOutTime');
+                    const shiftEl = $('hrmsAttShift');
+                    if (inEl) inEl.textContent = data.checkInDisplay || '--:--';
+                    if (outEl) outEl.textContent = data.checkOutDisplay || '--:--';
+                    if (shiftEl) shiftEl.textContent = data.shift?.shiftName || 'General';
+
+                    renderState();
+                } catch { showNoEmployee(); }
+            }
+
+            function showNoEmployee() {
+                const btn = $('hrmsAttPunchBtn');
+                const btnText = $('hrmsAttBtnText');
+                const badge = $('hrmsAttStatusBadge');
+                if (btn) { btn.className = 'punch-btn punch-btn-done'; btn.disabled = true; }
+                if (btnText) btnText.textContent = 'Unavailable';
+                if (badge) badge.innerHTML = '<span class="badge bg-danger-lt"><i class="bi bi-exclamation-circle me-1"></i>Employee record not found</span>';
+            }
+
+            async function doPunch() {
+                const btn = $('hrmsAttPunchBtn');
+                if (btn) btn.disabled = true;
+                const endpoint = _state === 'NOT_PUNCHED' ? 'punch-in' : 'punch-out';
+                const label = _state === 'NOT_PUNCHED' ? 'Punch In' : 'Punch Out';
+                try {
+                    const csrf = document.querySelector('input[name="__RequestVerificationToken"]');
+                    const res = await fetch(`${API}/${endpoint}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': csrf?.value || '' }
+                    });
+                    const data = await res.json();
+                    if (res.ok) {
+                        if (typeof Swal !== 'undefined') Swal.fire({ icon: 'success', title: label + ' Successful', text: data.message, timer: 2000, showConfirmButton: false, toast: true, position: 'top-end' });
+                        await loadStatus();
+                        // Refresh attendance table
+                        loadAttendanceData();
+                        // Sync navbar widget
+                        if (typeof NavbarPunch !== 'undefined') NavbarPunch.init();
+                    } else {
+                        if (typeof Swal !== 'undefined') Swal.fire({ icon: 'error', title: 'Error', text: data.message || 'Something went wrong.' });
+                        if (btn) btn.disabled = false;
+                    }
+                } catch {
+                    if (typeof Swal !== 'undefined') Swal.fire({ icon: 'error', title: 'Network Error', text: 'Could not connect to server.' });
+                    if (btn) btn.disabled = false;
+                }
+            }
+
+            function init() {
+                startClock();
+                loadStatus();
+            }
+
+            return { init, doPunch };
+        })();
+
+        // ── Attendance Table ─────────────────────────────────────────────────
+        function loadAttendanceData() {
+            const month = document.getElementById('attendanceMonth').value;
+            Hrms.loadAttendance(month);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const now = new Date();
+            const monthStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+            document.getElementById('attendanceMonth').value = monthStr;
+            loadAttendanceData();
+            HrmsAttPunch.init();
+        });
+
+        document.getElementById('attendanceMonth').addEventListener('change', loadAttendanceData);
+    </script>
+}

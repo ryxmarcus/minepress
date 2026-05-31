@@ -1,0 +1,497 @@
+@page
+@model erp.minepress.web.Pages.Challan.CreateModel
+@{
+    ViewData["Title"] = "New Challan";
+    ViewData["ContainerClass"] = "container-fluid";
+}
+
+<!-- Compact Page Header -->
+<div class="page-header d-print-none mb-3">
+    <div class="container-xl">
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <span class="avatar avatar-md bg-primary-lt text-primary">
+                    <i class="bi bi-truck fs-3"></i>
+                </span>
+            </div>
+            <div class="col">
+                <h2 class="page-title mb-0" id="chCreateTitle">New Delivery Challan</h2>
+                <div class="text-secondary mt-1" id="chCreateSubtitle">Select a job, configure items, and save the challan</div>
+            </div>
+            <div class="col-auto d-flex gap-2">
+                <a href="/Challan" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>Back to List
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 2-Column Layout -->
+<div class="ch-create-layout">
+
+    <!-- ═══ LEFT SIDEBAR ═══ -->
+    <aside>
+        <!-- Job Selection -->
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="avatar avatar-xs bg-purple-lt text-purple"><i class="bi bi-briefcase"></i></span>
+                    <h3 class="card-title mb-0">Job</h3>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="input-icon mb-2">
+                    <span class="input-icon-addon"><i class="bi bi-search"></i></span>
+                    <input type="text" id="chJobSearch" class="form-control form-control-sm" placeholder="Search job no..." autocomplete="off" />
+                </div>
+                <div id="chJobDropdown" class="list-group list-group-flush" style="max-height:200px; overflow-y:auto; display:none;"></div>
+                <div id="chJobSelected" class="d-none mt-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-purple-lt" id="chJobNo"></span>
+                        <div class="flex-fill">
+                            <div class="fw-semibold small" id="chJobCustomer"></div>
+                            <div class="text-muted small" id="chJobProduct"></div>
+                        </div>
+                        <button type="button" class="btn btn-ghost-secondary btn-sm btn-icon" onclick="clearJob()" title="Clear"><i class="bi bi-x-lg"></i></button>
+                    </div>
+                </div>
+                <input type="hidden" id="chJobId" />
+                <input type="hidden" id="chPartyId" />
+            </div>
+        </div>
+
+        <!-- Delivery Info -->
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="avatar avatar-xs bg-azure-lt text-azure"><i class="bi bi-geo-alt"></i></span>
+                    <h3 class="card-title mb-0">Delivery Info</h3>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Delivery Address</label>
+                    <textarea id="chDeliveryAddress" class="form-control form-control-sm" rows="2" placeholder="Delivery address..."></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Vehicle No</label>
+                    <input type="text" id="chVehicleNo" class="form-control form-control-sm" placeholder="e.g. MH-12-AB-1234" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Transport Details</label>
+                    <input type="text" id="chTransportDetails" class="form-control form-control-sm" placeholder="Transporter name / details" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Reference No</label>
+                    <input type="text" id="chReferenceNo" class="form-control form-control-sm" placeholder="PO / LR reference" />
+                </div>
+                <div class="mb-0">
+                    <label class="form-label">Remarks</label>
+                    <textarea id="chRemarks" class="form-control form-control-sm" rows="2" placeholder="Any special instructions..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="avatar avatar-xs bg-teal-lt text-teal"><i class="bi bi-calculator"></i></span>
+                    <h3 class="card-title mb-0">Summary</h3>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-sm mb-0">
+                    <tbody>
+                        <tr>
+                            <td class="text-muted">Items</td>
+                            <td class="text-end fw-semibold" id="sumItems">0</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Total Qty</td>
+                            <td class="text-end fw-semibold" id="sumTotalQty">0</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Total Amount</td>
+                            <td class="text-end fw-semibold" id="sumTotalAmount">₹ 0.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ═══ MAIN PANEL ═══ -->
+    <div>
+        <!-- AI Validation Panel -->
+        <div class="ch-ai-panel mb-3" id="chAiPanel" style="display:none;">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <span class="avatar avatar-xs bg-primary-lt"><i class="bi bi-stars"></i></span>
+                <span class="fw-semibold small text-primary">AI Quantity Validation</span>
+                <button class="btn btn-ghost-secondary btn-sm btn-icon ms-auto" onclick="$('#chAiPanel').hide()"><i class="bi bi-x"></i></button>
+            </div>
+            <div id="chAiMessages"></div>
+        </div>
+
+        <!-- BOM Data Panel -->
+        <div class="card mb-3" id="chBomPanel" style="display:none;">
+            <div class="card-header">
+                <div class="d-flex align-items-center justify-content-between w-100">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="avatar avatar-xs bg-orange-lt text-orange"><i class="bi bi-box-seam"></i></span>
+                        <h3 class="card-title mb-0">Bill of Materials (BOM)</h3>
+                    </div>
+                    <button type="button" class="btn btn-ghost-secondary btn-sm btn-icon" onclick="$('#chBomTable').toggle(); $(this).find('i').toggleClass('bi-chevron-up bi-chevron-down');" title="Toggle">
+                        <i class="bi bi-chevron-up"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm table-vcenter card-table mb-0" id="chBomTable">
+                    <thead>
+                        <tr>
+                            <th style="width:40px;">#</th>
+                            <th>Category</th>
+                            <th>Material</th>
+                            <th>Specification</th>
+                            <th>For Part</th>
+                            <th class="text-center">Qty</th>
+                            <th class="text-center">Unit</th>
+                            <th class="text-end">Rate</th>
+                            <th class="text-end">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody id="chBomBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Items Card -->
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex align-items-center justify-content-between w-100">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="avatar avatar-xs bg-primary-lt text-primary"><i class="bi bi-list-check"></i></span>
+                        <h3 class="card-title mb-0">Challan Items</h3>
+                    </div>
+                    <button type="button" class="btn btn-primary btn-sm" id="btnValidate" onclick="validateQuantities()" style="display:none;">
+                        <i class="bi bi-stars me-1"></i>Validate
+                    </button>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table" id="chItemsTable">
+                    <thead>
+                        <tr>
+                            <th style="width:40px;">#</th>
+                            <th>Product</th>
+                            <th class="text-center" style="width:90px;">Job Qty</th>
+                            <th class="text-center" style="width:90px;">Delivered</th>
+                            <th class="text-center" style="width:90px;">Pending</th>
+                            <th class="text-center" style="width:110px;">Challan Qty</th>
+                            <th class="text-end" style="width:100px;">Rate</th>
+                            <th class="text-end" style="width:110px;">Amount</th>
+                            <th style="width:120px;">Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody id="chItemsBody">
+                        <tr id="chNoItemsRow">
+                            <td colspan="9" class="text-center text-muted py-4">
+                                <i class="bi bi-briefcase" style="font-size:2rem; opacity:.3;"></i>
+                                <div class="mt-2">Select a Job to load items</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Save Button -->
+        <div class="d-flex justify-content-end gap-2 mt-3">
+            <a href="/Challan" class="btn btn-outline-secondary">Cancel</a>
+            <button type="button" class="btn btn-primary" id="btnSaveChallan" onclick="saveChallan()" disabled>
+                <i class="bi bi-check-lg me-1"></i>Save Challan
+            </button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const CH_API = '/api/challan';
+        let jobData = null;
+        let jobSearchTimer = null;
+
+        $(document).ready(function () {
+            const fromJobId = '@(Model.FromJobId)';
+            if (fromJobId && fromJobId !== '') {
+                loadJobData(parseInt(fromJobId));
+            }
+
+            $('#chJobSearch').on('input', function () {
+                clearTimeout(jobSearchTimer);
+                const q = $(this).val().trim();
+                if (q.length < 2) { $('#chJobDropdown').hide(); return; }
+                jobSearchTimer = setTimeout(() => searchJobs(q), 300);
+            });
+        });
+
+        function searchJobs(q) {
+            $.get('/api/job/search?q=' + encodeURIComponent(q), function (data) {
+                if (!data || data.length === 0) {
+                    $('#chJobDropdown').html('<div class="list-group-item text-muted small py-2">No jobs found</div>').show();
+                    return;
+                }
+                let html = '';
+                data.forEach(j => {
+                    html += `<a href="javascript:void(0)" class="list-group-item list-group-item-action py-2" onclick="selectJob(${j.jobId})">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-purple-lt">${esc(j.jobNo)}</span>
+                            <div class="flex-fill small">
+                                <div class="fw-semibold">${esc(j.customerName || '')}</div>
+                                <div class="text-muted">${esc(j.productName || '')}</div>
+                            </div>
+                        </div>
+                    </a>`;
+                });
+                $('#chJobDropdown').html(html).show();
+            });
+        }
+
+        function selectJob(jobId) {
+            $('#chJobDropdown').hide();
+            $('#chJobSearch').val('');
+            loadJobData(jobId);
+        }
+
+        function loadJobData(jobId) {
+            $.get(`${CH_API}/from-job/${jobId}`, function (data) {
+                jobData = data;
+                $('#chJobId').val(data.jobId);
+                $('#chPartyId').val(data.partyId);
+                $('#chJobNo').text(data.jobNo);
+                $('#chJobCustomer').text(data.customerName || '');
+                $('#chJobProduct').text(data.productName || '');
+                $('#chJobSelected').removeClass('d-none');
+                $('#chJobSearch').closest('.input-icon').hide();
+
+                if (data.customerAddress) {
+                    $('#chDeliveryAddress').val(data.customerAddress);
+                }
+
+                renderBom(data.bomDataJson);
+                renderItems(data.items || []);
+                $('#btnValidate').show();
+                $('#btnSaveChallan').prop('disabled', false);
+            }).fail(function (err) {
+                Swal2.error(err.responseJSON?.message || 'Failed to load job data.');
+            });
+        }
+
+        function clearJob() {
+            jobData = null;
+            $('#chJobId').val('');
+            $('#chPartyId').val('');
+            $('#chJobSelected').addClass('d-none');
+            $('#chJobSearch').closest('.input-icon').show();
+            $('#chItemsBody').html($('#chNoItemsRow').length ? '' : '');
+            $('#chItemsBody').html(`<tr id="chNoItemsRow"><td colspan="9" class="text-center text-muted py-4">
+                <i class="bi bi-briefcase" style="font-size:2rem; opacity:.3;"></i>
+                <div class="mt-2">Select a Job to load items</div></td></tr>`);
+            $('#btnValidate').hide();
+                $('#btnSaveChallan').prop('disabled', true);
+                $('#chAiPanel').hide();
+                $('#chBomPanel').hide();
+                $('#chBomBody').empty();
+                updateSummary();
+        }
+
+        function renderBom(bomJson) {
+            if (!bomJson) { $('#chBomPanel').hide(); return; }
+            try {
+                const bom = typeof bomJson === 'string' ? JSON.parse(bomJson) : bomJson;
+                if (!Array.isArray(bom) || bom.length === 0) { $('#chBomPanel').hide(); return; }
+                let html = '';
+                bom.forEach((b, idx) => {
+                    html += `<tr>
+                        <td class="text-muted">${idx + 1}</td>
+                        <td><span class="badge bg-orange-lt">${esc(b.category || '')}</span></td>
+                        <td class="fw-semibold small">${esc(b.material_name || '')}</td>
+                        <td class="small text-muted">${esc(b.specification || '')}</td>
+                        <td class="small">${esc(b.for_part || '')}</td>
+                        <td class="text-center">${b.quantity ?? ''}</td>
+                        <td class="text-center">${esc(b.unit || '')}</td>
+                        <td class="text-end">${b.rate != null ? Number(b.rate).toLocaleString('en-IN', { minimumFractionDigits: 2 }) : ''}</td>
+                        <td class="text-end fw-semibold">${b.amount != null ? '₹ ' + Number(b.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 }) : ''}</td>
+                    </tr>`;
+                });
+                $('#chBomBody').html(html);
+                $('#chBomPanel').show();
+            } catch (e) {
+                console.warn('BOM parse error:', e);
+                $('#chBomPanel').hide();
+            }
+        }
+
+        function renderItems(items) {
+            if (!items.length) {
+                $('#chItemsBody').html('<tr><td colspan="9" class="text-center text-muted py-3">No items found for this job.</td></tr>');
+                return;
+            }
+            let html = '';
+            items.forEach((item, idx) => {
+                const pending = item.pendingQuantity;
+                const defaultQty = pending > 0 ? pending : 0;
+                const rate = item.unitRate || 0;
+                const amount = (defaultQty * rate).toFixed(2);
+                html += `<tr class="ch-item-row" data-job-item-id="${item.jobItemId}" data-job-qty="${item.jobQuantity}" data-already="${item.alreadyDelivered}" data-pending="${pending}" data-rate="${rate}">
+                    <td class="text-muted">${idx + 1}</td>
+                    <td>
+                        <div class="fw-semibold small">${esc(item.productName || '')}</div>
+                        <div class="text-muted small">${esc(item.productDescription || '')}</div>
+                        <input type="hidden" class="ch-uom" value="${item.uomId || ''}" />
+                    </td>
+                    <td class="text-center">${item.jobQuantity}</td>
+                    <td class="text-center"><span class="text-muted">${item.alreadyDelivered}</span></td>
+                    <td class="text-center"><span class="badge ${pending > 0 ? 'bg-primary-lt' : 'bg-success-lt'}">${pending}</span></td>
+                    <td class="text-center">
+                        <input type="number" class="form-control form-control-sm text-center ch-qty" value="${defaultQty}" min="0" max="${item.jobQuantity}" onchange="onQtyChange(this)" />
+                    </td>
+                    <td class="text-end">
+                        <input type="number" class="form-control form-control-sm text-end ch-rate" value="${rate}" step="0.01" min="0" onchange="onQtyChange(this)" />
+                    </td>
+                    <td class="text-end ch-amount">${Number(amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                    <td>
+                        <input type="text" class="form-control form-control-sm ch-item-remarks" placeholder="..." />
+                    </td>
+                </tr>`;
+            });
+            $('#chItemsBody').html(html);
+            updateSummary();
+        }
+
+        function onQtyChange(el) {
+            const $row = $(el).closest('tr');
+            const qty = parseFloat($row.find('.ch-qty').val()) || 0;
+            const rate = parseFloat($row.find('.ch-rate').val()) || 0;
+            const amount = (qty * rate).toFixed(2);
+            $row.find('.ch-amount').text(Number(amount).toLocaleString('en-IN', { minimumFractionDigits: 2 }));
+            updateSummary();
+        }
+
+        function updateSummary() {
+            let totalQty = 0, totalAmount = 0, itemCount = 0;
+            $('#chItemsBody .ch-item-row').each(function () {
+                const qty = parseFloat($(this).find('.ch-qty').val()) || 0;
+                const rate = parseFloat($(this).find('.ch-rate').val()) || 0;
+                if (qty > 0) itemCount++;
+                totalQty += qty;
+                totalAmount += qty * rate;
+            });
+            $('#sumItems').text(itemCount);
+            $('#sumTotalQty').text(totalQty.toLocaleString('en-IN'));
+            $('#sumTotalAmount').text('₹ ' + totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 }));
+        }
+
+        // ── AI Quantity Validation ──
+        function validateQuantities() {
+            const jobId = parseInt($('#chJobId').val());
+            if (!jobId) { Swal2.warning('Please select a job first.'); return; }
+
+            const items = [];
+            $('#chItemsBody .ch-item-row').each(function () {
+                items.push({
+                    jobItemId: parseInt($(this).data('job-item-id')),
+                    quantity: parseInt($(this).find('.ch-qty').val()) || 0
+                });
+            });
+
+            $.ajax({
+                url: `${CH_API}/validate-quantity`,
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ jobId, items }),
+                success: function (res) {
+                    let html = '';
+                    (res.errors || []).forEach(e => { html += `<div class="ch-ai-insight error"><i class="bi bi-x-circle me-1"></i>${esc(e.message)}</div>`; });
+                    (res.warnings || []).forEach(w => { html += `<div class="ch-ai-insight warning"><i class="bi bi-exclamation-triangle me-1"></i>${esc(w.message)}</div>`; });
+                    (res.insights || []).forEach(i => {
+                        const cls = i.severity === 'SUCCESS' ? 'success' : 'info';
+                        html += `<div class="ch-ai-insight ${cls}"><i class="bi bi-${cls === 'success' ? 'check-circle' : 'info-circle'} me-1"></i>${esc(i.message)}</div>`;
+                    });
+                    if (res.summary) {
+                        html += `<div class="mt-2 small text-muted">Summary — Job Qty: ${res.summary.totalJobQty}, Already Delivered: ${res.summary.totalAlreadyDelivered}, This Challan: ${res.summary.totalChallanQty}, Remaining: ${res.summary.totalPending}</div>`;
+                    }
+                    $('#chAiMessages').html(html);
+                    $('#chAiPanel').show();
+                },
+                error: function (err) { Swal2.error(err.responseJSON?.message || 'Validation failed.'); }
+            });
+        }
+
+        // ── Save Challan ──
+        async function saveChallan() {
+            const jobId = parseInt($('#chJobId').val());
+            const partyId = parseInt($('#chPartyId').val());
+            if (!jobId) { Swal2.warning('Please select a job.'); return; }
+
+            const items = [];
+            let seq = 0;
+            $('#chItemsBody .ch-item-row').each(function () {
+                seq++;
+                const qty = parseInt($(this).find('.ch-qty').val()) || 0;
+                const rate = parseFloat($(this).find('.ch-rate').val()) || 0;
+                const pending = parseInt($(this).data('pending')) || 0;
+                items.push({
+                    jobItemId: parseInt($(this).data('job-item-id')),
+                    itemSequence: seq,
+                    productName: $(this).find('.fw-semibold.small').first().text(),
+                    productDescription: $(this).find('.text-muted.small').first().text(),
+                    jobQuantity: parseInt($(this).data('job-qty')) || 0,
+                    deliveredQuantity: qty,
+                    pendingQuantity: pending - qty,
+                    uomId: parseInt($(this).find('.ch-uom').val()) || null,
+                    rate: rate,
+                    amount: qty * rate,
+                    remarks: $(this).find('.ch-item-remarks').val()
+                });
+            });
+
+            const totalQty = items.reduce((s, i) => s + (i.deliveredQuantity || 0), 0);
+            const totalAmount = items.reduce((s, i) => s + (i.amount || 0), 0);
+
+            if (totalQty <= 0) {
+                Swal2.warning('Total quantity must be greater than zero.');
+                return;
+            }
+
+            const payload = {
+                jobId,
+                partyId,
+                deliveryAddress: $('#chDeliveryAddress').val(),
+                transportDetails: $('#chTransportDetails').val(),
+                vehicleNo: $('#chVehicleNo').val(),
+                referenceNo: $('#chReferenceNo').val(),
+                totalQty,
+                totalAmount,
+                remarks: $('#chRemarks').val(),
+                items
+            };
+
+            try {
+                $('#btnSaveChallan').prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span>Saving...');
+                const res = await $.ajax({ url: `${CH_API}/save`, method: 'POST', contentType: 'application/json', data: JSON.stringify(payload) });
+                await Swal2.success(res.message || 'Challan saved successfully.');
+                window.location.href = `/Challan/Details?id=${res.challanId}`;
+            } catch (err) {
+                Swal2.error(err.responseJSON?.message || 'Failed to save challan.');
+                $('#btnSaveChallan').prop('disabled', false).html('<i class="bi bi-check-lg me-1"></i>Save Challan');
+            }
+        }
+
+        function esc(value) {
+            return (value || '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;');
+        }
+    </script>
+}

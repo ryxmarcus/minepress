@@ -1,0 +1,64 @@
+@page
+@model erp.minepress.web.Pages.Accounting.ExpenseVoucher.IndexModel
+@{
+    ViewData["Title"] = "Expense Vouchers";
+}
+
+<div class="acc-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto"><span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);"><i class="bi bi-cash-coin" style="font-size:1.5rem;"></i></span></div>
+        <div class="col"><h2 class="mb-0">Expense Vouchers</h2><div class="text-white-75">Track &amp; manage operational expenses</div></div>
+        <div class="col-auto d-flex gap-2">
+            <a href="/Accounting" class="btn btn-outline-light btn-sm"><i class="bi bi-arrow-left me-1"></i>Back</a>
+            <a href="/Accounting/ExpenseVoucher/Create" class="btn btn-light btn-sm"><i class="bi bi-plus-lg me-1"></i>New Expense</a>
+            <button class="btn btn-outline-light btn-sm" onclick="loadList()"><i class="bi bi-arrow-clockwise me-1"></i>Refresh</button>
+        </div>
+    </div>
+</div>
+
+<div class="acc-sub-nav d-print-none mb-3">
+    <a href="/Accounting/JournalVoucher" class="acc-sub-nav-item"><i class="bi bi-journal-text me-1"></i>Journals</a>
+    <a href="/Accounting/ExpenseVoucher" class="acc-sub-nav-item active"><i class="bi bi-cash-coin me-1"></i>Expenses</a>
+    <a href="/Accounting/BankReconciliation" class="acc-sub-nav-item"><i class="bi bi-bank me-1"></i>Reconciliation</a>
+</div>
+
+<div class="card mb-3"><div class="card-body py-2"><div class="row g-2 align-items-center">
+    <div class="col-md-4"><div class="input-icon"><span class="input-icon-addon"><i class="bi bi-search"></i></span><input type="text" id="txtSearch" class="form-control form-control-sm" placeholder="Search voucher no, narration..." /></div></div>
+    <div class="col-md-2"><select id="ddlStatus" class="form-select form-select-sm"><option value="">All</option><option value="DRAFT">Draft</option><option value="PENDING_APPROVAL">Pending</option><option value="APPROVED">Approved</option><option value="POSTED">Posted</option><option value="CANCELLED">Cancelled</option></select></div>
+    <div class="col-md-2"><select id="ddlPayMode" class="form-select form-select-sm"><option value="">All Modes</option><option value="CASH">Cash</option><option value="BANK_TRANSFER">Bank Transfer</option><option value="CHEQUE">Cheque</option><option value="UPI">UPI</option></select></div>
+</div></div></div>
+
+<div class="card"><div class="table-responsive"><table class="table table-vcenter card-table table-hover acc-list-table">
+    <thead><tr><th>Voucher No</th><th>Date</th><th>Category</th><th>Payment Mode</th><th class="text-end">Amount</th><th>Approved</th><th>Status</th></tr></thead>
+    <tbody id="listBody"><tr><td colspan="7" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2"></div>Loading...</td></tr></tbody>
+</table></div></div>
+
+@section Scripts {
+    <script>
+        let allData = [];
+        $(document).ready(function () { loadList(); $('#txtSearch, #ddlStatus, #ddlPayMode').on('input change', applyFilters); });
+        function loadList() {
+            $.get('/api/accounting/expense-vouchers', function (data) { allData = data; applyFilters(); })
+            .fail(function () { $('#listBody').html('<tr><td colspan="7" class="text-center text-danger py-3">Failed to load.</td></tr>'); });
+        }
+        function applyFilters() {
+            const q = ($('#txtSearch').val() || '').toLowerCase(), st = $('#ddlStatus').val(), pm = $('#ddlPayMode').val();
+            let f = allData.filter(i => {
+                if (q && !(i.voucherNo || '').toLowerCase().includes(q) && !(i.narration || '').toLowerCase().includes(q) && !(i.expenseCategory || '').toLowerCase().includes(q)) return false;
+                if (st && i.status !== st) return false;
+                if (pm && i.paymentMode !== pm) return false;
+                return true;
+            });
+            let html = '';
+            if (!f.length) html = '<tr><td colspan="7" class="text-center text-muted py-4">No expense vouchers found</td></tr>';
+            f.forEach(i => {
+                const sc = { 'DRAFT': 'acc-status-draft', 'POSTED': 'acc-status-posted', 'APPROVED': 'acc-status-approved', 'PENDING_APPROVAL': 'acc-status-pending', 'CANCELLED': 'acc-status-cancelled' }[i.status] || 'bg-secondary-lt';
+                const approved = i.isApproved ? '<span class="badge bg-green-lt"><i class="bi bi-check-circle me-1"></i>Yes</span>' : '<span class="badge bg-yellow-lt"><i class="bi bi-hourglass me-1"></i>No</span>';
+                html += `<tr><td class="fw-semibold">${esc(i.voucherNo)}</td><td class="text-muted small">${esc(i.voucherDate)}</td><td class="small">${esc((i.expenseCategory || '').replace(/_/g, ' '))}</td><td class="small">${esc((i.paymentMode || '').replace(/_/g, ' '))}</td><td class="text-end fw-semibold">${fmt(i.grandTotal)}</td><td>${approved}</td><td><span class="acc-status-badge ${sc}">${(i.status || '').replace(/_/g, ' ')}</span></td></tr>`;
+            });
+            $('#listBody').html(html);
+        }
+        function fmt(v) { return v != null ? '₹' + Number(v).toLocaleString('en-IN', { minimumFractionDigits: 2 }) : '₹0.00'; }
+        function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.appendChild(document.createTextNode(s)); return d.innerHTML; }
+    </script>
+}

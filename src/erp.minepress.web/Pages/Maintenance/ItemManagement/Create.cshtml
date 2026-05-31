@@ -1,0 +1,558 @@
+@page
+@model erp.minepress.web.Pages.Maintenance.ItemManagement.CreateModel
+@{
+    ViewData["Title"] = "Create New Item";
+    ViewData["ContainerClass"] = "container-xl";
+    ViewData["HidePageHeader"] = true;
+}
+
+<!-- ── Page Header ── -->
+<div class="page-header d-print-none mb-3">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-md bg-azure-lt text-azure">
+                <i class="bi bi-box-seam-fill fs-4"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="page-title mb-0">Create New Item</h2>
+            <div class="text-secondary mt-1">Add a new inventory item — Chemicals, Inks, Papers, Plates or Other</div>
+        </div>
+        <div class="col-auto">
+            <a href="/Maintenance/ItemManagement" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i>Back to Items
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ AI Assistant Bar ═══ -->
+<div class="ic-ai-bar">
+    <div class="ic-ai-icon"><i class="bi bi-stars"></i></div>
+    <div class="flex-fill">
+        <div class="fw-semibold small">AI Inventory Assistant</div>
+        <div id="icAiHint" class="text-secondary" style="font-size:.78rem;">
+            Select an item group to begin. AI will suggest fields, validate GST codes &amp; flag stock concerns.
+        </div>
+    </div>
+    <div id="icAiBadges" class="d-flex gap-2 flex-wrap"></div>
+</div>
+
+<!-- ═══ Wizard Steps Indicator ═══ -->
+<div class="ic-steps-bar">
+    <div class="ic-step active" data-step="1" onclick="IcApp.goStep(1)">
+        <div class="ic-step-num">1</div>
+        <div class="ic-step-label">Item Group</div>
+    </div>
+    <div class="ic-step-line"></div>
+    <div class="ic-step" data-step="2" onclick="IcApp.goStep(2)">
+        <div class="ic-step-num">2</div>
+        <div class="ic-step-label">Basic Info</div>
+    </div>
+    <div class="ic-step-line"></div>
+    <div class="ic-step" data-step="3" onclick="IcApp.goStep(3)">
+        <div class="ic-step-num">3</div>
+        <div class="ic-step-label">Group Details</div>
+    </div>
+    <div class="ic-step-line"></div>
+    <div class="ic-step" data-step="4" onclick="IcApp.goStep(4)">
+        <div class="ic-step-num">4</div>
+        <div class="ic-step-label">Review &amp; Create</div>
+    </div>
+</div>
+
+<!-- ═══ Wizard Content ═══ -->
+<div class="ic-wizard-wrap">
+
+    <!-- ── Step 1: Item Group Selection ── -->
+    <div class="ic-step-panel active" id="icStep1">
+        <div class="ic-section-card">
+            <div class="ic-section-header">
+                <div class="ic-section-icon icon-primary"><i class="bi bi-collection"></i></div>
+                <div>
+                    <h3 class="ic-section-title">Select Item Group</h3>
+                    <p class="ic-section-desc">Choose the category of the item you're adding to inventory</p>
+                </div>
+            </div>
+            <div class="ic-group-grid">
+                <label class="ic-group-card" data-group="CHEMICAL">
+                    <input type="radio" name="itemGroupRadio" value="CHEMICAL" class="d-none" />
+                    <div class="ic-group-inner chemical">
+                        <div class="ic-group-icon"><i class="bi bi-droplet-half"></i></div>
+                        <div class="ic-group-name">Chemical</div>
+                        <div class="ic-group-desc">Solvents, cleaners, adhesives, coatings &amp; processing chemicals</div>
+                        <div class="ic-group-badge">Hazmat tracking</div>
+                    </div>
+                </label>
+                <label class="ic-group-card" data-group="INK">
+                    <input type="radio" name="itemGroupRadio" value="INK" class="d-none" />
+                    <div class="ic-group-inner ink">
+                        <div class="ic-group-icon"><i class="bi bi-palette"></i></div>
+                        <div class="ic-group-name">Ink</div>
+                        <div class="ic-group-desc">Printing inks — process, spot, UV, metallic &amp; specialty colors</div>
+                        <div class="ic-group-badge">Pantone support</div>
+                    </div>
+                </label>
+                <label class="ic-group-card" data-group="PAPER">
+                    <input type="radio" name="itemGroupRadio" value="PAPER" class="d-none" />
+                    <div class="ic-group-inner paper">
+                        <div class="ic-group-icon"><i class="bi bi-file-earmark"></i></div>
+                        <div class="ic-group-name">Paper</div>
+                        <div class="ic-group-desc">Sheets, rolls, boards — all paper substrate types</div>
+                        <div class="ic-group-badge">GSM &amp; grain tracking</div>
+                    </div>
+                </label>
+                <label class="ic-group-card" data-group="PLATE">
+                    <input type="radio" name="itemGroupRadio" value="PLATE" class="d-none" />
+                    <div class="ic-group-inner plate">
+                        <div class="ic-group-icon"><i class="bi bi-disc"></i></div>
+                        <div class="ic-group-name">Plate</div>
+                        <div class="ic-group-desc">Offset, CTP, letterpress &amp; flexo printing plates</div>
+                        <div class="ic-group-badge">Impression tracking</div>
+                    </div>
+                </label>
+                <label class="ic-group-card" data-group="OTHER">
+                    <input type="radio" name="itemGroupRadio" value="OTHER" class="d-none" />
+                    <div class="ic-group-inner other">
+                        <div class="ic-group-icon"><i class="bi bi-three-dots"></i></div>
+                        <div class="ic-group-name">Other</div>
+                        <div class="ic-group-desc">Consumables, packing material, spare parts &amp; miscellaneous</div>
+                        <div class="ic-group-badge">General purpose</div>
+                    </div>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Step 2: Basic Information + Stock & Tax ── -->
+    <div class="ic-step-panel" id="icStep2">
+        <div class="ic-section-card">
+            <div class="ic-section-header">
+                <div class="ic-section-icon icon-info"><i class="bi bi-info-circle"></i></div>
+                <div>
+                    <h3 class="ic-section-title">Basic Information</h3>
+                    <p class="ic-section-desc">Core details — code, name, classification &amp; pricing</p>
+                </div>
+            </div>
+            <div class="row g-3">
+                <div class="col-lg-4">
+                    <label class="form-label ic-label required">Item Code</label>
+                    <div class="input-group ic-input-group">
+                        <span class="input-group-text ic-code-prefix-badge" id="icCodePrefixBadge" title="Required prefix for selected group"><i class="bi bi-upc-scan"></i></span>
+                        <input type="text" class="form-control text-uppercase" id="icItemCode" placeholder="Select a group first" autocomplete="off" />
+                    </div>
+                    <div id="icCodeHint" class="form-text">
+                        <i class="bi bi-info-circle me-1"></i>Select an item group to see the required prefix.
+                    </div>
+                    <div id="icCodePrefixRules" class="ic-prefix-rules mt-2 d-none">
+                        <div class="ic-prefix-rules-title"><i class="bi bi-key me-1"></i>Code Prefix Rules</div>
+                        <div class="ic-prefix-rules-grid">
+                            <span class="ic-prefix-tag chemical">CH_</span><span class="ic-prefix-rule-label">Chemical</span>
+                            <span class="ic-prefix-tag ink">INK_</span><span class="ic-prefix-rule-label">Ink</span>
+                            <span class="ic-prefix-tag paper">PAP_</span><span class="ic-prefix-rule-label">Paper</span>
+                            <span class="ic-prefix-tag plate">PLT_</span><span class="ic-prefix-rule-label">Plate</span>
+                            <span class="ic-prefix-tag other">OTH_</span><span class="ic-prefix-rule-label">Other</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8">
+                    <label class="form-label ic-label required">Item Name</label>
+                    <div class="input-group ic-input-group">
+                        <span class="input-group-text"><i class="bi bi-tag"></i></span>
+                        <input type="text" class="form-control" id="icItemName" placeholder="Enter item name" />
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <label class="form-label ic-label">Category</label>
+                    <div class="ic-select2-wrap">
+                        <select class="form-select ic-select2" id="icItemCategory">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                    <div class="form-text"><i class="bi bi-search me-1"></i>Search existing or type a new category</div>
+                </div>
+                <div class="col-lg-4">
+                    <label class="form-label ic-label">UOM</label>
+                    <div class="ic-select2-wrap">
+                        <select class="form-select ic-select2" id="icUom">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                    <div class="form-text"><i class="bi bi-search me-1"></i>Search existing or type a new unit</div>
+                </div>
+                <div class="col-lg-4">
+                    <label class="form-label ic-label">Purchase Rate</label>
+                    <div class="input-group ic-input-group">
+                        <span class="input-group-text"><i class="bi bi-currency-rupee"></i></span>
+                        <input type="number" step="any" class="form-control" id="icPurchaseRate" placeholder="0.00" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="ic-section-card mt-3">
+            <div class="ic-section-header">
+                <div class="ic-section-icon icon-warning"><i class="bi bi-box-seam"></i></div>
+                <div>
+                    <h3 class="ic-section-title">Stock &amp; Tax</h3>
+                    <p class="ic-section-desc">Inventory levels, HSN classification &amp; GST configuration</p>
+                </div>
+            </div>
+            <div class="row g-3">
+                <div class="col-lg-3">
+                    <label class="form-label ic-label">Reorder Level</label>
+                    <div class="input-group ic-input-group">
+                        <span class="input-group-text"><i class="bi bi-exclamation-triangle"></i></span>
+                        <input type="number" step="any" class="form-control" id="icReorderLevel" placeholder="0" />
+                    </div>
+                    <div class="form-text">Alert when stock falls below this</div>
+                </div>
+                <div class="col-lg-3">
+                    <label class="form-label ic-label">Current Stock</label>
+                    <div class="input-group ic-input-group">
+                        <span class="input-group-text"><i class="bi bi-boxes"></i></span>
+                        <input type="number" step="any" class="form-control" id="icCurrentStock" placeholder="0" />
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <label class="form-label ic-label">HSN Code</label>
+                    <div class="input-group ic-input-group">
+                        <span class="input-group-text"><i class="bi bi-hash"></i></span>
+                        <input type="text" class="form-control" id="icHsnCode" placeholder="HSN code" />
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <label class="form-label ic-label">GST Rate (%)</label>
+                    <div class="input-group ic-input-group">
+                        <span class="input-group-text"><i class="bi bi-percent"></i></span>
+                        <input type="number" step="any" class="form-control" id="icGstRate" placeholder="0" />
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <label class="form-label ic-label">Remarks</label>
+                    <textarea class="form-control" id="icRemarks" rows="2" placeholder="Additional notes about this item..."></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Step 3: Group-Specific Fields ── -->
+    <div class="ic-step-panel" id="icStep3">
+
+        <!-- Chemical Fields -->
+        <div class="ic-group-fields d-none" id="fieldsChemical">
+            <div class="ic-section-card">
+                <div class="ic-section-header">
+                    <div class="ic-section-icon icon-chemical"><i class="bi bi-droplet-half"></i></div>
+                    <div>
+                        <h3 class="ic-section-title">Chemical Details</h3>
+                        <p class="ic-section-desc">Chemical-specific properties, safety info &amp; manufacturer</p>
+                    </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-lg-4">
+                        <label class="form-label ic-label">Chemical Type</label>
+                        <input type="text" class="form-control" id="icChemicalType" placeholder="e.g. Solvent, Cleaner" />
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-label ic-label">Process Stage</label>
+                        <input type="text" class="form-control" id="icProcessStage" placeholder="e.g. Pre-press, Finishing" />
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-label ic-label">Manufacturer</label>
+                        <input type="text" class="form-control" id="icChemManufacturer" placeholder="Manufacturer name" />
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-label ic-label">Brand</label>
+                        <input type="text" class="form-control" id="icChemBrand" placeholder="Brand name" />
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-label ic-label">Dilution Ratio</label>
+                        <input type="text" class="form-control" id="icDilutionRatio" placeholder="e.g. 1:10" />
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-label ic-label">Shelf Life (months)</label>
+                        <input type="number" class="form-control" id="icChemShelfLife" placeholder="0" />
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-label ic-label">Hazardous</label>
+                        <div class="ic-toggle-row">
+                            <label class="ic-toggle-option">
+                                <input type="radio" name="hazardous" value="true" class="d-none" />
+                                <span class="ic-toggle-btn danger"><i class="bi bi-shield-exclamation me-1"></i>Yes</span>
+                            </label>
+                            <label class="ic-toggle-option">
+                                <input type="radio" name="hazardous" value="false" class="d-none" checked />
+                                <span class="ic-toggle-btn safe"><i class="bi bi-shield-check me-1"></i>No</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ink Fields -->
+        <div class="ic-group-fields d-none" id="fieldsInk">
+            <div class="ic-section-card">
+                <div class="ic-section-header">
+                    <div class="ic-section-icon icon-ink"><i class="bi bi-palette"></i></div>
+                    <div>
+                        <h3 class="ic-section-title">Ink Details</h3>
+                        <p class="ic-section-desc">Color properties, coverage &amp; manufacturer information</p>
+                    </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-lg-4">
+                        <label class="form-label ic-label">Ink Type</label>
+                        <input type="text" class="form-control" id="icInkType" placeholder="e.g. Process, Spot, UV" />
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-label ic-label">Color Name</label>
+                        <div class="input-group ic-input-group">
+                            <span class="input-group-text"><i class="bi bi-circle-fill" style="font-size:.6rem;"></i></span>
+                            <input type="text" class="form-control" id="icColorName" placeholder="e.g. Cyan, Magenta" />
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-label ic-label">Pantone Code</label>
+                        <div class="input-group ic-input-group">
+                            <span class="input-group-text"><i class="bi bi-palette2"></i></span>
+                            <input type="text" class="form-control" id="icPantoneCode" placeholder="e.g. PMS 485" />
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-label ic-label">Manufacturer</label>
+                        <input type="text" class="form-control" id="icInkManufacturer" placeholder="Manufacturer name" />
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-label ic-label">Coverage (sq.m/Kg)</label>
+                        <input type="number" step="any" class="form-control" id="icCoverage" placeholder="0" />
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-label ic-label">Wastage %</label>
+                        <div class="input-group ic-input-group">
+                            <input type="number" step="any" class="form-control" id="icInkWastage" placeholder="0" />
+                            <span class="input-group-text">%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Paper Fields -->
+        <div class="ic-group-fields d-none" id="fieldsPaper">
+            <div class="ic-section-card">
+                <div class="ic-section-header">
+                    <div class="ic-section-icon icon-paper"><i class="bi bi-file-earmark"></i></div>
+                    <div>
+                        <h3 class="ic-section-title">Paper Details</h3>
+                        <p class="ic-section-desc">Sheet properties, dimensions, grain &amp; supplier</p>
+                    </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-lg-3">
+                        <label class="form-label ic-label">Paper Type</label>
+                        <input type="text" class="form-control" id="icPaperType" placeholder="e.g. Art Card, Bond" />
+                    </div>
+                    <div class="col-lg-3">
+                        <label class="form-label ic-label">GSM</label>
+                        <div class="input-group ic-input-group">
+                            <input type="number" class="form-control" id="icGsm" placeholder="0" />
+                            <span class="input-group-text">g/m²</span>
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <label class="form-label ic-label">Finish</label>
+                        <input type="text" class="form-control" id="icPaperFinish" placeholder="e.g. Matte, Gloss" />
+                    </div>
+                    <div class="col-lg-3">
+                        <label class="form-label ic-label">Grain Direction</label>
+                        <input type="text" class="form-control" id="icGrainDir" placeholder="Long/Short" />
+                    </div>
+                    <div class="col-lg-3">
+                        <label class="form-label ic-label">Length (mm)</label>
+                        <div class="input-group ic-input-group">
+                            <input type="number" class="form-control" id="icSheetLength" placeholder="0" />
+                            <span class="input-group-text">mm</span>
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <label class="form-label ic-label">Width (mm)</label>
+                        <div class="input-group ic-input-group">
+                            <input type="number" class="form-control" id="icSheetWidth" placeholder="0" />
+                            <span class="input-group-text">mm</span>
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <label class="form-label ic-label">Supplier</label>
+                        <input type="text" class="form-control" id="icPaperSupplier" placeholder="Supplier name" />
+                    </div>
+                    <div class="col-lg-3">
+                        <label class="form-label ic-label">Brand</label>
+                        <input type="text" class="form-control" id="icPaperBrand" placeholder="Brand name" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Plate Fields -->
+        <div class="ic-group-fields d-none" id="fieldsPlate">
+            <div class="ic-section-card">
+                <div class="ic-section-header">
+                    <div class="ic-section-icon icon-plate"><i class="bi bi-disc"></i></div>
+                    <div>
+                        <h3 class="ic-section-title">Plate Details</h3>
+                        <p class="ic-section-desc">Plate type, dimensions, impressions &amp; processing</p>
+                    </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-lg-4">
+                        <label class="form-label ic-label">Plate Type</label>
+                        <input type="text" class="form-control" id="icPlateType" placeholder="e.g. CTP, Offset" />
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-label ic-label">Thickness (mm)</label>
+                        <div class="input-group ic-input-group">
+                            <input type="number" step="any" class="form-control" id="icThickness" placeholder="0.00" />
+                            <span class="input-group-text">mm</span>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-label ic-label">Max Impressions</label>
+                        <div class="input-group ic-input-group">
+                            <span class="input-group-text"><i class="bi bi-printer"></i></span>
+                            <input type="number" class="form-control" id="icMaxImpressions" placeholder="0" />
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-label ic-label">Length (mm)</label>
+                        <div class="input-group ic-input-group">
+                            <input type="number" class="form-control" id="icPlateLength" placeholder="0" />
+                            <span class="input-group-text">mm</span>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-label ic-label">Width (mm)</label>
+                        <div class="input-group ic-input-group">
+                            <input type="number" class="form-control" id="icPlateWidth" placeholder="0" />
+                            <span class="input-group-text">mm</span>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-label ic-label">Processing Cost</label>
+                        <div class="input-group ic-input-group">
+                            <span class="input-group-text"><i class="bi bi-currency-rupee"></i></span>
+                            <input type="number" step="any" class="form-control" id="icProcessingCost" placeholder="0.00" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Other Fields -->
+        <div class="ic-group-fields d-none" id="fieldsOther">
+            <div class="ic-section-card">
+                <div class="ic-section-header">
+                    <div class="ic-section-icon icon-other"><i class="bi bi-three-dots"></i></div>
+                    <div>
+                        <h3 class="ic-section-title">Other Item Details</h3>
+                        <p class="ic-section-desc">General-purpose item specifications</p>
+                    </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-lg-4">
+                        <label class="form-label ic-label">Item Type</label>
+                        <input type="text" class="form-control" id="icOtherItemType" placeholder="e.g. Consumable, Spare" />
+                    </div>
+                    <div class="col-lg-8">
+                        <label class="form-label ic-label">Description</label>
+                        <input type="text" class="form-control" id="icOtherDesc" placeholder="Detailed description" />
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-label ic-label">Supplier</label>
+                        <input type="text" class="form-control" id="icOtherSupplier" placeholder="Supplier name" />
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-label ic-label">Brand</label>
+                        <input type="text" class="form-control" id="icOtherBrand" placeholder="Brand name" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Placeholder when no group selected (shouldn't appear normally) -->
+        <div class="ic-group-fields" id="fieldsNone">
+            <div class="ic-section-card text-center py-5">
+                <i class="bi bi-arrow-left-circle" style="font-size:2rem;color:var(--tblr-secondary);"></i>
+                <p class="text-secondary mt-2 mb-0">Please go back and select an item group first</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Step 4: Review & Create ── -->
+    <div class="ic-step-panel" id="icStep4">
+        <div class="ic-section-card">
+            <div class="ic-section-header">
+                <div class="ic-section-icon icon-success"><i class="bi bi-clipboard-check"></i></div>
+                <div>
+                    <h3 class="ic-section-title">Review Item</h3>
+                    <p class="ic-section-desc">Verify all details before creating this inventory item</p>
+                </div>
+            </div>
+
+            <!-- Group badge -->
+            <div class="mb-3">
+                <span class="ic-review-group-badge" id="icReviewGroupBadge">—</span>
+            </div>
+
+            <!-- Review Grid -->
+            <div class="ic-review-grid" id="icReviewGrid">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <!-- AI Pre-Creation Analysis -->
+        <div class="ic-section-card mt-3">
+            <div class="ic-section-header">
+                <div class="ic-section-icon icon-ai"><i class="bi bi-stars"></i></div>
+                <div>
+                    <h3 class="ic-section-title">AI Pre-Creation Analysis</h3>
+                    <p class="ic-section-desc">Automated checks &amp; recommendations before saving</p>
+                </div>
+            </div>
+            <div id="icAiChecks" class="d-flex flex-column gap-2">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <!-- Store & Email Notice -->
+        <div class="ic-notice-bar">
+            <i class="bi bi-envelope-check me-2"></i>
+            Store department will be notified about this new item via email.
+            Activity will be logged in the system audit trail.
+        </div>
+    </div>
+
+</div>
+
+<!-- ═══ Wizard Navigation ═══ -->
+<div class="ic-wizard-nav">
+    <button class="btn ic-btn-prev" id="icBtnPrev" onclick="IcApp.prevStep()" style="display:none;">
+        <i class="bi bi-arrow-left me-1"></i>Previous
+    </button>
+    <div class="flex-fill"></div>
+    <button class="btn ic-btn-next" id="icBtnNext" onclick="IcApp.nextStep()">
+        Next<i class="bi bi-arrow-right ms-1"></i>
+    </button>
+    <button class="btn ic-btn-create" id="icBtnCreate" onclick="IcApp.createItem()" style="display:none;">
+        <i class="bi bi-box-seam me-1"></i>Create Item &amp; Notify Store
+    </button>
+</div>
+
+@section Styles {
+    <link href="/css/item-create.css" rel="stylesheet" />
+}
+
+@section Scripts {
+    <script src="/js/item-create.js"></script>
+}

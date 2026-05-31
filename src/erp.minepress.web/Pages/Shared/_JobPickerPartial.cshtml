@@ -1,0 +1,88 @@
+@* ═══════════════════════════════════════════════════
+   Shared Job Picker Modal
+   Usage: <partial name="_JobPickerPartial" />
+   JS:    JobPicker.open({ onSelect: fn(job) })
+   ═══════════════════════════════════════════════════ *@
+
+<div class="modal modal-blur fade" id="jobPickerModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:1060px;">
+        <div class="modal-content jp-modal-content">
+
+            <!-- ── Header ── -->
+            <div class="jp-header">
+                <div class="jp-header-icon"><i class="bi bi-briefcase"></i></div>
+                <div>
+                    <div class="jp-title">Select Job</div>
+                    <div class="jp-subtitle">Search by job number or product name</div>
+                </div>
+                <button type="button" class="jp-close" data-bs-dismiss="modal" aria-label="Close"><i class="bi bi-x-lg"></i></button>
+            </div>
+
+            <!-- ── Toolbar ── -->
+            <div class="jp-toolbar">
+                <div class="jp-filter-wrap">
+                    <select id="jpStatusFilter" class="form-select form-select-sm">
+                        <option value="">All Statuses</option>
+                        <option value="OPEN">Open</option>
+                        <option value="IN_PROGRESS">In Progress</option>
+                        <option value="COMPLETED">Completed</option>
+                        <option value="DELIVERED">Delivered</option>
+                        <option value="CLOSED">Closed</option>
+                    </select>
+                </div>
+                <div class="jp-search-wrap">
+                    <i class="bi bi-search jp-search-icon"></i>
+                    <input type="text" id="jpSearchInput" class="form-control form-control-sm jp-search-input" placeholder="Search jobs..." autocomplete="off" />
+                    <div class="spinner-border spinner-border-sm text-secondary jp-spinner d-none" id="jpSearchSpinner" role="status"></div>
+                    <kbd class="jp-kbd">Esc</kbd>
+                </div>
+                <span class="jp-result-count" id="jpResultCount"></span>
+            </div>
+
+            <!-- ── Table ── -->
+            <div class="jp-table-wrap">
+                <table class="table table-hover table-vcenter mb-0 jp-table">
+                    <thead>
+                        <tr>
+                            <th class="jp-sortable" data-sort="jobNo" style="width:110px;">
+                                Job No <i class="bi bi-arrow-down-up jp-sort-icon"></i>
+                            </th>
+                            <th class="jp-sortable" data-sort="productName">
+                                Product <i class="bi bi-arrow-down-up jp-sort-icon"></i>
+                            </th>
+                            <th style="width:140px;">Customer</th>
+                            <th class="text-center" style="width:70px;">Qty</th>
+                            <th class="text-center" style="width:100px;">Status</th>
+                            <th class="text-center" style="width:90px;">Progress</th>
+                            <th style="width:100px;">Date</th>
+                            <th class="text-center" style="width:80px;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="jpTableBody">
+                        <tr><td colspan="8" class="text-center text-muted py-5">
+                            <div class="spinner-border spinner-border-sm me-2"></div>Loading jobs...
+                        </td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- ── Footer: Paging ── -->
+            <div class="jp-footer">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="text-muted small">Show</span>
+                        <select id="jpPageSize" class="form-select form-select-sm" style="width:auto;">
+                            <option value="15">15</option>
+                            <option value="25" selected>25</option>
+                            <option value="50">50</option>
+                        </select>
+                        <span class="text-muted small">per page</span>
+                    </div>
+                    <div class="text-muted small" id="jpPagingInfo"></div>
+                    <nav><ul class="pagination pagination-sm mb-0" id="jpPaginationNav"></ul></nav>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

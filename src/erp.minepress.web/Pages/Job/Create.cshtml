@@ -1,0 +1,252 @@
+@page
+@model erp.minepress.web.Pages.Job.CreateModel
+@{
+    ViewData["Title"] = "New Job";
+    ViewData["ContainerClass"] = "container-fluid";
+    ViewData["HidePageHeader"] = true;
+}
+
+<!-- Compact Page Header -->
+<div class="page-header d-print-none mb-3">
+    <div class="container-xl">
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <span class="avatar avatar-md bg-purple-lt text-purple">
+                    <i class="bi bi-briefcase-fill fs-3"></i>
+                </span>
+            </div>
+            <div class="col">
+                <h2 class="page-title mb-0" id="jbCreateTitle">New Job</h2>
+                <div class="text-secondary mt-1" id="jbCreateSubtitle">Configure rates, add items, and save your job</div>
+            </div>
+            <div class="col-auto d-flex gap-2">
+                <div id="jbGstBadge" class="d-none">
+                    <span class="badge bg-teal-lt py-2 px-3" id="jbGstTypeBadge">
+                        <i class="bi bi-shield-check me-1"></i><span id="jbGstTypeText">GST: Auto</span>
+                    </span>
+                </div>
+                <a href="/Job" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>Back to List
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── 3-Column Layout ── -->
+<div class="jb-create-layout">
+
+    <!-- ═══════ LEFT SIDEBAR ═══════ -->
+    <aside class="jb-create-sidebar jb-create-sidebar-left">
+
+        <!-- Customer Selection (shared component) -->
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="avatar avatar-xs bg-purple-lt text-purple"><i class="bi bi-people-fill"></i></span>
+                    <h3 class="card-title mb-0">Customer</h3>
+                </div>
+            </div>
+            <div class="card-body">
+                <partial name="_CustomerSearchPartial" />
+            </div>
+        </div>
+
+        <!-- Job Info -->
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="avatar avatar-xs bg-azure-lt text-azure"><i class="bi bi-briefcase"></i></span>
+                    <h3 class="card-title mb-0">Job Info</h3>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <label class="form-label">Party Ref No</label>
+                        <input type="text" id="txtPartyRefNo" class="form-control form-control-sm" placeholder="Customer PO / Ref" />
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">Delivery Date</label>
+                        <input type="date" id="txtDeliveryDate" class="form-control form-control-sm" />
+                    </div>
+                </div>
+                <div>
+                    <label class="form-label">Remarks</label>
+                    <textarea id="txtRemarks" class="form-control form-control-sm" rows="2" placeholder="Any notes..."></textarea>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ═══════ CENTER: Estimate + Items ═══════ -->
+    <main class="jb-create-main">
+        <!-- Open Rate Calculator Drawer -->
+        <button type="button" id="btnOpenEstimate" class="btn w-100 py-3 jb-estimate-btn"
+                data-bs-toggle="offcanvas" data-bs-target="#drawerJbRateCalc">
+            <i class="bi bi-calculator-fill me-2 fs-4"></i>
+            <span>
+                <strong class="d-block">Open Rate Calculator</strong>
+                <small class="opacity-75">Configure &amp; estimate pricing for items</small>
+            </span>
+        </button>
+
+        <!-- Items List -->
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="avatar avatar-xs bg-teal-lt text-teal"><i class="bi bi-cart3"></i></span>
+                    <h3 class="card-title mb-0">Job Items</h3>
+                    <span class="badge bg-purple-lt ms-auto" id="jbItemCount">0</span>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div id="jbItemsList" class="jb-items-list p-3">
+                    <div class="empty py-4">
+                        <div class="empty-icon"><i class="bi bi-calculator fs-1 text-secondary opacity-50"></i></div>
+                        <p class="empty-title">No items added yet</p>
+                        <p class="empty-subtitle text-secondary">Click <strong>"Open Rate Calculator"</strong> above to estimate and add items</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ═══════ RIGHT SIDEBAR: Summary ═══════ -->
+    <aside class="jb-create-sidebar jb-create-sidebar-right">
+
+        <!-- Summary Totals -->
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="avatar avatar-xs bg-yellow-lt text-yellow"><i class="bi bi-receipt-cutoff"></i></span>
+                    <h3 class="card-title mb-0">Summary</h3>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-sm table-borderless m-0">
+                    <tbody>
+                        <tr>
+                            <td class="text-secondary ps-3">Items</td>
+                            <td class="text-end pe-3 fw-medium" id="jbSummaryItemCount">0</td>
+                        </tr>
+                        <tr>
+                            <td class="text-secondary ps-3">Subtotal</td>
+                            <td class="text-end pe-3 fw-medium" id="jbSubtotal">₹0.00</td>
+                        </tr>
+                        <tr>
+                            <td class="text-secondary ps-3">Discount</td>
+                            <td class="text-end pe-3 fw-medium text-danger" id="jbDiscount">-₹0.00</td>
+                        </tr>
+                        <tr>
+                            <td class="text-secondary ps-3">Taxable</td>
+                            <td class="text-end pe-3 fw-medium" id="jbTaxable">₹0.00</td>
+                        </tr>
+                        <tr id="jbCgstRow">
+                            <td class="text-secondary ps-3">CGST</td>
+                            <td class="text-end pe-3 fw-medium" id="jbCgst">₹0.00</td>
+                        </tr>
+                        <tr id="jbSgstRow">
+                            <td class="text-secondary ps-3">SGST</td>
+                            <td class="text-end pe-3 fw-medium" id="jbSgst">₹0.00</td>
+                        </tr>
+                        <tr id="jbIgstRow" style="display:none;">
+                            <td class="text-secondary ps-3">IGST</td>
+                            <td class="text-end pe-3 fw-medium" id="jbIgst">₹0.00</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr class="border-top">
+                            <td class="ps-3 fw-bold">Net Amount</td>
+                            <td class="text-end pe-3 fw-bold fs-5" style="color:#6f42c1;" id="jbGrandTotal">₹0.00</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <!-- Quick Info -->
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="avatar avatar-xs bg-cyan-lt text-cyan"><i class="bi bi-info-circle-fill"></i></span>
+                    <h3 class="card-title mb-0">Quick Info</h3>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="jbQuickCustomer" class="text-secondary small mb-2">
+                    <i class="bi bi-person me-1"></i>No customer selected
+                </div>
+                <div id="jbQuickGst" class="text-secondary small mb-2">
+                    <i class="bi bi-shield me-1"></i>GST: Auto-detect
+                </div>
+                <div id="jbQuickDelivery" class="text-secondary small mb-2">
+                    <i class="bi bi-truck me-1"></i>Delivery: Not set
+                </div>
+                <div id="jbQuickSource" class="text-secondary small">
+                    <i class="bi bi-link-45deg me-1"></i>Source: Direct
+                </div>
+            </div>
+        </div>
+
+        <!-- Save Button -->
+        <button type="button" id="btnSaveJob" class="btn w-100 py-2" style="background:#6f42c1;color:#fff;" disabled>
+            <i class="bi bi-check-lg me-2"></i>Save Job
+        </button>
+    </aside>
+</div>
+
+<!-- ═══════ OFFCANVAS: Rate Calculator Drawer (Right) ═══════ -->
+<div class="offcanvas offcanvas-end jb-drawer" id="drawerJbRateCalc" tabindex="-1" aria-labelledby="drawerJbRateCalcLabel">
+    <div class="offcanvas-header border-bottom">
+        <div class="d-flex align-items-center gap-2">
+            <span class="avatar avatar-sm bg-orange-lt text-orange"><i class="bi bi-calculator-fill"></i></span>
+            <div>
+                <h5 class="offcanvas-title mb-0" id="drawerJbRateCalcLabel">Rate Calculator</h5>
+                <div class="small text-secondary">Configure rates and add items</div>
+            </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body jb-drawer-body">
+        <partial name="_RateCalculatorPartial" />
+    </div>
+    <div class="offcanvas-footer border-top p-3">
+        <button type="button" id="btnJbAddItem" class="btn btn-primary w-100 py-2"
+                data-bs-toggle="modal" data-bs-target="#aimModal">
+            <i class="bi bi-plus-circle me-2"></i>Add Item to Job
+        </button>
+    </div>
+</div>
+
+<partial name="_AddItemModalPartial" />
+
+@section Scripts {
+    <script src="/js/customer-search.js"></script>
+    <script src="/js/hsn-sac-selector.js"></script>
+    <script src="/js/add-item-modal.js"></script>
+    <script src="/js/rate-calculator.js"></script>
+    <script src="/js/save-progress.js"></script>
+    <script src="/js/job-create.js"></script>
+    <script>
+        // Capture full result for JSONB persistence
+        if (typeof showResults === 'function') {
+            const _origShowResults = showResults;
+            showResults = function (res) {
+                _origShowResults(res);
+                window._lastCalcResult = res;
+                window._lastCalcPartsData = typeof collectPartDetails === 'function'
+                    ? collectPartDetails() : [];
+            };
+        }
+
+        $(document).ready(function () {
+            const fromEnquiryId = @(Model.FromEnquiryId.HasValue ? Model.FromEnquiryId.Value.ToString() : "0");
+            const fromQuotationId = @(Model.FromQuotationId.HasValue ? Model.FromQuotationId.Value.ToString() : "0");
+            JbCreate.init(
+                fromEnquiryId > 0 ? fromEnquiryId : null,
+                fromQuotationId > 0 ? fromQuotationId : null
+            );
+        });
+    </script>
+}

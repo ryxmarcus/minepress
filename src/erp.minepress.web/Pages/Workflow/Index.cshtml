@@ -1,0 +1,559 @@
+@page
+@model erp.minepress.web.Pages.Workflow.IndexModel
+@{
+    ViewData["Title"] = "Workflow Designer";
+    ViewData["ContainerClass"] = "container-fluid";
+}
+
+@section Styles {
+    <link href="/css/workflow.css" rel="stylesheet" />
+}
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     HERO HEADER
+     ═══════════════════════════════════════════════════════════════════════ -->
+<div class="wf-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);">
+                <i class="bi bi-diagram-3-fill" style="font-size:1.5rem;"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="mb-0">Job Workflow Designer</h2>
+            <div class="text-white-75">Design &amp; manage workflow templates for job routing, approvals &amp; notifications.</div>
+        </div>
+        <div class="col-auto d-flex gap-2">
+            <button class="btn btn-outline-light btn-sm" onclick="WF.showTemplateList()">
+                <i class="bi bi-list-ul me-1"></i>All Workflows
+            </button>
+            <button class="btn btn-light" onclick="WF.newWorkflow()">
+                <i class="bi bi-plus-lg me-1"></i>New Workflow
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     TEMPLATE LIST VIEW
+     ═══════════════════════════════════════════════════════════════════════ -->
+<div id="wfListView">
+    <!-- Stats -->
+    <div class="row g-3 mb-3" id="wfStats">
+        <div class="col-6 col-md-3">
+            <div class="card card-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <span class="avatar avatar-sm bg-primary-lt me-3"><i class="bi bi-diagram-3"></i></span>
+                        <div>
+                            <div class="fw-bold fs-3" id="statTotal">0</div>
+                            <div class="text-secondary small">Total Workflows</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card card-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <span class="avatar avatar-sm bg-success-lt me-3"><i class="bi bi-check-circle"></i></span>
+                        <div>
+                            <div class="fw-bold fs-3" id="statActive">0</div>
+                            <div class="text-secondary small">Active</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card card-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <span class="avatar avatar-sm bg-warning-lt me-3"><i class="bi bi-star"></i></span>
+                        <div>
+                            <div class="fw-bold fs-3" id="statDefault">0</div>
+                            <div class="text-secondary small">Default</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card card-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <span class="avatar avatar-sm bg-info-lt me-3"><i class="bi bi-layers"></i></span>
+                        <div>
+                            <div class="fw-bold fs-3" id="statSteps">0</div>
+                            <div class="text-secondary small">Total Steps</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter -->
+    <div class="card mb-3">
+        <div class="card-body py-2">
+            <div class="row g-2 align-items-center">
+                <div class="col-md-4">
+                    <div class="input-icon">
+                        <span class="input-icon-addon"><i class="bi bi-search"></i></span>
+                        <input type="text" id="txtWfSearch" class="form-control form-control-sm" placeholder="Search workflows..." />
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select id="ddlJobTypeFilter" class="form-select form-select-sm">
+                        <option value="">All Job Types</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select id="ddlProductTypeFilter" class="form-select form-select-sm">
+                        <option value="">All Product Types</option>
+                    </select>
+                </div>
+                <div class="col-auto ms-auto">
+                    <button class="btn btn-sm btn-ghost-primary" onclick="WF.loadTemplates()">
+                        <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Template Cards -->
+    <div class="row g-3" id="wfTemplateGrid">
+        <div class="col-12 text-center py-5 text-muted">
+            <div class="spinner-border spinner-border-sm me-2"></div>Loading workflows...
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     DESIGNER VIEW
+     ═══════════════════════════════════════════════════════════════════════ -->
+<div id="wfDesignerView" style="display:none;">
+    <!-- Toolbar -->
+    <div class="card mb-2 wf-toolbar-card">
+        <div class="card-body py-2">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <button class="btn btn-sm btn-ghost-secondary" onclick="WF.showTemplateList()" title="Back to list">
+                    <i class="bi bi-arrow-left me-1"></i>Back
+                </button>
+                <div class="vr"></div>
+                <button class="btn btn-sm btn-primary" onclick="WF.saveWorkflow()" title="Save">
+                    <i class="bi bi-floppy me-1"></i>Save
+                </button>
+                <button class="btn btn-sm btn-ghost-secondary" onclick="WF.undo()" title="Undo">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                </button>
+                <button class="btn btn-sm btn-ghost-secondary" onclick="WF.redo()" title="Redo">
+                    <i class="bi bi-arrow-clockwise"></i>
+                </button>
+                <div class="vr"></div>
+                <div class="btn-group btn-group-sm" role="group" aria-label="Canvas tool">
+                    <button class="btn btn-ghost-secondary active" id="btnToolSelect" onclick="WF.setTool('select')" title="Select Tool (V)">
+                        <i class="bi bi-cursor"></i>
+                    </button>
+                    <button class="btn btn-ghost-secondary" id="btnToolPan" onclick="WF.setTool('pan')" title="Hand / Pan Tool (H)">
+                        <i class="bi bi-hand-index"></i>
+                    </button>
+                </div>
+                <div class="vr"></div>
+                <button class="btn btn-sm btn-ghost-secondary" onclick="WF.zoomIn()" title="Zoom In">
+                    <i class="bi bi-zoom-in"></i>
+                </button>
+                <button class="btn btn-sm btn-ghost-secondary" onclick="WF.zoomOut()" title="Zoom Out">
+                    <i class="bi bi-zoom-out"></i>
+                </button>
+                <button class="btn btn-sm btn-ghost-secondary" onclick="WF.fitCanvas()" title="Fit to Screen">
+                    <i class="bi bi-arrows-fullscreen"></i>
+                </button>
+                <button class="btn btn-sm btn-ghost-secondary" onclick="WF.resetView()" title="Reset View (1:1)">
+                    <i class="bi bi-aspect-ratio"></i>
+                </button>
+                <button class="btn btn-sm btn-ghost-secondary" onclick="WF.autoLayout()" title="Auto Layout">
+                    <i class="bi bi-grid-3x3-gap"></i>
+                </button>
+                <div class="vr"></div>
+                <button class="btn btn-sm btn-ghost-info" onclick="WF.aiSuggest()" title="AI Suggest Steps">
+                    <i class="bi bi-stars me-1"></i>AI Suggest
+                </button>
+                <button class="btn btn-sm btn-ghost-danger" onclick="WF.clearCanvas()" title="Clear Canvas">
+                    <i class="bi bi-trash me-1"></i>Clear
+                </button>
+                <div class="ms-auto d-flex align-items-center gap-2">
+                    <span class="badge bg-secondary-lt" id="wfStepCount">0 Steps</span>
+                    <span class="badge bg-secondary-lt" id="wfConnCount">0 Connections</span>
+                    <span class="badge bg-primary-lt" id="wfVersionBadge">v1</span>
+                    <span class="wf-save-indicator" id="wfSaveIndicator">
+                        <i class="bi bi-circle-fill text-success" style="font-size:.5rem;"></i>
+                        <span class="small text-muted">Saved</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Designer Layout -->
+    <div class="wf-designer-layout">
+        <!-- LEFT: Palette -->
+        <div class="wf-palette" id="wfPalette">
+            <div class="wf-palette-header">
+                <i class="bi bi-palette me-1"></i>Palette
+            </div>
+
+            <div class="wf-palette-section">
+                <div class="wf-palette-section-title">Flow Control</div>
+                <div class="wf-palette-item" draggable="true" data-step-type="START" data-color="#4CAF50">
+                    <span class="wf-palette-icon" style="background:#4CAF50;"><i class="bi bi-play-fill"></i></span>
+                    <span>Start</span>
+                </div>
+                <div class="wf-palette-item" draggable="true" data-step-type="END" data-color="#607D8B">
+                    <span class="wf-palette-icon" style="background:#607D8B;"><i class="bi bi-stop-fill"></i></span>
+                    <span>End</span>
+                </div>
+                <div class="wf-palette-item" draggable="true" data-step-type="DECISION" data-color="#F44336">
+                    <span class="wf-palette-icon" style="background:#F44336;"><i class="bi bi-signpost-split"></i></span>
+                    <span>Decision</span>
+                </div>
+            </div>
+
+            <div class="wf-palette-section">
+                <div class="wf-palette-section-title">Steps</div>
+                <div class="wf-palette-item" draggable="true" data-step-type="PROCESS" data-color="#2196F3">
+                    <span class="wf-palette-icon" style="background:#2196F3;"><i class="bi bi-gear-fill"></i></span>
+                    <span>Process</span>
+                </div>
+                <div class="wf-palette-item" draggable="true" data-step-type="APPROVAL" data-color="#FF9800">
+                    <span class="wf-palette-icon" style="background:#FF9800;"><i class="bi bi-check-circle-fill"></i></span>
+                    <span>Approval</span>
+                </div>
+                <div class="wf-palette-item" draggable="true" data-step-type="TASK" data-color="#9C27B0">
+                    <span class="wf-palette-icon" style="background:#9C27B0;"><i class="bi bi-list-task"></i></span>
+                    <span>Task</span>
+                </div>
+                <div class="wf-palette-item" draggable="true" data-step-type="NOTIFICATION" data-color="#00BCD4">
+                    <span class="wf-palette-icon" style="background:#00BCD4;"><i class="bi bi-bell-fill"></i></span>
+                    <span>Notification</span>
+                </div>
+            </div>
+
+            <div class="wf-palette-section">
+                <div class="wf-palette-section-title">Quick Templates</div>
+                <button class="btn btn-sm btn-outline-secondary w-100 mb-1" onclick="WF.loadQuickTemplate('book')">
+                    <i class="bi bi-book me-1"></i>Book Workflow
+                </button>
+                <button class="btn btn-sm btn-outline-secondary w-100 mb-1" onclick="WF.loadQuickTemplate('brochure')">
+                    <i class="bi bi-file-earmark me-1"></i>Brochure Workflow
+                </button>
+                <button class="btn btn-sm btn-outline-secondary w-100 mb-1" onclick="WF.loadQuickTemplate('simple')">
+                    <i class="bi bi-lightning me-1"></i>Simple Print
+                </button>
+            </div>
+        </div>
+
+        <!-- CENTER: SVG Canvas -->
+        <div class="wf-canvas-wrapper" id="wfCanvasWrapper">
+            <svg id="wfCanvas" class="wf-canvas">
+                <defs>
+                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" fill="#6c757d" />
+                    </marker>
+                    <marker id="arrowhead-active" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" fill="#0d6efd" />
+                    </marker>
+                    <marker id="arrowhead-green" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" fill="#198754" />
+                    </marker>
+                    <marker id="arrowhead-red" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" fill="#dc3545" />
+                    </marker>
+                    <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                        <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e9ecef" stroke-width="0.5"/>
+                    </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#grid)" />
+                <g id="wfCanvasGroup"></g>
+            </svg>
+            <!-- Drop overlay -->
+            <div class="wf-canvas-empty" id="wfCanvasEmpty">
+                <i class="bi bi-diagram-3" style="font-size:3rem; opacity:.3;"></i>
+                <div class="text-muted mt-2">Drag nodes from the palette to design your workflow</div>
+                <div class="text-muted small">or click <strong>AI Suggest</strong> for automatic generation</div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Properties Panel -->
+        <div class="wf-properties" id="wfProperties">
+            <div class="wf-properties-header">
+                <i class="bi bi-sliders me-1"></i>Properties
+            </div>
+
+            <!-- Template Properties (shown when no node selected) -->
+            <div id="wfTemplateProps">
+                <div class="wf-prop-section">
+                    <div class="wf-prop-section-title">Workflow Template</div>
+                    <div class="mb-2">
+                        <label class="form-label small">Workflow Code</label>
+                        <input type="text" id="propWfCode" class="form-control form-control-sm" placeholder="e.g. WF-BOOK-OFFSET" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small">Workflow Name</label>
+                        <input type="text" id="propWfName" class="form-control form-control-sm" placeholder="Workflow name" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small">Description</label>
+                        <textarea id="propWfDesc" class="form-control form-control-sm" rows="2" placeholder="Optional description"></textarea>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small">Job Type</label>
+                        <select id="propJobType" class="form-select form-select-sm">
+                            <option value="">— Select —</option>
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small">Product Type</label>
+                        <select id="propProductType" class="form-select form-select-sm">
+                            <option value="">— Select —</option>
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="propIsDefault" />
+                            <label class="form-check-label small" for="propIsDefault">Set as Default Workflow</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Node Properties (shown when a node is selected) -->
+            <div id="wfNodeProps" style="display:none;">
+                <div class="wf-prop-section">
+                    <div class="wf-prop-section-title d-flex justify-content-between align-items-center">
+                        <span>Step Details</span>
+                        <button class="btn btn-sm btn-ghost-danger p-0" onclick="WF.deleteSelectedNode()" title="Delete Step">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small">Step Name</label>
+                        <input type="text" id="propStepName" class="form-control form-control-sm" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small">Step Code</label>
+                        <input type="text" id="propStepCode" class="form-control form-control-sm" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small">Step Type</label>
+                        <select id="propStepType" class="form-select form-select-sm">
+                            <option value="START">Start</option>
+                            <option value="PROCESS">Process</option>
+                            <option value="APPROVAL">Approval</option>
+                            <option value="TASK">Task</option>
+                            <option value="NOTIFICATION">Notification</option>
+                            <option value="DECISION">Decision</option>
+                            <option value="END">End</option>
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small">Process</label>
+                        <select id="propProcess" class="form-select form-select-sm">
+                            <option value="">— None —</option>
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small">Sub-Process</label>
+                        <select id="propSubProcess" class="form-select form-select-sm">
+                            <option value="">— None —</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="wf-prop-section">
+                    <div class="wf-prop-section-title">Routing &amp; Assignment</div>
+                    <div class="mb-2">
+                        <label class="form-label small">Department</label>
+                        <select id="propDepartment" class="form-select form-select-sm">
+                            <option value="">— Select —</option>
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small">Assigned User</label>
+                        <select id="propAssignedUser" class="form-select form-select-sm">
+                            <option value="">— Auto Assign —</option>
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small">Assignment Rule</label>
+                        <select id="propAssignmentRule" class="form-select form-select-sm">
+                            <option value="AUTO">Auto (Least Loaded)</option>
+                            <option value="MANUAL">Manual</option>
+                            <option value="ROUND_ROBIN">Round Robin</option>
+                            <option value="DEPT_HEAD">Department Head</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="wf-prop-section" id="propApprovalSection">
+                    <div class="wf-prop-section-title">Approval Settings</div>
+                    <div class="mb-2">
+                        <label class="form-label small">Approval Type</label>
+                        <select id="propApprovalType" class="form-select form-select-sm">
+                            <option value="">— None —</option>
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small">Approval Level</label>
+                        <select id="propApprovalLevel" class="form-select form-select-sm">
+                            <option value="">— None —</option>
+                        </select>
+                    </div>
+                    <div class="form-check form-switch mb-2">
+                        <input class="form-check-input" type="checkbox" id="propIsMandatory" />
+                        <label class="form-check-label small" for="propIsMandatory">Mandatory Step</label>
+                    </div>
+                </div>
+
+                <div class="wf-prop-section">
+                    <div class="wf-prop-section-title">SLA &amp; Escalation</div>
+                    <div class="mb-2">
+                        <label class="form-label small">SLA Hours</label>
+                        <input type="number" id="propSlaHours" class="form-control form-control-sm" step="0.5" min="0" placeholder="e.g. 24" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small">Escalate After (Hours)</label>
+                        <input type="number" id="propEscalateAfter" class="form-control form-control-sm" step="0.5" min="0" placeholder="e.g. 48" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small">Escalate To</label>
+                        <input type="text" id="propEscalateTo" class="form-control form-control-sm" placeholder="User code or role" />
+                    </div>
+                </div>
+
+                <div class="wf-prop-section">
+                    <div class="wf-prop-section-title">
+                        <i class="bi bi-bell me-1"></i>Notifications — Recipients
+                    </div>
+                    <div class="row g-1">
+                        <div class="col-6">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="propNotifyVendor" />
+                                <label class="form-check-label small" for="propNotifyVendor">Vendor</label>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="propNotifySupplier" />
+                                <label class="form-check-label small" for="propNotifySupplier">Supplier</label>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="propNotifyCustomer" />
+                                <label class="form-check-label small" for="propNotifyCustomer">Customer</label>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="propNotifyUser" />
+                                <label class="form-check-label small" for="propNotifyUser">Assigned User</label>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="propNotifyDeptHead" />
+                                <label class="form-check-label small" for="propNotifyDeptHead">Dept Head</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="wf-prop-section">
+                    <div class="wf-prop-section-title">
+                        <i class="bi bi-send me-1"></i>Notification Channels
+                    </div>
+                    <div class="row g-1">
+                        <div class="col-6">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="propSendEmail" />
+                                <label class="form-check-label small" for="propSendEmail"><i class="bi bi-envelope me-1"></i>Email</label>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="propSendSms" />
+                                <label class="form-check-label small" for="propSendSms"><i class="bi bi-chat-dots me-1"></i>SMS</label>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="propSendWhatsapp" />
+                                <label class="form-check-label small" for="propSendWhatsapp"><i class="bi bi-whatsapp me-1"></i>WhatsApp</label>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="propSendPush" />
+                                <label class="form-check-label small" for="propSendPush"><i class="bi bi-app-indicator me-1"></i>Push</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="wf-prop-section">
+                    <div class="wf-prop-section-title">Visual</div>
+                    <div class="mb-2">
+                        <label class="form-label small">Node Color</label>
+                        <input type="color" id="propNodeColor" class="form-control form-control-sm form-control-color" value="#2196F3" style="height:31px;" />
+                    </div>
+                </div>
+
+                <div class="p-2">
+                    <button class="btn btn-sm btn-primary w-100" onclick="WF.applyNodeProps()">
+                        <i class="bi bi-check-lg me-1"></i>Apply Changes
+                    </button>
+                </div>
+            </div>
+
+            <!-- Connection Properties (shown when a connection is selected) -->
+            <div id="wfConnProps" style="display:none;">
+                <div class="wf-prop-section">
+                    <div class="wf-prop-section-title d-flex justify-content-between align-items-center">
+                        <span>Connection</span>
+                        <button class="btn btn-sm btn-ghost-danger p-0" onclick="WF.deleteSelectedConnection()" title="Delete Connection">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small">Label</label>
+                        <input type="text" id="propConnLabel" class="form-control form-control-sm" placeholder="e.g. Approved, Rejected" />
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small">Condition Expression</label>
+                        <input type="text" id="propConnCondition" class="form-control form-control-sm" placeholder='e.g. approved==true' />
+                    </div>
+                    <div class="p-2">
+                        <button class="btn btn-sm btn-primary w-100" onclick="WF.applyConnProps()">
+                            <i class="bi bi-check-lg me-1"></i>Apply
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     Connection Mode Indicator
+     ═══════════════════════════════════════════════════════════════════════ -->
+<div class="wf-connect-indicator" id="wfConnectIndicator" style="display:none;">
+    <i class="bi bi-link-45deg me-1"></i>
+    <span>Click a target node to connect — Press <kbd>Esc</kbd> to cancel</span>
+</div>
+
+@section Scripts {
+    <script src="/js/workflow-designer.js"></script>
+}

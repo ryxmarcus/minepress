@@ -1,0 +1,455 @@
+@page
+@model erp.minepress.web.Pages.Enquiry.IndexModel
+@{
+    ViewData["Title"] = "Enquiries";
+}
+
+<!-- Hero Header -->
+<div class="enq-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);">
+                <i class="bi bi-clipboard-data" style="font-size:1.5rem;"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="mb-0">Enquiries</h2>
+            <div class="text-white-75">Manage all customer enquiries and track their status.</div>
+        </div>
+        <div class="col-auto d-flex gap-2">
+            <button class="btn btn-outline-light btn-sm" onclick="loadEnquiryList()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+            </button>
+            <a href="/Enquiry/Create" class="btn btn-light">
+                <i class="bi bi-plus-lg me-1"></i>New Enquiry
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Row -->
+<div class="row g-3 mb-3" id="enqStats">
+    <div class="col-6 col-md-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-primary-lt me-3"><i class="bi bi-clipboard-data"></i></span>
+                    <div>
+                        <div class="fw-bold fs-3" id="statTotal">0</div>
+                        <div class="text-secondary small">Total</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-warning-lt me-3"><i class="bi bi-pencil-square"></i></span>
+                    <div>
+                        <div class="fw-bold fs-3" id="statDraft">0</div>
+                        <div class="text-secondary small">Draft</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-info-lt me-3"><i class="bi bi-send"></i></span>
+                    <div>
+                        <div class="fw-bold fs-3" id="statSubmitted">0</div>
+                        <div class="text-secondary small">Submitted</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-success-lt me-3"><i class="bi bi-check-circle"></i></span>
+                    <div>
+                        <div class="fw-bold fs-3" id="statConverted">0</div>
+                        <div class="text-secondary small">Converted</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card mb-3">
+    <div class="card-body py-2">
+        <div class="row g-2 align-items-center">
+            <div class="col-md-4">
+                <div class="input-icon">
+                    <span class="input-icon-addon"><i class="bi bi-search"></i></span>
+                    <input type="text" id="txtSearch" class="form-control form-control-sm" placeholder="Search enquiry no, customer..." />
+                </div>
+            </div>
+            <div class="col-md-2">
+                <select id="ddlStatusFilter" class="form-select form-select-sm">
+                    <option value="">All Statuses</option>
+                    <option value="DRAFT">Draft</option>
+                    <option value="SUBMITTED">Submitted</option>
+                    <option value="CONVERTED">Converted</option>
+                    <option value="CLOSED">Closed</option>
+                    <option value="CANCELLED">Cancelled</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select id="ddlPriorityFilter" class="form-select form-select-sm">
+                    <option value="">All Priorities</option>
+                    <option value="LOW">Low</option>
+                    <option value="NORMAL">Normal</option>
+                    <option value="HIGH">High</option>
+                    <option value="URGENT">Urgent</option>
+                </select>
+            </div>
+            <div class="col-auto ms-auto">
+                <span class="text-muted small" id="filteredCount"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Enquiry Table -->
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table enq-list-table table-hover">
+            <thead>
+                <tr>
+                    <th class="sortable" data-sort="enquiryNo" style="cursor:pointer;">Enquiry No <i class="bi bi-arrow-down-up small text-muted"></i></th>
+                    <th class="sortable" data-sort="enquiryDate" style="cursor:pointer;">Date <i class="bi bi-arrow-down-up small text-muted"></i></th>
+                    <th class="sortable" data-sort="customerName" style="cursor:pointer;">Customer <i class="bi bi-arrow-down-up small text-muted"></i></th>
+                    <th>Contact</th>
+                    <th class="text-center">Items</th>
+                    <th class="text-center">Qty</th>
+                    <th class="sortable" data-sort="priority" style="cursor:pointer;">Priority <i class="bi bi-arrow-down-up small text-muted"></i></th>
+                    <th class="sortable" data-sort="status" style="cursor:pointer;">Status <i class="bi bi-arrow-down-up small text-muted"></i></th>
+                    <th>Remarks</th>
+                    <th class="text-center" style="width:100px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="enquiryListBody">
+                <tr>
+                    <td colspan="10" class="text-center text-muted py-4">
+                        <div class="spinner-border spinner-border-sm me-2"></div>Loading enquiries...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Paging Controls -->
+<div class="card mt-2" id="pagingControls" style="display:none;">
+    <div class="card-body py-2">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-muted small">Show</span>
+                <select id="ddlPageSize" class="form-select form-select-sm" style="width:auto;">
+                    <option value="10">10</option>
+                    <option value="25" selected>25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+                <span class="text-muted small">entries</span>
+            </div>
+            <div class="text-muted small" id="pagingInfo"></div>
+            <nav>
+                <ul class="pagination pagination-sm mb-0" id="paginationNav"></ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- Empty State -->
+<div id="emptyState" class="text-center py-5" style="display:none;">
+    <i class="bi bi-clipboard-x" style="font-size:3rem; opacity:.3;"></i>
+    <div class="text-muted mt-2">No enquiries found</div>
+    <a href="/Enquiry/Create" class="btn btn-primary mt-3">
+        <i class="bi bi-plus-lg me-1"></i>Create First Enquiry
+    </a>
+</div>
+
+@section Scripts {
+    <script>
+        const ENQ_LIST_API = '/api/enquiry';
+        let allEnquiries = [];
+        let currentPage = 1;
+        let pageSize = 25;
+        let sortField = 'enquiryNo';
+        let sortDir = 'desc';
+
+        $(document).ready(function () {
+            loadEnquiryList();
+            $('#txtSearch, #ddlStatusFilter, #ddlPriorityFilter').on('input change', function () { currentPage = 1; applyFilters(); });
+            $('#ddlPageSize').on('change', function () { pageSize = parseInt($(this).val()); currentPage = 1; applyFilters(); });
+            $(document).on('click', '.sortable', function () {
+                const field = $(this).data('sort');
+                if (sortField === field) { sortDir = sortDir === 'asc' ? 'desc' : 'asc'; }
+                else { sortField = field; sortDir = 'asc'; }
+                $('.sortable i').attr('class', 'bi bi-arrow-down-up small text-muted');
+                $(this).find('i').attr('class', sortDir === 'asc' ? 'bi bi-arrow-up small text-primary' : 'bi bi-arrow-down small text-primary');
+                applyFilters();
+            });
+        });
+
+        function loadEnquiryList() {
+            $('#enquiryListBody').html('<tr><td colspan="10" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2"></div>Loading enquiries...</td></tr>');
+            $.get(`${ENQ_LIST_API}/list`, function (data) {
+                allEnquiries = data;
+                updateStats();
+                applyFilters();
+            }).fail(function () {
+                $('#enquiryListBody').html('<tr><td colspan="10" class="text-center text-danger py-3"><i class="bi bi-exclamation-circle me-1"></i>Failed to load enquiries.</td></tr>');
+            });
+        }
+
+        function updateStats() {
+            $('#statTotal').text(allEnquiries.length);
+            $('#statDraft').text(allEnquiries.filter(e => e.status === 'DRAFT').length);
+            $('#statSubmitted').text(allEnquiries.filter(e => e.status === 'SUBMITTED').length);
+            $('#statConverted').text(allEnquiries.filter(e => e.status === 'CONVERTED').length);
+        }
+
+        function applyFilters() {
+            const q = ($('#txtSearch').val() || '').toLowerCase();
+            const status = $('#ddlStatusFilter').val();
+            const priority = $('#ddlPriorityFilter').val();
+
+            let filtered = allEnquiries.filter(e => {
+                if (q && !(e.enquiryNo || '').toLowerCase().includes(q) &&
+                    !(e.customerName || '').toLowerCase().includes(q) &&
+                    !(e.contactPerson || '').toLowerCase().includes(q)) return false;
+                if (status && e.status !== status) return false;
+                if (priority && e.priority !== priority) return false;
+                return true;
+            });
+
+            // Sort
+            filtered.sort((a, b) => {
+                let va = a[sortField], vb = b[sortField];
+                if (va == null) va = '';
+                if (vb == null) vb = '';
+                if (typeof va === 'string') va = va.toLowerCase();
+                if (typeof vb === 'string') vb = vb.toLowerCase();
+                if (va < vb) return sortDir === 'asc' ? -1 : 1;
+                if (va > vb) return sortDir === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            // Paging
+            const totalItems = filtered.length;
+            const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+            if (currentPage > totalPages) currentPage = totalPages;
+            const start = (currentPage - 1) * pageSize;
+            const paged = filtered.slice(start, start + pageSize);
+
+            $('#filteredCount').text(filtered.length < allEnquiries.length
+                ? `Showing ${filtered.length} of ${allEnquiries.length}` : '');
+            renderEnquiryTable(paged);
+            renderPaging(totalItems, totalPages);
+        }
+
+        function renderPaging(totalItems, totalPages) {
+            if (totalItems === 0) { $('#pagingControls').hide(); return; }
+            $('#pagingControls').show();
+            const start = (currentPage - 1) * pageSize + 1;
+            const end = Math.min(currentPage * pageSize, totalItems);
+            $('#pagingInfo').text(`Showing ${start} to ${end} of ${totalItems} entries`);
+
+            let navHtml = '';
+            navHtml += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}"><a class="page-link" href="javascript:void(0)" onclick="goToPage(${currentPage - 1})">&laquo;</a></li>`;
+            const maxButtons = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+            let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+            if (endPage - startPage < maxButtons - 1) startPage = Math.max(1, endPage - maxButtons + 1);
+            for (let i = startPage; i <= endPage; i++) {
+                navHtml += `<li class="page-item ${i === currentPage ? 'active' : ''}"><a class="page-link" href="javascript:void(0)" onclick="goToPage(${i})">${i}</a></li>`;
+            }
+            navHtml += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}"><a class="page-link" href="javascript:void(0)" onclick="goToPage(${currentPage + 1})">&raquo;</a></li>`;
+            $('#paginationNav').html(navHtml);
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            applyFilters();
+        }
+
+        function renderEnquiryTable(data) {
+            if (data.length === 0) {
+                $('#enquiryListBody').html('');
+                $('#emptyState').show();
+                return;
+            }
+            $('#emptyState').hide();
+
+            let html = '';
+            data.forEach(e => {
+                const statusClass = {
+                    'DRAFT': 'enq-status-draft',
+                    'SUBMITTED': 'enq-status-submitted',
+                    'CONVERTED': 'enq-status-converted',
+                    'CLOSED': 'enq-status-closed',
+                    'CANCELLED': 'enq-status-cancelled'
+                }[e.status] || 'bg-secondary-lt';
+
+                const priorityBadge = {
+                    'LOW': '<span class="badge bg-secondary-lt">Low</span>',
+                    'NORMAL': '<span class="badge bg-primary-lt">Normal</span>',
+                    'HIGH': '<span class="badge bg-warning-lt">High</span>',
+                    'URGENT': '<span class="badge bg-danger-lt"><i class="bi bi-exclamation-triangle-fill me-1"></i>Urgent</span>'
+                }[e.priority] || '';
+
+                const isDraft = e.status === 'DRAFT';
+                const isClosed = e.status === 'CLOSED' || e.status === 'CANCELLED';
+
+                html += `<tr class="enq-list-row" data-id="${e.enquiryId}">
+                    <td>
+                        <a href="/Enquiry/Details?id=${e.enquiryId}" class="fw-semibold text-primary text-decoration-none">${esc(e.enquiryNo)}</a>
+                        <div class="text-muted small">${e.createdOn || ''}</div>
+                    </td>
+                    <td>${esc(e.enquiryDate)}</td>
+                    <td>
+                        <div class="fw-semibold">${esc(e.customerName)}</div>
+                        <div class="text-muted small">${esc(e.customerCode || '')}</div>
+                    </td>
+                    <td class="small">${esc(e.contactPerson || '')}</td>
+                    <td class="text-center"><span class="badge bg-primary-lt">${e.itemCount}</span></td>
+                    <td class="text-center">${e.totalQuantity || 0}</td>
+                    <td>${priorityBadge}</td>
+                    <td><span class="enq-status-badge ${statusClass}">${e.status || 'N/A'}</span></td>
+                    <td class="small text-muted" style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(e.remarks || '')}">${esc(e.remarks || '')}</td>
+                    <td class="text-center">
+                        <div class="dropdown">
+                            <button class="btn btn-ghost-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-three-dots-vertical"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end enq-action-dropdown">
+                                <h6 class="dropdown-header">View & Edit</h6>
+                                <a class="dropdown-item" href="/Enquiry/Details?id=${e.enquiryId}">
+                                    <i class="bi bi-eye me-2 text-primary"></i>View Details
+                                </a>
+                                ${isDraft ? `<a class="dropdown-item" href="/Enquiry/Create?editId=${e.enquiryId}">
+                                    <i class="bi bi-pencil me-2 text-info"></i>Edit Enquiry
+                                </a>` : ''}
+
+                                <div class="dropdown-divider"></div>
+                                <h6 class="dropdown-header">Costing & BOM</h6>
+                                <a class="dropdown-item" href="/Enquiry/Details?id=${e.enquiryId}&tab=costing">
+                                    <i class="bi bi-calculator me-2 text-orange"></i>View Costing
+                                </a>
+                                <a class="dropdown-item" href="/Enquiry/Details?id=${e.enquiryId}&tab=bom">
+                                    <i class="bi bi-box-seam me-2 text-teal"></i>View BOM
+                                </a>
+
+                                <div class="dropdown-divider"></div>
+                                <h6 class="dropdown-header">Actions</h6>
+                                <a class="dropdown-item" href="javascript:void(0)" onclick="printEnquiry(${e.enquiryId})">
+                                    <i class="bi bi-printer me-2 text-secondary"></i>Print Enquiry
+                                </a>
+                                <a class="dropdown-item" href="javascript:void(0)" onclick="sendNotification(${e.enquiryId})">
+                                    <i class="bi bi-bell me-2 text-warning"></i>Send Notification
+                                </a>
+                                ${!isClosed ? `<a class="dropdown-item" href="javascript:void(0)" onclick="convertToQuotation(${e.enquiryId})">
+                                    <i class="bi bi-arrow-right-circle me-2 text-success"></i>Convert to Quotation
+                                </a>` : ''}
+                                ${!isClosed ? `<a class="dropdown-item" href="javascript:void(0)" onclick="convertToJob(${e.enquiryId})">
+                                    <i class="bi bi-briefcase me-2 text-purple"></i>Convert to Job
+                                </a>` : ''}
+                                ${!isClosed ? `<a class="dropdown-item" href="/Accounting/SalesInvoice/Create?FromEnquiryId=${e.enquiryId}">
+                                    <i class="bi bi-receipt me-2 text-primary"></i>Create Invoice
+                                </a>` : ''}
+
+                                ${isDraft ? `<div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="javascript:void(0)" onclick="updateStatus(${e.enquiryId}, 'CANCELLED', '${esc(e.enquiryNo)}')">
+                                    <i class="bi bi-x-circle me-2 text-warning"></i>Cancel Enquiry
+                                </a>
+                                <a class="dropdown-item text-danger" href="javascript:void(0)" onclick="deleteEnquiry(${e.enquiryId}, '${esc(e.enquiryNo)}')">
+                                    <i class="bi bi-trash me-2"></i>Delete Enquiry
+                                </a>` : ''}
+                            </div>
+                        </div>
+                    </td>
+                </tr>`;
+            });
+
+            $('#enquiryListBody').html(html);
+        }
+
+        // ── Actions ──
+        async function updateStatus(id, status, enqNo) {
+            const confirmed = await Swal2.confirmStatus(enqNo, status);
+            if (!confirmed) return;
+            try {
+                await $.ajax({
+                    url: `${ENQ_LIST_API}/updatestatus`,
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ enquiryId: id, status: status })
+                });
+                Swal2.success(`Status updated to ${status}`);
+                loadEnquiryList();
+            } catch (err) {
+                Swal2.error(err.responseJSON?.message || 'Failed to update status');
+            }
+        }
+
+        async function deleteEnquiry(id, enqNo) {
+            const confirmed = await Swal2.confirmDelete(enqNo);
+            if (!confirmed) return;
+            try {
+                Swal2.showLoading('Deleting...');
+                await $.ajax({
+                    url: `${ENQ_LIST_API}/delete/${id}`,
+                    method: 'DELETE'
+                });
+                Swal2.hideLoading();
+                Swal2.success('Enquiry deleted successfully.');
+                loadEnquiryList();
+            } catch (err) {
+                Swal2.hideLoading();
+                Swal2.error(err.responseJSON?.message || 'Failed to delete');
+            }
+        }
+
+        function printEnquiry(id) {
+            window.open(`/Enquiry/Print?id=${id}`, '_blank');
+        }
+
+        function sendNotification(id) {
+            Swal2.info('Notification feature coming soon.');
+        }
+
+        function convertToQuotation(id) {
+            window.location.href = `/Quotation/Create?fromEnquiryId=${id}`;
+        }
+
+        function convertToJob(id) {
+            window.location.href = `/Job/Create?fromEnquiryId=${id}`;
+        }
+
+        // ── Helpers ──
+        function showListAlert(message, type) {
+            const iconMap = { success: 'success', danger: 'error', warning: 'warning', info: 'info' };
+            Swal2.toast(message, iconMap[type] || 'info');
+        }
+
+        function esc(value) {
+            return (value || '')
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#39;');
+        }
+    </script>
+}

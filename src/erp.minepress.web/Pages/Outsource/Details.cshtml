@@ -1,0 +1,455 @@
+@page
+@model erp.minepress.web.Pages.Outsource.DetailsModel
+@{
+    ViewData["Title"] = "Outsource Details";
+}
+
+<div class="os-detail-hero d-print-none mb-3">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);">
+                <i class="bi bi-box-arrow-up-right" style="font-size:1.5rem;"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="mb-0" id="heroTitle">Outsource Details</h2>
+            <div class="text-white-75" id="heroSub"></div>
+        </div>
+        <div class="col-auto d-flex gap-2">
+            <a href="/Outsource" class="btn btn-outline-light btn-sm"><i class="bi bi-arrow-left me-1"></i>Back</a>
+            <a id="btnPrintPage" href="#" class="btn btn-light btn-sm"><i class="bi bi-printer me-1"></i>Print</a>
+            <button class="btn btn-warning btn-sm" id="btnEmailVendor" onclick="emailToVendor()"><i class="bi bi-envelope me-1"></i>Email to Vendor</button>
+            <div class="dropdown d-print-none">
+                <button class="btn btn-light btn-sm dropdown-toggle" data-bs-toggle="dropdown"><i class="bi bi-lightning me-1"></i>Actions</button>
+                <div class="dropdown-menu dropdown-menu-end os-action-dropdown" id="detailActions"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Status Banner -->
+<div class="card mb-3">
+    <div class="card-body py-2">
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <span class="os-status-badge os-status-pill" id="statusBadge">Loading…</span>
+            </div>
+            <div class="col" id="headerInfo"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabs -->
+<ul class="nav os-detail-tabs d-print-none mb-3" id="detailTabs" role="tablist">
+    <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tabOverview">Overview</a></li>
+    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabItems">Items <span class="badge bg-purple-lt ms-1" id="tabItemCount">0</span></a></li>
+    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabDispatch">Dispatches <span class="badge bg-azure-lt ms-1" id="tabDispCount">0</span></a></li>
+    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabReceive">Receives <span class="badge bg-green-lt ms-1" id="tabRecvCount">0</span></a></li>
+    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabTimeline">Timeline <span class="badge bg-secondary-lt ms-1" id="tabTimeCount">0</span></a></li>
+    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabVendor360" id="tab-vendor360"><i class="bi bi-stars me-1 text-purple"></i>Vendor 360°</a></li>
+</ul>
+
+<div class="tab-content">
+    <!-- ═══ Overview ═══ -->
+    <div class="tab-pane active" id="tabOverview">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header"><h3 class="card-title"><i class="bi bi-info-circle me-2 text-purple"></i>Order Info</h3></div>
+                    <div class="card-body" id="orderInfo">
+                        <div class="text-center text-muted py-3"><div class="spinner-border spinner-border-sm me-2"></div>Loading…</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header"><h3 class="card-title"><i class="bi bi-building me-2 text-purple"></i>Vendor Info</h3></div>
+                    <div class="card-body" id="vendorInfo"></div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header"><h3 class="card-title"><i class="bi bi-briefcase me-2 text-primary"></i>Job Info</h3></div>
+                    <div class="card-body" id="jobInfo"></div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header"><h3 class="card-title"><i class="bi bi-bar-chart me-2 text-success"></i>Summary</h3></div>
+                    <div class="card-body" id="summaryInfo"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ Items ═══ -->
+    <div class="tab-pane" id="tabItems">
+        <div class="card">
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table">
+                    <thead>
+                        <tr><th>#</th><th>Product</th><th>Process</th><th class="text-end">Qty</th><th class="text-end">Rate</th><th class="text-end">Amount</th><th>Status</th><th>Remarks</th></tr>
+                    </thead>
+                    <tbody id="itemsBody">
+                        <tr><td colspan="8" class="text-center text-muted py-3">Loading…</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ Dispatches ═══ -->
+    <div class="tab-pane" id="tabDispatch">
+        <div class="d-flex justify-content-between mb-3">
+            <h4>Dispatches</h4>
+            <a id="btnNewDispatch" href="#" class="btn btn-purple btn-sm"><i class="bi bi-send me-1"></i>Record Dispatch</a>
+        </div>
+        <div id="dispatchList"></div>
+    </div>
+
+    <!-- ═══ Receives ═══ -->
+    <div class="tab-pane" id="tabReceive">
+        <div class="d-flex justify-content-between mb-3">
+            <h4>Receives</h4>
+            <a id="btnNewReceive" href="#" class="btn btn-success btn-sm"><i class="bi bi-box-arrow-in-down me-1"></i>Record Receive</a>
+        </div>
+        <div id="receiveList"></div>
+    </div>
+
+    <!-- ═══ Timeline ═══ -->
+    <div class="tab-pane" id="tabTimeline">
+        <div id="timelineContainer"></div>
+    </div>
+
+    <!-- ═══ Vendor 360° ═══ -->
+    <div class="tab-pane" id="tabVendor360">
+        <div id="vendorActivityContainer">
+            <div class="text-center py-4 text-muted">
+                <i class="bi bi-stars" style="font-size:2rem;opacity:.3;"></i>
+                <div class="mt-2">Select this tab to load vendor 360° dashboard.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Dispatch and Receive now use dedicated pages: /Outsource/Dispatch and /Outsource/Receive -->
+
+
+@section Scripts {
+<script src="/js/vendor-activity.js"></script>
+<script>
+    const OS_API = '/api/outsource';
+    const outsourceId = @Model.Id;
+    let osData = null;
+
+    $(function () { loadDetail(); });
+
+    async function loadDetail() {
+        try {
+            osData = await $.get(`${OS_API}/detail/${outsourceId}`);
+            renderDetail();
+        } catch (err) {
+            Swal2.error(err.responseJSON?.message || 'Failed to load outsource details.');
+        }
+    }
+
+    function renderDetail() {
+        const d = osData;
+
+        // Hero
+        $('#heroTitle').text(d.outsourceNo);
+        $('#heroSub').text(`${d.vendorName} • ${d.processType || 'General'} • ${d.outsourceDate}`);
+        $('#btnPrintPage').attr('href', `/Outsource/Print?id=${d.outsourceId}`);
+        $('#btnEmailVendor').prop('disabled', !d.vendorEmail);
+        $('#btnNewDispatch').attr('href', `/Outsource/Dispatch?id=${d.outsourceId}`);
+        $('#btnNewReceive').attr('href', `/Outsource/Receive?id=${d.outsourceId}`);
+
+        // Status badge
+        const statusClass = getStatusClass(d.status);
+        $('#statusBadge').attr('class', `os-status-badge os-status-pill ${statusClass}`).text(formatStatus(d.status));
+        $('#headerInfo').html(`
+            <div class="row small">
+                <div class="col-auto"><span class="os-info-label">Job:</span> <a href="/Job/Details?id=${d.jobId}">${d.jobNo}</a></div>
+                <div class="col-auto"><span class="os-info-label">Customer:</span> ${d.customerName || '—'}</div>
+                <div class="col-auto"><span class="os-info-label">Qty:</span> <strong>${d.totalQuantity ?? '—'}</strong></div>
+                <div class="col-auto"><span class="os-info-label">Amount:</span> <strong>₹${(d.totalAmount ?? 0).toLocaleString('en-IN', {minimumFractionDigits:2})}</strong></div>
+            </div>
+        `);
+
+        // Order info
+        $('#orderInfo').html(`
+            <div class="row g-3">
+                ${infoCell('Outsource No', d.outsourceNo)}
+                ${infoCell('Date', d.outsourceDate)}
+                ${infoCell('Process Type', d.processType || '—')}
+                ${infoCell('Expected Delivery', d.expectedDeliveryDate || '—')}
+                ${infoCell('Actual Delivery', d.actualDeliveryDate || '—')}
+                ${infoCell('Status', `<span class="os-status-badge ${statusClass}">${formatStatus(d.status)}</span>`)}
+                ${infoCell('Remarks', d.remarks || '—')}
+                ${infoCell('Created On', d.createdOn || '—')}
+            </div>
+        `);
+
+        // Vendor info
+        $('#vendorInfo').html(`
+            <div class="row g-3">
+                ${infoCell('Vendor', d.vendorName)}
+                ${infoCell('Code', d.vendorCode || '—')}
+                ${infoCell('Email', d.vendorEmail || '—')}
+                ${infoCell('GST', d.vendorGst || '—')}
+                ${infoCell('Service Area', d.serviceArea || '—')}
+                ${infoCell('Address', d.vendorAddress || '—')}
+            </div>
+        `);
+
+        // Job info
+        $('#jobInfo').html(`
+            <div class="row g-3">
+                ${infoCell('Job No', `<a href="/Job/Details?id=${d.jobId}">${d.jobNo}</a>`)}
+                ${infoCell('Job Date', d.jobDate || '—')}
+                ${infoCell('Job Status', d.jobStatus || '—')}
+                ${infoCell('Customer', d.customerName || '—')}
+                ${infoCell('Enquiry', d.enquiryNo || '—')}
+                ${infoCell('Quotation', d.quotationNo || '—')}
+            </div>
+        `);
+
+        // Summary
+        $('#summaryInfo').html(`
+            <div class="row g-3 text-center">
+                <div class="col-4"><div class="fs-2 fw-bold text-purple">${d.totalQuantity ?? 0}</div><div class="small text-muted">Total Qty</div></div>
+                <div class="col-4"><div class="fs-2 fw-bold text-success">₹${(d.totalAmount ?? 0).toLocaleString('en-IN')}</div><div class="small text-muted">Total Amount</div></div>
+                <div class="col-4"><div class="fs-2 fw-bold text-primary">${(d.items || []).length}</div><div class="small text-muted">Items</div></div>
+            </div>
+        `);
+
+        // Items
+        const items = d.items || [];
+        $('#tabItemCount').text(items.length);
+        if (items.length) {
+            let ih = '';
+            items.forEach((item, i) => {
+                ih += `<tr>
+                    <td>${i + 1}</td><td class="fw-semibold">${item.productName || '—'}</td>
+                    <td>${item.processName || '—'}</td><td class="text-end">${item.quantity ?? 0}</td>
+                    <td class="text-end">${item.rate != null ? item.rate.toFixed(2) : '—'}</td>
+                    <td class="text-end fw-bold">₹${(item.amount ?? 0).toLocaleString('en-IN', {minimumFractionDigits:2})}</td>
+                    <td><span class="badge bg-secondary-lt">${formatStatus(item.status)}</span></td>
+                    <td class="small text-muted">${item.remarks || '—'}</td>
+                </tr>`;
+            });
+            $('#itemsBody').html(ih);
+        } else {
+            $('#itemsBody').html('<tr><td colspan="8" class="text-center text-muted py-3">No items.</td></tr>');
+        }
+
+        // Dispatches
+        renderDispatches(d.dispatches || []);
+
+        // Receives
+        renderReceives(d.receives || []);
+
+        // Timeline
+        renderTimeline(d.timeline || []);
+
+        // Actions dropdown
+        renderActions(d);
+
+        // Vendor 360° (lazy-load on tab click)
+        let _vendor360Loaded = false;
+        $('a[href="#tabVendor360"]').on('shown.bs.tab', function () {
+            if (!_vendor360Loaded && d.vendorId) {
+                _vendor360Loaded = true;
+                VendorActivity.load(d.vendorId, {
+                    container: '#vendorActivityContainer',
+                    currentModule: 'OUTSOURCE',
+                    currentId: d.outsourceId
+                });
+            }
+        });
+    }
+
+    function infoCell(label, value) {
+        return `<div class="col-md-6"><div class="os-info-label">${label}</div><div class="os-info-value">${value}</div></div>`;
+    }
+
+    function renderDispatches(dispatches) {
+        $('#tabDispCount').text(dispatches.length);
+        if (!dispatches.length) { $('#dispatchList').html('<div class="text-muted text-center py-4">No dispatches recorded yet.</div>'); return; }
+        let html = '';
+        dispatches.forEach(d => {
+            html += `<div class="card card-sm mb-2 os-dispatch-card">
+                <div class="card-body py-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong><i class="bi bi-send me-2 text-purple"></i>${d.challanNo || 'No Challan'}</strong>
+                            <span class="ms-3 text-muted small">${d.dispatchDate}</span>
+                        </div>
+                        <div class="fw-bold">Qty: ${d.totalQuantity ?? '—'}</div>
+                    </div>
+                    ${d.remarks ? `<div class="small text-muted mt-1">${d.remarks}</div>` : ''}
+                </div>
+            </div>`;
+        });
+        $('#dispatchList').html(html);
+    }
+
+    function renderReceives(receives) {
+        $('#tabRecvCount').text(receives.length);
+        if (!receives.length) { $('#receiveList').html('<div class="text-muted text-center py-4">No receives recorded yet.</div>'); return; }
+        let html = '';
+        receives.forEach(r => {
+            html += `<div class="card card-sm mb-2 os-receive-card">
+                <div class="card-body py-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong><i class="bi bi-box-arrow-in-down me-2 text-success"></i>Received</strong>
+                            <span class="ms-3 text-muted small">${r.receiveDate}</span>
+                        </div>
+                        <div>
+                            <span class="fw-bold text-success">Good: ${r.receivedQuantity ?? 0}</span>
+                            ${(r.rejectedQuantity ?? 0) > 0 ? `<span class="fw-bold text-danger ms-3">Rejected: ${r.rejectedQuantity}</span>` : ''}
+                        </div>
+                    </div>
+                    ${r.remarks ? `<div class="small text-muted mt-1">${r.remarks}</div>` : ''}
+                </div>
+            </div>`;
+        });
+        $('#receiveList').html(html);
+    }
+
+    function renderTimeline(timeline) {
+        $('#tabTimeCount').text(timeline.length);
+        if (!timeline.length) { $('#timelineContainer').html('<div class="text-muted text-center py-4">No timeline events yet.</div>'); return; }
+        let html = '<div class="os-timeline">';
+        timeline.forEach(t => {
+            const dotClass = getTimelineDotClass(t.eventType);
+            html += `<div class="os-timeline-entry">
+                <div class="os-timeline-dot ${dotClass}"></div>
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <strong>${t.eventTitle}</strong>
+                        ${t.vendorName ? `<span class="badge bg-purple-lt ms-2">${t.vendorName}</span>` : ''}
+                        ${t.movementType ? `<span class="badge ${t.movementType === 'OUT' ? 'bg-azure-lt' : 'bg-green-lt'} ms-1">${t.movementType}</span>` : ''}
+                    </div>
+                    <span class="small text-muted">${t.createdOn}</span>
+                </div>
+                ${t.eventDescription ? `<div class="small text-muted mt-1">${t.eventDescription}</div>` : ''}
+                ${t.oldStatus && t.newStatus ? `<div class="small mt-1"><span class="badge bg-secondary-lt">${formatStatus(t.oldStatus)}</span> <i class="bi bi-arrow-right small"></i> <span class="badge bg-purple-lt">${formatStatus(t.newStatus)}</span></div>` : ''}
+                ${t.newQuantity != null ? `<div class="small mt-1">Qty: <strong>${t.newQuantity}</strong></div>` : ''}
+                ${t.delayReason ? `<div class="small text-warning mt-1"><i class="bi bi-exclamation-triangle me-1"></i>${t.delayReason}</div>` : ''}
+                ${t.remarks ? `<div class="small text-muted mt-1"><i class="bi bi-chat-left-text me-1"></i>${t.remarks}</div>` : ''}
+            </div>`;
+        });
+        html += '</div>';
+        $('#timelineContainer').html(html);
+    }
+
+    function renderActions(d) {
+        const isClosed = d.status === 'OUTSOURCE_CLOSED' || d.status === 'OUTSOURCE_CANCELLED';
+        let html = '';
+        if (!isClosed) {
+            html += '<h6 class="dropdown-header">Status Updates</h6>';
+            const statuses = [
+                { s: 'VENDOR_ASSIGNED', icon: 'bi-person-check', color: 'text-info', label: 'Assign Vendor' },
+                { s: 'VENDOR_ACKNOWLEDGED', icon: 'bi-hand-thumbs-up', color: 'text-teal', label: 'Vendor Acknowledged' },
+                { s: 'PROCESS_STARTED', icon: 'bi-gear-wide-connected', color: 'text-cyan', label: 'Process Started' },
+                { s: 'PROCESS_COMPLETED', icon: 'bi-check2-circle', color: 'text-azure', label: 'Process Completed' },
+                { s: 'QUALITY_CHECKED', icon: 'bi-shield-check', color: 'text-success', label: 'Quality Checked' },
+                { s: 'REWORK_REQUIRED', icon: 'bi-arrow-repeat', color: 'text-orange', label: 'Rework Required' },
+                { s: 'REWORK_SENT', icon: 'bi-arrow-return-right', color: 'text-orange', label: 'Rework Sent' },
+                { s: 'REWORK_COMPLETED', icon: 'bi-check-circle', color: 'text-teal', label: 'Rework Completed' },
+                { s: 'RETURN_DELAYED', icon: 'bi-exclamation-triangle', color: 'text-warning', label: 'Return Delayed' },
+                { s: 'PAYMENT_INITIATED', icon: 'bi-currency-rupee', color: 'text-yellow', label: 'Payment Initiated' },
+                { s: 'PAYMENT_COMPLETED', icon: 'bi-cash-stack', color: 'text-success', label: 'Payment Completed' },
+                { s: 'OUTSOURCE_CLOSED', icon: 'bi-lock', color: 'text-dark', label: 'Close Order' },
+            ];
+            statuses.forEach(st => {
+                html += `<a class="dropdown-item" href="javascript:void(0)" onclick="updateStatus('${st.s}')"><i class="bi ${st.icon} me-2 ${st.color}"></i>${st.label}</a>`;
+            });
+            html += '<div class="dropdown-divider"></div>';
+            html += `<a class="dropdown-item" href="javascript:void(0)" onclick="updateStatus('OUTSOURCE_CANCELLED')"><i class="bi bi-x-circle me-2 text-danger"></i>Cancel Order</a>`;
+        } else {
+            html += '<div class="dropdown-item text-muted"><i class="bi bi-lock me-2"></i>Order is closed/cancelled</div>';
+        }
+        $('#detailActions').html(html);
+    }
+
+    function getTimelineDotClass(eventType) {
+        const map = {
+            'OUTSOURCE_CREATED': 'dot-purple', 'VENDOR_ASSIGNED': 'dot-info',
+            'MATERIAL_SENT': 'dot-info', 'VENDOR_ACKNOWLEDGED': 'dot-cyan',
+            'PROCESS_STARTED': 'dot-cyan', 'PROCESS_COMPLETED': 'dot-info',
+            'QUALITY_CHECKED': 'dot-success', 'MATERIAL_RECEIVED': 'dot-success',
+            'RETURN_DELAYED': 'dot-warning', 'REWORK_REQUIRED': 'dot-orange',
+            'REWORK_SENT': 'dot-orange', 'REWORK_COMPLETED': 'dot-success',
+            'PAYMENT_INITIATED': 'dot-warning', 'PAYMENT_COMPLETED': 'dot-success',
+            'OUTSOURCE_CLOSED': 'dot-primary', 'OUTSOURCE_CANCELLED': 'dot-danger'
+        };
+        return map[eventType] || 'dot-primary';
+    }
+
+    function getStatusClass(status) {
+        const map = {
+            'OUTSOURCE_CREATED': 'os-status-created', 'VENDOR_ASSIGNED': 'os-status-vendor_assigned',
+            'MATERIAL_SENT': 'os-status-material_sent', 'VENDOR_ACKNOWLEDGED': 'os-status-vendor_ack',
+            'PROCESS_STARTED': 'os-status-process_started', 'PROCESS_COMPLETED': 'os-status-process_done',
+            'QUALITY_CHECKED': 'os-status-quality', 'MATERIAL_RECEIVED': 'os-status-received',
+            'RETURN_DELAYED': 'os-status-delayed', 'REWORK_REQUIRED': 'os-status-rework',
+            'REWORK_SENT': 'os-status-rework', 'REWORK_COMPLETED': 'os-status-quality',
+            'PAYMENT_INITIATED': 'os-status-payment', 'PAYMENT_COMPLETED': 'os-status-payment',
+            'OUTSOURCE_CLOSED': 'os-status-closed', 'OUTSOURCE_CANCELLED': 'os-status-cancelled'
+        };
+        return map[status] || 'bg-secondary-lt';
+    }
+
+    function formatStatus(status) { return status ? status.replace(/_/g, ' ') : 'N/A'; }
+
+    // ── Status Update ──
+    async function updateStatus(status) {
+        const label = formatStatus(status);
+        const confirmed = await Swal2.confirmStatus(osData.outsourceNo, label);
+        if (!confirmed) return;
+        try {
+            Swal2.showLoading('Updating…');
+            await $.ajax({
+                url: `${OS_API}/updatestatus`, method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ outsourceId, status })
+            });
+            Swal2.hideLoading();
+            Swal2.success(`Status updated to ${label}`);
+            loadDetail();
+        } catch (err) { Swal2.hideLoading(); Swal2.error(err.responseJSON?.message || 'Failed to update status'); }
+    }
+
+    // Dispatch/Receive now handled via dedicated pages
+
+    // ── Email to Vendor ──
+    async function emailToVendor() {
+        const confirm = await Swal.fire({
+            icon: 'question',
+            title: 'Email to Vendor?',
+            html: `Send outsource order <strong>${osData?.outsourceNo || ''}</strong> to <strong>${osData?.vendorName || 'vendor'}</strong>?`,
+            showCancelButton: true,
+            confirmButtonText: 'Send Email',
+            confirmButtonColor: '#6f42c1'
+        });
+        if (!confirm.isConfirmed) return;
+        try {
+            Swal2.showLoading('Sending email…');
+            const res = await $.ajax({
+                url: `${OS_API}/send-email-vendor`, method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ outsourceId })
+            });
+            Swal2.hideLoading();
+            Swal2.success(res.message || 'Email sent successfully.');
+            loadDetail();
+        } catch (err) {
+            Swal2.hideLoading();
+            Swal2.error(err.responseJSON?.message || 'Failed to send email to vendor.');
+        }
+    }
+</script>
+}

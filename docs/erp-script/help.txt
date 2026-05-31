@@ -1,0 +1,7 @@
+dotnet ef dbcontext scaffold 'Host=localhost;Database=minepress_db;Username=postgres;Password=minepress@123456' Npgsql.EntityFrameworkCore.PostgreSQL --schema sop_db --output-dir Models --context ApplicationDbContext --context-dir Context  --project src/ERP.MinePress.Persistence --startup-project src/ERP.MinePress.WebApi --force --verbose
+
+
+
+cd src/ERP.MinePress.Persistence
+dotnet ef dbcontext scaffold "Host=localhost;Database=minepress_db;Username=postgres;Password=minepress@123456" Npgsql.EntityFrameworkCore.PostgreSQL --schema press_db --output-dir Models --context ApplicationDbContext --context-dir Context --force --verbose
+

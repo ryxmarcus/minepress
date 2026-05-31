@@ -1,0 +1,445 @@
+@page
+@model erp.minepress.web.Pages.Challan.DetailsModel
+@{
+    ViewData["Title"] = "Challan Details";
+    ViewData["ContainerClass"] = "container-fluid";
+}
+
+<!-- Hero Header (populated by JS) -->
+<div class="ch-detail-hero d-print-none" id="chHero">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);">
+                <i class="bi bi-truck" style="font-size:1.5rem;"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="mb-0" id="heroTitle">Loading...</h2>
+            <div class="text-white-75" id="heroSubtitle"></div>
+        </div>
+        <div class="col-auto d-flex gap-2 flex-wrap">
+            <span class="ch-status-badge ch-status-pill" id="heroStatus"></span>
+            <div class="dropdown" id="heroActions">
+                <button class="btn btn-outline-light btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="bi bi-lightning me-1"></i>Actions
+                </button>
+                <div class="dropdown-menu dropdown-menu-end ch-action-dropdown" id="heroActionsMenu"></div>
+            </div>
+            <a href="/Challan" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-arrow-left me-1"></i>Back
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Tabs -->
+<ul class="nav ch-detail-tabs mb-3" id="chTabs">
+    <li class="nav-item">
+        <a class="nav-link active" data-bs-toggle="tab" href="#tabOverview">
+            <i class="bi bi-grid me-1"></i>Overview
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#tabItems">
+            <i class="bi bi-list-check me-1"></i>Items <span class="badge bg-primary-lt ms-1" id="tabItemCount">0</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#tabTimeline">
+            <i class="bi bi-clock-history me-1"></i>Timeline
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#tabGatePass">
+            <i class="bi bi-shield-check me-1"></i>Gate Passes <span class="badge bg-success-lt ms-1" id="tabGpCount">0</span>
+        </a>
+    </li>
+</ul>
+
+<div class="tab-content">
+
+    <!-- ═══ Overview Tab ═══ -->
+    <div class="tab-pane active" id="tabOverview">
+        <div class="row g-3">
+            <!-- Challan Info -->
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h3 class="card-title mb-0"><i class="bi bi-truck me-2 text-primary"></i>Challan Info</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-6"><div class="ch-info-label">Challan No</div><div class="ch-info-value" id="infoChallanNo">—</div></div>
+                            <div class="col-6"><div class="ch-info-label">Date</div><div class="ch-info-value" id="infoChallanDate">—</div></div>
+                            <div class="col-6"><div class="ch-info-label">Reference No</div><div class="ch-info-value" id="infoRefNo">—</div></div>
+                            <div class="col-6"><div class="ch-info-label">Status</div><div class="ch-info-value" id="infoStatus">—</div></div>
+                            <div class="col-6"><div class="ch-info-label">Total Qty</div><div class="ch-info-value" id="infoTotalQty">—</div></div>
+                            <div class="col-6"><div class="ch-info-label">Total Amount</div><div class="ch-info-value" id="infoTotalAmount">—</div></div>
+                            <div class="col-12"><div class="ch-info-label">Remarks</div><div class="ch-info-value" id="infoRemarks">—</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer Info -->
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h3 class="card-title mb-0"><i class="bi bi-people me-2 text-purple"></i>Customer</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-6"><div class="ch-info-label">Name</div><div class="ch-info-value" id="infoCustomerName">—</div></div>
+                            <div class="col-6"><div class="ch-info-label">Code</div><div class="ch-info-value" id="infoCustomerCode">—</div></div>
+                            <div class="col-6"><div class="ch-info-label">GST No</div><div class="ch-info-value" id="infoCustomerGst">—</div></div>
+                            <div class="col-6"><div class="ch-info-label">Email</div><div class="ch-info-value" id="infoCustomerEmail">—</div></div>
+                            <div class="col-12"><div class="ch-info-label">Delivery Address</div><div class="ch-info-value" id="infoDeliveryAddr">—</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Job Info -->
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h3 class="card-title mb-0"><i class="bi bi-briefcase me-2 text-purple"></i>Job Details</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-6"><div class="ch-info-label">Job No</div><div class="ch-info-value"><a href="#" id="infoJobLink" class="text-decoration-none">—</a></div></div>
+                            <div class="col-6"><div class="ch-info-label">Job Date</div><div class="ch-info-value" id="infoJobDate">—</div></div>
+                            <div class="col-6"><div class="ch-info-label">Enquiry</div><div class="ch-info-value"><a href="#" id="infoEnqLink" class="text-decoration-none">—</a></div></div>
+                            <div class="col-6"><div class="ch-info-label">Quotation</div><div class="ch-info-value"><a href="#" id="infoQuotLink" class="text-decoration-none">—</a></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transport Info -->
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h3 class="card-title mb-0"><i class="bi bi-truck me-2 text-azure"></i>Transport</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-6"><div class="ch-info-label">Vehicle No</div><div class="ch-info-value" id="infoVehicleNo">—</div></div>
+                            <div class="col-6"><div class="ch-info-label">Transport Details</div><div class="ch-info-value" id="infoTransport">—</div></div>
+                            <div class="col-6"><div class="ch-info-label">Company</div><div class="ch-info-value" id="infoCompany">—</div></div>
+                            <div class="col-6"><div class="ch-info-label">Created By</div><div class="ch-info-value" id="infoCreatedBy">—</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ Items Tab ═══ -->
+    <div class="tab-pane" id="tabItems">
+        <div class="card">
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table">
+                    <thead>
+                        <tr>
+                            <th style="width:40px;">#</th>
+                            <th>Product</th>
+                            <th class="text-center">Job Qty</th>
+                            <th class="text-center">Delivered Qty</th>
+                            <th class="text-center">Pending Qty</th>
+                            <th class="text-end">Rate</th>
+                            <th class="text-end">Amount</th>
+                            <th>Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detItemsBody">
+                        <tr><td colspan="8" class="text-center text-muted py-3">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ Timeline Tab ═══ -->
+    <div class="tab-pane" id="tabTimeline">
+        <div class="card">
+            <div class="card-body" id="timelineContainer">
+                <div class="text-center text-muted py-3">Loading timeline...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ Gate Passes Tab ═══ -->
+    <div class="tab-pane" id="tabGatePass">
+        <div class="d-flex justify-content-end mb-2">
+            <button class="btn btn-success btn-sm" id="btnIssueGp" onclick="openGatePassModal()" style="display:none;">
+                <i class="bi bi-shield-check me-1"></i>Issue Gate Pass
+            </button>
+        </div>
+        <div id="gatePassList">
+            <div class="text-center text-muted py-3">Loading gate passes...</div>
+        </div>
+    </div>
+</div>
+
+<!-- Gate Pass Modal -->
+<div class="modal modal-blur fade" id="gatePassModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-shield-check me-2 text-success"></i>Issue Gate Pass</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Vehicle No</label>
+                    <input type="text" id="gpVehicleNo" class="form-control" placeholder="e.g. MH-12-AB-1234" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Driver Name</label>
+                    <input type="text" id="gpDriverName" class="form-control" placeholder="Driver name" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Driver Contact</label>
+                    <input type="text" id="gpDriverContact" class="form-control" placeholder="Phone number" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Purpose</label>
+                    <input type="text" id="gpPurpose" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Remarks</label>
+                    <textarea id="gpRemarks" class="form-control" rows="2"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" onclick="submitGatePass()">
+                    <i class="bi bi-shield-check me-1"></i>Issue Gate Pass
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const CH_API = '/api/challan';
+        const challanId = @Model.Id;
+        let challanData = null;
+
+        $(document).ready(function () {
+            loadDetail();
+        });
+
+        function loadDetail() {
+            $.get(`${CH_API}/detail/${challanId}`, function (data) {
+                challanData = data;
+                populateHero(data);
+                populateOverview(data);
+                populateItems(data.items || []);
+                populateTimeline(data.timeline || []);
+                populateGatePasses(data.gatePasses || []);
+            }).fail(function () {
+                Swal2.error('Failed to load challan details.');
+            });
+        }
+
+        function populateHero(d) {
+            document.title = `${d.challanNo} — MinePress ERP`;
+            $('#heroTitle').text(d.challanNo);
+            $('#heroSubtitle').text(`${d.customerName || ''} • ${d.challanDate}`);
+            const statusClass = getStatusClass(d.status);
+            $('#heroStatus').attr('class', `ch-status-badge ch-status-pill ${statusClass}`).text(formatStatus(d.status));
+
+            const isClosed = ['DELIVERED', 'CANCELLED', 'CLOSED'].includes(d.status);
+            let menuHtml = '';
+            if (!isClosed) {
+                menuHtml += `<h6 class="dropdown-header">Status</h6>`;
+                menuHtml += `<a class="dropdown-item" href="javascript:void(0)" onclick="updateStatus('DISPATCHED')"><i class="bi bi-truck me-2 text-blue"></i>Mark Dispatched</a>`;
+                menuHtml += `<a class="dropdown-item" href="javascript:void(0)" onclick="updateStatus('DELIVERED')"><i class="bi bi-check-circle me-2 text-success"></i>Mark Delivered</a>`;
+                menuHtml += `<div class="dropdown-divider"></div>`;
+                menuHtml += `<a class="dropdown-item" href="javascript:void(0)" onclick="openGatePassModal()"><i class="bi bi-shield-check me-2 text-success"></i>Issue Gate Pass</a>`;
+                if (d.status === 'CREATED') {
+                    menuHtml += `<div class="dropdown-divider"></div>`;
+                    menuHtml += `<a class="dropdown-item text-danger" href="javascript:void(0)" onclick="updateStatus('CANCELLED')"><i class="bi bi-x-circle me-2"></i>Cancel</a>`;
+                }
+                $('#btnIssueGp').show();
+            } else {
+                menuHtml = `<div class="dropdown-item text-muted small">No actions available</div>`;
+                $('#btnIssueGp').hide();
+            }
+            $('#heroActionsMenu').html(menuHtml);
+        }
+
+        function populateOverview(d) {
+            $('#infoChallanNo').text(d.challanNo);
+            $('#infoChallanDate').text(d.challanDate);
+            $('#infoRefNo').text(d.referenceNo || '—');
+            const sc = getStatusClass(d.status);
+            $('#infoStatus').html(`<span class="ch-status-badge ${sc}">${formatStatus(d.status)}</span>`);
+            $('#infoTotalQty').text(d.totalQty != null ? Number(d.totalQty).toLocaleString('en-IN') : '—');
+            $('#infoTotalAmount').text(d.totalAmount != null ? '₹ ' + Number(d.totalAmount).toLocaleString('en-IN', { minimumFractionDigits: 2 }) : '—');
+            $('#infoRemarks').text(d.remarks || '—');
+
+            $('#infoCustomerName').text(d.customerName || '—');
+            $('#infoCustomerCode').text(d.customerCode || '—');
+            $('#infoCustomerGst').text(d.customerGst || '—');
+            $('#infoCustomerEmail').text(d.customerEmail || '—');
+            $('#infoDeliveryAddr').text(d.deliveryAddress || d.customerAddress || '—');
+
+            if (d.jobId) {
+                $('#infoJobLink').text(d.jobNo || '—').attr('href', `/Job/Details?id=${d.jobId}`);
+            }
+            $('#infoJobDate').text(d.jobDate || '—');
+            if (d.enquiryId) {
+                $('#infoEnqLink').text(d.enquiryNo || '—').attr('href', `/Enquiry/Details?id=${d.enquiryId}`);
+            }
+            if (d.quotationId) {
+                $('#infoQuotLink').text(d.quotationNo || '—').attr('href', `/Quotation/Details?id=${d.quotationId}`);
+            }
+
+            $('#infoVehicleNo').text(d.vehicleNo || '—');
+            $('#infoTransport').text(d.transportDetails || '—');
+            $('#infoCompany').text(d.companyName || '—');
+            $('#infoCreatedBy').text(`${d.createdByName || '—'} • ${d.createdOn || ''}`);
+        }
+
+        function populateItems(items) {
+            $('#tabItemCount').text(items.length);
+            if (!items.length) {
+                $('#detItemsBody').html('<tr><td colspan="8" class="text-center text-muted py-3">No items</td></tr>');
+                return;
+            }
+            let html = '';
+            items.forEach((item, idx) => {
+                html += `<tr>
+                    <td class="text-muted">${item.itemSequence || idx + 1}</td>
+                    <td>
+                        <div class="fw-semibold">${esc(item.productName || '')}</div>
+                        <div class="text-muted small">${esc(item.productDescription || '')}</div>
+                    </td>
+                    <td class="text-center">${item.jobQuantity ?? '—'}</td>
+                    <td class="text-center fw-semibold">${item.deliveredQuantity ?? '—'}</td>
+                    <td class="text-center">${item.pendingQuantity ?? '—'}</td>
+                    <td class="text-end">${item.rate != null ? Number(item.rate).toLocaleString('en-IN', { minimumFractionDigits: 2 }) : '—'}</td>
+                    <td class="text-end fw-semibold">${item.amount != null ? '₹ ' + Number(item.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 }) : '—'}</td>
+                    <td class="small text-muted">${esc(item.remarks || '')}</td>
+                </tr>`;
+            });
+            $('#detItemsBody').html(html);
+        }
+
+        function populateTimeline(timeline) {
+            if (!timeline.length) {
+                $('#timelineContainer').html('<div class="text-center text-muted py-3">No timeline events yet.</div>');
+                return;
+            }
+            let html = '<div class="ch-timeline">';
+            timeline.forEach(t => {
+                const dotClass = getTimelineDotClass(t.eventType);
+                html += `<div class="ch-timeline-entry">
+                    <div class="ch-timeline-dot ${dotClass}"></div>
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="fw-semibold small">${esc(t.eventTitle)}</div>
+                            <div class="text-muted small">${esc(t.eventDescription || '')}</div>
+                            ${t.oldStatus || t.newStatus ? `<div class="small mt-1"><span class="badge bg-secondary-lt">${esc(t.oldStatus || '—')}</span> → <span class="badge bg-primary-lt">${esc(t.newStatus || '—')}</span></div>` : ''}
+                            ${t.remarks ? `<div class="small text-muted fst-italic mt-1">${esc(t.remarks)}</div>` : ''}
+                        </div>
+                        <div class="text-muted small text-nowrap ms-3">${esc(t.createdOn)}</div>
+                    </div>
+                </div>`;
+            });
+            html += '</div>';
+            $('#timelineContainer').html(html);
+        }
+
+        function populateGatePasses(gatePasses) {
+            $('#tabGpCount').text(gatePasses.length);
+            if (!gatePasses.length) {
+                $('#gatePassList').html('<div class="text-center text-muted py-3"><i class="bi bi-shield" style="font-size:2rem; opacity:.3;"></i><div class="mt-2">No gate passes issued yet.</div></div>');
+                return;
+            }
+            let html = '<div class="row g-3">';
+            gatePasses.forEach(gp => {
+                html += `<div class="col-md-6">
+                    <div class="card ch-gatepass-card">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <a href="/GatePass/Details?id=${gp.gatePassId}" class="fw-bold text-decoration-none">${esc(gp.gatePassNo)}</a>
+                                <span class="badge ${gp.status === 'ISSUED' ? 'bg-success-lt' : 'bg-secondary-lt'}">${esc(gp.status)}</span>
+                            </div>
+                            <div class="row g-2 small">
+                                <div class="col-6"><span class="text-muted">Date:</span> ${esc(gp.gatePassDate)}</div>
+                                <div class="col-6"><span class="text-muted">Type:</span> ${esc(gp.gatepassType || '—')}</div>
+                                <div class="col-6"><span class="text-muted">Vehicle:</span> ${esc(gp.vehicleNo || '—')}</div>
+                                <div class="col-6"><span class="text-muted">Driver:</span> ${esc(gp.driverName || '—')}</div>
+                                <div class="col-6"><span class="text-muted">Total Qty:</span> ${gp.totalQuantity ?? '—'}</div>
+                                <div class="col-6"><span class="text-muted">Purpose:</span> ${esc(gp.purpose || '—')}</div>
+                            </div>
+                            <div class="text-muted small mt-2">${esc(gp.createdOn)}</div>
+                        </div>
+                    </div>
+                </div>`;
+            });
+            html += '</div>';
+            $('#gatePassList').html(html);
+        }
+
+        // ── Actions ──
+        async function updateStatus(status) {
+            const confirmed = await Swal2.confirm('Update Status', `Change challan status to <strong>${formatStatus(status)}</strong>?`, { icon: 'question', confirmText: 'Yes, Update', confirmClass: 'btn btn-primary' });
+            if (!confirmed) return;
+            try {
+                await $.ajax({ url: `${CH_API}/updatestatus`, method: 'POST', contentType: 'application/json', data: JSON.stringify({ challanId, status }) });
+                Swal2.success(`Status updated to ${formatStatus(status)}`);
+                loadDetail();
+            } catch (err) { Swal2.error(err.responseJSON?.message || 'Failed to update status'); }
+        }
+
+        function openGatePassModal() {
+            $('#gpVehicleNo').val(challanData?.vehicleNo || '');
+            $('#gpPurpose').val(`Delivery against Challan ${challanData?.challanNo || ''}`);
+            $('#gpDriverName, #gpDriverContact, #gpRemarks').val('');
+            $('#gatePassModal').modal('show');
+        }
+
+        async function submitGatePass() {
+            const payload = {
+                challanId,
+                vehicleNo: $('#gpVehicleNo').val(),
+                driverName: $('#gpDriverName').val(),
+                driverContact: $('#gpDriverContact').val(),
+                purpose: $('#gpPurpose').val(),
+                remarks: $('#gpRemarks').val()
+            };
+            try {
+                const res = await $.ajax({ url: `${CH_API}/issue-gatepass`, method: 'POST', contentType: 'application/json', data: JSON.stringify(payload) });
+                $('#gatePassModal').modal('hide');
+                Swal2.success(res.message || 'Gate Pass issued successfully.');
+                loadDetail();
+            } catch (err) { Swal2.error(err.responseJSON?.message || 'Failed to issue gate pass'); }
+        }
+
+        // ── Helpers ──
+        function getStatusClass(status) {
+            const map = {
+                'CREATED': 'ch-status-created', 'MATERIAL_ISSUED': 'ch-status-material', 'MATERIAL_RECEIVED': 'ch-status-material',
+                'MATERIAL_RETURNED': 'ch-status-returned', 'OUTSOURCED_SENT': 'ch-status-outsource', 'OUTSOURCED_RECEIVED': 'ch-status-outsource',
+                'DISPATCHED': 'ch-status-dispatched', 'DELIVERED': 'ch-status-delivered', 'CANCELLED': 'ch-status-cancelled', 'CLOSED': 'ch-status-closed'
+            };
+            return map[status] || 'bg-secondary-lt';
+        }
+        function formatStatus(s) { return s ? s.replace(/_/g, ' ') : 'N/A'; }
+        function getTimelineDotClass(eventType) {
+            if (eventType?.includes('CREATED')) return 'dot-primary';
+            if (eventType?.includes('DELIVERED') || eventType?.includes('SUCCESS')) return 'dot-success';
+            if (eventType?.includes('CANCELLED')) return 'dot-danger';
+            if (eventType?.includes('DISPATCHED') || eventType?.includes('GATE_PASS')) return 'dot-info';
+            if (eventType?.includes('MATERIAL') || eventType?.includes('OUTSOURCED')) return 'dot-purple';
+            return 'dot-primary';
+        }
+        function esc(v) { return (v || '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;'); }
+    </script>
+}

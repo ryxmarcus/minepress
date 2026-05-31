@@ -1,0 +1,729 @@
+@page
+@model erp.minepress.web.Pages.Store.Issue.CreateModel
+@{
+    ViewData["Title"] = "New Store Issue";
+    ViewData["ContainerClass"] = "container-xl";
+}
+
+<!-- ═══ Hero ═══ -->
+<div class="store-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);"><i class="bi bi-box-arrow-up" style="font-size:1.5rem;"></i></span>
+        </div>
+        <div class="col">
+            <h2 class="mb-0">New Store Issue</h2>
+            <div class="text-white-75">Issue materials against a job, transfer, or stock adjustment.</div>
+        </div>
+        <div class="col-auto d-flex gap-2">
+            <button class="btn btn-light btn-sm" id="btnLoadBom" style="display:none;" onclick="loadBomItems()"><i class="bi bi-box-seam me-1"></i>Load BOM Items</button>
+            <a href="/Store/Issue" class="btn btn-outline-light btn-sm"><i class="bi bi-arrow-left me-1"></i>Back to List</a>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Section 1: Issue Details (compact horizontal) ═══ -->
+<div class="card si-details-card mb-3">
+    <div class="card-body py-3">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-2">
+                <label class="form-label mb-1"><i class="bi bi-tag me-1"></i>Issue Type</label>
+                <select id="ddlIssueType" class="form-select form-select-sm">
+                    <option value="JOB" selected>Job</option>
+                    <option value="TRANSFER">Transfer</option>
+                    <option value="STOCK_ADJUSTMENT">Stock Adjustment</option>
+                </select>
+            </div>
+            <div class="col-md-2" id="jobSearchSection">
+                <label class="form-label mb-1"><i class="bi bi-briefcase me-1"></i>Job</label>
+                <button type="button" class="btn btn-outline-purple btn-sm w-100" onclick="openJobPicker()"><i class="bi bi-search me-1"></i>Select Job</button>
+            </div>
+            <div class="col-md-4" id="jobDisplay" style="display:none;">
+                <div id="selectedJobCard" class="jp-selected-card"></div>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label mb-1"><i class="bi bi-chat-left-text me-1"></i>Remarks</label>
+                <input type="text" id="txtRemarks" class="form-control form-control-sm" placeholder="Optional..." />
+            </div>
+            <div class="col-md-auto" id="loadBomSection" style="display:none;">
+                <label class="form-label mb-1 d-block">&nbsp;</label>
+                <button class="btn btn-cyan btn-sm" id="btnLoadBomInline" onclick="loadBomItems()">
+                    <i class="bi bi-box-seam me-1"></i>Load BOM Items
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Section 2: BOM + Previously Issued (side by side, shown on job select) ═══ -->
+<div class="row g-3 mb-3">
+    <div class="col-lg-7">
+        <!-- BOM Panel -->
+        <div class="card si-bom-card" id="siBomPanel" style="display:none;">
+            <div class="card-header py-2">
+                <h3 class="card-title"><i class="bi bi-diagram-3 me-2 text-cyan"></i>Bill of Materials</h3>
+                <div class="card-actions d-flex align-items-center gap-2">
+                    <select id="bomGroupFilter" class="form-select form-select-sm" style="width:130px;" onchange="applyBomFilter()">
+                        <option value="">All Groups</option>
+                        <option value="PAPER">Paper</option>
+                        <option value="INK">Ink</option>
+                        <option value="PLATE">Plate</option>
+                        <option value="CHEMICAL">Chemical</option>
+                        <option value="OTHER">Other</option>
+                    </select>
+                    <span class="badge bg-cyan-lt" id="siBomCount"></span>
+                </div>
+            </div>
+            <div class="table-responsive" style="max-height:240px;overflow-y:auto;">
+                <table class="table table-vcenter table-sm table-hover mb-0">
+                    <thead class="sticky-top">
+                        <tr>
+                            <th style="width:30px;">#</th>
+                            <th style="width:90px;">Category</th>
+                            <th style="width:100px;">Code</th>
+                            <th>Material</th>
+                            <th>Specification</th>
+                            <th class="text-center" style="width:80px;">BOM Qty</th>
+                            <th class="text-center" style="width:80px;">Issued</th>
+                            <th class="text-center" style="width:80px;">Remaining</th>
+                            <th style="width:60px;">Unit</th>
+                            <th class="text-end" style="width:80px;">Rate</th>
+                            <th class="text-end" style="width:100px;">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody id="siBomBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <!-- Previously Issued -->
+        <div class="card si-prev-card" id="prevIssuedPanel" style="display:none;">
+            <div class="card-header py-2">
+                <h3 class="card-title"><i class="bi bi-clock-history me-2 text-orange"></i>Previously Issued</h3>
+                <div class="card-actions d-flex align-items-center gap-2">
+                    <select id="prevGroupFilter" class="form-select form-select-sm" style="width:130px;" onchange="applyPrevFilter()">
+                        <option value="">All Groups</option>
+                        <option value="PAPER">Paper</option>
+                        <option value="INK">Ink</option>
+                        <option value="PLATE">Plate</option>
+                        <option value="CHEMICAL">Chemical</option>
+                        <option value="OTHER">Other</option>
+                    </select>
+                    <span class="badge bg-orange-lt" id="prevIssuedCount"></span>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div id="prevIssuedBody" style="max-height:240px;overflow-y:auto;"></div>
+                <div id="prevIssuedEmpty" class="text-muted text-center py-3 small" style="display:none;">
+                    <i class="bi bi-inbox me-1"></i>No previous issues for this job.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Section 3: Issue Items (full width) ═══ -->
+<div class="card si-items-card">
+    <div class="card-header py-2">
+        <h3 class="card-title"><i class="bi bi-list-check me-2"></i>Issue Items</h3>
+        <div class="card-actions d-flex align-items-center gap-2">
+            <select id="issueGroupFilter" class="form-select form-select-sm" style="width:130px;" onchange="applyIssueItemFilter()">
+                <option value="">All Groups</option>
+                <option value="PAPER">Paper</option>
+                <option value="INK">Ink</option>
+                <option value="PLATE">Plate</option>
+                <option value="CHEMICAL">Chemical</option>
+                <option value="OTHER">Other</option>
+            </select>
+            <span class="text-muted small me-1" id="itemCountLabel">0 items</span>
+            <button class="btn btn-primary btn-sm" onclick="openItemPicker()"><i class="bi bi-box-seam me-1"></i>Add from Master</button>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 si-items-table">
+                <thead>
+                    <tr>
+                        <th style="width:36px;"></th>
+                        <th style="min-width:100px;width:110px;">Category</th>
+                        <th style="width:100px;">Code</th>
+                        <th style="min-width:200px;">Material</th>
+                        <th class="text-center" style="width:100px;">BOM Qty</th>
+                        <th class="text-center" style="width:90px;">Stock</th>
+                        <th class="text-center" style="width:100px;">Issue Qty</th>
+                        <th style="width:80px;">UOM</th>
+                        <th class="text-end" style="width:100px;">Rate</th>
+                        <th class="text-end" style="width:120px;">Amount</th>
+                        <th style="width:40px;"></th>
+                    </tr>
+                </thead>
+                <tbody id="itemsBody"></tbody>
+                <tfoot>
+                    <tr class="si-total-row">
+                        <td colspan="9" class="text-end pe-3">Grand Total</td>
+                        <td class="text-end" id="grandTotal">0.00</td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Item Picker Modal (shared) ═══ -->
+<partial name="_ItemPickerPartial" />
+
+<!-- ═══ Job Picker Modal (shared) ═══ -->
+<partial name="_JobPickerPartial" />
+
+<!-- ═══ Action Bar ═══ -->
+<div class="si-action-bar">
+    <div class="d-flex justify-content-between align-items-center">
+        <a href="/Store/Issue" class="btn btn-ghost-secondary"><i class="bi bi-x-lg me-1"></i>Cancel</a>
+        <button class="btn btn-success btn-lg px-4" id="btnSave" onclick="saveIssue()"><i class="bi bi-check-lg me-1"></i>Save Issue</button>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="/js/store.js"></script>
+    <script src="/js/item-picker.js"></script>
+    <script src="/js/job-picker.js"></script>
+    <script>
+        let selectedJobId = null, selectedJobNo = null, selectedRateCalcId = null;
+        let itemIndex = 0;
+
+        $(document).ready(function () {
+            $('#ddlIssueType').on('change', function () {
+                $('#jobSearchSection').toggle($(this).val() === 'JOB');
+                if ($(this).val() !== 'JOB') clearJob();
+            });
+        });
+
+        function openJobPicker() {
+            JobPicker.open({
+                onSelect: async function (j) {
+                    selectedJobId = j.jobId;
+                    selectedJobNo = j.jobNo;
+                    selectedRateCalcId = j.rateCalcId || null;
+                    $('#selectedJobCard').html(
+                        `<div class="jp-selected-icon"><i class="bi bi-briefcase"></i></div>` +
+                        `<div class="jp-selected-info">` +
+                        `<div class="jp-selected-name">${esc(j.jobNo)} — ${esc(j.productName || '')}</div>` +
+                        `<div class="jp-selected-detail">Qty: ${j.quantity || 0}${j.customerName ? ' · ' + esc(j.customerName) : ''}${j.statusCode ? ' · ' + esc(j.statusCode) : ''}</div>` +
+                        `</div>` +
+                        `<button type="button" class="jp-remove-btn" onclick="clearJob()" title="Remove"><i class="bi bi-x-circle"></i></button>`
+                    );
+                    $('#jobDisplay').show();
+
+                    // Load BOM and issued items in parallel
+                    const [bomRes, issuedRes] = await Promise.allSettled([
+                        $.get(`/api/store/jobs/${j.jobId}/bom`),
+                        $.get(`/api/store/jobs/${j.jobId}/issued-items`)
+                    ]);
+
+                    issuedItemsCache = issuedRes.status === 'fulfilled' ? issuedRes.value : null;
+                    renderIssuedItems(issuedItemsCache);
+
+                    if (bomRes.status === 'fulfilled') {
+                        const data = bomRes.value;
+                        selectedRateCalcId = data.rateCalcId || selectedRateCalcId;
+                        bomDataCache = data.bomData;
+                        renderBom(data.bomData);
+                        const hasBom = !!data.bomData;
+                        $('#btnLoadBom').toggle(hasBom);
+                        $('#loadBomSection').toggle(hasBom);
+                    } else {
+                        bomDataCache = null;
+                        renderBom(null);
+                        $('#btnLoadBom').hide();
+                        $('#loadBomSection').hide();
+                    }
+                }
+            });
+        }
+
+        let bomDataCache = null;
+        let issuedItemsCache = null;
+
+        function getIssuedQtyMap() {
+            const map = {};
+            if (!issuedItemsCache || !issuedItemsCache.length) return map;
+            issuedItemsCache.forEach(iss => {
+                if (iss.status === 'CANCELLED') return;
+                (iss.items || []).forEach(it => {
+                    const key = (it.materialName || '').trim().toLowerCase();
+                    if (!key) return;
+                    map[key] = (map[key] || 0) + (parseFloat(it.issuedQuantity) || 0);
+                });
+            });
+            return map;
+        }
+
+        function adjustBomForIssued(bomItems) {
+            const issuedMap = getIssuedQtyMap();
+            return bomItems.map(b => {
+                const key = (b.item || b.material_name || '').trim().toLowerCase();
+                const issued = issuedMap[key] || 0;
+                const remaining = (parseFloat(b.quantity) || 0) - issued;
+                return { ...b, originalQuantity: b.quantity, issuedQty: issued, quantity: remaining };
+            }).filter(b => b.quantity > 0);
+        }
+
+        function filterAndMergeBom(bomArray) {
+            if (!Array.isArray(bomArray)) return [];
+            // Material items + Prepress plates (e.g. "Mini Offset Plate")
+            const issuable = bomArray.filter(b => {
+                const cat = (b.category || '').toLowerCase();
+                const name = (b.item || b.material_name || '').toLowerCase();
+        return cat === 'material' || (cat === 'prepress' && name.includes('plate'));
+            });
+            // Group by Item + Unit, sum Quantity & Amount, take first Rate
+            const merged = {};
+            issuable.forEach(b => {
+                const itemName = (b.item || b.material_name || '').trim();
+                const unit = (b.unit || '').trim();
+                const key = `${itemName}||${unit}`;
+                if (!itemName) return;
+                if (merged[key]) {
+                    merged[key].quantity += parseFloat(b.quantity) || 0;
+                    merged[key].amount += parseFloat(b.amount) || 0;
+                    if (b.specification && !merged[key].specification.includes(b.specification))
+                        merged[key].specification += ', ' + b.specification;
+                } else {
+                    merged[key] = { ...b, quantity: parseFloat(b.quantity) || 0, amount: parseFloat(b.amount) || 0, specification: b.specification || '' };
+                }
+            });
+            return Object.values(merged);
+        }
+
+        function clearJob() {
+            selectedJobId = null; selectedJobNo = null; selectedRateCalcId = null;
+            bomDataCache = null;
+            issuedItemsCache = null;
+            $('#selectedJobCard').empty();
+            $('#jobDisplay').hide();
+            $('#btnLoadBom').hide();
+            $('#loadBomSection').hide();
+            $('#siBomPanel').hide();
+            $('#siBomBody').empty();
+            $('#prevIssuedPanel').hide();
+            $('#prevIssuedBody').empty();
+        }
+
+        async function loadBomItems() {
+            if (!selectedJobId) return;
+            if (!bomDataCache) { Swal2.info('No BOM data available for this job. Manual item entry is available.'); return; }
+            try {
+                const raw = typeof bomDataCache === 'string' ? JSON.parse(bomDataCache) : bomDataCache;
+                const bom = adjustBomForIssued(filterAndMergeBom(raw));
+                if (bom.length === 0) { Swal2.info('All BOM items have been fully issued. Manual item entry is available.'); return; }
+
+                // Resolve materialId and materialCode for each BOM item from master data
+                const uniqueNames = [...new Set(bom.map(b => (b.item || b.material_name || '').trim()).filter(n => n))];
+                const materialMap = {};
+                await Promise.all(uniqueNames.map(async name => {
+                    try {
+                        const res = await $.getJSON(`/api/store/materials/search?q=${encodeURIComponent(name)}`);
+                        if (res && res.length) {
+                            const exact = res.find(m => m.materialName && m.materialName.toLowerCase() === name.toLowerCase()) || res[0];
+                            materialMap[name.toLowerCase()] = { materialId: exact.materialId, materialCode: exact.materialCode, currentStock: exact.currentStock || 0 };
+                        }
+                    } catch (_) { /* material not found in master, will remain null */ }
+                }));
+
+                $('#itemsBody').empty();
+                itemIndex = 0;
+                bom.forEach(b => {
+                    const name = (b.item || b.material_name || '').trim();
+                    const resolved = materialMap[name.toLowerCase()] || {};
+                    const grp = (b.item_group || 'OTHER').toUpperCase();
+                    addItemRow({
+                        materialCategory: grp,
+                        materialId: resolved.materialId || '',
+                        materialCode: b.item_code || resolved.materialCode || '',
+                        materialName: name,
+                        specification: b.specification || '',
+                        bomQuantity: b.originalQuantity,
+                        issuedQuantity: b.quantity,
+                        currentStock: resolved.currentStock || 0,
+                        uom: b.unit || 'Pcs',
+                        rate: parseFloat(b.rate) || 0
+                    });
+                });
+                Swal2.success(`${bom.length} material item(s) loaded (fully-issued items excluded).`);
+            } catch (e) {
+                Swal2.error('Failed to parse BOM data.');
+            }
+        }
+
+        let issuedCacheForFilter = null;
+
+        function applyPrevFilter() {
+            renderIssuedItems(issuedCacheForFilter);
+        }
+
+        function renderIssuedItems(issues) {
+            issuedCacheForFilter = issues;
+            const grpFilter = ($('#prevGroupFilter').val() || '').toUpperCase();
+            if (!issues || !issues.length) {
+                $('#prevIssuedBody').empty();
+                $('#prevIssuedEmpty').show();
+                $('#prevIssuedCount').text('0 issue(s)');
+                $('#prevIssuedPanel').show();
+                return;
+            }
+            $('#prevIssuedEmpty').hide();
+            let totalItems = 0, shownItems = 0;
+            let html = '';
+            issues.forEach(iss => {
+                const statusBadge = iss.status === 'ISSUED'
+                    ? '<span class="badge bg-green-lt">ISSUED</span>'
+                    : iss.status === 'DRAFT'
+                        ? '<span class="badge bg-yellow-lt">DRAFT</span>'
+                        : `<span class="badge bg-secondary-lt">${esc(iss.status)}</span>`;
+                const filteredItems = (iss.items || []).filter(it => {
+                    if (!grpFilter) return true;
+                    return ((it.materialCategory || it.itemGroup || 'OTHER').toUpperCase()) === grpFilter;
+                });
+                totalItems += (iss.items || []).length;
+                if (filteredItems.length === 0) return;
+                shownItems += filteredItems.length;
+                html += `<div class="px-3 py-2 border-bottom">`;
+                html += `<div class="d-flex justify-content-between align-items-center mb-1">`;
+                html += `<strong class="small">${esc(iss.issueNo)}</strong>`;
+                html += `<span>${statusBadge} <small class="text-muted ms-1">${esc(iss.issueDate)}</small></span>`;
+                html += `</div>`;
+                html += `<table class="table table-sm table-borderless mb-0" style="font-size:0.8rem;">`;
+                filteredItems.forEach(it => {
+                    const grp = ((it.materialCategory || it.itemGroup || 'OTHER')).toUpperCase();
+                    const badgeCls = itemGroupBadge[grp] || 'bg-secondary-lt text-secondary';
+                    html += `<tr>`;
+                    html += `<td class="py-0 ps-0" style="width:70px;"><span class="badge ${badgeCls} badge-sm">${itemGroupLabel(grp)}</span></td>`;
+                    html += `<td class="py-0 ps-1">${esc(it.materialName)}${it.materialCode ? ' <small class="text-muted">(' + esc(it.materialCode) + ')</small>' : ''}</td>`;
+                    html += `<td class="py-0 text-center" style="width:70px;">${it.issuedQuantity}</td>`;
+                    html += `<td class="py-0" style="width:40px;">${esc(it.uom || '')}</td>`;
+                    html += `<td class="py-0 text-end" style="width:70px;">${(parseFloat(it.amount) || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>`;
+                    html += `</tr>`;
+                });
+                html += `</table>`;
+                html += `</div>`;
+            });
+            if (!html) {
+                $('#prevIssuedBody').empty();
+                $('#prevIssuedEmpty').show().text(`No items match selected group.`);
+            } else {
+                $('#prevIssuedEmpty').hide();
+                $('#prevIssuedBody').html(html);
+            }
+            const label = grpFilter ? `${shownItems} / ${totalItems} item(s)` : `${issues.length} issue(s), ${totalItems} item(s)`;
+            $('#prevIssuedCount').text(label);
+            $('#prevIssuedPanel').show();
+        }
+
+        let bomRenderedItems = [];
+
+        const itemGroupBadge = {
+            'PAPER':    'bg-cyan-lt text-cyan',
+            'INK':      'bg-blue-lt text-blue',
+            'PLATE':    'bg-orange-lt text-orange',
+            'CHEMICAL': 'bg-purple-lt text-purple',
+            'OTHER':    'bg-secondary-lt text-secondary'
+        };
+
+        function itemGroupLabel(g) {
+            const labels = { PAPER:'Paper', INK:'Ink', PLATE:'Plate', CHEMICAL:'Chemical', OTHER:'Other' };
+            return labels[g] || g || 'Other';
+        }
+
+        function renderBomRows(items) {
+            let html = '';
+            items.forEach((b, idx) => {
+                const grp = (b.item_group || 'OTHER').toUpperCase();
+                const badgeCls = itemGroupBadge[grp] || 'bg-secondary-lt text-secondary';
+                html += `<tr>
+                    <td class="text-muted">${idx + 1}</td>
+                    <td><span class="badge ${badgeCls} badge-sm">${itemGroupLabel(grp)}</span></td>
+                    <td class="text-muted small">${esc(b.item_code || '')}</td>
+                    <td>${esc(b.item || b.material_name || '')}</td>
+                    <td>${esc(b.specification || '')}</td>
+                    <td class="text-center">${parseFloat(b.originalQuantity || 0).toFixed(4).replace(/\.?0+$/, '')}</td>
+                    <td class="text-center ${b.issuedQty > 0 ? 'text-orange' : 'text-muted'}">${b.issuedQty > 0 ? parseFloat(b.issuedQty).toFixed(4).replace(/\.?0+$/, '') : '-'}</td>
+                    <td class="text-center fw-semibold">${parseFloat(b.quantity || 0).toFixed(4).replace(/\.?0+$/, '')}</td>
+                    <td>${esc(b.unit || '')}</td>
+                    <td class="text-end">${(parseFloat(b.rate) || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                    <td class="text-end">${(parseFloat(b.amount) || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                </tr>`;
+            });
+            $('#siBomBody').html(html);
+        }
+
+        function applyBomFilter() {
+            const grp = $('#bomGroupFilter').val();
+            const filtered = grp ? bomRenderedItems.filter(b => (b.item_group || 'OTHER').toUpperCase() === grp) : bomRenderedItems;
+            renderBomRows(filtered);
+            $('#siBomCount').text(`${filtered.length} / ${bomRenderedItems.length} material(s)`);
+        }
+
+        function renderBom(bomJson) {
+            if (!bomJson) { $('#siBomPanel').hide(); return; }
+            try {
+                const raw = typeof bomJson === 'string' ? JSON.parse(bomJson) : bomJson;
+                const bom = adjustBomForIssued(filterAndMergeBom(raw));
+                if (bom.length === 0) { $('#siBomPanel').hide(); return; }
+                bomRenderedItems = bom;
+                $('#bomGroupFilter').val('');
+                renderBomRows(bom);
+                $('#siBomCount').text(`${bom.length} material(s)`);
+                $('#siBomPanel').show();
+            } catch (e) { $('#siBomPanel').hide(); }
+        }
+
+        function addItemRow(data) {
+            const i = itemIndex++;
+            const d = data || {};
+            const hasData = !!d.materialId;
+            const stock = parseFloat(d.currentStock) || 0;
+            // Default issue qty to BOM qty if BOM qty provided and issue qty is 0
+            let issQty = parseFloat(d.issuedQuantity) || 0;
+            if (issQty === 0 && (parseFloat(d.bomQuantity) || 0) > 0) issQty = parseFloat(d.bomQuantity);
+            const html = `<tr id="row_${i}" class="si-item-row">
+                <td class="text-center"><input type="checkbox" class="form-check-input si-check" checked /></td>
+                <td><select class="form-select form-select-sm item-category" data-idx="${i}" ${hasData?'disabled':''}>
+                    <option value="PAPER" ${d.materialCategory==='PAPER'?'selected':''}>Paper</option>
+                    <option value="INK" ${d.materialCategory==='INK'?'selected':''}>Ink</option>
+                    <option value="PLATE" ${d.materialCategory==='PLATE'?'selected':''}>Plate</option>
+                    <option value="CHEMICAL" ${d.materialCategory==='CHEMICAL'?'selected':''}>Chemical</option>
+                    <option value="MATERIAL" ${d.materialCategory==='MATERIAL'?'selected':''}>Material</option>
+                    <option value="OTHER" ${(!d.materialCategory||d.materialCategory==='OTHER')?'selected':''}>Other</option>
+                </select>${hasData?`<input type="hidden" name="cat_${i}" value="${esc(d.materialCategory||'OTHER')}"/>`:''}</td>
+                <td class="text-muted small" id="matCodeDisplay_${i}">${esc(d.materialCode||'')}</td>
+                <td style="position:relative;">
+                    <input type="hidden" id="matId_${i}" value="${d.materialId||''}" />
+                    <input type="hidden" id="matCode_${i}" value="${esc(d.materialCode||'')}" />
+                    <input type="text" class="form-control form-control-sm mat-search" data-idx="${i}" id="matName_${i}" value="${esc(d.materialName||'')}" placeholder="Search material..." autocomplete="off" ${hasData?'readonly':''} />
+                    <div class="list-group position-absolute w-100 shadow-lg" id="matResults_${i}" style="display:none;z-index:1050;max-height:220px;overflow-y:auto;"></div>
+                </td>
+                <td><input type="number" class="form-control form-control-sm text-center si-num-input" id="bomQty_${i}" value="${d.bomQuantity||0}" step="0.0001" readonly tabindex="-1" /></td>
+                <td class="text-center">
+                    <input type="hidden" id="stock_${i}" value="${stock}" />
+                    <span class="badge ${stock <= 0 ? 'bg-red-lt text-danger' : (d.isLowStock ? 'bg-orange-lt text-orange' : 'bg-green-lt text-green')}" id="stockBadge_${i}">${stock}</span>
+                </td>
+                <td><input type="number" class="form-control form-control-sm text-center si-num-input si-qty-input" data-idx="${i}" id="issQty_${i}" value="${issQty}" step="0.0001" min="0" /></td>
+                <td><input type="text" class="form-control form-control-sm text-center si-uom-input" id="uom_${i}" value="${esc(d.uom||'Pcs')}" /></td>
+                <td><input type="number" class="form-control form-control-sm text-end si-num-input" data-idx="${i}" id="rate_${i}" value="${d.rate||0}" step="0.01" min="0" /></td>
+                <td class="text-end fw-bold si-amt-cell" id="amt_${i}">0.00</td>
+                <td><button class="btn btn-icon btn-ghost-danger btn-sm" onclick="$('#row_${i}').remove();calcTotal();updateItemCount();"><i class="bi bi-x-lg"></i></button></td>
+            </tr>`;
+            $('#itemsBody').append(html);
+            calcRowAmount(i);
+            validateStockQty(i);
+            updateItemCount();
+        }
+
+        // Material autocomplete search
+        let matSearchTimer;
+        $(document).on('input', '.mat-search', function () {
+            clearTimeout(matSearchTimer);
+            const idx = $(this).data('idx');
+            const q = $(this).val();
+            const cat = $(`#row_${idx} .item-category`).val();
+            if (q.length < 2) { $(`#matResults_${idx}`).hide(); return; }
+            matSearchTimer = setTimeout(() => {
+                $.get(`/api/store/materials/search?category=${cat}&q=${encodeURIComponent(q)}`, function (items) {
+                    const $results = $(`#matResults_${idx}`);
+                    if (!items.length) { $results.html('<div class="list-group-item text-muted small py-1">No items found</div>').show(); return; }
+                    let html = '';
+                    items.forEach(m => {
+                        const stockCls = m.isOutOfStock ? 'text-danger' : m.isLowStock ? 'text-warning' : 'text-success';
+                        const stockIcon = m.isOutOfStock ? '✖' : m.isLowStock ? '⚠' : '✔';
+                        html += `<a href="javascript:void(0)" class="list-group-item list-group-item-action small py-1" onclick="selectMaterial(${idx},${JSON.stringify(m).replace(/"/g,'&quot;')})">
+                            <strong>${esc(m.materialCode)}</strong> — ${esc(m.materialName)}
+                            <span class="text-muted">${esc(m.specification||'')} | Rate: ${m.rate}</span>
+                            <span class="ms-2 ${stockCls}">${stockIcon} Stock: ${m.currentStock}</span>
+                        </a>`;
+                    });
+                    $results.html(html).show();
+                });
+            }, 300);
+        });
+
+        // Close results on outside click
+        $(document).on('click', function (e) {
+            if (!$(e.target).closest('.mat-search, [id^=matResults_]').length) $('[id^=matResults_]').hide();
+        });
+
+        function selectMaterial(idx, m) {
+            $(`#matId_${idx}`).val(m.materialId || '');
+            $(`#matCode_${idx}`).val(m.materialCode || '');
+            $(`#matCodeDisplay_${idx}`).text(m.materialCode || '');
+            $(`#matName_${idx}`).val(m.materialName);
+            $(`#uom_${idx}`).val(m.uom || 'Pcs');
+            $(`#rate_${idx}`).val(m.rate || 0);
+            const stock = parseFloat(m.currentStock) || 0;
+            $(`#stock_${idx}`).val(stock);
+            const badgeCls = m.isOutOfStock ? 'bg-red-lt text-danger' : m.isLowStock ? 'bg-orange-lt text-orange' : 'bg-green-lt text-green';
+            $(`#stockBadge_${idx}`).text(stock).attr('class', `badge ${badgeCls}`);
+            $(`#matResults_${idx}`).hide();
+            calcRowAmount(idx);
+            validateStockQty(idx);
+        }
+
+        // Re-search when category changes
+        $(document).on('change', '.item-category', function () {
+            const idx = $(this).data('idx');
+            $(`#matName_${idx}`).val('').trigger('focus');
+            $(`#matId_${idx}`).val('');
+            $(`#matCode_${idx}`).val('');
+        });
+
+        $(document).on('input', '.si-qty-input, .item-rate, [id^=rate_]', function () {
+            const idx = $(this).data('idx') ?? $(this).attr('id')?.replace('rate_','');
+            calcRowAmount(idx);
+            if ($(this).hasClass('si-qty-input')) validateStockQty(idx);
+        });
+
+        function updateItemCount() {
+            const total = $('#itemsBody tr').length;
+            const visible = $('#itemsBody tr:visible').length;
+            const label = (visible < total)
+                ? `${visible} / ${total} item${total !== 1 ? 's' : ''}`
+                : `${total} item${total !== 1 ? 's' : ''}`;
+            $('#itemCountLabel').text(label);
+        }
+
+        function applyIssueItemFilter() {
+            const grp = ($('#issueGroupFilter').val() || '').toUpperCase();
+            $('#itemsBody tr').each(function () {
+                if (!grp) { $(this).show(); return; }
+                const rowCat = ($(this).find('.item-category').val() || '').toUpperCase();
+                $(this).toggle(rowCat === grp);
+            });
+            calcTotal();
+            updateItemCount();
+        }
+
+        function calcRowAmount(i) {
+            const qty = parseFloat($(`#issQty_${i}`).val()) || 0;
+            const rate = parseFloat($(`#rate_${i}`).val()) || 0;
+            $(`#amt_${i}`).text((qty * rate).toLocaleString('en-IN', { minimumFractionDigits: 2 }));
+            calcTotal();
+        }
+
+        function calcTotal() {
+            let total = 0;
+            $('#itemsBody tr:visible').each(function () {
+                const amt = parseFloat($(this).find('td:nth-child(10)').text().replace(/,/g, '')) || 0;
+                total += amt;
+            });
+            $('#grandTotal').text(total.toLocaleString('en-IN', { minimumFractionDigits: 2 }));
+        }
+
+        function validateStockQty(idx) {
+            const issQty = parseFloat($(`#issQty_${idx}`).val()) || 0;
+            const stock = parseFloat($(`#stock_${idx}`).val()) || 0;
+            const $input = $(`#issQty_${idx}`);
+            if (issQty > 0 && stock > 0 && issQty > stock) {
+                $input.addClass('is-invalid').css('border-color','#d63939');
+                if (!$(`#stockWarn_${idx}`).length) {
+                    $input.after(`<div id="stockWarn_${idx}" class="text-danger" style="font-size:0.7rem;line-height:1.2;">Exceeds stock (${stock})</div>`);
+                } else {
+                    $(`#stockWarn_${idx}`).text(`Exceeds stock (${stock})`);
+                }
+            } else {
+                $input.removeClass('is-invalid').css('border-color','');
+                $(`#stockWarn_${idx}`).remove();
+            }
+        }
+
+        async function saveIssue() {
+            const items = [];
+            $('#itemsBody tr:visible').each(function () {
+                const idx = $(this).attr('id').replace('row_', '');
+                items.push({
+                    materialCategory: $(this).find('.item-category').val(),
+                    materialId: parseInt($(`#matId_${idx}`).val()) || null,
+                    materialCode: $(`#matCode_${idx}`).val(),
+                    materialName: $(`#matName_${idx}`).val(),
+                    bomQuantity: parseFloat($(`#bomQty_${idx}`).val()) || 0,
+                    issuedQuantity: parseFloat($(`#issQty_${idx}`).val()) || 0,
+                    currentStock: parseFloat($(`#stock_${idx}`).val()) || 0,
+                    uom: $(`#uom_${idx}`).val(),
+                    rate: parseFloat($(`#rate_${idx}`).val()) || 0,
+                    isSelected: $(this).find('input[type=checkbox]').prop('checked')
+                });
+            });
+
+            if (!items.length) { Swal2.error('Please add at least one item.'); return; }
+
+            const selectedItems = items.filter(i => i.isSelected);
+            if (!selectedItems.length) { Swal2.error('Please select (check) at least one item to issue.'); return; }
+
+            // Validate: all selected items must have issue qty > 0
+            const zeroQtyItems = selectedItems.filter(i => i.issuedQuantity <= 0);
+            if (zeroQtyItems.length) {
+                Swal2.error(`${zeroQtyItems.length} selected item(s) have zero issue quantity. Please enter a valid quantity or uncheck them.`);
+                return;
+            }
+
+            // Warn if any selected item exceeds available stock
+            const overStockItems = selectedItems.filter(i => i.currentStock > 0 && i.issuedQuantity > i.currentStock);
+            if (overStockItems.length) {
+                const overList = overStockItems.map(i => `<li><strong>${esc(i.materialName)}</strong>: Issue ${i.issuedQuantity} &gt; Stock ${i.currentStock}</li>`).join('');
+                const proceed = await Swal2.confirm(
+                    'Stock Exceeded',
+                    `<p>${overStockItems.length} item(s) exceed available stock:</p><ul class="text-start small">${overList}</ul><p>Do you want to proceed anyway?</p>`,
+                    { icon: 'warning', confirmText: '<i class="bi bi-exclamation-triangle me-1"></i>Proceed Anyway', confirmClass: 'btn btn-warning' }
+                );
+                if (!proceed) return;
+            }
+
+            const confirmed = await Swal2.confirm(
+                'Save Issue?',
+                `Do you really want to save this store issue with <strong>${selectedItems.length}</strong> item(s)?`,
+                { icon: 'question', confirmText: '<i class="bi bi-check-lg me-1"></i>Yes, Save', confirmClass: 'btn btn-success' }
+            );
+            if (!confirmed) return;
+
+            const payload = {
+                issueType: $('#ddlIssueType').val(),
+                jobId: selectedJobId,
+                jobNo: selectedJobNo,
+                rateCalcId: selectedRateCalcId,
+                remarks: $('#txtRemarks').val(),
+                items
+            };
+
+            try {
+                Swal2.showLoading('Saving...');
+                const resp = await $.ajax({ url: '/api/store/issues/save', method: 'POST', contentType: 'application/json', data: JSON.stringify(payload) });
+                Swal2.hideLoading();
+                await Swal2.success(resp.message || 'Saved');
+                window.location.href = '/Store/Issue';
+            } catch (err) {
+                Swal2.hideLoading();
+                Swal2.error(err.responseJSON?.message || 'Failed to save.');
+            }
+        }
+
+        function openItemPicker() {
+            ItemPicker.open({
+                onSelect: function (item) {
+                    addItemRow({
+                        materialCategory: (item.itemGroup || 'OTHER').toUpperCase(),
+                        materialId: item.sourceId || '',
+                        materialCode: item.itemCode || '',
+                        materialName: item.itemName || '',
+                        uom: item.uom || 'Pcs',
+                        rate: item.purchaseRate || 0,
+                        currentStock: item.currentStock || 0,
+                        bomQuantity: 0,
+                        issuedQuantity: 0
+                    });
+                }
+            });
+        }
+
+        function esc(v) { return (v||'').toString().replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;'); }
+    </script>
+}

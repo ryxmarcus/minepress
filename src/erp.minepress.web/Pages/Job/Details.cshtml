@@ -1,0 +1,357 @@
+@page
+@model erp.minepress.web.Pages.Job.DetailsModel
+@{
+    ViewData["Title"] = "Job Details";
+    ViewData["HidePageHeader"] = true;
+}
+
+<!-- Loading Spinner -->
+<div id="detailsLoader" class="text-center py-5">
+    <div class="spinner-border text-purple" role="status"></div>
+    <div class="text-muted mt-2">Loading job details...</div>
+</div>
+
+<!-- Error State -->
+<div id="detailsError" class="text-center py-5" style="display:none;">
+    <i class="bi bi-exclamation-triangle text-danger" style="font-size:3rem;"></i>
+    <div class="text-muted mt-2" id="errorMessage">Failed to load job.</div>
+    <a href="/Job" class="btn btn-primary mt-3"><i class="bi bi-arrow-left me-1"></i>Back to List</a>
+</div>
+
+<!-- Main Content -->
+<div id="detailsContent" style="display:none;">
+
+    <!-- Header Bar -->
+    <div class="jb-detail-hero d-print-none">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <a href="/Job" class="btn btn-ghost-light btn-sm rounded-circle" title="Back to list">
+                    <i class="bi bi-arrow-left fs-5"></i>
+                </a>
+                <div>
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <h2 class="mb-0 text-white" id="hdJobNo"></h2>
+                        <span class="jb-status-badge jb-status-pill" id="hdStatus"></span>
+                        <span class="badge bg-white bg-opacity-25" id="hdPriority"></span>
+                    </div>
+                    <div class="text-white-50 small mt-1">
+                        <i class="bi bi-calendar3 me-1"></i><span id="hdDate"></span>
+                        <span class="mx-2">·</span>
+                        <i class="bi bi-person me-1"></i><span id="hdCreatedBy"></span>
+                        <span class="mx-2" id="hdSourceLink"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+                <button class="btn btn-light btn-sm" id="btnEmailCustomer" onclick="JobDetails.sendEmail()">
+                    <i class="bi bi-envelope me-1"></i>Email to Customer
+                </button>
+                <div class="dropdown">
+                    <button class="btn btn-light btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="bi bi-gear me-1"></i>Actions
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end jb-action-dropdown">
+                        <h6 class="dropdown-header">Progress</h6>
+                        <a class="dropdown-item jb-action-item" href="javascript:void(0)" id="btnAssignJob">
+                            <i class="bi bi-person-check me-2 text-info"></i>Assign Job
+                        </a>
+                        <a class="dropdown-item jb-action-item" href="javascript:void(0)" id="btnArtworkReceived">
+                            <i class="bi bi-image me-2 text-teal"></i>Artwork Received
+                        </a>
+                        <a class="dropdown-item jb-action-item" href="javascript:void(0)" id="btnDesignStart">
+                            <i class="bi bi-palette me-2 text-purple"></i>Start Design
+                        </a>
+                        <a class="dropdown-item jb-action-item" href="javascript:void(0)" id="btnDesignComplete">
+                            <i class="bi bi-palette2 me-2 text-purple"></i>Design Completed
+                        </a>
+                        <a class="dropdown-item jb-action-item" href="javascript:void(0)" id="btnPlatePrepared">
+                            <i class="bi bi-layers me-2 text-orange"></i>Plate Prepared
+                        </a>
+                        <a class="dropdown-item jb-action-item" href="javascript:void(0)" id="btnPrintStart">
+                            <i class="bi bi-printer me-2 text-primary"></i>Start Printing
+                        </a>
+                        <a class="dropdown-item jb-action-item" href="javascript:void(0)" id="btnPrintComplete">
+                            <i class="bi bi-printer-fill me-2 text-primary"></i>Printing Completed
+                        </a>
+                        <a class="dropdown-item jb-action-item" href="javascript:void(0)" id="btnFinishStart">
+                            <i class="bi bi-scissors me-2 text-cyan"></i>Start Finishing
+                        </a>
+                        <a class="dropdown-item jb-action-item" href="javascript:void(0)" id="btnFinishComplete">
+                            <i class="bi bi-check2-square me-2 text-cyan"></i>Finishing Completed
+                        </a>
+                        <a class="dropdown-item jb-action-item" href="javascript:void(0)" id="btnQualityCheck">
+                            <i class="bi bi-shield-check me-2 text-success"></i>Quality Check
+                        </a>
+                        <a class="dropdown-item jb-action-item" href="javascript:void(0)" id="btnPackingDone">
+                            <i class="bi bi-box-seam me-2 text-yellow"></i>Packing Done
+                        </a>
+                        <a class="dropdown-item jb-action-item" href="javascript:void(0)" id="btnDispatch">
+                            <i class="bi bi-truck me-2 text-blue"></i>Dispatch
+                        </a>
+                        <a class="dropdown-item jb-action-item" href="javascript:void(0)" id="btnDeliver">
+                            <i class="bi bi-check-circle me-2 text-success"></i>Mark Delivered
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <h6 class="dropdown-header">Delivery</h6>
+                        <a class="dropdown-item jb-action-item" href="javascript:void(0)" id="btnCreateChallan">
+                            <i class="bi bi-truck me-2 text-teal"></i>Create Challan
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <h6 class="dropdown-header">Outsource</h6>
+                        <a class="dropdown-item jb-action-item" href="javascript:void(0)" id="btnOutsourceJob">
+                            <i class="bi bi-box-arrow-up-right me-2 text-purple"></i>Outsource Job
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <h6 class="dropdown-header">Other</h6>
+                        <a class="dropdown-item jb-action-item" href="javascript:void(0)" id="btnPaymentReceived">
+                            <i class="bi bi-currency-rupee me-2 text-green"></i>Payment Received
+                        </a>
+                        <a class="dropdown-item jb-action-item" href="javascript:void(0)" id="btnJobRevised">
+                            <i class="bi bi-pencil me-2 text-azure"></i>Revise Job
+                        </a>
+                        <a class="dropdown-item jb-action-item" href="javascript:void(0)" id="btnJobOnHold">
+                            <i class="bi bi-pause-circle me-2 text-warning"></i>Put On Hold
+                        </a>
+                        <a class="dropdown-item jb-action-item" href="javascript:void(0)" id="btnJobResumed">
+                            <i class="bi bi-play-circle me-2 text-info"></i>Resume Job
+                        </a>
+                        <a class="dropdown-item jb-action-item" href="javascript:void(0)" id="btnJobCancel">
+                            <i class="bi bi-x-circle me-2 text-danger"></i>Cancel Job
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="mt-3" id="hdProgressWrap" style="display:none;">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="small text-white-75" id="hdStageName"></span>
+                <span class="small text-white fw-bold" id="hdProgressPct">0%</span>
+            </div>
+            <div class="progress" style="height:6px; background:rgba(255,255,255,.2);">
+                <div class="progress-bar bg-white" id="hdProgressBar" style="width:0%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <ul class="nav nav-tabs jb-detail-tabs d-print-none" id="detailTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="tab-overview" data-bs-toggle="tab" data-bs-target="#pane-overview" type="button">
+                <i class="bi bi-info-circle me-1"></i>Overview
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-items" data-bs-toggle="tab" data-bs-target="#pane-items" type="button">
+                <i class="bi bi-list-ul me-1"></i>Items <span class="badge bg-purple ms-1" id="tabItemCount">0</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-timeline" data-bs-toggle="tab" data-bs-target="#pane-timeline" type="button">
+                <i class="bi bi-clock-history me-1"></i>Timeline
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-activities" data-bs-toggle="tab" data-bs-target="#pane-activities" type="button">
+                <i class="bi bi-stars me-1"></i>Customer 360°
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-store-issues" data-bs-toggle="tab" data-bs-target="#pane-store-issues" type="button">
+                <i class="bi bi-box-arrow-up me-1"></i>Store Issues <span class="badge bg-orange ms-1" id="tabStoreIssueCount" style="display:none;"></span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-workflow" data-bs-toggle="tab" data-bs-target="#pane-workflow" type="button">
+                <i class="bi bi-diagram-3 me-1"></i>Job Workflow
+            </button>
+        </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content mt-3" id="detailTabContent">
+
+        <!-- Overview Pane -->
+        <div class="tab-pane fade show active" id="pane-overview" role="tabpanel">
+            <div class="row g-3">
+                <!-- Customer Card -->
+                <div class="col-lg-4">
+                    <div class="card jb-detail-card h-100">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="bi bi-person-circle me-2 text-purple"></i>Customer</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <span class="avatar avatar-lg rounded-circle jb-detail-avatar" id="custAvatar"></span>
+                                <div>
+                                    <div class="fw-bold fs-4" id="custName"></div>
+                                    <div class="text-muted small" id="custCode"></div>
+                                </div>
+                            </div>
+                            <div class="jb-detail-info-list">
+                                <div class="jb-detail-info-item">
+                                    <i class="bi bi-receipt text-muted"></i>
+                                    <span class="text-muted">GST No</span>
+                                    <strong id="custGst">-</strong>
+                                </div>
+                                <div class="jb-detail-info-item">
+                                    <i class="bi bi-envelope text-muted"></i>
+                                    <span class="text-muted">Email</span>
+                                    <strong id="custEmail">-</strong>
+                                </div>
+                                <div class="jb-detail-info-item">
+                                    <i class="bi bi-geo-alt text-muted"></i>
+                                    <span class="text-muted">Address</span>
+                                    <strong id="custAddress">-</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Job Info -->
+                <div class="col-lg-4">
+                    <div class="card jb-detail-card h-100">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="bi bi-briefcase me-2 text-info"></i>Job Info</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="jb-detail-info-list">
+                                <div class="jb-detail-info-item">
+                                    <i class="bi bi-box text-muted"></i>
+                                    <span class="text-muted">Product</span>
+                                    <strong id="jbProduct">-</strong>
+                                </div>
+                                <div class="jb-detail-info-item">
+                                    <i class="bi bi-truck text-muted"></i>
+                                    <span class="text-muted">Delivery</span>
+                                    <strong id="jbDeliveryDate">-</strong>
+                                </div>
+                                <div class="jb-detail-info-item">
+                                    <i class="bi bi-link-45deg text-muted"></i>
+                                    <span class="text-muted">Party Ref</span>
+                                    <strong id="jbPartyRef">-</strong>
+                                </div>
+                                <div class="jb-detail-info-item">
+                                    <i class="bi bi-clipboard-data text-muted"></i>
+                                    <span class="text-muted">Source</span>
+                                    <strong id="jbSource">-</strong>
+                                </div>
+                                <div class="jb-detail-info-item">
+                                    <i class="bi bi-hash text-muted"></i>
+                                    <span class="text-muted">Total Items</span>
+                                    <strong id="jbItemCount">0</strong>
+                                </div>
+                            </div>
+                            <div class="mt-3 p-2 rounded" style="background:var(--tblr-bg-surface-secondary);">
+                                <div class="small text-muted mb-1"><i class="bi bi-chat-left-text me-1"></i>Product Description</div>
+                                <div class="small" id="jbDescription"><em class="text-muted">No description</em></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Financial Summary -->
+                <div class="col-lg-4">
+                    <div class="card jb-detail-card h-100">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="bi bi-currency-rupee me-2 text-success"></i>Financial Summary</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="jb-detail-info-list">
+                                <div class="jb-detail-info-item">
+                                    <i class="bi bi-calculator text-muted"></i>
+                                    <span class="text-muted">Subtotal</span>
+                                    <strong id="jbGrossAmount">₹0.00</strong>
+                                </div>
+                                <div class="jb-detail-info-item">
+                                    <i class="bi bi-tag text-muted"></i>
+                                    <span class="text-muted">Discount</span>
+                                    <strong id="jbDiscountAmount" class="text-danger">₹0.00</strong>
+                                </div>
+                                <div class="jb-detail-info-item">
+                                    <i class="bi bi-percent text-muted"></i>
+                                    <span class="text-muted">Tax</span>
+                                    <strong id="jbTaxAmount">₹0.00</strong>
+                                </div>
+                                <div class="jb-detail-info-item">
+                                    <i class="bi bi-cash-stack text-muted"></i>
+                                    <span class="text-muted">Estimated Cost</span>
+                                    <strong id="jbEstimatedCost">₹0.00</strong>
+                                </div>
+                                <div class="jb-detail-info-item">
+                                    <i class="bi bi-receipt-cutoff text-muted"></i>
+                                    <span class="text-muted">Quoted Amount</span>
+                                    <strong id="jbQuotedAmount">₹0.00</strong>
+                                </div>
+                            </div>
+                            <div class="mt-3 p-3 rounded text-center" style="background:linear-gradient(135deg,var(--tblr-purple-bg-subtle),var(--tblr-azure-bg-subtle));">
+                                <div class="small fw-semibold text-uppercase" style="color:#6f42c1;">Net Amount</div>
+                                <div class="fs-1 fw-bold" style="color:#6f42c1;" id="jbNetAmount">₹0.00</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Items Pane -->
+        <div class="tab-pane fade" id="pane-items" role="tabpanel">
+            <div id="itemsContainer"></div>
+        </div>
+
+        <!-- Timeline Pane -->
+        <div class="tab-pane fade" id="pane-timeline" role="tabpanel">
+            <div id="timelineContainer">
+                <div class="text-center py-4 text-muted">
+                    <div class="spinner-border spinner-border-sm me-2"></div>Loading timeline...
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer Activities Pane -->
+        <div class="tab-pane fade" id="pane-activities" role="tabpanel">
+            <div id="customerActivityContainer">
+                <div class="text-center py-4 text-muted">
+                    <div class="spinner-border spinner-border-sm text-purple" role="status"></div>
+                    <div class="mt-2">Loading customer activity dashboard...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Store Issues Pane -->
+        <div class="tab-pane fade" id="pane-store-issues" role="tabpanel">
+            <div id="storeIssuesContainer">
+                <div class="text-center py-4 text-muted">
+                    <div class="spinner-border spinner-border-sm text-orange" role="status"></div>
+                    <div class="mt-2">Loading store issues...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Job Workflow Pane -->
+        <div class="tab-pane fade" id="pane-workflow" role="tabpanel">
+            <partial name="~/Pages/Shared/_JobWorkflowPipelinePartial.cshtml" />
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script src="/js/customer-activity.js"></script>
+    <script src="/js/job-workflow-pipeline.js"></script>
+    <script src="/js/job-details.js"></script>
+    <script>
+        $(document).ready(function () {
+        const id = @Model.Id;
+        if (id > 0) {
+        JobDetails.load(id);
+        } else {
+        $('#detailsLoader').hide();
+        $('#detailsError').show();
+        $('#errorMessage').text('Invalid job ID.');
+        }
+        });
+    </script>
+}

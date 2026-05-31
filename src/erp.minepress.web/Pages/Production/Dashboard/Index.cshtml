@@ -1,0 +1,340 @@
+@page
+@model erp.minepress.web.Pages.Production.Dashboard.IndexModel
+@{
+    ViewData["Title"] = "Production Dashboard";
+    ViewData["ContainerClass"] = "container-xl";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/production.css" />
+}
+
+<!-- ═══ Hero ═══ -->
+<div class="prod-hero prod-hero-modern prod-hero-dashboard d-print-none">
+    <div class="prod-hero-pattern"></div>
+    <div class="prod-hero-glow-orb prod-hero-glow-orb-1"></div>
+    <div class="prod-hero-glow-orb prod-hero-glow-orb-2"></div>
+    <div class="row align-items-center position-relative">
+        <div class="col-auto">
+            <div class="prod-hero-icon-wrap prod-hero-icon-primary">
+                <i class="bi bi-cpu"></i>
+                <span class="prod-hero-icon-pulse prod-hero-icon-pulse-primary"></span>
+            </div>
+        </div>
+        <div class="col">
+            <h2 class="mb-1 fw-bold">Production Command Center</h2>
+            <div class="text-white-75">
+                <i class="bi bi-stars me-1"></i>AI-Powered · Real-Time Monitoring · Predictive Analytics · Smart Insights
+            </div>
+        </div>
+        <div class="col-auto d-flex gap-2 align-items-center">
+            <span class="badge bg-dark bg-opacity-25 text-white d-flex align-items-center gap-1" id="dbLiveIndicator">
+                <span class="prod-live-dot"></span>LIVE
+            </span>
+            <button class="btn btn-outline-light btn-sm" onclick="ProdDashboard.refresh()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Primary KPI Cards ═══ -->
+<div class="row g-3 mb-3">
+    <div class="col-6 col-lg-3">
+        <div class="card prod-insight-card prod-insight-glow prod-kpi-card">
+            <div class="card-body py-3">
+                <div class="d-flex align-items-center">
+                    <div class="prod-kpi-icon-wrap bg-primary-lt">
+                        <i class="bi bi-gear-wide-connected text-primary"></i>
+                    </div>
+                    <div class="ms-3 flex-fill">
+                        <div class="text-muted small text-uppercase fw-semibold" style="letter-spacing:.03em">Total Machines</div>
+                        <div class="d-flex align-items-baseline gap-2">
+                            <div class="h2 mb-0 prod-stat-counter" id="dbTotalMachines">—</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="prod-kpi-bar mt-2">
+                    <div class="prod-kpi-segment bg-success" id="dbBarRunning" style="width:0%" title="Running"></div>
+                    <div class="prod-kpi-segment bg-danger" id="dbBarBreakdown" style="width:0%" title="Breakdown"></div>
+                    <div class="prod-kpi-segment bg-warning" id="dbBarMaintenance" style="width:0%" title="Maintenance"></div>
+                </div>
+                <div class="d-flex gap-2 mt-1" style="font-size:.68rem">
+                    <span class="text-success"><i class="bi bi-circle-fill me-1" style="font-size:.4rem;vertical-align:middle"></i>Running <b id="dbRunning">0</b></span>
+                    <span class="text-muted"><i class="bi bi-circle-fill me-1" style="font-size:.4rem;vertical-align:middle"></i>Idle <b id="dbIdle">0</b></span>
+                    <span class="text-danger"><i class="bi bi-circle-fill me-1" style="font-size:.4rem;vertical-align:middle"></i>Down <b id="dbDown">0</b></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card prod-insight-card prod-insight-glow prod-kpi-card">
+            <div class="card-body py-3">
+                <div class="d-flex align-items-center">
+                    <div class="prod-kpi-icon-wrap bg-cyan-lt">
+                        <i class="bi bi-briefcase text-cyan"></i>
+                    </div>
+                    <div class="ms-3 flex-fill">
+                        <div class="text-muted small text-uppercase fw-semibold" style="letter-spacing:.03em">Active Jobs</div>
+                        <div class="d-flex align-items-baseline gap-2">
+                            <div class="h2 mb-0 prod-stat-counter" id="dbActiveJobs">—</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex gap-2 mt-2" style="font-size:.68rem">
+                    <span class="text-warning"><i class="bi bi-exclamation-triangle me-1"></i>Urgent <b id="dbUrgentJobs">0</b></span>
+                    <span class="text-muted"><i class="bi bi-inbox me-1"></i>Unallocated <b id="dbUnallocated">0</b></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card prod-insight-card prod-insight-glow prod-kpi-card">
+            <div class="card-body py-3">
+                <div class="d-flex align-items-center">
+                    <div class="prod-kpi-icon-wrap bg-danger-lt">
+                        <i class="bi bi-lightning-charge text-danger"></i>
+                    </div>
+                    <div class="ms-3 flex-fill">
+                        <div class="text-muted small text-uppercase fw-semibold" style="letter-spacing:.03em">Open Breakdowns</div>
+                        <div class="d-flex align-items-baseline gap-2">
+                            <div class="h2 mb-0 prod-stat-counter" id="dbOpenBreakdowns">—</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex gap-2 mt-2" style="font-size:.68rem">
+                    <span class="text-muted"><i class="bi bi-clock-history me-1"></i>Avg <b id="dbAvgDowntime">0</b> min</span>
+                    <span class="text-success"><i class="bi bi-check-circle me-1"></i>Resolved <b id="dbResolvedMonth">0</b></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card prod-insight-card prod-insight-glow prod-kpi-card">
+            <div class="card-body py-3">
+                <div class="d-flex align-items-center">
+                    <div class="prod-kpi-icon-wrap bg-green-lt">
+                        <i class="bi bi-speedometer2 text-green"></i>
+                    </div>
+                    <div class="ms-3 flex-fill">
+                        <div class="text-muted small text-uppercase fw-semibold" style="letter-spacing:.03em">Efficiency</div>
+                        <div class="d-flex align-items-baseline gap-2">
+                            <div class="h2 mb-0 prod-stat-counter"><span id="dbEfficiency">—</span><small class="text-muted ms-1">%</small></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex gap-2 mt-2" style="font-size:.68rem">
+                    <span class="text-primary"><i class="bi bi-people me-1"></i>Manpower <b id="dbManpower">0</b></span>
+                    <span class="text-muted"><i class="bi bi-calendar-check me-1"></i>Today <b id="dbTodayAlloc">0</b></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Machine Status Grid + Job Pipeline ═══ -->
+<div class="row g-3 mb-3">
+    <!-- Machine Status Ring -->
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h3 class="card-title"><i class="bi bi-pie-chart me-2 text-primary"></i>Machine Status</h3>
+            </div>
+            <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                <div class="prod-donut-chart" id="dbMachineDonut">
+                    <svg viewBox="0 0 120 120" class="prod-donut-svg">
+                        <circle cx="60" cy="60" r="52" fill="none" stroke="var(--tblr-border-color)" stroke-width="12" opacity=".15" />
+                        <circle cx="60" cy="60" r="52" fill="none" stroke="var(--tblr-success)" stroke-width="12"
+                                stroke-dasharray="0 327" stroke-dashoffset="-81.75" stroke-linecap="round" class="prod-donut-seg" id="dbDonutRunning" />
+                        <circle cx="60" cy="60" r="52" fill="none" stroke="var(--tblr-danger)" stroke-width="12"
+                                stroke-dasharray="0 327" stroke-dashoffset="-81.75" stroke-linecap="round" class="prod-donut-seg" id="dbDonutBreakdown" />
+                        <circle cx="60" cy="60" r="52" fill="none" stroke="var(--tblr-warning)" stroke-width="12"
+                                stroke-dasharray="0 327" stroke-dashoffset="-81.75" stroke-linecap="round" class="prod-donut-seg" id="dbDonutMaintenance" />
+                        <circle cx="60" cy="60" r="52" fill="none" stroke="var(--tblr-muted)" stroke-width="12"
+                                stroke-dasharray="0 327" stroke-dashoffset="-81.75" stroke-linecap="round" class="prod-donut-seg" id="dbDonutIdle" />
+                    </svg>
+                    <div class="prod-donut-center">
+                        <div class="h1 mb-0 fw-bold" id="dbDonutTotal">0</div>
+                        <div class="text-muted small">Machines</div>
+                    </div>
+                </div>
+                <div class="d-flex flex-wrap justify-content-center gap-3 mt-3" style="font-size:.78rem">
+                    <span><i class="bi bi-circle-fill text-success me-1" style="font-size:.5rem;vertical-align:middle"></i>Running <b id="dbDonutRunningLabel">0</b></span>
+                    <span><i class="bi bi-circle-fill text-danger me-1" style="font-size:.5rem;vertical-align:middle"></i>Breakdown <b id="dbDonutBreakdownLabel">0</b></span>
+                    <span><i class="bi bi-circle-fill text-warning me-1" style="font-size:.5rem;vertical-align:middle"></i>Maintenance <b id="dbDonutMaintenanceLabel">0</b></span>
+                    <span><i class="bi bi-circle-fill text-muted me-1" style="font-size:.5rem;vertical-align:middle"></i>Idle <b id="dbDonutIdleLabel">0</b></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Breakdown Analytics -->
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h3 class="card-title"><i class="bi bi-bar-chart me-2 text-danger"></i>Breakdown Analytics</h3>
+                <span class="badge bg-muted-lt text-muted ms-auto" style="font-size:.65rem">Last 30 Days</span>
+            </div>
+            <div class="card-body">
+                <div id="dbBreakdownBars" class="prod-hbar-chart">
+                    <div class="prod-empty"><i class="bi bi-hourglass-split"></i>Loading…</div>
+                </div>
+                <div class="mt-3 pt-2 border-top">
+                    <div class="row g-2 text-center" style="font-size:.75rem">
+                        <div class="col">
+                            <div class="text-muted">Repair Cost</div>
+                            <div class="fw-bold text-danger" id="dbRepairCost">₹0</div>
+                        </div>
+                        <div class="col">
+                            <div class="text-muted">Avg Downtime</div>
+                            <div class="fw-bold text-warning" id="dbAvgDowntime2">0 min</div>
+                        </div>
+                        <div class="col">
+                            <div class="text-muted">Resolved</div>
+                            <div class="fw-bold text-success" id="dbResolvedCount">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Severity Breakdown -->
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h3 class="card-title"><i class="bi bi-shield-exclamation me-2 text-warning"></i>Active Severity</h3>
+            </div>
+            <div class="card-body">
+                <div id="dbSeverityPanel">
+                    <div class="prod-empty"><i class="bi bi-hourglass-split"></i>Loading…</div>
+                </div>
+                <div class="mt-3 pt-2 border-top">
+                    <div class="fw-semibold small text-muted mb-2"><i class="bi bi-wrench me-1"></i>Maintenance Overview</div>
+                    <div class="row g-2 text-center" style="font-size:.75rem">
+                        <div class="col">
+                            <div class="text-muted">Due Soon</div>
+                            <div class="fw-bold text-orange" id="dbMaintDue">0</div>
+                        </div>
+                        <div class="col">
+                            <div class="text-muted">Completed</div>
+                            <div class="fw-bold text-green" id="dbMaintCompleted">0</div>
+                        </div>
+                        <div class="col">
+                            <div class="text-muted">Cost</div>
+                            <div class="fw-bold text-cyan" id="dbMaintCost">₹0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Activity Feeds + Upcoming Deliveries + Quick Actions ═══ -->
+<div class="row g-3 mb-3">
+    <!-- Recent Breakdowns -->
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h3 class="card-title"><i class="bi bi-lightning me-2 text-danger"></i>Recent Breakdowns</h3>
+                <a href="/Production/MachineBreakdown" class="ms-auto text-muted small">View All →</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush" id="dbRecentBreakdowns">
+                    <div class="prod-empty p-3"><i class="bi bi-hourglass-split"></i>Loading…</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Allocations -->
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h3 class="card-title"><i class="bi bi-kanban me-2 text-primary"></i>Recent Allocations</h3>
+                <a href="/Production/JobAllocation" class="ms-auto text-muted small">View All →</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush" id="dbRecentAllocations">
+                    <div class="prod-empty p-3"><i class="bi bi-hourglass-split"></i>Loading…</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upcoming Deliveries -->
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h3 class="card-title"><i class="bi bi-truck me-2 text-cyan"></i>Upcoming Deliveries</h3>
+                <span class="badge bg-cyan-lt text-cyan ms-auto" style="font-size:.65rem">Next 7 Days</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush" id="dbUpcomingDeliveries">
+                    <div class="prod-empty p-3"><i class="bi bi-hourglass-split"></i>Loading…</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Quick Navigation ═══ -->
+<div class="row g-3 mb-3 d-print-none">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="bi bi-grid me-2 text-primary"></i>Quick Actions</h3>
+            </div>
+            <div class="card-body">
+                <div class="row g-2">
+                    <div class="col-6 col-md-4 col-lg-2">
+                        <a href="/Production/JobAllocation" class="prod-quick-nav-card">
+                            <div class="prod-quick-nav-icon bg-primary-lt"><i class="bi bi-kanban text-primary"></i></div>
+                            <div class="prod-quick-nav-label">Job Allocation</div>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-2">
+                        <a href="/Production/MachineScheduling" class="prod-quick-nav-card">
+                            <div class="prod-quick-nav-icon bg-indigo-lt"><i class="bi bi-calendar3 text-indigo"></i></div>
+                            <div class="prod-quick-nav-label">Scheduling</div>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-2">
+                        <a href="/Production/ProductionTracking" class="prod-quick-nav-card">
+                            <div class="prod-quick-nav-icon bg-green-lt"><i class="bi bi-activity text-green"></i></div>
+                            <div class="prod-quick-nav-label">Tracking</div>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-2">
+                        <a href="/Production/MachineUtilization" class="prod-quick-nav-card">
+                            <div class="prod-quick-nav-icon bg-cyan-lt"><i class="bi bi-bar-chart-line text-cyan"></i></div>
+                            <div class="prod-quick-nav-label">Utilization</div>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-2">
+                        <a href="/Production/Maintenance" class="prod-quick-nav-card">
+                            <div class="prod-quick-nav-icon bg-orange-lt"><i class="bi bi-wrench-adjustable text-orange"></i></div>
+                            <div class="prod-quick-nav-label">Maintenance</div>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-2">
+                        <a href="/Production/MachineBreakdown" class="prod-quick-nav-card">
+                            <div class="prod-quick-nav-icon bg-danger-lt"><i class="bi bi-lightning-charge text-danger"></i></div>
+                            <div class="prod-quick-nav-label">Breakdown</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/production-dashboard.js"></script>
+    <script>
+        $(function () {
+            ProdDashboard.init();
+        });
+    </script>
+}

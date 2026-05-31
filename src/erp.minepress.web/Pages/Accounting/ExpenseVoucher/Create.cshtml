@@ -1,0 +1,236 @@
+@page
+@model erp.minepress.web.Pages.Accounting.ExpenseVoucher.CreateModel
+@{
+    ViewData["Title"] = "New Expense Voucher";
+}
+
+<div class="acc-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto"><span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);"><i class="bi bi-cash-coin" style="font-size:1.5rem;"></i></span></div>
+        <div class="col"><h2 class="mb-0">New Expense Voucher</h2><div class="text-white-75">Record operational expenses with GST and approval workflow</div></div>
+        <div class="col-auto d-flex gap-2">
+            <a href="/Accounting/ExpenseVoucher" class="btn btn-outline-light btn-sm"><i class="bi bi-arrow-left me-1"></i>Back to List</a>
+        </div>
+    </div>
+</div>
+
+<form id="expenseForm" autocomplete="off">
+    <div class="card mb-3">
+        <div class="card-header"><h3 class="card-title"><i class="bi bi-info-circle me-2"></i>Voucher Details</h3></div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label required">Voucher Date</label>
+                    <input type="date" id="txtVoucherDate" class="form-control" required />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label required">Expense Category</label>
+                    <select id="ddlCategory" class="form-select" required>
+                        <option value="">Select</option>
+                        <option value="OFFICE">Office</option>
+                        <option value="TRAVEL">Travel</option>
+                        <option value="UTILITIES">Utilities</option>
+                        <option value="REPAIRS">Repairs &amp; Maintenance</option>
+                        <option value="SALARY">Salary &amp; Wages</option>
+                        <option value="RENT">Rent</option>
+                        <option value="PRINTING">Printing Consumables</option>
+                        <option value="TRANSPORT">Transport &amp; Freight</option>
+                        <option value="MISC">Miscellaneous</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label required">Payment Mode</label>
+                    <select id="ddlPaymentMode" class="form-select" required>
+                        <option value="">Select</option>
+                        <option value="CASH">Cash</option>
+                        <option value="BANK_TRANSFER">Bank Transfer</option>
+                        <option value="CHEQUE">Cheque</option>
+                        <option value="UPI">UPI</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Bank Account</label>
+                    <select id="ddlBankAccount" class="form-select">
+                        <option value="">Select Bank</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row g-3 mt-1">
+                <div class="col-md-4">
+                    <label class="form-label">Party / Vendor</label>
+                    <select id="ddlParty" class="form-select">
+                        <option value="">Select (Optional)</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Reference No</label>
+                    <input type="text" id="txtRefNo" class="form-control" placeholder="Bill / Invoice No" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Narration</label>
+                    <input type="text" id="txtNarration" class="form-control" placeholder="Purpose / description of expense" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Expense Line Items -->
+    <div class="card mb-3">
+        <div class="card-header">
+            <h3 class="card-title"><i class="bi bi-list-ul me-2"></i>Expense Items</h3>
+            <div class="card-actions">
+                <button type="button" class="btn btn-outline-primary btn-sm" onclick="addItemRow()">
+                    <i class="bi bi-plus-lg me-1"></i>Add Item
+                </button>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-vcenter card-table table-sm">
+                <thead>
+                    <tr>
+                        <th style="width:40px;">#</th>
+                        <th>Description</th>
+                        <th class="text-end" style="width:100px;">Amount</th>
+                        <th class="text-end" style="width:80px;">GST %</th>
+                        <th class="text-end" style="width:100px;">GST Amt</th>
+                        <th class="text-end" style="width:100px;">Total</th>
+                        <th style="width:40px;"></th>
+                    </tr>
+                </thead>
+                <tbody id="itemsBody"></tbody>
+                <tfoot>
+                    <tr class="fw-bold">
+                        <td colspan="2" class="text-end">Totals</td>
+                        <td class="text-end" id="totalTaxable">₹0.00</td>
+                        <td></td>
+                        <td class="text-end" id="totalTax">₹0.00</td>
+                        <td class="text-end text-primary" id="grandTotal">₹0.00</td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2 mb-4">
+        <a href="/Accounting/ExpenseVoucher" class="btn btn-ghost-secondary">Cancel</a>
+        <button type="button" class="btn btn-warning" onclick="saveExpense('PENDING_APPROVAL')">
+            <i class="bi bi-send me-1"></i>Submit for Approval
+        </button>
+        <button type="button" class="btn btn-primary" onclick="saveExpense('DRAFT')">
+            <i class="bi bi-save me-1"></i>Save as Draft
+        </button>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        const ACC_API = '/api/accounting';
+        let itemSeq = 0;
+
+        $(document).ready(function () {
+            $('#txtVoucherDate').val(new Date().toISOString().split('T')[0]);
+            loadParties();
+            loadBankAccounts();
+            $('#ddlParty').select2({ theme: 'bootstrap-5', placeholder: 'Select Party (Optional)', allowClear: true });
+            addItemRow();
+        });
+
+        function loadParties() {
+            $.get(`${ACC_API}/parties`, function (data) {
+                data.forEach(p => { $('#ddlParty').append(`<option value="${p.id}">${p.name} (${p.code})</option>`); });
+            });
+        }
+
+        function loadBankAccounts() {
+            $.get(`${ACC_API}/bank-accounts`, function (data) {
+                data.forEach(b => { $('#ddlBankAccount').append(`<option value="${b.bankAccountId}">${b.accountName} — ${b.bankName}</option>`); });
+            });
+        }
+
+        function addItemRow() {
+            itemSeq++;
+            const html = `<tr data-seq="${itemSeq}">
+                <td class="text-center text-muted">${itemSeq}</td>
+                <td><input type="text" class="form-control form-control-sm itemDesc" placeholder="Expense description" /></td>
+                <td><input type="number" class="form-control form-control-sm text-end itemAmt" step="0.01" min="0" value="0" onchange="calcRow(this)" /></td>
+                <td><input type="number" class="form-control form-control-sm text-end itemGstPct" step="0.01" min="0" max="28" value="0" onchange="calcRow(this)" /></td>
+                <td class="text-end itemGstAmt">₹0.00</td>
+                <td class="text-end fw-semibold itemTotal">₹0.00</td>
+                <td><button type="button" class="btn btn-ghost-danger btn-sm" onclick="removeRow(this)"><i class="bi bi-x"></i></button></td>
+            </tr>`;
+            $('#itemsBody').append(html);
+        }
+
+        function removeRow(btn) {
+            $(btn).closest('tr').remove();
+            recalcTotals();
+        }
+
+        function calcRow(el) {
+            const row = $(el).closest('tr');
+            const amt = parseFloat(row.find('.itemAmt').val()) || 0;
+            const gstPct = parseFloat(row.find('.itemGstPct').val()) || 0;
+            const gstAmt = amt * gstPct / 100;
+            const total = amt + gstAmt;
+            row.find('.itemGstAmt').text(fmtCurrency(gstAmt));
+            row.find('.itemTotal').text(fmtCurrency(total));
+            recalcTotals();
+        }
+
+        function recalcTotals() {
+            let taxable = 0, tax = 0, grand = 0;
+            $('#itemsBody tr').each(function () {
+                const amt = parseFloat($(this).find('.itemAmt').val()) || 0;
+                const gstPct = parseFloat($(this).find('.itemGstPct').val()) || 0;
+                const gstAmt = amt * gstPct / 100;
+                taxable += amt;
+                tax += gstAmt;
+                grand += amt + gstAmt;
+            });
+            $('#totalTaxable').text(fmtCurrency(taxable));
+            $('#totalTax').text(fmtCurrency(tax));
+            $('#grandTotal').text(fmtCurrency(grand));
+        }
+
+        async function saveExpense(status) {
+            if (!$('#ddlCategory').val()) { Swal.fire({ icon: 'warning', title: 'Category Required' }); return; }
+            if (!$('#ddlPaymentMode').val()) { Swal.fire({ icon: 'warning', title: 'Payment Mode Required' }); return; }
+
+            const items = [];
+            $('#itemsBody tr').each(function () {
+                const desc = $(this).find('.itemDesc').val();
+                const amt = parseFloat($(this).find('.itemAmt').val()) || 0;
+                const gstPct = parseFloat($(this).find('.itemGstPct').val()) || 0;
+                if (desc && amt > 0) {
+                    items.push({ description: desc, amount: amt, gstPercent: gstPct, gstAmount: amt * gstPct / 100, lineTotal: amt + (amt * gstPct / 100) });
+                }
+            });
+
+            if (!items.length) { Swal.fire({ icon: 'warning', title: 'Items Required', text: 'Add at least one expense item.' }); return; }
+
+            const payload = {
+                voucherDate: $('#txtVoucherDate').val(),
+                expenseCategory: $('#ddlCategory').val(),
+                paymentMode: $('#ddlPaymentMode').val(),
+                bankAccountId: $('#ddlBankAccount').val() ? parseInt($('#ddlBankAccount').val()) : null,
+                partyId: $('#ddlParty').val() ? parseInt($('#ddlParty').val()) : null,
+                referenceNo: $('#txtRefNo').val() || null,
+                narration: $('#txtNarration').val() || null,
+                status: status,
+                items: items
+            };
+
+            try {
+                Swal.fire({ title: 'Saving...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                const result = await $.ajax({ url: `${ACC_API}/expense-voucher/save`, method: 'POST', contentType: 'application/json', data: JSON.stringify(payload) });
+                await Swal.fire({ icon: 'success', title: 'Saved!', text: result.message, timer: 2000, showConfirmButton: false });
+                window.location.href = '/Accounting/ExpenseVoucher';
+            } catch (err) {
+                Swal.fire({ icon: 'error', title: 'Error', text: err.responseJSON?.message || 'Failed to save.' });
+            }
+        }
+
+        function fmtCurrency(v) { return v != null ? '₹' + Number(v).toLocaleString('en-IN', { minimumFractionDigits: 2 }) : '₹0.00'; }
+    </script>
+}

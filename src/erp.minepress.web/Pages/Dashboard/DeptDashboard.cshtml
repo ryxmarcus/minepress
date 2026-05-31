@@ -1,0 +1,383 @@
+@page "/Dashboard/{deptCode}"
+@model erp.minepress.web.Pages.Dashboard.DeptDashboardModel
+@{
+    ViewData["Title"] = $"{Model.DeptCode} — {Model.DeptName}";
+
+    // Resolve icon and color per dept code
+    var deptMeta = new Dictionary<string, (string Icon, string Color)>
+    {
+        ["MGT"] = ("bi-briefcase", "primary"),
+        ["ADM"] = ("bi-building", "azure"),
+        ["HR"]  = ("bi-people", "purple"),
+        ["FIN"] = ("bi-cash-coin", "green"),
+        ["IT"]  = ("bi-pc-display", "cyan"),
+        ["SAL"] = ("bi-graph-up-arrow", "orange"),
+        ["CST"] = ("bi-headset", "pink"),
+        ["EST"] = ("bi-calculator", "yellow"),
+        ["PRE"] = ("bi-palette", "indigo"),
+        ["PRT"] = ("bi-printer", "red"),
+        ["FINP"]= ("bi-scissors", "teal"),
+        ["PKG"] = ("bi-box-seam", "lime"),
+        ["DSP"] = ("bi-truck", "blue"),
+        ["INV"] = ("bi-archive", "dark"),
+        ["PUR"] = ("bi-cart3", "orange"),
+        ["QMS"] = ("bi-shield-check", "success"),
+        ["MNT"] = ("bi-wrench-adjustable", "warning"),
+        ["SEC"] = ("bi-lock", "danger")
+    };
+    var (deptIcon, deptColor) = deptMeta.ContainsKey(Model.DeptCode) ? deptMeta[Model.DeptCode] : ("bi-building", "primary");
+}
+
+<!-- ═══ Hero Header ═══ -->
+<div class="dash-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-lg dash-hero-avatar">
+                <i class="bi @deptIcon" style="font-size:1.5rem;"></i>
+            </span>
+        </div>
+        <div class="col">
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <a href="/Dashboard" class="text-white text-decoration-none opacity-75 small">
+                    <i class="bi bi-speedometer2 me-1"></i>Dashboard
+                </a>
+                <i class="bi bi-chevron-right text-white opacity-50 small"></i>
+                <span class="text-white fw-semibold">@Model.DeptCode</span>
+            </div>
+            <h2 class="mb-1">@Model.DeptName</h2>
+            <div class="text-white-75 d-flex align-items-center gap-2">
+                @if (Model.IsProduction)
+                {
+                    <span class="badge bg-success"><i class="bi bi-gear me-1"></i>Production</span>
+                }
+                else
+                {
+                    <span class="badge bg-info"><i class="bi bi-building me-1"></i>Non-Production</span>
+                }
+                @if (!string.IsNullOrEmpty(Model.ParentDeptCode))
+                {
+                    <span class="badge bg-white text-dark">
+                        <i class="bi bi-diagram-3 me-1"></i>Parent: @Model.ParentDeptCode
+                    </span>
+                }
+                @if (!string.IsNullOrEmpty(Model.Remarks))
+                {
+                    <span class="small opacity-75">@Model.Remarks</span>
+                }
+            </div>
+        </div>
+        <div class="col-auto d-flex gap-2 flex-wrap">
+            <a href="/Dashboard" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-arrow-left me-1"></i>Main Dashboard
+            </a>
+            <button class="btn btn-outline-light btn-sm" onclick="Dashboard.refresh()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Stat Cards ═══ -->
+<div class="row g-3 mb-3" id="dashStats">
+    <div class="col-6 col-lg-3 col-xl">
+        <div class="card card-sm dash-stat-card" data-stat="tasks">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-primary-lt me-3"><i class="bi bi-list-task"></i></span>
+                    <div>
+                        <div class="fw-bold fs-3 dash-counter" id="statTasks">—</div>
+                        <div class="text-secondary small">Tasks Assigned</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3 col-xl">
+        <div class="card card-sm dash-stat-card" data-stat="approvals">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-warning-lt me-3"><i class="bi bi-check2-square"></i></span>
+                    <div>
+                        <div class="fw-bold fs-3 dash-counter" id="statApprovals">—</div>
+                        <div class="text-secondary small">Pending Approvals</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3 col-xl">
+        <div class="card card-sm dash-stat-card" data-stat="notifications">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-info-lt me-3"><i class="bi bi-bell"></i></span>
+                    <div>
+                        <div class="fw-bold fs-3 dash-counter" id="statNotifications">—</div>
+                        <div class="text-secondary small">Notifications</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3 col-xl">
+        <div class="card card-sm dash-stat-card" data-stat="alerts">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-danger-lt me-3"><i class="bi bi-exclamation-triangle"></i></span>
+                    <div>
+                        <div class="fw-bold fs-3 dash-counter" id="statAlerts">—</div>
+                        <div class="text-secondary small">Alerts</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3 col-xl">
+        <div class="card card-sm dash-stat-card" data-stat="attendance">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-success-lt me-3"><i class="bi bi-clock-history"></i></span>
+                    <div>
+                        <div class="fw-bold fs-3 dash-counter" id="statAttendance">—</div>
+                        <div class="text-secondary small">Attendance</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Department Navigation Tabs ═══ -->
+@if (Model.CanViewAllDepts)
+{
+<div class="card mb-3">
+    <div class="card-body py-2">
+        <div class="d-flex gap-1 flex-wrap">
+            @foreach (var d in Model.AllDepartments)
+            {
+                var isActive = d.Code == Model.DeptCode;
+                <a href="/Dashboard/@d.Code"
+                   class="btn btn-sm @(isActive ? "btn-primary" : "btn-outline-secondary")"
+                   title="@d.Name">
+                    @d.Code
+                </a>
+            }
+        </div>
+    </div>
+</div>
+}
+
+<!-- ═══ HRMS My Status ═══ -->
+<div class="row g-3 mb-3">
+    <div class="col-12">
+        <div class="card dash-hrms-card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="bi bi-person-badge me-2"></i>My HRMS Status
+                </h3>
+                <div class="card-actions">
+                    <span class="badge bg-purple-lt"><i class="bi bi-people me-1"></i>HRMS</span>
+                </div>
+            </div>
+            <div class="card-body" id="hrmsMyStatus">
+                <div class="row g-3">
+                    <div class="col-6 col-md-4 col-lg-2">
+                        <div class="dash-hrms-widget">
+                            <div class="dash-hrms-icon bg-success-lt"><i class="bi bi-calendar-check"></i></div>
+                            <div class="dash-hrms-value" id="hrmsLeaveBalance">—</div>
+                            <div class="dash-hrms-label">Leave Balance</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-2">
+                        <div class="dash-hrms-widget">
+                            <div class="dash-hrms-icon bg-warning-lt"><i class="bi bi-hourglass-split"></i></div>
+                            <div class="dash-hrms-value" id="hrmsPendingLeaves">—</div>
+                            <div class="dash-hrms-label">Pending Leaves</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-2">
+                        <div class="dash-hrms-widget">
+                            <div class="dash-hrms-icon bg-info-lt"><i class="bi bi-bank"></i></div>
+                            <div class="dash-hrms-value" id="hrmsActiveLoan">—</div>
+                            <div class="dash-hrms-label">Active Loans</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-2">
+                        <div class="dash-hrms-widget">
+                            <div class="dash-hrms-icon bg-azure-lt"><i class="bi bi-cash-stack"></i></div>
+                            <div class="dash-hrms-value" id="hrmsAdvance">—</div>
+                            <div class="dash-hrms-label">Advance Balance</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-2">
+                        <div class="dash-hrms-widget">
+                            <div class="dash-hrms-icon bg-purple-lt"><i class="bi bi-clock-fill"></i></div>
+                            <div class="dash-hrms-value" id="hrmsOvertime">—</div>
+                            <div class="dash-hrms-label">OT This Month</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-2">
+                        <div class="dash-hrms-widget">
+                            <div class="dash-hrms-icon bg-danger-lt"><i class="bi bi-heart-pulse"></i></div>
+                            <div class="dash-hrms-value" id="hrmsMedical">—</div>
+                            <div class="dash-hrms-label">Medical Claims</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-3 mt-1">
+                    <div class="col-md-4">
+                        <div class="dash-hrms-detail-card">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bi bi-sun me-2 text-warning"></i>
+                                <span class="fw-semibold small">Current Shift</span>
+                            </div>
+                            <div id="hrmsShiftInfo" class="small text-secondary">Loading...</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="dash-hrms-detail-card">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bi bi-calendar-event me-2 text-success"></i>
+                                <span class="fw-semibold small">Upcoming Holidays</span>
+                            </div>
+                            <div id="hrmsHolidays" class="small text-secondary">Loading...</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="dash-hrms-detail-card">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bi bi-gift me-2 text-primary"></i>
+                                <span class="fw-semibold small">Recent Incentives</span>
+                            </div>
+                            <div id="hrmsIncentives" class="small text-secondary">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ KPI + Status ═══ -->
+<div class="row g-3 mb-3">
+    <div class="col-lg-8">
+        <div class="card h-100">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="bi bi-bar-chart-line me-2"></i>@Model.DeptCode KPIs — @Model.DeptName
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="row g-3" id="kpiContainer">
+                    <div class="col-12 text-center text-muted py-4">
+                        <div class="spinner-border spinner-border-sm text-primary me-2"></div>Loading KPIs...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h3 class="card-title"><i class="bi bi-person-check me-2"></i>Today's Status</h3>
+            </div>
+            <div class="card-body">
+                <div class="mb-3" id="attendancePanel">
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="avatar avatar-sm bg-success-lt me-2"><i class="bi bi-box-arrow-in-right"></i></span>
+                        <div>
+                            <div class="small text-secondary">Login Time</div>
+                            <div class="fw-semibold" id="attendLogin">—</div>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="avatar avatar-sm bg-secondary-lt me-2"><i class="bi bi-box-arrow-right"></i></span>
+                        <div>
+                            <div class="small text-secondary">Logout Time</div>
+                            <div class="fw-semibold" id="attendLogout">—</div>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <span class="avatar avatar-sm bg-primary-lt me-2"><i class="bi bi-activity"></i></span>
+                        <div>
+                            <div class="small text-secondary">Today's Activities</div>
+                            <div class="fw-semibold" id="attendActivities">—</div>
+                        </div>
+                    </div>
+                </div>
+                <hr />
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="small text-secondary">Active Jobs</span>
+                    <span class="fw-bold" id="infoActiveJobs">—</span>
+                </div>
+                <div class="d-flex align-items-center justify-content-between">
+                    <span class="small text-secondary">Today Enquiries</span>
+                    <span class="fw-bold" id="infoTodayEnq">—</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Activities + Actions + AI ═══ -->
+<div class="row g-3 mb-3">
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h3 class="card-title"><i class="bi bi-clock-history me-2"></i>Recent Activities</h3>
+            </div>
+            <div class="list-group list-group-flush dash-activity-list" id="activityList">
+                <div class="list-group-item text-center text-muted py-4">
+                    <div class="spinner-border spinner-border-sm text-primary me-2"></div>Loading...
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h3 class="card-title"><i class="bi bi-lightning-charge me-2"></i>Pending Actions</h3>
+                <div class="card-actions">
+                    <span class="badge bg-warning-lt" id="actionCount">0</span>
+                </div>
+            </div>
+            <div class="list-group list-group-flush dash-action-list" id="actionList">
+                <div class="list-group-item text-center text-muted py-4">
+                    <div class="spinner-border spinner-border-sm text-warning me-2"></div>Loading...
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card h-100 dash-ai-suggestions-card">
+            <div class="card-header dash-ai-suggestions-header">
+                <h3 class="card-title">
+                    <span class="dash-ai-pulse me-2"></span>
+                    <i class="bi bi-stars me-2"></i>AI Smart Suggestions
+                </h3>
+                <div class="card-actions">
+                    <span class="badge bg-purple-lt"><i class="bi bi-cpu me-1"></i>AI</span>
+                </div>
+            </div>
+            <div class="list-group list-group-flush dash-ai-suggestions-list" id="aiSuggestionList">
+                <div class="list-group-item text-center text-muted py-4">
+                    <div class="dash-ai-thinking">
+                        <span></span><span></span><span></span>
+                    </div>
+                    <div class="small mt-2">AI is analyzing your data...</div>
+                </div>
+            </div>
+            <div class="card-footer dash-ai-suggestions-footer">
+                <div class="d-flex align-items-center justify-content-between">
+                    <small class="text-secondary"><i class="bi bi-info-circle me-1"></i>Personalized insights</small>
+                    <button class="btn btn-sm btn-ghost-purple" onclick="Dashboard.refreshAi()">
+                        <i class="bi bi-arrow-clockwise"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="/js/dashboard.js"></script>
+}

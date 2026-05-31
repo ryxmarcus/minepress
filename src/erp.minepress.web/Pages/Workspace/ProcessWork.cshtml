@@ -1,0 +1,359 @@
+@page
+@using System.Linq
+@using System.Text.Json
+@model erp.minepress.web.Pages.Workspace.ProcessWorkModel
+@{
+    ViewData["Title"] = "Process Work";
+    ViewData["ContainerClass"] = "container-fluid";
+    ViewData["HidePageHeader"] = true;
+}
+
+<!-- Compact Page Header (Job Create Style) -->
+<div class="page-header d-print-none mb-3">
+    <div class="container-xl">
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <span class="avatar avatar-md bg-teal-lt text-teal">
+                    <i class="bi bi-gear-wide-connected fs-3"></i>
+                </span>
+            </div>
+            <div class="col">
+                <h2 class="page-title mb-0">Process Work</h2>
+                <div class="text-secondary mt-1">Task #@Model.TaskId • @Model.UserFullName</div>
+            </div>
+            <div class="col-auto d-flex gap-2">
+                <button class="btn btn-outline-secondary btn-sm" id="pwRefreshBtn">
+                    <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+                </button>
+                <a href="/Workspace/MyTasks" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>Back to My Tasks
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── 3-Column Layout (Job Create Style) ── -->
+<div class="pw-create-layout">
+
+    <!-- ═══════ LEFT SIDEBAR ═══════ -->
+    <aside class="pw-create-sidebar pw-create-sidebar-left">
+
+        <!-- Task Summary -->
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="avatar avatar-xs bg-teal-lt text-teal"><i class="bi bi-clipboard-check"></i></span>
+                    <h3 class="card-title mb-0">Task Summary</h3>
+                </div>
+            </div>
+            <div class="card-body" id="pwTaskSummary">
+                <div class="text-center py-4"><div class="spinner-border spinner-border-sm"></div></div>
+            </div>
+        </div>
+
+        <!-- Part-wise Execution -->
+        <!-- Process Inputs -->
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="avatar avatar-xs bg-azure-lt text-azure"><i class="bi bi-list-check"></i></span>
+                    <h3 class="card-title mb-0">Process Inputs</h3>
+                </div>
+            </div>
+            <div class="card-body" id="pwChecklistWrap">
+                <div class="text-secondary">Loading process checklist...</div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ═══════ CENTER: Process Inputs + Work Notes ═══════ -->
+    <main class="pw-create-main">
+
+        <!-- Process Inputs -->
+        <!-- Part-wise Execution -->
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="avatar avatar-xs bg-purple-lt text-purple"><i class="bi bi-box-seam"></i></span>
+                    <h3 class="card-title mb-0">Part-wise Execution</h3>
+                </div>
+            </div>
+            <div class="card-body" id="pwPartsWrap">
+                <div class="text-secondary small">Loading parts...</div>
+            </div>
+        </div>
+
+        @{
+            // Pre-parse the JobRate JSON into variables to avoid mixing try/catch with large markup blocks
+            var hasRateJson = !string.IsNullOrWhiteSpace(Model.JobRateConfigJson);
+            JsonDocument? rateDoc = null;
+            JsonElement root = default;
+            JsonElement jobTypeEl = default;
+            var workflowStages = new List<string>();
+            var bindingTypes = new List<string>();
+            var finishingTypes = new List<string>();
+            var parts = new List<JsonElement>();
+
+            string ReadText(JsonElement parent, string prop)
+            {
+                if (parent.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined)
+                    return string.Empty;
+                if (!parent.TryGetProperty(prop, out var item) || item.ValueKind == JsonValueKind.Null || item.ValueKind == JsonValueKind.Undefined)
+                    return string.Empty;
+                return item.ValueKind == JsonValueKind.String ? (item.GetString() ?? string.Empty) : item.ToString();
+            }
+
+            List<string> ReadArray(JsonElement parent, string prop)
+            {
+                if (parent.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined)
+                    return new List<string>();
+                if (!parent.TryGetProperty(prop, out var arr) || arr.ValueKind != JsonValueKind.Array)
+                    return new List<string>();
+                return arr.EnumerateArray()
+                    .Select(x => x.ValueKind == JsonValueKind.String ? x.GetString() ?? string.Empty : x.ToString())
+                    .Where(x => !string.IsNullOrWhiteSpace(x))
+                    .ToList();
+            }
+
+            var parsed = false;
+            if (hasRateJson)
+            {
+                try
+                {
+                    rateDoc = JsonDocument.Parse(Model.JobRateConfigJson);
+                    root = rateDoc.RootElement;
+                    jobTypeEl = root.TryGetProperty("jobType", out var _jt) ? _jt : default;
+                    workflowStages = jobTypeEl.ValueKind != JsonValueKind.Undefined ? ReadArray(jobTypeEl, "workflowStages") : new List<string>();
+                    bindingTypes = root.TryGetProperty("binding", out var bindingEl) ? ReadArray(bindingEl, "bindingTypes") : new List<string>();
+                    finishingTypes = root.TryGetProperty("finishing", out var finishingEl) ? ReadArray(finishingEl, "finishingTypes") : new List<string>();
+                    parts = root.TryGetProperty("productParts", out var partsEl) && partsEl.ValueKind == JsonValueKind.Array ? partsEl.EnumerateArray().ToList() : new List<JsonElement>();
+                    parsed = true;
+                }
+                catch { parsed = false; }
+            }
+        }
+
+        @if (parsed)
+        {
+            <div class="card mt-3 pw-rate-card">
+                <div class="card-header d-flex align-items-center">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="avatar avatar-xs bg-blue-lt text-blue"><i class="bi bi-calculator"></i></span>
+                        <h3 class="card-title mb-0">Job Rate Calculator Config</h3>
+                    </div>
+                    <div class="ms-auto">
+                        <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#pwRateCollapse_@(Model.TaskId)" aria-expanded="false" aria-controls="pwRateCollapse_@(Model.TaskId)">
+                            <i class="bi bi-chevron-down" id="pwRateToggleIcon_@(Model.TaskId)"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="collapse" id="pwRateCollapse_@(Model.TaskId)">
+                    <div class="card-body pw-rate-body">
+                        <div class="pw-rate-summary-grid">
+                            <div class="pw-rate-stat"><span>Product</span><strong>@ReadText(root, "productType")</strong></div>
+                            <div class="pw-rate-stat"><span>Size</span><strong>@ReadText(root, "productSize")</strong></div>
+                            <div class="pw-rate-stat"><span>Trim</span><strong>@ReadText(root, "trimWidth") × @ReadText(root, "trimHeight") mm</strong></div>
+                            <div class="pw-rate-stat"><span>Quantity</span><strong>@ReadText(root, "quantity")</strong></div>
+                            <div class="pw-rate-stat"><span>Sides</span><strong>@ReadText(root, "sides")</strong></div>
+                            <div class="pw-rate-stat"><span>Job Type</span><strong>@(jobTypeEl.ValueKind == JsonValueKind.Object ? ReadText(jobTypeEl, "value") : "—")</strong></div>
+                        </div>
+
+                        @if (workflowStages.Count > 0)
+                        {
+                            <div class="pw-rate-section">
+                                <div class="pw-rate-section-title"><i class="bi bi-diagram-3"></i>Workflow Stages</div>
+                                <div class="pw-rate-chip-wrap">
+                                    @foreach (var stage in workflowStages)
+                                    {
+                                        <span class="pw-rate-chip">@stage</span>
+                                    }
+                                </div>
+                            </div>
+                        }
+
+                        @if (bindingTypes.Count > 0 || finishingTypes.Count > 0)
+                        {
+                            <div class="pw-rate-section pw-rate-process-grid">
+                                @if (bindingTypes.Count > 0)
+                                {
+                                    <div class="pw-rate-process-box">
+                                        <div class="pw-rate-process-title"><i class="bi bi-link-45deg"></i>Binding</div>
+                                        <ul class="pw-rate-list">
+                                            @foreach (var item in bindingTypes)
+                                            {
+                                                <li>@item</li>
+                                            }
+                                        </ul>
+                                    </div>
+                                }
+                                @if (finishingTypes.Count > 0)
+                                {
+                                    <div class="pw-rate-process-box">
+                                        <div class="pw-rate-process-title"><i class="bi bi-stars"></i>Finishing</div>
+                                        <ul class="pw-rate-list">
+                                            @foreach (var item in finishingTypes)
+                                            {
+                                                <li>@item</li>
+                                            }
+                                        </ul>
+                                    </div>
+                                }
+                            </div>
+                        }
+
+                        @if (parts.Count > 0)
+                        {
+                            <div class="pw-rate-section">
+                                <div class="pw-rate-section-title"><i class="bi bi-box-seam"></i>Part-wise Process Plan</div>
+                                <div class="pw-rate-parts-grid">
+                                    @foreach (var part in parts)
+                                    {
+                                        var partName = ReadText(part, "partName");
+                                        var spec = part.TryGetProperty("specification", out var specEl) ? specEl : default;
+                                        var design = part.TryGetProperty("designDtp", out var designEl) ? designEl : default;
+                                        var ctp = part.TryGetProperty("ctpPlates", out var ctpEl) ? ctpEl : default;
+                                        var printing = part.TryGetProperty("printing", out var printEl) ? printEl : default;
+                                        var designItems = design.ValueKind == JsonValueKind.Object ? ReadArray(design, "designItems") : new List<string>();
+
+                                        <div class="pw-rate-part-card">
+                                            <div class="pw-rate-part-title">@partName</div>
+                                            <div class="pw-rate-part-spec">
+                                                <span><i class="bi bi-files"></i>@ReadText(spec, "pages") pages</span>
+                                                <span><i class="bi bi-palette"></i>@ReadText(spec, "color") color</span>
+                                                <span><i class="bi bi-layers"></i>@ReadText(spec, "paper")</span>
+                                            </div>
+                                            <div class="pw-rate-process-lines">
+                                                <div><label>Design / DTP</label><p>@(designItems.Count > 0 ? string.Join(" • ", designItems) : "—")</p></div>
+                                                <div><label>CTP / Plates</label><p>@ReadText(ctp, "plateName")</p></div>
+                                                <div><label>Printing</label><p>@ReadText(printing, "machineName")</p></div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+        else if (hasRateJson)
+        {
+            <div class="card mt-3 pw-rate-card">
+                <div class="card-header d-flex align-items-center">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="avatar avatar-xs bg-blue-lt text-blue"><i class="bi bi-filetype-json"></i></span>
+                        <h3 class="card-title mb-0">Job Details</h3>
+                    </div>
+                    <div class="ms-auto">
+                        <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#pwRateCollapse_@(Model.TaskId)" aria-expanded="false" aria-controls="pwRateCollapse_@(Model.TaskId)">
+                            <i class="bi bi-chevron-down" id="pwRateToggleIcon_@(Model.TaskId)"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="collapse" id="pwRateCollapse_@(Model.TaskId)">
+                    <div class="card-body">
+                        <pre class="pw-rate-json-fallback">@Model.JobRateConfigJson</pre>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Work Notes -->
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="avatar avatar-xs bg-yellow-lt text-yellow"><i class="bi bi-pencil-square"></i></span>
+                    <h3 class="card-title mb-0">Work Notes</h3>
+                </div>
+            </div>
+            <div class="card-body">
+                <textarea class="form-control" rows="4" id="pwNotes" placeholder="Enter work details completed in this process..."></textarea>
+            </div>
+        </div>
+    </main>
+
+    <!-- ═══════ RIGHT SIDEBAR: Actions ═══════ -->
+    <aside class="pw-create-sidebar pw-create-sidebar-right">
+
+        <!-- Quick Info -->
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="avatar avatar-xs bg-cyan-lt text-cyan"><i class="bi bi-info-circle-fill"></i></span>
+                    <h3 class="card-title mb-0">Quick Info</h3>
+                </div>
+            </div>
+            <div class="card-body" id="pwQuickInfo">
+                <div class="text-secondary small mb-2">
+                    <i class="bi bi-briefcase me-1"></i><span id="pwJobNo">Job: —</span>
+                </div>
+                <div class="text-secondary small mb-2">
+                    <i class="bi bi-person me-1"></i><span id="pwPartyName">Customer: —</span>
+                </div>
+                <div class="text-secondary small mb-2">
+                    <i class="bi bi-gear me-1"></i><span id="pwProcessName">Process: —</span>
+                </div>
+                <div class="text-secondary small">
+                    <i class="bi bi-flag me-1"></i><span id="pwPriority">Priority: —</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Allocated Machine & Workforce -->
+        <div class="card" id="pwAllocationCard">
+            <div class="card-header">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="avatar avatar-xs bg-orange-lt text-orange"><i class="bi bi-cpu-fill"></i></span>
+                    <h3 class="card-title mb-0">Machine & Workforce</h3>
+                </div>
+            </div>
+            <div class="card-body p-0" id="pwAllocationWrap">
+                <div class="px-3 py-2 text-secondary small">Loading allocation...</div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <button type="button" id="pwStartBtn" class="btn w-100 py-2 btn-outline-primary">
+            <i class="bi bi-play-fill me-2"></i>Start Step
+        </button>
+
+        <button type="button" id="pwSaveBtn" class="btn w-100 py-2 btn-outline-secondary">
+            <i class="bi bi-save me-2"></i>Save Progress
+        </button>
+
+        <button type="button" id="pwCompleteBtn" class="btn w-100 py-2" style="background:#10b981;color:#fff;">
+            <i class="bi bi-check-lg me-2"></i>Complete Step
+        </button>
+    </aside>
+</div>
+
+@section Scripts {
+    <script src="/js/workspace-process-work.js"></script>
+    <script>
+        const pwTaskId = @Model.TaskId;
+        document.addEventListener('DOMContentLoaded', function () { WorkspaceProcessWork.init(pwTaskId); });
+    </script>
+    <script>
+        // Toggle chevron on Job Rate card collapse for any card on page
+        (function() {
+            setTimeout(() => {
+                document.querySelectorAll('[id^="pwRateCollapse_"]').forEach(collapseEl => {
+                    const iconId = collapseEl.id.replace('pwRateCollapse_', 'pwRateToggleIcon_');
+                    const iconEl = document.getElementById(iconId);
+                    if (!iconEl) return;
+
+                    collapseEl.addEventListener('show.bs.collapse', function () {
+                        iconEl.classList.remove('bi-chevron-down');
+                        iconEl.classList.add('bi-chevron-up');
+                    });
+                    collapseEl.addEventListener('hide.bs.collapse', function () {
+                        iconEl.classList.remove('bi-chevron-up');
+                        iconEl.classList.add('bi-chevron-down');
+                    });
+                });
+            }, 50);
+        })();
+    </script>
+}
+

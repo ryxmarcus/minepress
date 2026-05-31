@@ -1,0 +1,890 @@
+@page
+@model erp.minepress.web.Pages.Accounting.Payment.CreateModel
+@{
+    ViewData["Title"] = "Record Payment";
+}
+
+<!-- ── Compact Header Bar ── -->
+<div class="rcpt-header d-print-none">
+    <div class="d-flex align-items-center gap-3">
+        <a href="/Accounting/Payment" class="rcpt-back-btn" title="Back to Payments">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <div>
+            <h1 class="rcpt-title">New Payment</h1>
+            <div class="rcpt-subtitle" id="statusHint">Record payment &amp; allocate outstanding bills</div>
+        </div>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <span class="rcpt-step-pills" id="wizardSteps">
+            <span class="rcpt-pill active" id="ws1">1</span>
+            <span class="rcpt-pill" id="ws2">2</span>
+            <span class="rcpt-pill" id="ws3">3</span>
+            <span class="rcpt-pill" id="ws4"><i class="bi bi-check-lg"></i></span>
+        </span>
+    </div>
+</div>
+
+<form id="paymentForm" autocomplete="off">
+    <div class="rcpt-layout">
+
+        <!-- ══════════════════════════════════════════════════════════
+             LEFT COLUMN — Main form flow
+             ══════════════════════════════════════════════════════════ -->
+        <div class="rcpt-main">
+
+            <!-- ── Payment To (Payee Type) ── -->
+            <div class="rcpt-card" id="section0">
+                <div class="rcpt-card-label"><i class="bi bi-people"></i> Payment Made To</div>
+                <div class="rcpt-card-body">
+                    <input type="hidden" id="hdnPaymentTo" value="" />
+                    <div class="rcpt-paymode-row">
+                        <button type="button" class="rcpt-mode-pill" data-payto="CUSTOMER" onclick="selectPayTo('CUSTOMER')">
+                            <i class="bi bi-person"></i> Customer / Supplier
+                        </button>
+                        <button type="button" class="rcpt-mode-pill" data-payto="EMPLOYEE" onclick="selectPayTo('EMPLOYEE')">
+                            <i class="bi bi-person-badge"></i> Employee
+                        </button>
+                        <button type="button" class="rcpt-mode-pill" data-payto="OUTSOURCE_VENDOR" onclick="selectPayTo('OUTSOURCE_VENDOR')">
+                            <i class="bi bi-truck"></i> Outsource Vendor
+                        </button>
+                        <button type="button" class="rcpt-mode-pill" data-payto="OTHER" onclick="selectPayTo('OTHER')">
+                            <i class="bi bi-three-dots"></i> Other
+                        </button>
+                    </div>
+
+                    <!-- Dynamic payee selection panels -->
+                    <div id="payeeCustomerPanel" class="mt-3" style="display:none;">
+                        <select id="ddlSupplier" class="form-select" required>
+                            <option value="">Search customer / supplier by name or code…</option>
+                        </select>
+                        <div id="supplierInfoPanel" class="rcpt-cust-strip mt-2" style="display:none;">
+                            <div class="rcpt-cust-main">
+                                <span class="rcpt-cust-name" id="suppName"></span>
+                                <span class="rcpt-cust-code" id="suppCode"></span>
+                                <span class="rcpt-cust-gst" id="suppGst" style="display:none;">
+                                    <i class="bi bi-shield-check"></i><span id="suppGstNo"></span>
+                                </span>
+                            </div>
+                            <div class="rcpt-cust-meta">
+                                <span id="suppEmail"></span>
+                                <span id="suppMobile"></span>
+                                <span class="rcpt-outstanding-pill" id="outstandingBadge" style="display:none;">
+                                    <i class="bi bi-receipt"></i><span id="outstandingCount">0</span> outstanding
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="payeeEmployeePanel" class="mt-3" style="display:none;">
+                        <select id="ddlEmployee" class="form-select">
+                            <option value="">Search employee by name or code…</option>
+                        </select>
+                        <div id="employeeInfoPanel" class="rcpt-cust-strip mt-2" style="display:none;">
+                            <div class="rcpt-cust-main">
+                                <span class="rcpt-cust-name" id="empName"></span>
+                                <span class="rcpt-cust-code" id="empCode"></span>
+                            </div>
+                            <div class="rcpt-cust-meta">
+                                <span id="empEmail"></span>
+                                <span id="empMobile"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="payeeOutsourcePanel" class="mt-3" style="display:none;">
+                        <select id="ddlOutsource" class="form-select">
+                            <option value="">Search outsource vendor by name or order no…</option>
+                        </select>
+                        <div id="outsourceInfoPanel" class="rcpt-cust-strip mt-2" style="display:none;">
+                            <div class="rcpt-cust-main">
+                                <span class="rcpt-cust-name" id="osVendorName"></span>
+                                <span class="rcpt-cust-code" id="osOutsourceNo"></span>
+                            </div>
+                            <div class="rcpt-cust-meta">
+                                <span id="osEmail"></span>
+                                <span id="osMobile"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="payeeOtherPanel" class="mt-3" style="display:none;">
+                        <input type="text" id="txtPayeeName" class="form-control form-control-sm" placeholder="Enter payee name…" />
+                    </div>
+
+                    <div id="payeePlaceholder" class="rcpt-empty-hint">
+                        <i class="bi bi-hand-index"></i> Select who this payment is made to
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Payment Against ── -->
+            <div class="rcpt-card" id="sectionAgainst">
+                <div class="rcpt-card-label"><i class="bi bi-tag"></i> Payment Against</div>
+                <div class="rcpt-card-body">
+                    <select id="ddlPaymentAgainst" class="form-select form-select-sm">
+                        <option value="">Select category…</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- ── Payment Details (date, ref, amount, mode) ── -->
+            <div class="rcpt-card" id="section2">
+                <div class="rcpt-card-label"><i class="bi bi-wallet2"></i> Payment Details</div>
+                <div class="rcpt-card-body">
+                    <div class="rcpt-detail-grid">
+                        <!-- Amount — prominent -->
+                        <div class="rcpt-amount-block">
+                            <label class="rcpt-field-label">Amount Paid</label>
+                            <div class="rcpt-amount-input-wrap">
+                                <span class="rcpt-currency">₹</span>
+                                <input type="number" id="txtAmount" class="rcpt-amount-input" step="0.01" min="0.01" required placeholder="0.00" />
+                            </div>
+                        </div>
+
+                        <!-- Fields row -->
+                        <div class="rcpt-fields-row">
+                            <div class="rcpt-field">
+                                <label class="rcpt-field-label required">Payment Date</label>
+                                <input type="date" id="txtPaymentDate" class="form-control form-control-sm" required />
+                            </div>
+                            <div class="rcpt-field">
+                                <label class="rcpt-field-label">Reference No</label>
+                                <input type="text" id="txtRefNo" class="form-control form-control-sm" placeholder="Cheque / UTR / Txn ID" />
+                            </div>
+                            <div class="rcpt-field">
+                                <label class="rcpt-field-label">Reference Date</label>
+                                <input type="date" id="txtRefDate" class="form-control form-control-sm" />
+                            </div>
+                        </div>
+
+                        <!-- Payment Mode — horizontal pills -->
+                        <div class="rcpt-paymode-section">
+                            <label class="rcpt-field-label">Payment Mode</label>
+                            <input type="hidden" id="ddlPaymentMode" value="" />
+                            <div class="rcpt-paymode-row">
+                                <button type="button" class="rcpt-mode-pill" data-mode="CASH" onclick="selectPayMode('CASH')">
+                                    <i class="bi bi-cash-coin"></i> Cash
+                                </button>
+                                <button type="button" class="rcpt-mode-pill" data-mode="BANK_TRANSFER" onclick="selectPayMode('BANK_TRANSFER')">
+                                    <i class="bi bi-bank"></i> Bank
+                                </button>
+                                <button type="button" class="rcpt-mode-pill" data-mode="CHEQUE" onclick="selectPayMode('CHEQUE')">
+                                    <i class="bi bi-pencil-square"></i> Cheque
+                                </button>
+                                <button type="button" class="rcpt-mode-pill" data-mode="UPI" onclick="selectPayMode('UPI')">
+                                    <i class="bi bi-phone"></i> UPI
+                                </button>
+                                <button type="button" class="rcpt-mode-pill" data-mode="NEFT" onclick="selectPayMode('NEFT')">
+                                    <i class="bi bi-arrow-left-right"></i> NEFT
+                                </button>
+                                <button type="button" class="rcpt-mode-pill" data-mode="RTGS" onclick="selectPayMode('RTGS')">
+                                    <i class="bi bi-lightning-charge"></i> RTGS
+                                </button>
+                            </div>
+                            <div id="bankSection" style="display:none;" class="mt-2">
+                                <select id="ddlBankAccount" class="form-select form-select-sm">
+                                    <option value="">Select bank account…</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Bill Allocation ── -->
+            <div class="rcpt-card" id="section3">
+                <div class="rcpt-card-label">
+                    <span><i class="bi bi-layers"></i> Bill Allocation</span>
+                    <span class="rcpt-alloc-actions">
+                        <button type="button" class="rcpt-link-btn" id="btnAutoAllocate" onclick="autoAllocate()">
+                            <i class="bi bi-magic"></i> Auto Allocate
+                        </button>
+                        <button type="button" class="rcpt-link-btn rcpt-link-muted" onclick="clearAllocations()">
+                            <i class="bi bi-x-circle"></i> Clear
+                        </button>
+                    </span>
+                </div>
+                <div class="rcpt-card-body p-0">
+                    <!-- Allocation summary bar (top) -->
+                    <div class="rcpt-alloc-bar" id="allocSummaryBar" style="display:none;">
+                        <div class="rcpt-alloc-stat">
+                            <span class="label">Payment</span>
+                            <span class="value text-primary" id="sumPayment">₹0.00</span>
+                        </div>
+                        <div class="rcpt-alloc-stat">
+                            <span class="label">Allocated</span>
+                            <span class="value text-success" id="sumAllocated">₹0.00</span>
+                        </div>
+                        <div class="rcpt-alloc-stat">
+                            <span class="label">Unallocated</span>
+                            <span class="value" id="sumUnallocated">₹0.00</span>
+                        </div>
+                        <span class="badge" id="allocStatusBadge">Fully Allocated</span>
+                    </div>
+
+                    <!-- Column headers -->
+                    <div class="rcpt-alloc-header" id="allocHeader" style="display:none;">
+                        <span class="col-check"></span>
+                        <span class="col-doc">Document</span>
+                        <span class="col-date">Date / Due</span>
+                        <span class="col-amt">Outstanding</span>
+                        <span class="col-input">Allocate</span>
+                    </div>
+
+                    <!-- Allocation rows -->
+                    <div id="allocBody"></div>
+
+                    <!-- Empty state -->
+                    <div class="rcpt-alloc-empty" id="allocEmptyState">
+                        <i class="bi bi-inbox"></i>
+                        <div>Select a supplier to load outstanding bills</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Remarks ── -->
+            <div class="rcpt-card">
+                <div class="rcpt-card-label"><i class="bi bi-chat-left-text"></i> Remarks</div>
+                <div class="rcpt-card-body">
+                    <textarea id="txtRemarks" class="form-control form-control-sm" rows="2" placeholder="Internal notes or remarks…"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════════════════
+             RIGHT COLUMN — Live summary panel
+             ══════════════════════════════════════════════════════════ -->
+        <div class="rcpt-sidebar">
+            <div class="rcpt-summary-card">
+                <div class="rcpt-summary-title">Payment Summary</div>
+
+                <div class="rcpt-summary-amount-block">
+                    <div class="rcpt-summary-amount" id="dispGrandTotal">₹0.00</div>
+                    <div class="rcpt-summary-mode" id="dispModeLabel">—</div>
+                </div>
+
+                <div class="rcpt-summary-rows">
+                    <div class="rcpt-summary-row">
+                        <span>Paid To</span>
+                        <span id="dispPayTo">—</span>
+                    </div>
+                    <div class="rcpt-summary-row">
+                        <span>Against</span>
+                        <span id="dispPayAgainst">—</span>
+                    </div>
+                    <div class="rcpt-summary-divider"></div>
+                    <div class="rcpt-summary-row">
+                        <span>Total Outstanding</span>
+                        <span class="text-danger" id="dispTotalOutstanding">₹0.00</span>
+                    </div>
+                    <div class="rcpt-summary-row">
+                        <span>Allocated</span>
+                        <span class="text-success" id="dispAllocated">₹0.00</span>
+                    </div>
+                    <div class="rcpt-summary-row">
+                        <span>Unallocated</span>
+                        <span id="dispUnallocated">₹0.00</span>
+                    </div>
+                    <div class="rcpt-summary-divider"></div>
+                    <div class="rcpt-summary-row">
+                        <span>Bills Covered</span>
+                        <span id="dispBillCount">0</span>
+                    </div>
+                    <div class="rcpt-summary-row">
+                        <span>Paid (this payment)</span>
+                        <span class="text-success fw-semibold" id="dispPaidAmount">₹0.00</span>
+                    </div>
+                    <div class="rcpt-summary-row">
+                        <span>Balance After</span>
+                        <span class="text-danger fw-semibold" id="dispBalanceAmount">₹0.00</span>
+                    </div>
+                </div>
+
+                <div class="rcpt-summary-actions">
+                    <button type="button" class="btn btn-primary w-100" onclick="savePayment()" id="btnSave">
+                        <i class="bi bi-check-lg me-1"></i>Save Payment
+                    </button>
+                    <a href="/Accounting/Payment" class="btn btn-outline-secondary w-100 btn-sm mt-2">Cancel</a>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /rcpt-layout -->
+</form>
+
+@section Scripts {
+    <script>
+        const ACC_API = '/api/accounting';
+        let outstandingData = [];
+        let selectedPayTo = '';
+        let selectedPayeeData = null;
+
+        const paymentAgainstOptions = {
+            CUSTOMER: [
+                { value: 'VENDOR_INVOICE', text: 'Vendor Invoice' },
+                { value: 'PURCHASE_BILL', text: 'Purchase Bill' },
+                { value: 'PURCHASE_ORDER', text: 'Purchase Order' },
+                { value: 'ADVANCE_TO_VENDOR', text: 'Advance to Vendor' },
+                { value: 'OTHER', text: 'Other' }
+            ],
+            EMPLOYEE: [
+                { value: 'SALARY', text: 'Salary' },
+                { value: 'LOAN', text: 'Loan' },
+                { value: 'EXPENSE', text: 'Expense' },
+                { value: 'ADVANCE_TO_VENDOR', text: 'Advance' },
+                { value: 'OTHER', text: 'Other' }
+            ],
+            OUTSOURCE_VENDOR: [
+                { value: 'OUTSOURCE_JOB', text: 'Outsource Job' },
+                { value: 'JOB_WORK', text: 'Job Work' },
+                { value: 'TRANSPORT_CHARGE', text: 'Transport Charge' },
+                { value: 'OTHER', text: 'Other' }
+            ],
+            OTHER: [
+                { value: 'EXPENSE', text: 'Expense' },
+                { value: 'TAX', text: 'Tax' },
+                { value: 'UTILITY_BILL', text: 'Utility Bill' },
+                { value: 'RENT', text: 'Rent' },
+                { value: 'TRANSPORT_CHARGE', text: 'Transport Charge' },
+                { value: 'OTHER', text: 'Other' }
+            ]
+        };
+
+        $(document).ready(function () {
+            $('#txtPaymentDate').val(new Date().toISOString().split('T')[0]);
+            loadBankAccounts();
+
+            // Supplier Select2
+            $('#ddlSupplier').select2({
+                theme: 'bootstrap-5',
+                placeholder: 'Search customer / supplier by name or code…',
+                allowClear: true,
+                ajax: {
+                    url: `${ACC_API}/parties`,
+                    dataType: 'json',
+                    delay: 300,
+                    data: params => ({ q: params.term }),
+                    processResults: data => ({ results: data.map(p => ({ id: p.id, text: `${p.text} (${p.code || ''})` })) }),
+                    cache: true
+                },
+                minimumInputLength: 1
+            });
+            $('#ddlSupplier').on('change', function () {
+                const partyId = $(this).val();
+                if (partyId) {
+                    loadPartyDetail(partyId);
+                    loadOutstanding(partyId);
+                    updateWizard(2);
+                } else {
+                    clearPayeeData();
+                    updateWizard(1);
+                }
+            });
+
+            // Employee Select2
+            $('#ddlEmployee').select2({
+                theme: 'bootstrap-5',
+                placeholder: 'Search employee by name or code…',
+                allowClear: true,
+                ajax: {
+                    url: `${ACC_API}/employees`,
+                    dataType: 'json',
+                    delay: 300,
+                    data: params => ({ q: params.term }),
+                    processResults: data => ({ results: data.map(e => ({ id: e.id, text: `${e.text} (${e.code})`, email: e.email, mobile: e.mobile, code: e.code })) }),
+                    cache: true
+                },
+                minimumInputLength: 1
+            });
+            $('#ddlEmployee').on('select2:select', function (e) {
+                const d = e.params.data;
+                selectedPayeeData = d;
+                $('#employeeInfoPanel').show();
+                $('#empName').text(d.text.split(' (')[0]);
+                $('#empCode').text(d.code || '');
+                $('#empEmail').html(d.email ? `<i class="bi bi-envelope me-1"></i>${esc(d.email)}` : '');
+                $('#empMobile').html(d.mobile ? `<i class="bi bi-telephone me-1"></i>${esc(d.mobile)}` : '');
+                $('#statusHint').html(`<i class="bi bi-person-badge me-1"></i>${esc(d.text.split(' (')[0])} — enter payment details`);
+                updateWizard(2);
+                updateTotals();
+            });
+            $('#ddlEmployee').on('change', function () {
+                if (!$(this).val()) {
+                    clearPayeeData();
+                    updateWizard(1);
+                }
+            });
+
+            // Outsource Vendor Select2
+            $('#ddlOutsource').select2({
+                theme: 'bootstrap-5',
+                placeholder: 'Search outsource vendor by name or order no…',
+                allowClear: true,
+                ajax: {
+                    url: `${ACC_API}/outsource-vendors`,
+                    dataType: 'json',
+                    delay: 300,
+                    data: params => ({ q: params.term }),
+                    processResults: data => ({ results: data.map(o => ({ id: o.id, text: o.text, vendorName: o.vendorName, outsourceNo: o.outsourceNo, jobId: o.jobId, partyId: o.partyId, email: o.email, mobile: o.mobile })) }),
+                    cache: true
+                },
+                minimumInputLength: 1
+            });
+            $('#ddlOutsource').on('select2:select', function (e) {
+                const d = e.params.data;
+                selectedPayeeData = d;
+                $('#outsourceInfoPanel').show();
+                $('#osVendorName').text(d.vendorName || '');
+                $('#osOutsourceNo').text(d.outsourceNo || '');
+                $('#osEmail').html(d.email ? `<i class="bi bi-envelope me-1"></i>${esc(d.email)}` : '');
+                $('#osMobile').html(d.mobile ? `<i class="bi bi-telephone me-1"></i>${esc(d.mobile != null ? d.mobile.toString() : '')}` : '');
+                $('#statusHint').html(`<i class="bi bi-truck me-1"></i>${esc(d.vendorName)} — enter payment details`);
+                updateWizard(2);
+                updateTotals();
+            });
+            $('#ddlOutsource').on('change', function () {
+                if (!$(this).val()) {
+                    clearPayeeData();
+                    updateWizard(1);
+                }
+            });
+
+            // Amount changes
+            $('#txtAmount').on('input change', function () {
+                updateAllocSummary();
+                updateTotals();
+            });
+
+            // Payment Against changes
+            $('#ddlPaymentAgainst').on('change', function () {
+                const val = $(this).val();
+                const labels = { VENDOR_INVOICE: 'Vendor Invoice', PURCHASE_BILL: 'Purchase Bill', PURCHASE_ORDER: 'Purchase Order', ADVANCE_TO_VENDOR: 'Advance', EXPENSE: 'Expense', SALARY: 'Salary', LOAN: 'Loan', TAX: 'Tax', UTILITY_BILL: 'Utility Bill', RENT: 'Rent', TRANSPORT_CHARGE: 'Transport', OUTSOURCE_JOB: 'Outsource Job', JOB_WORK: 'Job Work', OTHER: 'Other' };
+                $('#dispPayAgainst').text(labels[val] || '—');
+            });
+        });
+
+        // ── Payment To Selection ──
+        function selectPayTo(type) {
+            selectedPayTo = type;
+            $('#hdnPaymentTo').val(type);
+            $('.rcpt-mode-pill[data-payto]').removeClass('active');
+            $(`.rcpt-mode-pill[data-payto="${type}"]`).addClass('active');
+
+            // Hide all panels
+            $('#payeeCustomerPanel, #payeeEmployeePanel, #payeeOutsourcePanel, #payeeOtherPanel').hide();
+            $('#payeePlaceholder').hide();
+            clearPayeeData();
+
+            // Show selected
+            if (type === 'CUSTOMER') {
+                $('#payeeCustomerPanel').show();
+            } else if (type === 'EMPLOYEE') {
+                $('#payeeEmployeePanel').show();
+                // Hide allocation section for employee payments
+                clearAllocationsUI();
+            } else if (type === 'OUTSOURCE_VENDOR') {
+                $('#payeeOutsourcePanel').show();
+                clearAllocationsUI();
+            } else if (type === 'OTHER') {
+                $('#payeeOtherPanel').show();
+                clearAllocationsUI();
+            }
+
+            const labels = { CUSTOMER: 'Customer / Supplier', EMPLOYEE: 'Employee', OUTSOURCE_VENDOR: 'Outsource Vendor', OTHER: 'Other' };
+            $('#dispPayTo').text(labels[type] || '—');
+            populatePaymentAgainst(type);
+            updateWizard(1);
+        }
+
+        function populatePaymentAgainst(type) {
+            const $ddl = $('#ddlPaymentAgainst');
+            $ddl.find('option:not(:first)').remove();
+            const opts = paymentAgainstOptions[type] || [];
+            opts.forEach(o => { $ddl.append(`<option value="${o.value}">${esc(o.text)}</option>`); });
+            $ddl.val('');
+            $('#dispPayAgainst').text('—');
+        }
+
+        // ── Load Bank Accounts ──
+        function loadBankAccounts() {
+            $.get(`${ACC_API}/bank-accounts`, function (data) {
+                data.forEach(b => {
+                    $('#ddlBankAccount').append(`<option value="${b.id}">${esc(b.text)}</option>`);
+                });
+            });
+        }
+
+        // ── Load Party Detail ──
+        function loadPartyDetail(partyId) {
+            $.get(`${ACC_API}/party-detail/${partyId}`, function (d) {
+                selectedPayeeData = d;
+                $('#supplierInfoPanel').show();
+                $('#suppName').text(d.name);
+                $('#suppCode').text(d.code || '');
+                $('#suppEmail').html(d.email ? `<i class="bi bi-envelope me-1"></i>${esc(d.email)}` : '');
+                $('#suppMobile').html(d.mobile ? `<i class="bi bi-telephone me-1"></i>${esc(d.mobile)}` : '');
+                if (d.gstno) {
+                    $('#suppGst').show();
+                    $('#suppGstNo').text(d.gstno);
+                } else {
+                    $('#suppGst').hide();
+                }
+                $('#statusHint').html(`<i class="bi bi-person-check me-1"></i>${esc(d.name)} — enter payment details`);
+            }).fail(function () {
+                Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to load party details.' });
+            });
+        }
+
+        function clearPayeeData() {
+            selectedPayeeData = null;
+            outstandingData = [];
+            $('#supplierInfoPanel, #employeeInfoPanel, #outsourceInfoPanel').hide();
+            $('#outstandingBadge').hide();
+            $('#allocEmptyState').show();
+            $('#allocHeader').hide();
+            $('#allocBody').html('');
+            $('#allocSummaryBar').hide();
+            updateTotals();
+            $('#statusHint').html('Record payment &amp; allocate outstanding bills');
+        }
+
+        function clearAllocationsUI() {
+            outstandingData = [];
+            $('#allocEmptyState').show().find('div').first().text('Allocation not applicable for this payee type');
+            $('#allocHeader').hide();
+            $('#allocBody').html('');
+            $('#allocSummaryBar').hide();
+            $('#outstandingBadge').hide();
+        }
+
+        // ── Payment Mode ──
+        function selectPayMode(mode) {
+            $('#ddlPaymentMode').val(mode);
+            $('.rcpt-mode-pill[data-mode]').removeClass('active');
+            $(`.rcpt-mode-pill[data-mode="${mode}"]`).addClass('active');
+            if (mode === 'CASH') {
+                $('#bankSection').slideUp(200);
+                $('#ddlBankAccount').val('');
+            } else {
+                $('#bankSection').slideDown(200);
+            }
+            const labels = { CASH: 'Cash', BANK_TRANSFER: 'Bank Transfer', CHEQUE: 'Cheque', UPI: 'UPI', NEFT: 'NEFT', RTGS: 'RTGS' };
+            $('#dispModeLabel').text(labels[mode] || mode);
+            updateWizard(2);
+        }
+
+        // ── Load Outstanding Bills (for CUSTOMER / SUPPLIER only) ──
+        function loadOutstanding(partyId) {
+            if (!partyId || selectedPayTo !== 'CUSTOMER') return;
+            $.get(`${ACC_API}/ap-outstanding?partyId=${partyId}`, function (data) {
+                outstandingData = data;
+                if (data.length) {
+                    $('#allocEmptyState').hide();
+                    $('#allocHeader').show();
+                    $('#outstandingBadge').show();
+                    $('#outstandingCount').text(data.length);
+                    renderAllocItems();
+                    $('#allocSummaryBar').show();
+                    updateAllocSummary();
+                    updateTotals();
+                    updateWizard(3);
+                    $('#statusHint').html(`<i class="bi bi-layers me-1"></i>${data.length} outstanding — allocate payment`);
+                } else {
+                    $('#allocEmptyState').show().find('div').first().text('No outstanding bills for this supplier');
+                    $('#allocHeader').hide();
+                    $('#allocBody').html('');
+                    $('#outstandingBadge').hide();
+                    $('#allocSummaryBar').hide();
+                    updateTotals();
+                }
+            }).fail(function () { });
+        }
+
+        function renderAllocItems() {
+            let html = '';
+            outstandingData.forEach((inv, idx) => {
+                const isOverdue = inv.overdueDays && inv.overdueDays > 0;
+                html += `<div class="rcpt-alloc-row" id="allocItem${idx}">
+                    <span class="col-check">
+                        <span class="rcpt-alloc-check" onclick="toggleAllocItem(${idx})"></span>
+                    </span>
+                    <span class="col-doc">
+                        <span class="rcpt-doc-no">${esc(inv.documentNo)}</span>
+                        ${isOverdue ? `<span class="rcpt-overdue">${inv.overdueDays}d</span>` : ''}
+                    </span>
+                    <span class="col-date">
+                        <span>${esc(inv.documentDate)}</span>
+                        <span class="rcpt-due">${esc(inv.dueDate || '—')}</span>
+                    </span>
+                    <span class="col-amt">${fmt(inv.outstandingAmount)}</span>
+                    <span class="col-input">
+                        <input type="number" class="form-control form-control-sm alloc-amt-input"
+                               data-idx="${idx}" step="0.01" min="0" max="${inv.outstandingAmount}"
+                               value="0" onchange="onAllocAmtChange(${idx})" oninput="onAllocAmtChange(${idx})" />
+                    </span>
+                </div>`;
+            });
+            $('#allocBody').html(html);
+        }
+
+        function toggleAllocItem(idx) {
+            const $input = $(`.alloc-amt-input[data-idx="${idx}"]`);
+            const currentVal = parseFloat($input.val()) || 0;
+            if (currentVal > 0) {
+                $input.val('0');
+            } else {
+                const outstanding = outstandingData[idx]?.outstandingAmount || 0;
+                const payAmt = parseFloat($('#txtAmount').val()) || 0;
+                const currentAllocTotal = getTotalAllocated();
+                const remaining = payAmt - currentAllocTotal;
+                $input.val(Math.min(remaining > 0 ? remaining : outstanding, outstanding).toFixed(2));
+            }
+            onAllocAmtChange(idx);
+        }
+
+        function onAllocAmtChange(idx) {
+            const $input = $(`.alloc-amt-input[data-idx="${idx}"]`);
+            const val = parseFloat($input.val()) || 0;
+            const max = outstandingData[idx]?.outstandingAmount || 0;
+            if (val > max) $input.val(max.toFixed(2));
+            const $row = $(`#allocItem${idx}`);
+            if (val > 0) {
+                $row.addClass('allocated');
+                $row.find('.rcpt-alloc-check').html('<i class="bi bi-check-lg"></i>');
+            } else {
+                $row.removeClass('allocated');
+                $row.find('.rcpt-alloc-check').html('');
+            }
+            updateAllocSummary();
+            updateTotals();
+        }
+
+        function getTotalAllocated() {
+            let total = 0;
+            $('.alloc-amt-input').each(function () { total += parseFloat($(this).val()) || 0; });
+            return total;
+        }
+
+        function autoAllocate() {
+            const amt = parseFloat($('#txtAmount').val()) || 0;
+            if (amt <= 0) {
+                Swal.fire({ icon: 'warning', title: 'Enter Amount', text: 'Please enter the payment amount before auto-allocating.' });
+                return;
+            }
+            let remaining = amt;
+            outstandingData.forEach((inv, idx) => {
+                const $input = $(`.alloc-amt-input[data-idx="${idx}"]`);
+                if (remaining > 0) {
+                    const alloc = Math.min(remaining, inv.outstandingAmount);
+                    $input.val(alloc.toFixed(2));
+                    remaining -= alloc;
+                } else {
+                    $input.val('0');
+                }
+                onAllocAmtChange(idx);
+            });
+        }
+
+        function clearAllocations() {
+            $('.alloc-amt-input').val('0');
+            outstandingData.forEach((_, idx) => onAllocAmtChange(idx));
+        }
+
+        function updateAllocSummary() {
+            const payAmt = parseFloat($('#txtAmount').val()) || 0;
+            const allocated = getTotalAllocated();
+            const unallocated = payAmt - allocated;
+            $('#sumPayment').text(fmt(payAmt));
+            $('#sumAllocated').text(fmt(allocated));
+            $('#sumUnallocated').text(fmt(unallocated));
+            if (unallocated === 0 && payAmt > 0) {
+                $('#sumUnallocated').removeClass('text-warning text-danger').addClass('text-success');
+                $('#allocStatusBadge').attr('class', 'badge bg-success-lt').text('Fully Allocated');
+            } else if (unallocated > 0) {
+                $('#sumUnallocated').removeClass('text-success text-danger').addClass('text-warning');
+                $('#allocStatusBadge').attr('class', 'badge bg-warning-lt').text('Partially Allocated');
+            } else if (unallocated < 0) {
+                $('#sumUnallocated').removeClass('text-success text-warning').addClass('text-danger');
+                $('#allocStatusBadge').attr('class', 'badge bg-danger-lt').text('Over Allocated');
+            }
+            if (allocated > 0) updateWizard(4);
+            else if (outstandingData.length > 0) updateWizard(3);
+        }
+
+        function updateTotals() {
+            const payAmt = parseFloat($('#txtAmount').val()) || 0;
+            const allocated = getTotalAllocated();
+            const unallocated = payAmt - allocated;
+            let totalOutstanding = 0;
+            outstandingData.forEach(inv => { totalOutstanding += inv.outstandingAmount || 0; });
+            let billCount = 0;
+            $('.alloc-amt-input').each(function () { if ((parseFloat($(this).val()) || 0) > 0) billCount++; });
+
+            $('#dispGrandTotal').text(fmt(payAmt));
+            $('#dispTotalOutstanding').text(fmt(totalOutstanding));
+            $('#dispAllocated').text(fmt(allocated));
+            $('#dispUnallocated').text(fmt(unallocated)).attr('class', `${unallocated > 0 ? 'text-warning' : unallocated < 0 ? 'text-danger' : 'text-success'}`);
+            $('#dispBillCount').text(billCount);
+            $('#dispPaidAmount').text(fmt(allocated));
+            $('#dispBalanceAmount').text(fmt(Math.max(0, totalOutstanding - allocated)));
+        }
+
+        // ── Wizard ──
+        function updateWizard(step) {
+            for (let i = 1; i <= 4; i++) {
+                const $pill = $(`#ws${i}`);
+                $pill.removeClass('active completed');
+                if (i < step) $pill.addClass('completed');
+                else if (i === step) $pill.addClass('active');
+            }
+        }
+
+        // ── Save Payment ──
+        async function savePayment() {
+            if (!selectedPayTo) {
+                Swal.fire({ icon: 'warning', title: 'Payment To', text: 'Please select who this payment is made to.' });
+                return;
+            }
+            const amt = parseFloat($('#txtAmount').val()) || 0;
+            if (amt <= 0) {
+                Swal.fire({ icon: 'warning', title: 'Amount Required', text: 'Please enter a valid payment amount.' });
+                return;
+            }
+            if (!$('#ddlPaymentMode').val()) {
+                Swal.fire({ icon: 'warning', title: 'Payment Mode', text: 'Please select a payment method.' });
+                return;
+            }
+
+            // Resolve partyId based on payee type
+            let partyId = 0;
+            let employeeId = null;
+            let outsourceId = null;
+            let payeeName = null;
+
+            if (selectedPayTo === 'CUSTOMER') {
+                if (!$('#ddlSupplier').val()) {
+                    Swal.fire({ icon: 'warning', title: 'Supplier Required', text: 'Please select a customer / supplier.' });
+                    return;
+                }
+                partyId = parseInt($('#ddlSupplier').val());
+            } else if (selectedPayTo === 'EMPLOYEE') {
+                if (!$('#ddlEmployee').val()) {
+                    Swal.fire({ icon: 'warning', title: 'Employee Required', text: 'Please select an employee.' });
+                    return;
+                }
+                employeeId = parseInt($('#ddlEmployee').val());
+            } else if (selectedPayTo === 'OUTSOURCE_VENDOR') {
+                if (!$('#ddlOutsource').val()) {
+                    Swal.fire({ icon: 'warning', title: 'Vendor Required', text: 'Please select an outsource vendor.' });
+                    return;
+                }
+                outsourceId = parseInt($('#ddlOutsource').val());
+                if (selectedPayeeData?.partyId) partyId = selectedPayeeData.partyId;
+            } else if (selectedPayTo === 'OTHER') {
+                payeeName = $('#txtPayeeName').val()?.trim();
+                if (!payeeName) {
+                    Swal.fire({ icon: 'warning', title: 'Payee Name', text: 'Please enter a payee name.' });
+                    return;
+                }
+            }
+
+            const allocations = [];
+            if (selectedPayTo === 'CUSTOMER') {
+                $('.alloc-amt-input').each(function () {
+                    const idx = $(this).data('idx');
+                    const allocAmt = parseFloat($(this).val()) || 0;
+                    if (allocAmt > 0 && outstandingData[idx]) {
+                        allocations.push({
+                            documentType: outstandingData[idx].documentType || 'AP_OUTSTANDING',
+                            documentId: outstandingData[idx].apId || 0,
+                            documentNo: outstandingData[idx].documentNo,
+                            allocatedAmount: allocAmt
+                        });
+                    }
+                });
+            }
+
+            const payload = {
+                paymentDate: $('#txtPaymentDate').val(),
+                partyId: partyId,
+                paymentMode: $('#ddlPaymentMode').val(),
+                amount: amt,
+                bankId: $('#ddlBankAccount').val() ? parseInt($('#ddlBankAccount').val()) : null,
+                referenceNo: $('#txtRefNo').val() || null,
+                referenceDate: $('#txtRefDate').val() || null,
+                remarks: $('#txtRemarks').val() || null,
+                paymentTo: selectedPayTo,
+                paymentAgainst: $('#ddlPaymentAgainst').val() || null,
+                employeeId: employeeId,
+                outsourceId: outsourceId,
+                payeeName: payeeName,
+                allocations: allocations
+            };
+
+            try {
+                Swal.fire({ title: 'Saving Payment…', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                const result = await $.ajax({
+                    url: `${ACC_API}/payment/save`,
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(payload)
+                });
+                Swal.close();
+                showPaymentAcknowledgement(result);
+            } catch (err) {
+                const errData = err.responseJSON;
+                let msg = errData?.message || 'Failed to save payment.';
+                if (errData?.errors && errData.errors.length) {
+                    msg += '<ul class="text-start mt-2 mb-0" style="font-size:.85rem;">';
+                    errData.errors.forEach(e => { msg += `<li>${esc(e)}</li>`; });
+                    msg += '</ul>';
+                }
+                Swal.fire({ icon: 'error', title: 'Error', html: msg });
+            }
+        }
+
+        // ── Post-Save Acknowledgement ──
+        function showPaymentAcknowledgement(result) {
+            const paymentId = result.paymentId;
+            const paymentNo = result.paymentNo;
+            const amount = result.amount;
+            const payeeName = result.payeeName || 'Payee';
+            const paymentDate = result.paymentDate || '';
+            const paymentMode = result.paymentMode || '';
+            const allocatedCount = result.allocatedCount || 0;
+            const paymentTo = result.paymentTo || '';
+            const paymentAgainst = result.paymentAgainst || '';
+
+            const payToLabels = { CUSTOMER: 'Customer / Supplier', EMPLOYEE: 'Employee', OUTSOURCE_VENDOR: 'Outsource Vendor', OTHER: 'Other' };
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Payment Saved!',
+                html: `<div class="text-center">
+                    <div class="mb-2" style="font-size:1.4rem; font-weight:700; color:#206bc4;">${esc(paymentNo)}</div>
+                    <div class="mb-1"><strong>${esc(payeeName)}</strong></div>
+                    <div class="text-muted small mb-1">${payToLabels[paymentTo] || paymentTo}${paymentAgainst ? ' · ' + esc(paymentAgainst.replace(/_/g, ' ')) : ''}</div>
+                    <div style="font-size:1.2rem; font-weight:600;">₹${Number(amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
+                    <div class="text-muted small mt-1">${esc(paymentDate)} · ${esc(paymentMode)}</div>
+                    ${allocatedCount > 0 ? `<div class="text-muted small">Allocated against ${allocatedCount} bill(s)</div>` : ''}
+                    <hr/>
+                    <div class="d-flex justify-content-center gap-2 flex-wrap">
+                        <button class="btn btn-outline-primary btn-sm" onclick="window.location.href='/Accounting/Payment/Create'">
+                            <i class="bi bi-plus-lg me-1"></i>New Payment
+                        </button>
+                    </div>
+                </div>`,
+                showConfirmButton: true,
+                confirmButtonText: '<i class="bi bi-arrow-left me-1"></i>Back to Payments',
+                allowOutsideClick: false
+            }).then(() => {
+                window.location.href = '/Accounting/Payment';
+            });
+        }
+
+        // ── Utilities ──
+        function fmt(v) { return v != null ? '₹' + Number(v).toLocaleString('en-IN', { minimumFractionDigits: 2 }) : '₹0.00'; }
+        function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.appendChild(document.createTextNode(s)); return d.innerHTML; }
+    </script>
+}

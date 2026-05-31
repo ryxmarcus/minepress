@@ -1,0 +1,498 @@
+@page
+@model erp.minepress.web.Pages.Account.ProfileModel
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<!-- ── Profile Hero ── -->
+<div class="up-hero d-print-none">
+    <div class="d-flex align-items-center gap-3 flex-wrap">
+        <div class="up-hero-avatar" id="profileAvatar">—</div>
+        <div>
+            <h2 class="up-hero-name mb-0" id="profileHeroName">Loading…</h2>
+            <div class="up-hero-sub" id="profileHeroSub"></div>
+        </div>
+        <div class="ms-auto d-flex gap-2">
+            <span class="up-status-badge" id="profileStatusBadge"></span>
+        </div>
+    </div>
+</div>
+
+<!-- ── AI Summary Card ── -->
+<div class="card up-ai-card mb-3">
+    <div class="card-body d-flex align-items-center gap-3 py-2">
+        <div class="up-ai-icon"><i class="bi bi-cpu"></i></div>
+        <div class="flex-fill">
+            <div class="fw-semibold small">AI Profile Summary</div>
+            <div id="aiProfileSummary" class="text-secondary" style="font-size:.78rem;">Analyzing your profile…</div>
+        </div>
+        <div id="aiProfileScore"></div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <!-- ── LEFT COLUMN ── -->
+    <div class="col-lg-4">
+        <!-- Profile Card -->
+        <div class="card up-profile-card mb-3">
+            <div class="card-body text-center">
+                <div class="up-avatar-lg mx-auto mb-3" id="profileAvatarLg">—</div>
+                <h4 class="mb-1" id="profileCardName">—</h4>
+                <div class="text-secondary small" id="profileCardDesig">—</div>
+                <div class="text-secondary small" id="profileCardDept">—</div>
+                <hr />
+                <div class="row g-2 text-start">
+                    <div class="col-12">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <i class="bi bi-envelope text-primary"></i>
+                            <span class="small" id="profileEmail">—</span>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <i class="bi bi-phone text-primary"></i>
+                            <span class="small" id="profileMobile">—</span>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <i class="bi bi-geo-alt text-primary"></i>
+                            <span class="small" id="profileLocation">—</span>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-person-badge text-primary"></i>
+                            <span class="small" id="profileEmpCode">—</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Access Flags -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <h3 class="card-title"><i class="bi bi-shield-check me-1"></i>Access & Permissions</h3>
+            </div>
+            <div class="card-body" id="profileFlags">
+                <div class="text-secondary small">Loading…</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── RIGHT COLUMN ── -->
+    <div class="col-lg-8">
+        <!-- Account Details -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <h3 class="card-title"><i class="bi bi-person-lines-fill me-1"></i>Account Details</h3>
+            </div>
+            <div class="card-body">
+                <div class="row g-3" id="profileDetails">
+                    <div class="text-secondary small text-center py-3">Loading…</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Security Info -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <h3 class="card-title"><i class="bi bi-lock me-1"></i>Security Information</h3>
+            </div>
+            <div class="card-body" id="profileSecurity">
+                <div class="text-secondary small text-center py-3">Loading…</div>
+            </div>
+        </div>
+
+        <!-- Recent Login Activity -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <h3 class="card-title"><i class="bi bi-clock-history me-1"></i>Recent Login Activity</h3>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0" style="font-size:.84rem;">
+                    <thead>
+                        <tr>
+                            <th>Login Time</th>
+                            <th>Logout Time</th>
+                            <th>IP Address</th>
+                            <th>Channel</th>
+                        </tr>
+                    </thead>
+                    <tbody id="profileLoginLogs">
+                        <tr><td colspan="4" class="text-center text-secondary py-3">Loading…</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Assigned Roles -->
+        <div class="card mb-3">
+            <div class="card-header d-flex align-items-center">
+                <h3 class="card-title mb-0"><i class="bi bi-person-gear me-1"></i>Assigned Roles</h3>
+                <span class="badge bg-primary ms-auto" id="profileRoleCount">0</span>
+            </div>
+            <div class="card-body" id="profileRoles">
+                <div class="text-secondary small text-center py-3">Loading…</div>
+            </div>
+        </div>
+
+        <!-- Assigned Permissions (grouped by module) -->
+        <div class="card mb-3">
+            <div class="card-header d-flex align-items-center">
+                <h3 class="card-title mb-0"><i class="bi bi-key-fill me-1"></i>Assigned Permissions</h3>
+                <span class="badge bg-primary ms-auto" id="profilePermCount">0</span>
+            </div>
+            <div class="card-body" id="profilePermissions">
+                <div class="text-secondary small text-center py-3">Loading…</div>
+            </div>
+        </div>
+
+        <!-- Accessible Menus -->
+        <div class="card mb-3">
+            <div class="card-header d-flex align-items-center">
+                <h3 class="card-title mb-0"><i class="bi bi-list-nested me-1"></i>Accessible Menus</h3>
+                <span class="badge bg-primary ms-auto" id="profileMenuCount">0</span>
+            </div>
+            <div class="card-body" id="profileMenus">
+                <div class="text-secondary small text-center py-3">Loading…</div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="bi bi-lightning me-1"></i>Quick Actions</h3>
+            </div>
+            <div class="card-body">
+                <div class="row g-2">
+                    <div class="col-auto">
+                        <button class="btn btn-outline-primary btn-sm" onclick="changePassword()">
+                            <i class="bi bi-key me-1"></i>Change Password
+                        </button>
+                    </div>
+                    <div class="col-auto">
+                        <a href="/Hrms/Reimbursement" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-receipt me-1"></i>My Reimbursements
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Change Password Modal -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="background:linear-gradient(135deg,#0d6efd,#6366f1);color:#fff;border:none;">
+                <h5 class="modal-title"><i class="bi bi-key me-2"></i>Change Password</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" style="filter:brightness(0) invert(1);"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label required">Current Password</label>
+                    <input type="password" class="form-control" id="cpCurrent" required />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label required">New Password</label>
+                    <input type="password" class="form-control" id="cpNew" required />
+                    <div class="form-text">Minimum 8 characters with mixed case and numbers</div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label required">Confirm New Password</label>
+                    <input type="password" class="form-control" id="cpConfirm" required />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-primary" onclick="submitPasswordChange()">
+                    <i class="bi bi-check-lg me-1"></i>Update Password
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', loadProfile);
+
+        function escHtml(s) { const d = document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; }
+
+        async function loadProfile() {
+            try {
+                const res = await fetch('/api/userprofile/me');
+                if (!res.ok) throw new Error('Failed to load profile');
+                const u = await res.json();
+
+                const initial = (u.name || '?').charAt(0).toUpperCase();
+
+                // Hero
+                document.getElementById('profileAvatar').textContent = initial;
+                document.getElementById('profileHeroName').textContent = u.name;
+                document.getElementById('profileHeroSub').textContent = `${u.userCode} · ${u.username} · ${u.userType}`;
+                document.getElementById('profileStatusBadge').innerHTML = u.isActive
+                    ? '<i class="bi bi-check-circle me-1"></i>Active'
+                    : '<i class="bi bi-x-circle me-1"></i>Inactive';
+                document.getElementById('profileStatusBadge').className = 'up-status-badge ' + (u.isActive ? 'up-active' : 'up-inactive');
+
+                // Profile card
+                document.getElementById('profileAvatarLg').textContent = initial;
+                document.getElementById('profileCardName').textContent = u.name;
+                document.getElementById('profileCardDesig').textContent = u.designation;
+                document.getElementById('profileCardDept').textContent = u.department;
+                document.getElementById('profileEmail').textContent = u.email || 'Not set';
+                document.getElementById('profileMobile').textContent = u.mobile || 'Not set';
+                document.getElementById('profileLocation').textContent = u.location;
+                document.getElementById('profileEmpCode').textContent = u.employeeCode || 'Not linked';
+
+                // Account details
+                document.getElementById('profileDetails').innerHTML = `
+                    <div class="col-md-6"><div class="small text-secondary">User Code</div><div class="fw-semibold">${escHtml(u.userCode)}</div></div>
+                    <div class="col-md-6"><div class="small text-secondary">Username</div><div class="fw-semibold">${escHtml(u.username)}</div></div>
+                    <div class="col-md-6"><div class="small text-secondary">Department</div><div class="fw-semibold">${escHtml(u.department)}</div></div>
+                    <div class="col-md-6"><div class="small text-secondary">Designation</div><div class="fw-semibold">${escHtml(u.designation)}</div></div>
+                    <div class="col-md-6"><div class="small text-secondary">Location</div><div class="fw-semibold">${escHtml(u.location)}</div></div>
+                    <div class="col-md-6"><div class="small text-secondary">User Type</div><div class="fw-semibold">${escHtml(u.userType)}</div></div>
+                    <div class="col-md-6"><div class="small text-secondary">Joining Date</div><div class="fw-semibold">${u.joiningDate || '—'}</div></div>
+                    <div class="col-md-6"><div class="small text-secondary">Reporting To</div><div class="fw-semibold">${u.reportingUser ? escHtml(u.reportingUser.name) : '—'}</div></div>
+                `;
+
+                // Security
+                document.getElementById('profileSecurity').innerHTML = `
+                    <div class="row g-3">
+                        <div class="col-md-4"><div class="small text-secondary">Last Login</div><div class="fw-semibold">${u.lastLogin ? new Date(u.lastLogin).toLocaleString() : 'Never'}</div></div>
+                        <div class="col-md-4"><div class="small text-secondary">Last Password Change</div><div class="fw-semibold">${u.lastPasswordChange ? new Date(u.lastPasswordChange).toLocaleString() : '—'}</div></div>
+                        <div class="col-md-4"><div class="small text-secondary">Failed Logins</div><div class="fw-semibold">${u.failedLoginCount}</div></div>
+                    </div>
+                `;
+
+                // Flags
+                const flags = [
+                    { label: 'System Admin', val: u.isSystemAdmin, icon: 'bi-shield-lock' },
+                    { label: 'Approval User', val: u.isApprovalUser, icon: 'bi-check2-square' },
+                    { label: 'Production User', val: u.isProductionUser, icon: 'bi-gear' },
+                    { label: 'Web Access', val: u.isWebAccess, icon: 'bi-globe' },
+                    { label: 'Mobile Access', val: u.isMobileAccess, icon: 'bi-phone' }
+                ];
+                document.getElementById('profileFlags').innerHTML = flags.map(f =>
+                    `<div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="bi ${f.icon} ${f.val ? 'text-green' : 'text-secondary'}"></i>
+                        <span class="small">${f.label}</span>
+                        <span class="ms-auto">${f.val ? '<i class="bi bi-check-circle-fill text-green"></i>' : '<i class="bi bi-x-circle text-secondary"></i>'}</span>
+                    </div>`
+                ).join('');
+
+                // Login logs
+                const logsBody = document.getElementById('profileLoginLogs');
+                if (u.recentLogins && u.recentLogins.length > 0) {
+                    logsBody.innerHTML = u.recentLogins.map(l => `
+                        <tr>
+                            <td>${l.loginAt ? new Date(l.loginAt).toLocaleString() : '—'}</td>
+                            <td>${l.logoutAt ? new Date(l.logoutAt).toLocaleString() : '<span class="text-secondary">Active</span>'}</td>
+                            <td><code class="small">${escHtml(l.ip || '—')}</code></td>
+                            <td>${escHtml(l.channel || '—')}</td>
+                        </tr>
+                    `).join('');
+                } else {
+                    logsBody.innerHTML = '<tr><td colspan="4" class="text-center text-secondary py-3">No login history</td></tr>';
+                }
+
+                // AI summary
+                const aiParts = [];
+                if (u.aiHealthScore != null) {
+                    const cls = u.aiHealthScore >= 70 ? 'score-good' : u.aiHealthScore >= 40 ? 'score-warn' : 'score-bad';
+                    document.getElementById('aiProfileScore').innerHTML = `<span class="um-ai-score ${cls}">${u.aiHealthScore}% Health</span>`;
+                }
+                if (u.lastLogin) {
+                    const days = Math.floor((Date.now() - new Date(u.lastLogin).getTime()) / 86400000);
+                    aiParts.push(`Last active ${days} day(s) ago`);
+                } else {
+                    aiParts.push('No login history detected');
+                }
+                if (u.isSystemAdmin) aiParts.push('Elevated admin privileges');
+                if (u.failedLoginCount > 3) aiParts.push(`${u.failedLoginCount} failed login attempts`);
+                document.getElementById('aiProfileSummary').textContent = aiParts.join(' · ') || 'Profile looks good!';
+
+                // ── Roles, Permissions, Menus (parallel fetch) ──
+                await Promise.allSettled([
+                    loadMyRoles(),
+                    loadMyPermissions(),
+                    loadMyMenus()
+                ]);
+
+            } catch (e) {
+                console.error('Profile load error', e);
+                Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to load profile data.' });
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        //  Roles
+        // ═══════════════════════════════════════════════════════════
+        async function loadMyRoles() {
+            try {
+                const res = await fetch('/api/userprofile/my-roles');
+                if (!res.ok) throw new Error('Failed');
+                const roles = await res.json();
+                document.getElementById('profileRoleCount').textContent = roles.length;
+                if (roles.length === 0) {
+                    document.getElementById('profileRoles').innerHTML =
+                        '<div class="text-secondary small text-center py-2">No roles assigned</div>';
+                    return;
+                }
+                document.getElementById('profileRoles').innerHTML = roles.map(r =>
+                    `<div class="d-flex align-items-center gap-2 mb-2 p-2 rounded" style="background:#f8f9fa;">
+                        <i class="bi bi-person-badge-fill text-primary"></i>
+                        <div class="flex-fill">
+                            <div class="fw-semibold small">${escHtml(r.roleName)}</div>
+                            <div class="text-secondary" style="font-size:.75rem;">${escHtml(r.roleCode)}${r.description ? ' — ' + escHtml(r.description) : ''}</div>
+                        </div>
+                    </div>`
+                ).join('');
+            } catch (e) {
+                console.error('Roles load error', e);
+                document.getElementById('profileRoles').innerHTML =
+                    '<div class="text-danger small text-center py-2">Failed to load roles</div>';
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        //  Permissions (grouped by module)
+        // ═══════════════════════════════════════════════════════════
+        async function loadMyPermissions() {
+            try {
+                const res = await fetch('/api/userprofile/my-permissions');
+                if (!res.ok) throw new Error('Failed');
+                const perms = await res.json();
+                document.getElementById('profilePermCount').textContent = perms.length;
+                if (perms.length === 0) {
+                    document.getElementById('profilePermissions').innerHTML =
+                        '<div class="text-secondary small text-center py-2">No permissions assigned</div>';
+                    return;
+                }
+                // Group by module
+                const grouped = {};
+                perms.forEach(p => {
+                    const mod = p.moduleName || 'General';
+                    if (!grouped[mod]) grouped[mod] = [];
+                    grouped[mod].push(p);
+                });
+                const moduleColors = {
+                    'ENQUIRY': '#1971c2', 'QUOTATION': '#2f9e44', 'JOB': '#e67700',
+                    'CHALLAN': '#9c36b5', 'INVOICE': '#c92a2a', 'PURCHASE': '#0c8599',
+                    'HRMS': '#d6336c', 'USER': '#495057', 'WORKSPACE': '#5c7cfa',
+                    'DASHBOARD': '#20c997', 'REPORT': '#868e96'
+                };
+                let html = '';
+                for (const [mod, items] of Object.entries(grouped)) {
+                    const color = moduleColors[mod] || '#495057';
+                    html += `<div class="mb-3">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="badge" style="background:${color};font-size:.7rem;">${escHtml(mod)}</span>
+                            <span class="text-secondary" style="font-size:.72rem;">${items.length} permission${items.length > 1 ? 's' : ''}</span>
+                        </div>
+                        <div class="d-flex flex-wrap gap-1">
+                            ${items.map(p => `<span class="badge bg-light text-dark border" style="font-size:.72rem;" title="${escHtml(p.permissionCode)}">${escHtml(p.permissionName)}</span>`).join('')}
+                        </div>
+                    </div>`;
+                }
+                document.getElementById('profilePermissions').innerHTML = html;
+            } catch (e) {
+                console.error('Permissions load error', e);
+                document.getElementById('profilePermissions').innerHTML =
+                    '<div class="text-danger small text-center py-2">Failed to load permissions</div>';
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        //  Menus (hierarchical tree)
+        // ═══════════════════════════════════════════════════════════
+        async function loadMyMenus() {
+            try {
+                const res = await fetch('/api/userprofile/my-menus');
+                if (!res.ok) throw new Error('Failed');
+                const menus = await res.json();
+                document.getElementById('profileMenuCount').textContent = menus.length;
+                if (menus.length === 0) {
+                    document.getElementById('profileMenus').innerHTML =
+                        '<div class="text-secondary small text-center py-2">No menus available</div>';
+                    return;
+                }
+                // Build tree: parent → children
+                const roots = menus.filter(m => !m.parentMenuId || m.parentMenuId === 0);
+                const childMap = {};
+                menus.forEach(m => {
+                    if (m.parentMenuId && m.parentMenuId > 0) {
+                        if (!childMap[m.parentMenuId]) childMap[m.parentMenuId] = [];
+                        childMap[m.parentMenuId].push(m);
+                    }
+                });
+
+                function renderMenu(item) {
+                    const children = childMap[item.menuId] || [];
+                    const hasChildren = children.length > 0;
+                    const icon = item.icon || 'bi-circle';
+                    let html = `<div class="d-flex align-items-center gap-2 py-1 ps-${(item.menuLevel || 1) - 1}" style="margin-left:${((item.menuLevel || 1) - 1) * 16}px;">
+                        <i class="bi ${escHtml(icon)} text-primary" style="font-size:.82rem;"></i>
+                        <span class="small">${item.routeUrl ? `<a href="${escHtml(item.routeUrl)}" class="text-decoration-none">${escHtml(item.menuName)}</a>` : escHtml(item.menuName)}</span>
+                        ${hasChildren ? `<span class="text-secondary" style="font-size:.68rem;">(${children.length})</span>` : ''}
+                    </div>`;
+                    if (hasChildren) {
+                        html += children.map(c => renderMenu(c)).join('');
+                    }
+                    return html;
+                }
+
+                document.getElementById('profileMenus').innerHTML = roots.map(r => renderMenu(r)).join('');
+            } catch (e) {
+                console.error('Menus load error', e);
+                document.getElementById('profileMenus').innerHTML =
+                    '<div class="text-danger small text-center py-2">Failed to load menus</div>';
+            }
+        }
+
+        function changePassword() {
+            document.getElementById('cpCurrent').value = '';
+            document.getElementById('cpNew').value = '';
+            document.getElementById('cpConfirm').value = '';
+            new bootstrap.Modal(document.getElementById('changePasswordModal')).show();
+        }
+
+        async function submitPasswordChange() {
+            const current = document.getElementById('cpCurrent').value;
+            const newPw = document.getElementById('cpNew').value;
+            const confirm = document.getElementById('cpConfirm').value;
+
+            if (!current || !newPw || !confirm) {
+                Swal.fire({ icon: 'warning', title: 'Validation', text: 'Please fill all fields.' });
+                return;
+            }
+            if (newPw !== confirm) {
+                Swal.fire({ icon: 'warning', title: 'Mismatch', text: 'New password and confirmation do not match.' });
+                return;
+            }
+            if (newPw.length < 8) {
+                Swal.fire({ icon: 'warning', title: 'Too Short', text: 'Password must be at least 8 characters.' });
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/userprofile/change-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ currentPassword: current, newPassword: newPw })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.message || 'Failed');
+                Swal.fire({ icon: 'success', title: 'Password Changed', text: data.message, timer: 2000 });
+                bootstrap.Modal.getInstance(document.getElementById('changePasswordModal'))?.hide();
+            } catch (e) {
+                Swal.fire({ icon: 'error', title: 'Error', text: e.message });
+            }
+        }
+    </script>
+}

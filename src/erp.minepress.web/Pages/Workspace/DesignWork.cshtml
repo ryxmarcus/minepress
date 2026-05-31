@@ -1,0 +1,555 @@
+@page
+@using System.Linq
+@using System.Text.Json
+@model erp.minepress.web.Pages.Workspace.DesignWorkModel
+@{
+    ViewData["Title"] = "Design Work";
+    ViewData["ContainerClass"] = "container-fluid";
+    ViewData["HidePageHeader"] = true;
+
+    // ── Parse config_data (hyb_job_rate_calculator) ───────────────────────
+    var hasRateJson = !string.IsNullOrWhiteSpace(Model.JobRateConfigJson);
+    System.Text.Json.JsonElement root = default;
+    System.Text.Json.JsonElement jobTypeEl = default;
+    var parts = new List<System.Text.Json.JsonElement>();
+
+    string ReadText(System.Text.Json.JsonElement parent, string prop)
+    {
+        if (parent.ValueKind is System.Text.Json.JsonValueKind.Null or System.Text.Json.JsonValueKind.Undefined)
+            return string.Empty;
+        if (!parent.TryGetProperty(prop, out var item) || item.ValueKind == System.Text.Json.JsonValueKind.Null || item.ValueKind == System.Text.Json.JsonValueKind.Undefined)
+            return string.Empty;
+        return item.ValueKind == System.Text.Json.JsonValueKind.String ? (item.GetString() ?? string.Empty) : item.ToString();
+    }
+
+    List<string> ReadArray(System.Text.Json.JsonElement parent, string prop)
+    {
+        if (parent.ValueKind is System.Text.Json.JsonValueKind.Null or System.Text.Json.JsonValueKind.Undefined)
+            return new List<string>();
+        if (!parent.TryGetProperty(prop, out var arr) || arr.ValueKind != System.Text.Json.JsonValueKind.Array)
+            return new List<string>();
+        return arr.EnumerateArray()
+            .Select(x => x.ValueKind == System.Text.Json.JsonValueKind.String ? x.GetString() ?? string.Empty : x.ToString())
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .ToList();
+    }
+
+    var parsed = false;
+    if (hasRateJson)
+    {
+        try
+        {
+            var rateDoc = System.Text.Json.JsonDocument.Parse(Model.JobRateConfigJson!);
+            root         = rateDoc.RootElement;
+            jobTypeEl    = root.TryGetProperty("jobType", out var _jt) ? _jt : default;
+            parts        = root.TryGetProperty("productParts", out var partsEl) && partsEl.ValueKind == System.Text.Json.JsonValueKind.Array
+                               ? partsEl.EnumerateArray().ToList()
+                               : new List<System.Text.Json.JsonElement>();
+            parsed = true;
+        }
+        catch { parsed = false; }
+    }
+
+    // ── Build design table rows from config ───────────────────────────────
+    // Each row: (PartName, DesignItem, PagesRequired)
+    // Accumulate pages per unique design item name across all parts
+    var designItemPages = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+    if (parsed)
+    {
+        foreach (var p in parts)
+        {
+            var spec     = p.TryGetProperty("specification", out var specE) ? specE : default;
+            var designEl = p.TryGetProperty("designDtp",     out var dEl)   ? dEl   : default;
+            var items    = designEl.ValueKind == System.Text.Json.JsonValueKind.Object
+                               ? ReadArray(designEl, "designItems")
+                               : new List<string>();
+
+            int.TryParse(ReadText(spec, "pages"), out int pagesInt);
+
+            if (items.Count > 0)
+            {
+                foreach (var di in items)
+                {
+                    if (designItemPages.ContainsKey(di))
+                        designItemPages[di] += pagesInt;
+                    else
+                        designItemPages[di] = pagesInt;
+                }
+            }
+            else
+            {
+                const string fallback = "Design / DTP";
+                if (designItemPages.ContainsKey(fallback))
+                    designItemPages[fallback] += pagesInt;
+                else
+                    designItemPages[fallback] = pagesInt;
+            }
+        }
+    }
+
+    var designRows = designItemPages
+        .Select(kv => (PartName: string.Empty, DesignItem: kv.Key, PagesRequired: kv.Value))
+        .ToList();
+
+    // Fallback: no parts but has config
+    if (designRows.Count == 0 && parsed)
+    {
+        designRows.Add(("—", "Design / DTP", 0));
+    }
+}
+
+<!-- Page Header -->
+<div class="page-header d-print-none mb-3">
+    <div class="container-xl">
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <span class="avatar avatar-md bg-purple-lt text-purple">
+                    <i class="bi bi-pen-fill fs-3"></i>
+                </span>
+            </div>
+            <div class="col">
+                <h2 class="page-title mb-0">Design Work</h2>
+                <div class="text-secondary mt-1">Task #@Model.TaskId • @Model.UserFullName</div>
+            </div>
+            <div class="col-auto d-flex gap-2">
+                <button class="btn btn-outline-secondary btn-sm" id="dwRefreshBtn">
+                    <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+                </button>
+                <a href="/Workspace/MyTasks" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>Back to My Tasks
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 3-Column Layout -->
+<div class="pw-create-layout">
+
+    <!-- ═══════ LEFT SIDEBAR ═══════ -->
+    <aside class="pw-create-sidebar pw-create-sidebar-left">
+
+        <!-- Task Summary -->
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="avatar avatar-xs bg-teal-lt text-teal"><i class="bi bi-clipboard-check"></i></span>
+                    <h3 class="card-title mb-0">Task Summary</h3>
+                </div>
+            </div>
+            <div class="card-body" id="dwTaskSummary">
+                <div class="text-center py-4"><div class="spinner-border spinner-border-sm"></div></div>
+            </div>
+        </div>
+
+        </aside>
+
+    <!-- ═══════ CENTER ═══════ -->
+    <main class="pw-create-main">
+
+        <!-- Design / DTP Input Table -->
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex align-items-center gap-2 flex-grow-1">
+                    <span class="avatar avatar-sm bg-purple text-white"><i class="bi bi-pen-fill"></i></span>
+                    <div>
+                        <h3 class="card-title mb-0">Design / DTP Progress</h3>
+                        <div class="text-secondary" style="font-size:.75rem;">Track pages required, completed and pending per design activity</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Totals bar -->
+            <div class="prw-totals-bar" id="dwTotalsBar">
+                <div class="prw-total-item">
+                    <span>Activities</span><strong id="dwTotalActivities">0</strong>
+                </div>
+                <div class="prw-total-item">
+                    <span>Required</span><strong id="dwTotalRequired">0</strong>
+                </div>
+                <div class="prw-total-item">
+                    <span>Completed</span><strong id="dwTotalCompleted">0</strong>
+                </div>
+                <div class="prw-total-item prw-total-balance">
+                    <span>Pending</span><strong id="dwTotalPending">0</strong>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <div class="table-responsive w-100">
+                    <table class="table table-vcenter table-hover mb-0 w-100" id="dwDesignTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width:36px;"></th>
+                                <th style="min-width:160px;">Design / DTP Activity</th>
+                                <th style="width:160px;white-space:normal;">Pages Required</th>
+                                <th style="width:170px;white-space:normal;">Pages Completed</th>
+                                <th style="width:100px;white-space:normal;" class="text-end">Pending</th>
+                                <th style="width:180px;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dwDesignTableBody">
+                            @if (Model.SavedDesignEntries.Count > 0)
+                            {
+                                // ── Render from saved DB rows ──────────────────────────────────
+                                foreach (var entry in Model.SavedDesignEntries)
+                                {
+                                    var idx = (int)entry.DesignWorkId;
+                                    <tr class="dw-design-row @(entry.IsCompleted ? "table-success" : "")"
+                                        data-row="@idx"
+                                        data-design-work-id="@entry.DesignWorkId"
+                                        data-completed="@(entry.IsCompleted.ToString().ToLower())"
+                                        >
+                                        <td>
+                                            <input type="checkbox" class="form-check-input dw-row-check" value="@idx">
+                                        </td>
+                                        <td style="word-break:break-word;white-space:normal;max-width:0;">
+                                            <div class="d-flex align-items-start gap-2">
+                                                <span class="avatar avatar-xs bg-purple-lt text-purple flex-shrink-0 mt-1"><i class="bi bi-pencil-fill"></i></span>
+                                                <div class="fw-semibold dw-activity-name" style="white-space:normal;word-break:break-word;overflow-wrap:anywhere;">@entry.ActivityName</div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control form-control-sm dw-required w-100"
+                                                   value="@entry.PagesRequired" min="0"
+                                                   @(entry.IsCompleted ? "disabled" : "")>
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control form-control-sm dw-completed w-100"
+                                                   value="@entry.PagesCompleted" min="0"
+                                                   @(entry.IsCompleted ? "disabled" : "")>
+                                        </td>
+                                        <td class="text-end" style="overflow:hidden;">
+                                            <span class="badge @(entry.IsCompleted ? "bg-green-lt text-green" : "bg-orange-lt text-orange") dw-pending fw-bold">
+                                                @(entry.PagesPending ?? Math.Max(0, entry.PagesRequired - entry.PagesCompleted))
+                                            </span>
+                                        </td>
+                                        <td style="width:180px;">
+                                            <div class="d-flex gap-1 flex-wrap">
+                                                @if (entry.IsCompleted)
+                                                {
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary dw-update-task" data-row="@idx" disabled title="Row already completed">
+                                                        <i class="bi bi-arrow-repeat"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-success dw-complete-task" data-row="@idx" disabled>
+                                                        <i class="bi bi-check-circle-fill me-1"></i>Done
+                                                    </button>
+                                                }
+                                                else
+                                                {
+                                                    <button type="button" class="btn btn-sm btn-outline-primary dw-update-task" data-row="@idx" title="Update this row">
+                                                        <i class="bi bi-arrow-repeat me-1"></i>Update
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-outline-success dw-complete-task" data-row="@idx" title="Mark task as complete">
+                                                        <i class="bi bi-check-circle me-1"></i>Complete
+                                                    </button>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else if (designRows.Count > 0)
+                            {
+                                // ── Render from job config (not yet saved) ─────────────────────
+                                var rowIndex = 0;
+                                foreach (var row in designRows)
+                                {
+                                    <tr class="dw-design-row" data-row="@rowIndex">
+                                        <td>
+                                            <input type="checkbox" class="form-check-input dw-row-check" value="@rowIndex">
+                                        </td>
+                                        <td style="word-break:break-word;white-space:normal;max-width:0;">
+                                            <div class="d-flex align-items-start gap-2">
+                                                <span class="avatar avatar-xs bg-purple-lt text-purple flex-shrink-0 mt-1"><i class="bi bi-pencil-fill"></i></span>
+                                                <div class="fw-semibold dw-activity-name" style="white-space:normal;word-break:break-word;overflow-wrap:anywhere;">@row.DesignItem</div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control form-control-sm dw-required w-100"
+                                                   value="0" min="0"
+                                                   data-original="@row.PagesRequired">
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control form-control-sm dw-completed w-100"
+                                                   value="0" min="0" placeholder="0">
+                                        </td>
+                                        <td class="text-end" style="overflow:hidden;">
+                                            <span class="badge bg-orange-lt text-orange dw-pending fw-bold">0</span>
+                                        </td>
+                                        <td style="width:180px;">
+                                            <div class="d-flex gap-1 flex-wrap">
+                                                <button type="button" class="btn btn-sm btn-outline-primary dw-update-task" data-row="@rowIndex" title="Update this row">
+                                                    <i class="bi bi-arrow-repeat me-1"></i>Update
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-success dw-complete-task" data-row="@rowIndex" title="Mark task as complete">
+                                                    <i class="bi bi-check-circle me-1"></i>Complete
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    rowIndex++;
+                                }
+                            }
+                            else
+                            {
+                                <tr id="dwNoConfigRow">
+                                    <td colspan="5" class="text-center text-secondary py-4">
+                                        <i class="bi bi-pen me-2"></i>No design config found. Add rows manually.
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Job Rate Config Card (collapsible) -->
+        @if (parsed)
+        {
+            <div class="card mt-3 pw-rate-card">
+                <div class="card-header">
+                    <div class="d-flex align-items-center gap-2 flex-grow-1">
+                        <span class="avatar avatar-sm bg-blue text-white"><i class="bi bi-calculator-fill"></i></span>
+                        <div>
+                            <h3 class="card-title mb-0">Job Details</h3>
+                            <div class="text-secondary" style="font-size:.75rem;">@(jobTypeEl.ValueKind == System.Text.Json.JsonValueKind.Object ? ReadText(jobTypeEl, "value") : "—") • @ReadText(root, "productType")</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-sm btn-outline-secondary rounded-pill px-2" type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#dwRateCollapse_@(Model.TaskId)"
+                            aria-expanded="false"
+                            aria-controls="dwRateCollapse_@(Model.TaskId)">
+                        <i class="bi bi-chevron-down" id="dwRateToggleIcon_@(Model.TaskId)"></i>
+                    </button>
+                </div>
+
+                <div class="collapse" id="dwRateCollapse_@(Model.TaskId)">
+                    <div class="card-body pw-rate-body">
+                        <div class="pw-rate-summary-grid">
+                            <div class="pw-rate-stat">
+                                <span><i class="bi bi-box-seam me-1"></i>Product Type</span>
+                                <strong>@(string.IsNullOrWhiteSpace(ReadText(root, "productType")) ? "—" : ReadText(root, "productType"))</strong>
+                            </div>
+                            <div class="pw-rate-stat">
+                                <span><i class="bi bi-rulers me-1"></i>Product Size</span>
+                                <strong>@(string.IsNullOrWhiteSpace(ReadText(root, "productSize")) ? "—" : ReadText(root, "productSize"))</strong>
+                            </div>
+                            <div class="pw-rate-stat">
+                                <span><i class="bi bi-aspect-ratio me-1"></i>Trim Size</span>
+                                <strong>@ReadText(root, "trimWidth") × @ReadText(root, "trimHeight") mm</strong>
+                            </div>
+                            <div class="pw-rate-stat">
+                                <span><i class="bi bi-hash me-1"></i>Quantity</span>
+                                <strong>@ReadText(root, "quantity")</strong>
+                            </div>
+                            <div class="pw-rate-stat">
+                                <span><i class="bi bi-layers me-1"></i>Sides</span>
+                                <strong>@(ReadText(root, "sides") == "1" ? "Single Side" : ReadText(root, "sides") == "2" ? "Both Sides" : ReadText(root, "sides"))</strong>
+                            </div>
+                        </div>
+
+                        @if (parts.Count > 0)
+                        {
+                            <div class="pw-rate-section">
+                                <div class="pw-rate-section-title"><i class="bi bi-box-seam"></i>Part-wise Design Plan</div>
+                                <div class="pw-rate-parts-grid">
+                                    @foreach (var part in parts)
+                                    {
+                                        var partName  = ReadText(part, "partName");
+                                        var spec      = part.TryGetProperty("specification", out var specEl) ? specEl : default;
+                                        var designEl2 = part.TryGetProperty("designDtp",     out var dEl2)  ? dEl2   : default;
+                                        var designItems = designEl2.ValueKind == System.Text.Json.JsonValueKind.Object
+                                                          ? ReadArray(designEl2, "designItems")
+                                                          : new List<string>();
+
+                                        <div class="pw-rate-part-card">
+                                            <div class="pw-rate-part-title">@partName</div>
+                                            <div class="pw-rate-part-spec">
+                                                <span><i class="bi bi-files"></i>@ReadText(spec, "pages") pages</span>
+                                                <span><i class="bi bi-palette"></i>@ReadText(spec, "color") color</span>
+                                                <span><i class="bi bi-layers"></i>@ReadText(spec, "paper")</span>
+                                            </div>
+                                            <div class="pw-rate-process-lines">
+                                                <div>
+                                                    <label>Design / DTP Items</label>
+                                                    <p>@(designItems.Count > 0 ? string.Join(" • ", designItems) : "—")</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+
+        </main>
+
+    <!-- ═══════ RIGHT SIDEBAR ═══════ -->
+    <aside class="pw-create-sidebar pw-create-sidebar-right">
+
+        <!-- Work Notes -->
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="avatar avatar-xs bg-yellow-lt text-yellow"><i class="bi bi-pencil-square"></i></span>
+                    <h3 class="card-title mb-0">Work Notes</h3>
+                </div>
+            </div>
+            <div class="card-body">
+                <textarea class="form-control" rows="6" id="dwNotes" placeholder="Enter design work details, observations or issues...">@(Model.SavedDesignEntries.Select(e => e.Notes).FirstOrDefault(n => !string.IsNullOrWhiteSpace(n)) ?? string.Empty)</textarea>
+            </div>
+        </div>
+
+        <!-- User-wise Design Activity -->
+        @if (Model.UserDesignActivities.Count > 0)
+        {
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex align-items-center gap-2 flex-grow-1">
+                        <span class="avatar avatar-xs bg-indigo-lt text-indigo"><i class="bi bi-people-fill"></i></span>
+                        <h3 class="card-title mb-0">Designer Activity</h3>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="dw-user-activity-list">
+                        @foreach (var ua in Model.UserDesignActivities)
+                        {
+                            var pct = ua.PagesRequired > 0
+                                ? (int)Math.Round((double)ua.PagesCompleted / ua.PagesRequired * 100)
+                                : (ua.PagesCompleted > 0 ? 100 : 0);
+                            var barColor = pct >= 100 ? "bg-success" : pct >= 50 ? "bg-info" : "bg-warning";
+                            var initials = string.Join("", ua.UserName.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(w => w[0])).ToUpper();
+
+                            <div class="dw-user-activity-row">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="avatar avatar-sm bg-purple text-white fw-bold" style="font-size:.7rem;">@initials</span>
+                                    <div class="flex-grow-1 overflow-hidden">
+                                        <div class="fw-semibold text-truncate" style="font-size:.85rem;">@ua.UserName</div>
+                                        <div class="text-secondary" style="font-size:.72rem;">
+                                            @ua.TotalActivities activit@(ua.TotalActivities == 1 ? "y" : "ies")
+                                            &bull; @ua.CompletedCount done
+                                        </div>
+                                    </div>
+                                    <span class="badge @(pct >= 100 ? "bg-success-lt text-success" : pct >= 50 ? "bg-info-lt text-info" : "bg-warning-lt text-warning") fw-semibold">@pct%</span>
+                                </div>
+                                <div class="progress mb-2" style="height:5px;">
+                                    <div class="progress-bar @barColor" style="width:@pct%" role="progressbar"></div>
+                                </div>
+                                <div class="dw-user-stat-row">
+                                    <div class="dw-user-stat">
+                                        <span class="text-secondary">Required</span>
+                                        <strong>@ua.PagesRequired</strong>
+                                    </div>
+                                    <div class="dw-user-stat">
+                                        <span class="text-secondary">Completed</span>
+                                        <strong class="text-success">@ua.PagesCompleted</strong>
+                                    </div>
+                                    <div class="dw-user-stat">
+                                        <span class="text-secondary">Pending</span>
+                                        <strong class="@(ua.PagesPending > 0 ? "text-orange" : "text-success")">@ua.PagesPending</strong>
+                                    </div>
+                                </div>
+                                @if (ua.LastSavedOn.HasValue)
+                                {
+                                    <div class="text-secondary mt-1" style="font-size:.7rem;">
+                                        <i class="bi bi-clock me-1"></i>Last saved @ua.LastSavedOn.Value.ToString("dd MMM yyyy, hh:mm tt")
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Action Buttons -->
+        <button type="button" id="dwStartBtn" class="btn w-100 py-2 btn-outline-primary">
+            <i class="bi bi-play-fill me-2"></i>Start Step
+        </button>
+
+        <button type="button" id="dwSaveBtn" class="btn w-100 py-2 btn-outline-secondary">
+            <i class="bi bi-save me-2"></i>Save Progress
+        </button>
+
+        <button type="button" id="dwCompleteBtn" class="btn w-100 py-2" style="background:#10b981;color:#fff;">
+            <i class="bi bi-check-lg me-2"></i>Complete Step
+        </button>
+    </aside>
+</div>
+
+@section Styles {
+    <style>
+        /* ── User-wise activity card ────────────────────────────── */
+        .dw-user-activity-list {
+            display: flex;
+            flex-direction: column;
+        }
+        .dw-user-activity-row {
+            padding: .75rem 1rem;
+            border-bottom: 1px solid var(--tblr-border-color, #e6e7e9);
+        }
+        .dw-user-activity-row:last-child {
+            border-bottom: none;
+        }
+        .dw-user-stat-row {
+            display: flex;
+            gap: .5rem;
+        }
+        .dw-user-stat {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: var(--tblr-bg-surface-secondary, #f8f8f8);
+            border-radius: .375rem;
+            padding: .25rem .4rem;
+            font-size: .75rem;
+        }
+        .dw-user-stat strong {
+            font-size: .85rem;
+        }
+        [data-bs-theme="dark"] .dw-user-stat {
+            background: rgba(255,255,255,.04);
+        }
+        /* ── Rate card ─────────────────────────────────────────── */
+        .dw-rate-card-hero {
+            background: linear-gradient(135deg, #7c3aed 0%, #4c1d95 100%) !important;
+        }
+        [data-bs-theme="dark"] .dw-rate-card-hero {
+            background: linear-gradient(135deg, #6d28d9 0%, #3b0764 100%) !important;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script src="/js/workspace-design-work.js"></script>
+    <script>
+        const dwTaskId = @Model.TaskId;
+        document.addEventListener('DOMContentLoaded', function () { DesignWork.init(dwTaskId); });
+    </script>
+    <script>
+        (function () {
+            setTimeout(() => {
+                document.querySelectorAll('[id^="dwRateCollapse_"]').forEach(collapseEl => {
+                    const iconId = collapseEl.id.replace('dwRateCollapse_', 'dwRateToggleIcon_');
+                    const iconEl = document.getElementById(iconId);
+                    if (!iconEl) return;
+                    collapseEl.addEventListener('show.bs.collapse', function () {
+                        iconEl.classList.remove('bi-chevron-down');
+                        iconEl.classList.add('bi-chevron-up');
+                    });
+                    collapseEl.addEventListener('hide.bs.collapse', function () {
+                        iconEl.classList.remove('bi-chevron-up');
+                        iconEl.classList.add('bi-chevron-down');
+                    });
+                });
+            }, 50);
+        })();
+    </script>
+}

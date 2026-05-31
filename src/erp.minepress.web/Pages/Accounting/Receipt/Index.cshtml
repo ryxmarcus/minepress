@@ -1,0 +1,242 @@
+@page
+@model erp.minepress.web.Pages.Accounting.Receipt.IndexModel
+@{
+    ViewData["Title"] = "Receipts";
+}
+
+<div class="acc-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto"><span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);"><i class="bi bi-cash-stack" style="font-size:1.5rem;"></i></span></div>
+        <div class="col">
+            <h2 class="mb-0">Receipts</h2>
+            <div class="text-white-75">Customer payment receipts — Accounts Receivable</div>
+        </div>
+        <div class="col-auto d-flex gap-2">
+            <a href="/Accounting" class="btn btn-outline-light btn-sm"><i class="bi bi-arrow-left me-1"></i>Back</a>
+            <a href="/Accounting/Receipt/Create" class="btn btn-light btn-sm"><i class="bi bi-plus-lg me-1"></i>New Receipt</a>
+            <button class="btn btn-outline-light btn-sm" onclick="loadList()"><i class="bi bi-arrow-clockwise me-1"></i>Refresh</button>
+        </div>
+    </div>
+</div>
+
+<div class="acc-sub-nav d-print-none mb-3">
+    <a href="/Accounting/SalesInvoice" class="acc-sub-nav-item"><i class="bi bi-receipt-cutoff me-1"></i>Invoices</a>
+    <a href="/Accounting/Receipt" class="acc-sub-nav-item active"><i class="bi bi-cash-stack me-1"></i>Receipts</a>
+    <a href="/Accounting/CreditNote" class="acc-sub-nav-item"><i class="bi bi-file-earmark-minus me-1"></i>Credit Notes</a>
+    <a href="/Accounting/ArOutstanding" class="acc-sub-nav-item"><i class="bi bi-clock-history me-1"></i>AR Outstanding</a>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body py-2">
+        <div class="row g-2 align-items-center">
+            <div class="col-md-4">
+                <div class="input-icon"><span class="input-icon-addon"><i class="bi bi-search"></i></span>
+                    <input type="text" id="txtSearch" class="form-control form-control-sm" placeholder="Search receipt no, customer..." /></div>
+            </div>
+            <div class="col-md-2">
+                <select id="ddlStatus" class="form-select form-select-sm">
+                    <option value="">All</option><option value="POSTED">Posted</option><option value="CANCELLED">Cancelled</option>
+                </select>
+            </div>
+            <div class="col-auto ms-auto"><span class="text-muted small" id="filteredCount"></span></div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table table-hover acc-list-table">
+            <thead><tr><th>Receipt No</th><th>Date</th><th>Customer</th><th>Mode</th><th class="text-end">Amount</th><th>Status</th><th class="text-end" style="width:120px;">Actions</th></tr></thead>
+            <tbody id="listBody"><tr><td colspan="7" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2"></div>Loading...</td></tr></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Print Receipt Modal -->
+<div class="modal modal-blur fade" id="receiptPrintModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Payment Receipt</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="receiptPrintBody">
+                <div class="text-center py-4"><div class="spinner-border spinner-border-sm me-2"></div>Loading...</div>
+            </div>
+            <div class="modal-footer d-print-none">
+                <button type="button" class="btn btn-ghost-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-outline-success btn-sm" onclick="emailCurrentReceipt()">
+                    <i class="bi bi-envelope me-1"></i>Email
+                </button>
+                <button type="button" class="btn btn-outline-success btn-sm" onclick="shareWhatsApp()">
+                    <i class="bi bi-whatsapp me-1"></i>WhatsApp
+                </button>
+                <button type="button" class="btn btn-primary btn-sm" onclick="printReceipt()">
+                    <i class="bi bi-printer me-1"></i>Print
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let allData = [];
+        let currentReceiptId = null;
+        let currentReceiptData = null;
+        $(document).ready(function () { loadList(); $('#txtSearch, #ddlStatus').on('input change', applyFilters); });
+        function loadList() {
+            $.get('/api/accounting/receipts', function (data) { allData = data; applyFilters(); })
+            .fail(function () { $('#listBody').html('<tr><td colspan="7" class="text-center text-danger py-3">Failed to load.</td></tr>'); });
+        }
+        function applyFilters() {
+            const q = ($('#txtSearch').val() || '').toLowerCase(), st = $('#ddlStatus').val();
+            let f = allData.filter(i => { if (q && !(i.receiptNo || '').toLowerCase().includes(q) && !(i.customerName || '').toLowerCase().includes(q)) return false; if (st && i.status !== st) return false; return true; });
+            $('#filteredCount').text(f.length < allData.length ? `${f.length} of ${allData.length}` : '');
+            let html = '';
+            if (!f.length) html = '<tr><td colspan="7" class="text-center text-muted py-4">No receipts found</td></tr>';
+            f.forEach(i => {
+                const sc = { 'POSTED': 'acc-status-posted', 'CANCELLED': 'acc-status-cancelled' }[i.status] || 'bg-secondary-lt';
+                html += `<tr>
+                    <td class="fw-semibold">${esc(i.receiptNo)}</td>
+                    <td class="text-muted small">${esc(i.receiptDate)}</td>
+                    <td>${esc(i.customerName)}</td>
+                    <td class="small">${esc(i.paymentMode || '')}</td>
+                    <td class="text-end fw-semibold">${fmt(i.amount)}</td>
+                    <td><span class="acc-status-badge ${sc}">${(i.status || '').replace(/_/g, ' ')}</span></td>
+                    <td class="text-end">
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-ghost-primary btn-sm py-0 px-1" title="View / Print" onclick="viewReceipt(${i.receiptId})">
+                                <i class="bi bi-printer"></i>
+                            </button>
+                            <button class="btn btn-ghost-success btn-sm py-0 px-1" title="Email" onclick="emailReceipt(${i.receiptId})">
+                                <i class="bi bi-envelope"></i>
+                            </button>
+                            <button class="btn btn-ghost-success btn-sm py-0 px-1" title="WhatsApp" onclick="shareReceiptWhatsApp(${i.receiptId}, '${esc(i.receiptNo)}', '${esc(i.customerName)}', ${i.amount})">
+                                <i class="bi bi-whatsapp"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>`;
+            });
+            $('#listBody').html(html);
+        }
+
+        // ── View / Print Receipt ──
+        function viewReceipt(receiptId) {
+            currentReceiptId = receiptId;
+            $('#receiptPrintBody').html('<div class="text-center py-4"><div class="spinner-border spinner-border-sm me-2"></div>Loading...</div>');
+            var modal = new minepress.Modal(document.getElementById('receiptPrintModal'));
+            modal.show();
+            $.get(`/api/accounting/receipt/${receiptId}`, function (d) {
+                currentReceiptData = d;
+                renderReceiptPreview(d);
+            }).fail(function () {
+                $('#receiptPrintBody').html('<div class="text-center text-danger py-4">Failed to load receipt.</div>');
+            });
+        }
+
+        function renderReceiptPreview(d) {
+            let allocHtml = '';
+            if (d.allocations && d.allocations.length > 0) {
+                allocHtml = `<table class="table table-sm table-bordered mt-3" style="font-size:.82rem;">
+                    <thead><tr><th>Invoice No</th><th>Invoice Date</th><th class="text-end">Invoice Total</th><th class="text-end">Allocated</th></tr></thead>
+                    <tbody>`;
+                d.allocations.forEach(a => {
+                    allocHtml += `<tr><td>${esc(a.invoiceNo || '')}</td><td>${esc(a.invoiceDate || '')}</td><td class="text-end">${fmt(a.invoiceTotal)}</td><td class="text-end fw-semibold">${fmt(a.allocatedAmount)}</td></tr>`;
+                });
+                allocHtml += `</tbody></table>`;
+            }
+
+            $('#receiptPrintBody').html(`
+                <div style="border:1px solid #dee2e6; padding:24px; font-family:inherit;">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h4 class="mb-1">${esc(d.companyName || '')}</h4>
+                            <div class="text-muted small">${esc(d.companyAddress || '')}</div>
+                            ${d.companyGstin ? `<div class="small"><strong>GSTIN:</strong> ${esc(d.companyGstin)}</div>` : ''}
+                            ${d.companyPhone ? `<div class="small"><strong>Phone:</strong> ${esc(d.companyPhone)}</div>` : ''}
+                        </div>
+                        <div class="text-end">
+                            <h5 class="text-primary mb-1">PAYMENT RECEIPT</h5>
+                            <div><strong>${esc(d.receiptNo)}</strong></div>
+                            <div class="text-muted small">Date: ${esc(d.receiptDate)}</div>
+                        </div>
+                    </div>
+                    <hr/>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <div class="small text-muted mb-1">Received From</div>
+                            <div class="fw-semibold">${esc(d.customerName || '')}</div>
+                            ${d.customerCode ? `<div class="small text-muted">${esc(d.customerCode)}</div>` : ''}
+                            ${d.customerGst ? `<div class="small">GSTIN: ${esc(d.customerGst)}</div>` : ''}
+                        </div>
+                        <div class="col-6 text-end">
+                            <div class="small text-muted mb-1">Payment Details</div>
+                            <div class="small"><strong>Mode:</strong> ${esc(d.paymentMode || '')}</div>
+                            ${d.referenceNo ? `<div class="small"><strong>Ref:</strong> ${esc(d.referenceNo)}</div>` : ''}
+                            ${d.referenceDate ? `<div class="small"><strong>Ref Date:</strong> ${esc(d.referenceDate)}</div>` : ''}
+                            ${d.bankName ? `<div class="small"><strong>Bank:</strong> ${esc(d.bankName)}</div>` : ''}
+                        </div>
+                    </div>
+                    <div class="p-3 mb-3" style="background:#f8f9fa; border-radius:6px; text-align:center;">
+                        <div class="text-muted small mb-1">Amount Received</div>
+                        <div style="font-size:1.5rem; font-weight:700; color:#206bc4;">${fmt(d.amount)}</div>
+                    </div>
+                    ${allocHtml}
+                    ${d.remarks ? `<div class="mt-3 small"><strong>Remarks:</strong> ${esc(d.remarks)}</div>` : ''}
+                    <hr/>
+                    <div class="d-flex justify-content-between small text-muted">
+                        <div>This is a computer-generated receipt.</div>
+                        <div>${esc(d.createdOn || '')}</div>
+                    </div>
+                </div>
+            `);
+        }
+
+        function printReceipt() {
+            var content = document.getElementById('receiptPrintBody').innerHTML;
+            var win = window.open('', '_blank', 'width=800,height=600');
+            var doc = win.document;
+            doc.open();
+            doc.write('\x3Chtml>\x3Chead>\x3Ctitle>Receipt\x3C/title>');
+            doc.write('\x3Clink rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css"/>');
+            doc.write('\x3Cstyle>body{padding:20px;font-family:inherit;}@@media print{.no-print{display:none;}}\x3C/style>');
+            doc.write('\x3C/head>\x3Cbody>' + content + '\x3C/body>\x3C/html>');
+            doc.close();
+            setTimeout(function () { win.focus(); win.print(); }, 500);
+        }
+
+        // ── Email Receipt ──
+        function emailReceipt(receiptId) {
+            Swal.fire({ title: 'Sending email...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            $.ajax({
+                url: `/api/accounting/receipt/${receiptId}/send-email`,
+                method: 'POST'
+            }).done(function (res) {
+                Swal.fire({ icon: 'success', title: 'Email Sent', text: res.message, timer: 2000, showConfirmButton: false });
+            }).fail(function (err) {
+                Swal.fire({ icon: 'error', title: 'Error', text: err.responseJSON?.message || 'Failed to send email.' });
+            });
+        }
+
+        function emailCurrentReceipt() {
+            if (currentReceiptId) emailReceipt(currentReceiptId);
+        }
+
+        // ── WhatsApp Share ──
+        function shareReceiptWhatsApp(receiptId, receiptNo, customerName, amount) {
+            const text = `Payment Receipt ${receiptNo}\nCustomer: ${customerName}\nAmount: ₹${Number(amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}\n\nThank you for your payment!`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+        }
+
+        function shareWhatsApp() {
+            if (currentReceiptData) {
+                shareReceiptWhatsApp(currentReceiptData.receiptId, currentReceiptData.receiptNo, currentReceiptData.customerName, currentReceiptData.amount);
+            }
+        }
+
+        function fmt(v) { return v != null ? '₹' + Number(v).toLocaleString('en-IN', { minimumFractionDigits: 2 }) : '₹0.00'; }
+        function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.appendChild(document.createTextNode(s)); return d.innerHTML; }
+    </script>
+}

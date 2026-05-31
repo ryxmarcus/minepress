@@ -1,0 +1,236 @@
+@page
+@model erp.minepress.web.Pages.Hrms.IndexModel
+@{
+    ViewData["Title"] = "HRMS";
+}
+
+<!-- Hero Header -->
+<div class="hrms-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);">
+                <i class="bi bi-people" style="font-size:1.5rem;"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="mb-0">HRMS</h2>
+            <div class="text-white-75">Human Resource Management System — @Model.DeptName</div>
+        </div>
+        <div class="col-auto">
+            <span class="text-white-75 small">
+                <i class="bi bi-person-badge me-1"></i>@Model.EmployeeCode
+            </span>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Stats -->
+<div class="row g-3 mb-4" id="hrmsQuickStats">
+    <div class="col-6 col-md-3">
+        <div class="card hrms-stat-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-success-lt me-3"><i class="bi bi-calendar-check"></i></span>
+                    <div>
+                        <div class="fw-bold fs-3" id="qsPresent">—</div>
+                        <div class="text-secondary small">Present (Month)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card hrms-stat-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-warning-lt me-3"><i class="bi bi-calendar-x"></i></span>
+                    <div>
+                        <div class="fw-bold fs-3" id="qsLeaveBalance">—</div>
+                        <div class="text-secondary small">Leave Balance</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card hrms-stat-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-info-lt me-3"><i class="bi bi-clock-history"></i></span>
+                    <div>
+                        <div class="fw-bold fs-3" id="qsOvertime">—</div>
+                        <div class="text-secondary small">OT Hours (Month)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card hrms-stat-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-purple-lt me-3"><i class="bi bi-bank"></i></span>
+                    <div>
+                        <div class="fw-bold fs-3" id="qsLoanBalance">—</div>
+                        <div class="text-secondary small">Loan Outstanding</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card hrms-stat-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-teal-lt me-3"><i class="bi bi-receipt-cutoff"></i></span>
+                    <div>
+                        <div class="fw-bold fs-3" id="qsReimbursement">—</div>
+                        <div class="text-secondary small">Pending Reimbursements</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Module Grid -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-4 col-lg-3">
+        <a href="/Hrms/Attendance" class="card hrms-module-card text-decoration-none">
+            <div class="card-body text-center py-4">
+                <span class="avatar avatar-lg bg-primary-lt mb-3"><i class="bi bi-calendar-check fs-2"></i></span>
+                <h4 class="mb-1">Attendance</h4>
+                <div class="text-secondary small">View & track attendance</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-md-4 col-lg-3">
+        <a href="/Hrms/Leaves" class="card hrms-module-card text-decoration-none">
+            <div class="card-body text-center py-4">
+                <span class="avatar avatar-lg bg-warning-lt mb-3"><i class="bi bi-calendar-x fs-2"></i></span>
+                <h4 class="mb-1">Leaves</h4>
+                <div class="text-secondary small">Apply & manage leaves</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-md-4 col-lg-3">
+        <a href="/Hrms/Holiday" class="card hrms-module-card text-decoration-none">
+            <div class="card-body text-center py-4">
+                <span class="avatar avatar-lg bg-success-lt mb-3"><i class="bi bi-calendar-event fs-2"></i></span>
+                <h4 class="mb-1">Holidays</h4>
+                <div class="text-secondary small">Holiday calendar</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-md-4 col-lg-3">
+        <a href="/Hrms/Shift" class="card hrms-module-card text-decoration-none">
+            <div class="card-body text-center py-4">
+                <span class="avatar avatar-lg bg-cyan-lt mb-3"><i class="bi bi-clock fs-2"></i></span>
+                <h4 class="mb-1">Shift Roster</h4>
+                <div class="text-secondary small">Shift assignments</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-md-4 col-lg-3">
+        <a href="/Hrms/Loan" class="card hrms-module-card text-decoration-none">
+            <div class="card-body text-center py-4">
+                <span class="avatar avatar-lg bg-purple-lt mb-3"><i class="bi bi-bank fs-2"></i></span>
+                <h4 class="mb-1">Loans</h4>
+                <div class="text-secondary small">Apply & track loans</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-md-4 col-lg-3">
+        <a href="/Hrms/Advance" class="card hrms-module-card text-decoration-none">
+            <div class="card-body text-center py-4">
+                <span class="avatar avatar-lg bg-orange-lt mb-3"><i class="bi bi-cash-stack fs-2"></i></span>
+                <h4 class="mb-1">Salary Advance</h4>
+                <div class="text-secondary small">Request advance</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-md-4 col-lg-3">
+        <a href="/Hrms/Incentive" class="card hrms-module-card text-decoration-none">
+            <div class="card-body text-center py-4">
+                <span class="avatar avatar-lg bg-green-lt mb-3"><i class="bi bi-gift fs-2"></i></span>
+                <h4 class="mb-1">Incentives</h4>
+                <div class="text-secondary small">View incentives</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-md-4 col-lg-3">
+        <a href="/Hrms/Overtime" class="card hrms-module-card text-decoration-none">
+            <div class="card-body text-center py-4">
+                <span class="avatar avatar-lg bg-blue-lt mb-3"><i class="bi bi-clock-history fs-2"></i></span>
+                <h4 class="mb-1">Overtime</h4>
+                <div class="text-secondary small">Log overtime</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-md-4 col-lg-3">
+        <a href="/Hrms/Medical" class="card hrms-module-card text-decoration-none">
+            <div class="card-body text-center py-4">
+                <span class="avatar avatar-lg bg-red-lt mb-3"><i class="bi bi-heart-pulse fs-2"></i></span>
+                <h4 class="mb-1">Medical Claims</h4>
+                <div class="text-secondary small">Submit claims</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-md-4 col-lg-3">
+        <a href="/Hrms/Travel" class="card hrms-module-card text-decoration-none">
+            <div class="card-body text-center py-4">
+                <span class="avatar avatar-lg bg-indigo-lt mb-3"><i class="bi bi-airplane fs-2"></i></span>
+                <h4 class="mb-1">Travel Expenses</h4>
+                <div class="text-secondary small">Claim travel</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-md-4 col-lg-3">
+        <a href="/Hrms/Reimbursement" class="card hrms-module-card text-decoration-none">
+            <div class="card-body text-center py-4">
+                <span class="avatar avatar-lg bg-lime-lt mb-3"><i class="bi bi-receipt-cutoff fs-2"></i></span>
+                <h4 class="mb-1">Reimbursements</h4>
+                <div class="text-secondary small">Claim expenses</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-md-4 col-lg-3">
+        <a href="/Hrms/Transfer" class="card hrms-module-card text-decoration-none">
+            <div class="card-body text-center py-4">
+                <span class="avatar avatar-lg bg-teal-lt mb-3"><i class="bi bi-arrow-left-right fs-2"></i></span>
+                <h4 class="mb-1">Transfers</h4>
+                <div class="text-secondary small">Transfer records</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-md-4 col-lg-3">
+        <a href="/Hrms/Resignation" class="card hrms-module-card text-decoration-none">
+            <div class="card-body text-center py-4">
+                <span class="avatar avatar-lg bg-dark-lt mb-3"><i class="bi bi-box-arrow-right fs-2"></i></span>
+                <h4 class="mb-1">Resignation</h4>
+                <div class="text-secondary small">Submit resignation</div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title"><i class="bi bi-clock-history me-2"></i>Recent HRMS Activity</h3>
+    </div>
+    <div class="list-group list-group-flush" id="hrmsRecentActivity">
+        <div class="list-group-item text-center text-secondary py-4">
+            <div class="spinner-border spinner-border-sm me-2" role="status"></div>Loading...
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="/js/hrms.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            Hrms.loadDashboardStats();
+        });
+    </script>
+}

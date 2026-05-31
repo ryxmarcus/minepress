@@ -1,0 +1,83 @@
+@page
+@model erp.minepress.web.Pages.Hrms.Incentive.IndexModel
+@{
+    ViewData["Title"] = "Incentives — HRMS";
+}
+
+<div class="hrms-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);">
+                <i class="bi bi-trophy" style="font-size:1.5rem;"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="mb-0">Incentives</h2>
+            <div class="text-white-75">View your performance incentives and bonuses</div>
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-outline-light btn-sm" onclick="Hrms.loadIncentives()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row g-3 mb-3">
+    <div class="col-6 col-md-4">
+        <div class="card hrms-stat-card">
+            <div class="card-body text-center">
+                <div class="fw-bold fs-2 text-primary" id="incTotalCount">—</div>
+                <div class="text-secondary small">Total Incentives</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4">
+        <div class="card hrms-stat-card">
+            <div class="card-body text-center">
+                <div class="fw-bold fs-2 text-success" id="incTotalAmount">—</div>
+                <div class="text-secondary small">Total Amount</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="card hrms-stat-card">
+            <div class="card-body text-center">
+                <div class="fw-bold fs-2 text-info" id="incLatestType">—</div>
+                <div class="text-secondary small">Latest Type</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table">
+            <thead>
+                <tr>
+                    <th>Incentive No</th>
+                    <th>Type</th>
+                    <th>Reference Period</th>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="incentiveTableBody">
+                <tr>
+                    <td colspan="6" class="text-center text-secondary py-4">
+                        <div class="spinner-border spinner-border-sm me-2" role="status"></div>Loading...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="/js/hrms.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => Hrms.loadIncentives());
+    </script>
+}

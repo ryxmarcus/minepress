@@ -1,0 +1,397 @@
+@page
+@model erp.minepress.web.Pages.Accounting.SalesInvoice.IndexModel
+@{
+    ViewData["Title"] = "Sales Invoices";
+}
+
+<!-- Hero Header -->
+<div class="acc-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);">
+                <i class="bi bi-receipt-cutoff" style="font-size:1.5rem;"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="mb-0">Sales Invoices</h2>
+            <div class="text-white-75">Manage customer invoices, send emails &amp; track payments</div>
+        </div>
+        <div class="col-auto d-flex gap-2">
+            <a href="/Accounting" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-arrow-left me-1"></i>Back
+            </a>
+            <button class="btn btn-outline-light btn-sm" onclick="loadInvoices()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+            </button>
+            <a href="/Accounting/SalesInvoice/Create" class="btn btn-light">
+                <i class="bi bi-plus-lg me-1"></i>New Invoice
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Sub-navigation -->
+<div class="acc-sub-nav d-print-none mb-3">
+    <a href="/Accounting/SalesInvoice" class="acc-sub-nav-item active">
+        <i class="bi bi-receipt-cutoff me-1"></i>Invoices
+    </a>
+    <a href="/Accounting/Receipt" class="acc-sub-nav-item">
+        <i class="bi bi-cash-stack me-1"></i>Receipts
+    </a>
+    <a href="/Accounting/CreditNote" class="acc-sub-nav-item">
+        <i class="bi bi-file-earmark-minus me-1"></i>Credit Notes
+    </a>
+    <a href="/Accounting/ArOutstanding" class="acc-sub-nav-item">
+        <i class="bi bi-clock-history me-1"></i>AR Outstanding
+    </a>
+</div>
+
+<!-- Stats Row -->
+<div class="row g-3 mb-3" id="siStats">
+    <div class="col-6 col-md-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-primary-lt me-3"><i class="bi bi-receipt"></i></span>
+                    <div>
+                        <div class="fw-bold fs-3" id="statTotal">0</div>
+                        <div class="text-secondary small">Total</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-warning-lt me-3"><i class="bi bi-pencil-square"></i></span>
+                    <div>
+                        <div class="fw-bold fs-3" id="statDraft">0</div>
+                        <div class="text-secondary small">Draft</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-success-lt me-3"><i class="bi bi-check-circle"></i></span>
+                    <div>
+                        <div class="fw-bold fs-3" id="statPosted">0</div>
+                        <div class="text-secondary small">Posted</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-danger-lt me-3"><i class="bi bi-x-circle"></i></span>
+                    <div>
+                        <div class="fw-bold fs-3" id="statCancelled">0</div>
+                        <div class="text-secondary small">Cancelled</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card mb-3">
+    <div class="card-body py-2">
+        <div class="row g-2 align-items-center">
+            <div class="col-md-4">
+                <div class="input-icon">
+                    <span class="input-icon-addon"><i class="bi bi-search"></i></span>
+                    <input type="text" id="txtSearch" class="form-control form-control-sm" placeholder="Search invoice no, customer..." />
+                </div>
+            </div>
+            <div class="col-md-2">
+                <select id="ddlStatusFilter" class="form-select form-select-sm">
+                    <option value="">All Statuses</option>
+                    <option value="DRAFT">Draft</option>
+                    <option value="POSTED">Posted</option>
+                    <option value="SENT">Sent</option>
+                    <option value="PARTIALLY_PAID">Partially Paid</option>
+                    <option value="PAID">Paid</option>
+                    <option value="CANCELLED">Cancelled</option>
+                </select>
+            </div>
+            <div class="col-auto ms-auto">
+                <span class="text-muted small" id="filteredCount"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Invoice Table -->
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table table-hover acc-list-table">
+            <thead>
+                <tr>
+                    <th class="sortable" data-sort="invoiceNo" style="cursor:pointer;">Invoice No <i class="bi bi-arrow-down-up small text-muted"></i></th>
+                    <th class="sortable" data-sort="invoiceDate" style="cursor:pointer;">Date <i class="bi bi-arrow-down-up small text-muted"></i></th>
+                    <th class="sortable" data-sort="customerName" style="cursor:pointer;">Customer <i class="bi bi-arrow-down-up small text-muted"></i></th>
+                    <th class="text-center">Items</th>
+                    <th class="text-end sortable" data-sort="grandTotal" style="cursor:pointer;">Amount <i class="bi bi-arrow-down-up small text-muted"></i></th>
+                    <th class="text-end">Paid</th>
+                    <th class="text-end">Balance</th>
+                    <th class="sortable" data-sort="status" style="cursor:pointer;">Status <i class="bi bi-arrow-down-up small text-muted"></i></th>
+                    <th class="text-center" style="width:100px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="invoiceListBody">
+                <tr>
+                    <td colspan="9" class="text-center text-muted py-4">
+                        <div class="spinner-border spinner-border-sm me-2"></div>Loading invoices...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Paging Controls -->
+<div class="card mt-2" id="pagingControls" style="display:none;">
+    <div class="card-body py-2">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-muted small">Show</span>
+                <select id="ddlPageSize" class="form-select form-select-sm" style="width:auto;">
+                    <option value="10">10</option>
+                    <option value="25" selected>25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+                <span class="text-muted small">entries</span>
+            </div>
+            <div class="text-muted small" id="pagingInfo"></div>
+            <nav>
+                <ul class="pagination pagination-sm mb-0" id="paginationNav"></ul>
+            </nav>
+        </div>
+    </div>
+</div>
+<div id="emptyState" class="text-center py-5" style="display:none;">
+    <i class="bi bi-receipt" style="font-size:3rem; opacity:.3;"></i>
+    <div class="text-muted mt-2">No sales invoices found</div>
+    <a href="/Accounting/SalesInvoice/Create" class="btn btn-primary mt-3">
+        <i class="bi bi-plus-lg me-1"></i>Create First Invoice
+    </a>
+</div>
+
+@section Scripts {
+    <script>
+        const SI_API = '/api/accounting';
+        let allInvoices = [];
+        let currentPage = 1;
+        let pageSize = 25;
+        let sortField = 'invoiceNo';
+        let sortDir = 'desc';
+
+        $(document).ready(function () {
+            loadInvoices();
+            $('#txtSearch, #ddlStatusFilter').on('input change', function () { currentPage = 1; applyFilters(); });
+            $('#ddlPageSize').on('change', function () { pageSize = parseInt($(this).val()); currentPage = 1; applyFilters(); });
+            $(document).on('click', '.sortable', function () {
+                const field = $(this).data('sort');
+                if (sortField === field) { sortDir = sortDir === 'asc' ? 'desc' : 'asc'; }
+                else { sortField = field; sortDir = 'asc'; }
+                $('.sortable i').attr('class', 'bi bi-arrow-down-up small text-muted');
+                $(this).find('i').attr('class', sortDir === 'asc' ? 'bi bi-arrow-up small text-primary' : 'bi bi-arrow-down small text-primary');
+                applyFilters();
+            });
+        });
+
+        function loadInvoices() {
+            $('#invoiceListBody').html('<tr><td colspan="9" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2"></div>Loading invoices...</td></tr>');
+            $.get(`${SI_API}/sales-invoices`, function (data) {
+                allInvoices = data;
+                updateStats();
+                applyFilters();
+            }).fail(function () {
+                $('#invoiceListBody').html('<tr><td colspan="9" class="text-center text-danger py-3"><i class="bi bi-exclamation-circle me-1"></i>Failed to load invoices.</td></tr>');
+            });
+        }
+
+        function updateStats() {
+            $('#statTotal').text(allInvoices.length);
+            $('#statDraft').text(allInvoices.filter(i => i.status === 'DRAFT').length);
+            $('#statPosted').text(allInvoices.filter(i => i.status === 'POSTED' || i.status === 'SENT' || i.status === 'PAID' || i.status === 'PARTIALLY_PAID').length);
+            $('#statCancelled').text(allInvoices.filter(i => i.status === 'CANCELLED').length);
+        }
+
+        function applyFilters() {
+            const q = ($('#txtSearch').val() || '').toLowerCase();
+            const status = $('#ddlStatusFilter').val();
+
+            let filtered = allInvoices.filter(i => {
+                if (q && !(i.invoiceNo || '').toLowerCase().includes(q) &&
+                    !(i.customerName || '').toLowerCase().includes(q) &&
+                    !(i.customerCode || '').toLowerCase().includes(q)) return false;
+                if (status && i.status !== status) return false;
+                return true;
+            });
+
+            filtered.sort((a, b) => {
+                let va = a[sortField], vb = b[sortField];
+                if (va == null) va = '';
+                if (vb == null) vb = '';
+                if (typeof va === 'string') va = va.toLowerCase();
+                if (typeof vb === 'string') vb = vb.toLowerCase();
+                if (va < vb) return sortDir === 'asc' ? -1 : 1;
+                if (va > vb) return sortDir === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            const totalItems = filtered.length;
+            const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+            if (currentPage > totalPages) currentPage = totalPages;
+            const start = (currentPage - 1) * pageSize;
+            const paged = filtered.slice(start, start + pageSize);
+
+            $('#filteredCount').text(filtered.length < allInvoices.length
+                ? `Showing ${filtered.length} of ${allInvoices.length}` : '');
+            renderTable(paged);
+            renderPaging(totalItems, totalPages);
+        }
+
+        function renderTable(data) {
+            if (data.length === 0) { $('#invoiceListBody').html(''); $('#emptyState').show(); return; }
+            $('#emptyState').hide();
+            let html = '';
+            data.forEach(i => {
+                const statusCls = getAccStatusClass(i.status);
+                const isCancelled = i.status === 'CANCELLED';
+                html += `<tr>
+                    <td>
+                        <a href="/Accounting/SalesInvoice/Details?id=${i.salesInvoiceId}" class="fw-semibold text-primary text-decoration-none">${esc(i.invoiceNo)}</a>
+                        <div class="text-muted small">${i.createdOn || ''}</div>
+                    </td>
+                    <td class="text-muted small">${esc(i.invoiceDate)}</td>
+                    <td>
+                        <div class="fw-semibold">${esc(i.customerName)}</div>
+                        <div class="text-muted small">${esc(i.customerCode || '')}</div>
+                    </td>
+                    <td class="text-center"><span class="badge bg-primary-lt">${i.itemCount}</span></td>
+                    <td class="text-end fw-semibold">${fmtCurrency(i.grandTotal)}</td>
+                    <td class="text-end text-success">${fmtCurrency(i.paidAmount)}</td>
+                    <td class="text-end ${i.balanceAmount > 0 ? 'text-danger fw-semibold' : ''}">${fmtCurrency(i.balanceAmount)}</td>
+                    <td><span class="acc-status-badge ${statusCls}">${formatStatus(i.status)}</span></td>
+                    <td class="text-center">
+                        <div class="dropdown">
+                            <button class="btn btn-ghost-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown"><i class="bi bi-three-dots-vertical"></i></button>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <a class="dropdown-item" href="/Accounting/SalesInvoice/Details?id=${i.salesInvoiceId}"><i class="bi bi-eye me-2 text-primary"></i>View / Print</a>
+                                ${i.status === 'DRAFT' ? `<a class="dropdown-item" href="javascript:void(0)" onclick="postInvoice(${i.salesInvoiceId}, '${esc(i.invoiceNo)}', ${i.grandTotal || 0})"><i class="bi bi-check2-circle me-2 text-success"></i>Post to Accounts</a>` : ''}
+                                ${!isCancelled ? `<a class="dropdown-item" href="javascript:void(0)" onclick="sendEmail(${i.salesInvoiceId}, '${esc(i.invoiceNo)}')"><i class="bi bi-envelope me-2 text-success"></i>Email to Customer</a>` : ''}
+                                ${!isCancelled ? `<a class="dropdown-item text-danger" href="javascript:void(0)" onclick="cancelInvoice(${i.salesInvoiceId}, '${esc(i.invoiceNo)}')"><i class="bi bi-x-circle me-2"></i>Cancel</a>` : ''}
+                            </div>
+                        </div>
+                    </td>
+                </tr>`;
+            });
+            $('#invoiceListBody').html(html);
+        }
+
+        function renderPaging(totalItems, totalPages) {
+            if (totalItems === 0) { $('#pagingControls').hide(); return; }
+            $('#pagingControls').show();
+            const start = (currentPage - 1) * pageSize + 1;
+            const end = Math.min(currentPage * pageSize, totalItems);
+            $('#pagingInfo').text(`Showing ${start} to ${end} of ${totalItems} entries`);
+            let navHtml = '';
+            navHtml += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}"><a class="page-link" href="javascript:void(0)" onclick="goToPage(${currentPage - 1})">&laquo;</a></li>`;
+            const maxBtn = 5;
+            let sp = Math.max(1, currentPage - Math.floor(maxBtn / 2));
+            let ep = Math.min(totalPages, sp + maxBtn - 1);
+            if (ep - sp < maxBtn - 1) sp = Math.max(1, ep - maxBtn + 1);
+            for (let p = sp; p <= ep; p++) {
+                navHtml += `<li class="page-item ${p === currentPage ? 'active' : ''}"><a class="page-link" href="javascript:void(0)" onclick="goToPage(${p})">${p}</a></li>`;
+            }
+            navHtml += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}"><a class="page-link" href="javascript:void(0)" onclick="goToPage(${currentPage + 1})">&raquo;</a></li>`;
+            $('#paginationNav').html(navHtml);
+        }
+
+        function goToPage(p) { currentPage = p; applyFilters(); }
+
+        // ── Actions ──
+        async function postInvoice(id, invNo, grandTotal) {
+            const amt = Number(grandTotal).toLocaleString('en-IN', { minimumFractionDigits: 2 });
+            const confirmed = await Swal.fire({
+                title: 'Post Invoice to Accounts?',
+                html: `<div class="text-start">
+                    <p>Post <strong>${invNo}</strong> (₹${amt}) to Accounts Receivable?</p>
+                    <div class="alert alert-info py-2 small mb-0">
+                        <i class="bi bi-info-circle me-1"></i>Status will change to <span class="badge bg-primary-lt">POSTED</span> and invoice will be available for receipt collection.
+                    </div>
+                </div>`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: '<i class="bi bi-check2-circle me-1"></i>Post',
+                confirmButtonColor: '#198754',
+                cancelButtonText: 'Cancel'
+            });
+            if (!confirmed.isConfirmed) return;
+            try {
+                Swal.fire({ title: 'Posting...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                const result = await $.ajax({ url: `${SI_API}/sales-invoice/${id}/post`, method: 'POST' });
+                await Swal.fire({
+                    icon: 'success',
+                    title: 'Posted!',
+                    html: `<p>${result.message}</p><a href="/Accounting/Receipt/Create" class="btn btn-sm btn-outline-primary mt-2"><i class="bi bi-cash-stack me-1"></i>Record Receipt</a>`,
+                    showConfirmButton: true,
+                    confirmButtonText: 'OK'
+                });
+                loadInvoices();
+            } catch (err) {
+                Swal.fire({ icon: 'error', title: 'Error', text: err.responseJSON?.message || 'Failed to post invoice.' });
+            }
+        }
+
+        async function sendEmail(id, invNo) {
+            const confirmed = await Swal.fire({ title: 'Send Invoice Email?', text: `Email invoice ${invNo} to the customer?`, icon: 'question', showCancelButton: true, confirmButtonText: 'Send' });
+            if (!confirmed.isConfirmed) return;
+            try {
+                Swal.fire({ title: 'Sending...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                await $.ajax({ url: `${SI_API}/sales-invoice/${id}/send-email`, method: 'POST' });
+                Swal.fire({ icon: 'success', title: 'Sent!', text: 'Invoice email sent successfully.', timer: 2000, showConfirmButton: false });
+                loadInvoices();
+            } catch (err) {
+                Swal.fire({ icon: 'error', title: 'Error', text: err.responseJSON?.message || 'Failed to send email.' });
+            }
+        }
+
+        async function cancelInvoice(id, invNo) {
+            const { value: reason } = await Swal.fire({
+                title: `Cancel ${invNo}?`, input: 'textarea', inputLabel: 'Cancellation Reason', inputPlaceholder: 'Enter reason...',
+                showCancelButton: true, confirmButtonText: 'Cancel Invoice', confirmButtonColor: '#d63939',
+                inputValidator: v => !v && 'Please enter a reason'
+            });
+            if (!reason) return;
+            try {
+                Swal.fire({ title: 'Cancelling...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                await $.ajax({ url: `${SI_API}/sales-invoice/${id}/cancel`, method: 'POST', contentType: 'application/json', data: JSON.stringify({ reason: reason }) });
+                Swal.fire({ icon: 'success', title: 'Cancelled', text: 'Invoice cancelled successfully.', timer: 2000, showConfirmButton: false });
+                loadInvoices();
+            } catch (err) {
+                Swal.fire({ icon: 'error', title: 'Error', text: err.responseJSON?.message || 'Failed to cancel.' });
+            }
+        }
+
+        function getAccStatusClass(s) {
+            const m = { 'DRAFT': 'acc-status-draft', 'POSTED': 'acc-status-posted', 'SENT': 'acc-status-posted', 'APPROVED': 'acc-status-approved', 'PENDING': 'acc-status-pending', 'CANCELLED': 'acc-status-cancelled', 'PAID': 'acc-status-paid', 'PARTIALLY_PAID': 'acc-status-partial', 'OVERDUE': 'acc-status-overdue', 'OPEN': 'acc-status-open' };
+            return m[s] || 'bg-secondary-lt';
+        }
+        function formatStatus(s) { return s ? s.replace(/_/g, ' ') : 'N/A'; }
+        function fmtCurrency(v) { return v != null ? '₹' + Number(v).toLocaleString('en-IN', { minimumFractionDigits: 2 }) : '₹0.00'; }
+        function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.appendChild(document.createTextNode(s)); return d.innerHTML; }
+    </script>
+}

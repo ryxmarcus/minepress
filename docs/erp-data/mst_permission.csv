@@ -1,0 +1,60 @@
+"permissionid","permissioncode","permissionname","modulename","isactive"
+42,"EMP_VIEW","View Employee","HR",True
+43,"ATTENDANCE_MARK","Mark Attendance","HR",True
+1,"ENQ_VIEW","View Enquiries","Job Management",True
+2,"ENQ_CREATE","Create Enquiry","Job Management",True
+3,"ENQ_EDIT","Edit Enquiry","Job Management",True
+4,"ENQ_APPROVE","Approve Enquiry","Job Management",True
+5,"JOB_CREATE","Create Job Order","Job Management",True
+6,"JOB_EDIT","Edit Job Order","Job Management",True
+7,"JOB_VIEW","View Job Order","Job Management",True
+8,"JOB_APPROVE","Approve Job Order","Job Management",True
+9,"ARTWORK_UPLOAD","Upload Artwork / Content","Prepress",True
+10,"TEXT_PROOFREAD","Text Proofreading","Prepress",True
+11,"IMAGE_CORRECTION","Image Correction","Prepress",True
+12,"DTP_DESIGN","DTP & Layout Creation","Prepress",True
+13,"CTP_PLATE_MAKING","Plate Making / CTP","Prepress",True
+14,"PREPRESS_APPROVE","Approve Prepress Files","Prepress",True
+15,"OFFSET_PRINT_START","Start Offset Printing","Printing",True
+16,"WEB_OFFSET_START","Start Web Offset","Printing",True
+17,"DIGITAL_PRINT_START","Start Digital Printing","Printing",True
+18,"SCREEN_PRINT_START","Start Screen Printing","Printing",True
+19,"PRINT_MONITOR","Monitor Printing Job","Printing",True
+20,"PRINT_STOP","Stop Printing Job","Printing",True
+21,"LAMINATION","Apply Lamination","Finishing",True
+22,"SPOT_UV","Apply Spot UV","Finishing",True
+23,"FOILING","Foiling","Finishing",True
+24,"EMBOSSING","Embossing/Debossing","Finishing",True
+25,"DIE_CUTTING","Die Cutting","Finishing",True
+26,"BINDING","Perform Binding","Finishing",True
+27,"FOLDING","Perform Folding","Finishing",True
+28,"FINAL_CHECK","Final Quality Check","Finishing",True
+29,"RAW_MATERIAL_VIEW","View Raw Materials","Material Management",True
+30,"RAW_MATERIAL_ISSUE","Issue Raw Materials","Material Management",True
+31,"RAW_MATERIAL_RECEIVE","Receive Raw Materials","Material Management",True
+32,"STORE_VIEW","View Store Stock","Material Management",True
+33,"STORE_ISSUE","Issue Stock","Material Management",True
+34,"STORE_RECEIVE","Receive Stock","Material Management",True
+35,"BILL_CREATE","Create Bill / Invoice","Accounts",True
+36,"BILL_VIEW","View Bill / Invoice","Accounts",True
+37,"BILL_APPROVE","Approve Bill / Invoice","Accounts",True
+38,"PAYMENT_RECEIVE","Record Payment","Accounts",True
+39,"ADVANCE_ADJUST","Advance Payment Adjustment","Accounts",True
+40,"EMP_CREATE","Add Employee","HR",True
+41,"EMP_EDIT","Edit Employee","HR",True
+44,"LEAVE_APPROVE","Approve Leave","HR",True
+45,"DISPATCH_CREATE","Create Dispatch","Logistics",True
+46,"DISPATCH_VIEW","View Dispatch","Logistics",True
+47,"VEHICLE_ALLOCATE","Allocate Vehicle","Logistics",True
+48,"DELIVERY_CONFIRM","Confirm Delivery / POD","Logistics",True
+49,"QC_INSPECT","Perform Quality Inspection","Quality",True
+50,"QC_APPROVE","Approve Quality","Quality",True
+51,"ISO_VIEW","View ISO Documents","Quality",True
+52,"ISO_APPROVE","Approve ISO Compliance","Quality",True
+53,"USER_MANAGE","Manage Users","System",True
+54,"ROLE_MANAGE","Manage Roles","System",True
+55,"PERMISSION_MANAGE","Manage Permissions","System",True
+56,"MENU_MANAGE","Manage Menu / UI","System",True
+57,"MOBILE_ACCESS","Allow Mobile App Access","System",True
+58,"WEB_ACCESS","Allow Web Access","System",True
+59,"NOTIFICATION_MANAGE","Manage Notifications","System",True

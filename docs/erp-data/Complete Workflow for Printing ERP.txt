@@ -1,0 +1,178 @@
+Complete Workflow for Printing ERP Process
+Phase 1 — Customer Initiation & Pre-Sales Very as per job types
+This phase captures customer requirements and prepares costing.
+
+ENQ_JOB  →  Enquiry Creation
+      ↓
+ENQ_EST  →  Estimation / Costing
+      ↓
+QUOT     →  Quotation Generation
+      ↓
+QUOT_APPR → Quotation Approval
+Optional financial initiation:
+
+ADV_PAY → Advance Payment (If required before job start)
+Phase 2 — Job Creation & Approval
+Once quotation is approved, the job is formally created.
+
+ #Job Card (job order) 
+
+JOB_CREATE → Job Creation
+        ↓
+JOB_APPROVAL → Job Approval
+Phase 3 — Design & Pre-Press
+Artwork preparation and customer validation.
+
+DES_DTP → Designing / DTP
+     ↓
+PROOF → Client Proof Approval
+     ↓
+PRE_PRESS → Plate Making
+Phase 4 — Procurement & Material Handling
+Material procurement and quality checks.
+
+PROC → Material Procurement
+   ↓
+GRN → Goods Receipt Note
+   ↓
+QC_IN → Incoming QC
+   ↓
+STORE_ISSUE → Material Issue
+Optional reverse flow:
+
+STORE_RETURN → Material Return
+Phase 5 — Production Planning
+Manufacturing preparation activities.
+
+JOB_PLAN → Production Planning
+     ↓
+JOB_SCHED → Job Scheduling
+     ↓
+JOB_CARD → Job Card Generation
+Phase 6 — Production Execution
+Core manufacturing steps.
+
+CUT → Paper Cutting
+   ↓
+PRINT → Printing
+   ↓
+QC_PROC → In-Process QC
+   ↓
+DRY → Drying
+Phase 7 — Post-Press Finishing
+Final shaping and finishing.
+
+POST_PRESS → Post Press Finishing
+      ↓
+FOLD → Folding
+      ↓
+BIND → Binding
+      ↓
+TRIM → Final Trim
+      ↓
+QC_POST → Post Press QC
+Phase 8 — Packing & Dispatch
+Shipment preparation and delivery.
+
+PACK → Packing
+   ↓
+LOAD → Loading
+   ↓
+CHALLAN → Delivery Challan
+   ↓
+GATE_PASS → Gate Pass
+   ↓
+DISPATCH → Dispatch
+   ↓
+DELIVERY_CONF → Delivery Confirmation
+Phase 9 — Billing & Finance
+Customer billing and payment tracking.
+
+BILL → Billing
+   ↓
+PAY_REC → Payment Receipt
+Optional financial adjustments:
+
+CREDIT_NOTE → Credit Note
+DEBIT_NOTE  → Debit Note
+Phase 10 — Costing & Closure
+Final financial analysis and job closure.
+
+WASTE_ENTRY → Wastage Entry
+        ↓
+COST_FINAL → Final Costing
+        ↓
+PROFIT_ANALYSIS → Profit Analysis
+        ↓
+JOB_CLOSE → Job Closure
+        ↓
+JOB_ARCHIVE → Job Archive
+Master Workflow (Single-Line View)
+This is useful for workflow engine configuration.
+
+ENQ_JOB
+→ ENQ_EST
+→ QUOT
+→ QUOT_APPR
+→ ADV_PAY (Optional)
+→ JOB_CREATE
+→ JOB_APPROVAL
+→ DES_DTP
+→ PROOF
+→ PRE_PRESS
+→ PROC
+→ GRN
+→ QC_IN
+→ STORE_ISSUE
+→ JOB_PLAN
+→ JOB_SCHED
+→ JOB_CARD
+→ CUT
+→ PRINT
+→ QC_PROC
+→ DRY
+→ POST_PRESS
+→ FOLD
+→ BIND
+→ TRIM
+→ QC_POST
+→ PACK
+→ LOAD
+→ CHALLAN
+→ GATE_PASS
+→ DISPATCH
+→ DELIVERY_CONF
+→ BILL
+→ PAY_REC
+→ WASTE_ENTRY
+→ COST_FINAL
+→ PROFIT_ANALYSIS
+→ JOB_CLOSE
+→ JOB_ARCHIVE
+Parallel / Optional Flow Conditions
+Important for ERP workflow engine logic.
+
+Conditional Paths
+If advance required:
+QUOT_APPR → ADV_PAY → JOB_CREATE
+If material rejected:
+QC_IN → PROC (Re-procurement)
+If proof rejected:
+PROOF → DES_DTP
+If QC failed:
+QC_PROC → PRINT
+QC_POST → POST_PRESS
+If delivery short:
+DELIVERY_CONF → CREDIT_NOTE
+Recommended Workflow Status Groups
+Useful for dashboard tracking.
+
+Group	Processes
+Pre-Sales	ENQ_JOB → QUOT_APPR
+Job Setup	JOB_CREATE → PRE_PRESS
+Procurement	PROC → STORE_ISSUE
+Production	CUT → DRY
+Finishing	POST_PRESS → QC_POST
+Dispatch	PACK → DELIVERY_CONF
+Finance	BILL → PAY_REC
+Closure	WASTE_ENTRY → JOB_ARCHIVE

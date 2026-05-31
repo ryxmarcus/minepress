@@ -1,0 +1,8 @@
+using Microsoft.AspNetCore.Mvc.RazorPages;
+
+namespace erp.minepress.web.Pages.Accounting.Receipt;
+
+public class CreateModel : PageModel
+{
+    public void OnGet() { }
+}

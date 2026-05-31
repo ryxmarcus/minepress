@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>@ViewData["Title"] - MinePress Portal</title>
+    <meta name="msapplication-TileColor" content="#066fd1" />
+    <meta name="theme-color" content="#066fd1" />
+    <!-- MinePress (Tabler) core CSS -->
+    <link href="/dist/css/minepress.min.css" rel="stylesheet" />
+    <link href="/dist/css/minepress-vendors.min.css" rel="stylesheet" />
+    <link href="/dist/css/minepress-themes.min.css" rel="stylesheet" />
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <!-- SweetAlert2 -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet" />
+    <!-- Party Portal CSS -->
+    <link href="/css/party-portal.css" rel="stylesheet" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <script src="/dist/js/minepress-theme.min.js"></script>
+    <script>
+        const MpTheme = {
+            key: 'minepress-theme',
+            get current() { return localStorage.getItem(this.key) || 'light'; },
+            apply(theme) {
+                if (theme === 'dark') document.documentElement.setAttribute('data-bs-theme', 'dark');
+                else document.documentElement.removeAttribute('data-bs-theme');
+                localStorage.setItem(this.key, theme);
+            },
+            toggle() { this.apply(this.current === 'dark' ? 'light' : 'dark'); },
+            init() { this.apply(this.current); }
+        };
+        MpTheme.init();
+    </script>
+    @{
+        var currentUser = Context.Session.GetObject<erp.minepress.web.Helpers.UserSessionData>("CurrentUser");
+    }
+    <div class="page">
+        <!-- Minimal Top Bar — Brand + User Info (No Menu) -->
+        <header class="navbar navbar-expand-md d-print-none">
+            <div class="container-xl">
+                <div class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
+                    <a href="/PartyPortal" class="d-flex align-items-center text-decoration-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                             stroke-linejoin="round" class="icon me-2">
+                            <path d="M6 9v6a5 5 0 0 0 10 0V9" />
+                            <path d="M6 9a5 5 0 0 1 10 0" />
+                            <path d="M4 15h16" />
+                            <path d="M9 9v3" />
+                            <path d="M15 9v3" />
+                        </svg>
+                        <span class="fw-bold">MinePress</span>
+                        <span class="badge bg-azure text-uppercase ms-2">Portal</span>
+                    </a>
+                </div>
+                @if (currentUser != null)
+                {
+                    <div class="navbar-nav flex-row order-md-last align-items-center">
+                        <!-- Theme Toggle -->
+                        <div class="nav-item me-2 me-md-3">
+                            <a href="javascript:void(0)" class="nav-link px-0 hide-theme-dark"
+                               title="Enable dark mode" onclick="MpTheme.toggle()">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                     stroke-linejoin="round" class="icon">
+                                    <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+                                </svg>
+                            </a>
+                            <a href="javascript:void(0)" class="nav-link px-0 hide-theme-light"
+                               title="Enable light mode" onclick="MpTheme.toggle()">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                     stroke-linejoin="round" class="icon">
+                                    <path d="M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
+                                    <path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7" />
+                                </svg>
+                            </a>
+                        </div>
+                        <!-- Activity Bell -->
+                        <div class="nav-item dropdown me-2 me-md-3">
+                            <a href="#" class="nav-link px-0 position-relative" data-bs-toggle="dropdown"
+                               aria-label="Activity notifications" id="pp-bell-toggle">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                     stroke-linejoin="round" class="icon">
+                                    <path d="M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6" />
+                                    <path d="M9 17v1a3 3 0 0 0 6 0v-1" />
+                                </svg>
+                                <span class="badge bg-red badge-notification badge-blink d-none" id="pp-bell-badge"></span>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow pp-bell-dropdown" style="width:min(380px, 92vw); max-height:460px; overflow:hidden; padding:0;">
+                                <div class="px-3 py-2 border-bottom d-flex align-items-center justify-content-between">
+                                    <h6 class="mb-0 fw-semibold">Activity</h6>
+                                    <a href="/PartyPortal#activity" class="small text-decoration-none">View All</a>
+                                </div>
+                                <div id="pp-bell-list" style="max-height:370px; overflow-y:auto;">
+                                    <div class="text-center text-secondary py-4">
+                                        <div class="spinner-border spinner-border-sm mb-2"></div>
+                                        <div class="small">Loading...</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- User Menu -->
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown"
+                               aria-label="Open user menu">
+                                <span class="avatar avatar-sm rounded-circle"
+                                      style="background: linear-gradient(135deg, var(--tblr-purple), var(--tblr-pink)); color: #fff; font-weight: 700; font-size: 0.8rem;">
+                                    @currentUser.Name.Substring(0, 1).ToUpper()
+                                </span>
+                                <div class="d-none d-xl-block ps-2">
+                                    <div class="fw-semibold small">@currentUser.Name</div>
+                                    <div class="mt-1 small text-secondary">Party Portal</div>
+                                </div>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                                <div class="dropdown-header">
+                                    <div class="fw-semibold">@currentUser.Name</div>
+                                    <div class="small text-secondary mt-1">@currentUser.UserCode</div>
+                                </div>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="/PartyPortal">
+                                    <i class="bi bi-house-door me-2"></i>Dashboard
+                                </a>
+                                <a class="dropdown-item" href="/PartyPortal/Profile">
+                                    <i class="bi bi-person-circle me-2"></i>My Profile
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="/Account/Logout">
+                                    <i class="bi bi-box-arrow-right me-2"></i>Sign out
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </header>
+        <!-- Page Content (No Menu Bar) -->
+        <div class="page-wrapper">
+            <div class="page-body">
+                <div class="container-xl">
+                    @RenderBody()
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <!-- MinePress (Tabler) core JS -->
+    <script src="/dist/js/minepress.min.js"></script>
+    <script>if(window.minepress&&window.minepress.bootstrap)window.bootstrap=window.minepress.bootstrap;</script>
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/js/swal-helpers.js"></script>
+    <!-- Party Activity Bell (layout-level) -->
+    <script src="/js/party-activity.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', function(){ if(typeof PartyActivity!=='undefined') PartyActivity.loadBell(); });</script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

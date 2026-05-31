@@ -1,0 +1,78 @@
+@* ═══════════════════════════════════════════════════
+   Shared Supplier Picker Modal
+   Usage: <partial name="_SupplierPickerPartial" />
+   JS:    SupplierPicker.open({ onSelect: fn(supplier) })
+   ═══════════════════════════════════════════════════ *@
+
+<div class="modal modal-blur fade" id="supplierPickerModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:960px;">
+        <div class="modal-content sp-modal-content">
+
+            <!-- ── Header ── -->
+            <div class="sp-header">
+                <div class="sp-header-icon"><i class="bi bi-building"></i></div>
+                <div>
+                    <div class="sp-title">Select Supplier</div>
+                    <div class="sp-subtitle">Search by name, code, GST or email</div>
+                </div>
+                <button type="button" class="sp-close" data-bs-dismiss="modal" aria-label="Close"><i class="bi bi-x-lg"></i></button>
+            </div>
+
+            <!-- ── Toolbar ── -->
+            <div class="sp-toolbar">
+                <div class="sp-search-wrap">
+                    <i class="bi bi-search sp-search-icon"></i>
+                    <input type="text" id="spSearchInput" class="form-control form-control-sm sp-search-input" placeholder="Search suppliers..." autocomplete="off" />
+                    <div class="spinner-border spinner-border-sm text-secondary sp-spinner d-none" id="spSearchSpinner" role="status"></div>
+                    <kbd class="sp-kbd">Esc</kbd>
+                </div>
+                <span class="sp-result-count" id="spResultCount"></span>
+            </div>
+
+            <!-- ── Table ── -->
+            <div class="sp-table-wrap">
+                <table class="table table-hover table-vcenter mb-0 sp-table">
+                    <thead>
+                        <tr>
+                            <th class="sp-sortable" data-sort="code" style="width:100px;">
+                                Code <i class="bi bi-arrow-down-up sp-sort-icon"></i>
+                            </th>
+                            <th class="sp-sortable" data-sort="name">
+                                Supplier Name <i class="bi bi-arrow-down-up sp-sort-icon"></i>
+                            </th>
+                            <th style="width:160px;">GST No</th>
+                            <th style="width:120px;">Mobile</th>
+                            <th class="sp-sortable" data-sort="city" style="width:120px;">
+                                City <i class="bi bi-arrow-down-up sp-sort-icon"></i>
+                            </th>
+                            <th class="text-center" style="width:80px;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="spTableBody">
+                        <tr><td colspan="6" class="text-center text-muted py-5">
+                            <div class="spinner-border spinner-border-sm me-2"></div>Loading suppliers...
+                        </td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- ── Footer: Paging ── -->
+            <div class="sp-footer">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="text-muted small">Show</span>
+                        <select id="spPageSize" class="form-select form-select-sm" style="width:auto;">
+                            <option value="15">15</option>
+                            <option value="25" selected>25</option>
+                            <option value="50">50</option>
+                        </select>
+                        <span class="text-muted small">per page</span>
+                    </div>
+                    <div class="text-muted small" id="spPagingInfo"></div>
+                    <nav><ul class="pagination pagination-sm mb-0" id="spPaginationNav"></ul></nav>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

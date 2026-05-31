@@ -1,0 +1,1266 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   MinePress ERP — Workflow Designer Styles
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Hero ── */
+.wf-hero {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+    color: #fff;
+    padding: 1.25rem 1.5rem;
+    border-radius: .75rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 24px rgba(99, 102, 241, .25);
+}
+
+    .wf-hero .text-white-75 {
+        color: rgba(255, 255, 255, .75);
+    }
+
+/* ── Toolbar Card ── */
+.wf-toolbar-card {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+/* ── Designer Layout ── */
+.wf-designer-layout {
+    display: flex;
+    gap: .5rem;
+    height: calc(100vh - 240px);
+    min-height: 500px;
+}
+
+/* ── Palette ── */
+.wf-palette {
+    width: 200px;
+    min-width: 200px;
+    background: var(--tblr-bg-surface);
+    border: 1px solid var(--tblr-border-color);
+    border-radius: .5rem;
+    overflow-y: auto;
+    flex-shrink: 0;
+}
+
+.wf-palette-header {
+    padding: .5rem .75rem;
+    font-weight: 600;
+    font-size: .8rem;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    border-bottom: 1px solid var(--tblr-border-color);
+    background: var(--tblr-bg-surface-secondary);
+    border-radius: .5rem .5rem 0 0;
+}
+
+.wf-palette-section {
+    padding: .5rem;
+    border-bottom: 1px solid var(--tblr-border-color);
+}
+
+.wf-palette-section-title {
+    font-size: .7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--tblr-secondary);
+    letter-spacing: .05em;
+    margin-bottom: .35rem;
+}
+
+.wf-palette-item {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .4rem .5rem;
+    border-radius: .35rem;
+    cursor: grab;
+    font-size: .8rem;
+    transition: background .15s, transform .1s;
+    user-select: none;
+}
+
+    .wf-palette-item:hover {
+        background: var(--tblr-bg-surface-secondary);
+        transform: translateX(2px);
+    }
+
+    .wf-palette-item:active {
+        cursor: grabbing;
+        opacity: .7;
+    }
+
+.wf-palette-icon {
+    width: 26px;
+    height: 26px;
+    border-radius: .3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: .75rem;
+    flex-shrink: 0;
+}
+
+/* ── Canvas ── */
+.wf-canvas-wrapper {
+    flex: 1;
+    position: relative;
+    border: 1px solid var(--tblr-border-color);
+    border-radius: .5rem;
+    overflow: hidden;
+    background: var(--tblr-bg-surface);
+}
+
+.wf-canvas {
+    width: 100%;
+    height: 100%;
+    cursor: default;
+}
+
+.wf-canvas-wrapper.pan-mode .wf-canvas {
+    cursor: grab;
+}
+
+.wf-canvas-wrapper.panning .wf-canvas {
+    cursor: grabbing;
+}
+
+.wf-canvas-wrapper.drag-over {
+    border-color: var(--tblr-primary);
+    box-shadow: inset 0 0 0 2px rgba(32, 107, 196, .2);
+}
+
+.wf-canvas-empty {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    pointer-events: none;
+}
+
+/* ── SVG Node Styles ── */
+.wf-node {
+    cursor: pointer;
+    transition: filter .15s;
+}
+
+    .wf-node:hover {
+        filter: brightness(1.1);
+    }
+
+    .wf-node.selected .wf-node-body {
+        stroke: #0d6efd;
+        stroke-width: 3;
+        stroke-dasharray: none;
+    }
+
+.wf-node-body {
+    rx: 8;
+    ry: 8;
+    stroke: rgba(0, 0, 0, .12);
+    stroke-width: 1.5;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .1));
+    transition: stroke .15s;
+}
+
+.wf-node-body-circle {
+    stroke: rgba(0, 0, 0, .12);
+    stroke-width: 1.5;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .1));
+}
+
+.wf-node.selected .wf-node-body-circle {
+    stroke: #0d6efd;
+    stroke-width: 3;
+}
+
+.wf-node-body-diamond {
+    stroke: rgba(0, 0, 0, .12);
+    stroke-width: 1.5;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .1));
+}
+
+.wf-node.selected .wf-node-body-diamond {
+    stroke: #0d6efd;
+    stroke-width: 3;
+}
+
+.wf-node-icon {
+    fill: #fff;
+    font-size: 14px;
+    pointer-events: none;
+}
+
+.wf-node-label {
+    fill: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    pointer-events: none;
+    text-anchor: middle;
+}
+
+.wf-node-sublabel {
+    fill: rgba(255, 255, 255, .7);
+    font-size: 9px;
+    pointer-events: none;
+    text-anchor: middle;
+}
+
+/* Node port (connection handle) */
+.wf-port {
+    fill: #fff;
+    stroke: #6c757d;
+    stroke-width: 2;
+    cursor: crosshair;
+    opacity: 0;
+    transition: opacity .15s, r .15s;
+}
+
+.wf-node:hover .wf-port,
+.wf-node.selected .wf-port {
+    opacity: 1;
+}
+
+.wf-port:hover {
+    fill: #0d6efd;
+    stroke: #0d6efd;
+    r: 7;
+}
+
+/* ── SVG Connection Styles ── */
+.wf-connection {
+    cursor: pointer;
+}
+
+.wf-connection-line {
+    fill: none;
+    stroke: #6c757d;
+    stroke-width: 2;
+    marker-end: url(#arrowhead);
+    transition: stroke .15s, stroke-width .15s;
+}
+
+.wf-connection:hover .wf-connection-line {
+    stroke: #0d6efd;
+    stroke-width: 3;
+    marker-end: url(#arrowhead-active);
+}
+
+.wf-connection.selected .wf-connection-line {
+    stroke: #0d6efd;
+    stroke-width: 3;
+    marker-end: url(#arrowhead-active);
+}
+
+.wf-connection-label {
+    fill: var(--tblr-body-color);
+    font-size: 10px;
+    text-anchor: middle;
+    pointer-events: none;
+}
+
+.wf-connection-label-bg {
+    fill: var(--tblr-bg-surface);
+    stroke: var(--tblr-border-color);
+    stroke-width: 1;
+    rx: 4;
+}
+
+/* Temp connection line while drawing */
+.wf-temp-connection {
+    fill: none;
+    stroke: #0d6efd;
+    stroke-width: 2;
+    stroke-dasharray: 6 3;
+    pointer-events: none;
+    marker-end: url(#arrowhead-active);
+}
+
+/* ── Properties Panel ── */
+.wf-properties {
+    width: 280px;
+    min-width: 280px;
+    background: var(--tblr-bg-surface);
+    border: 1px solid var(--tblr-border-color);
+    border-radius: .5rem;
+    overflow-y: auto;
+    flex-shrink: 0;
+}
+
+.wf-properties-header {
+    padding: .5rem .75rem;
+    font-weight: 600;
+    font-size: .8rem;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    border-bottom: 1px solid var(--tblr-border-color);
+    background: var(--tblr-bg-surface-secondary);
+    border-radius: .5rem .5rem 0 0;
+}
+
+.wf-prop-section {
+    padding: .5rem .75rem;
+    border-bottom: 1px solid var(--tblr-border-color);
+}
+
+.wf-prop-section-title {
+    font-size: .7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--tblr-secondary);
+    letter-spacing: .05em;
+    margin-bottom: .35rem;
+}
+
+/* ── Connection Mode Indicator ── */
+.wf-connect-indicator {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #0d6efd;
+    color: #fff;
+    padding: .5rem 1rem;
+    border-radius: 2rem;
+    font-size: .8rem;
+    box-shadow: 0 4px 16px rgba(13, 110, 253, .4);
+    z-index: 1000;
+    animation: wf-pulse 1.5s ease-in-out infinite;
+}
+
+@@keyframes wf-pulse {
+    0%, 100% {
+        box-shadow: 0 4px 16px rgba(13, 110, 253, .4);
+    }
+
+    50% {
+        box-shadow: 0 4px 24px rgba(13, 110, 253, .6);
+    }
+}
+
+/* ── Template Card ── */
+.wf-template-card {
+    border: 1px solid var(--tblr-border-color);
+    border-radius: .5rem;
+    transition: transform .15s, box-shadow .15s;
+    cursor: pointer;
+    height: 100%;
+}
+
+    .wf-template-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, .1);
+    }
+
+    .wf-template-card .card-body {
+        padding: 1rem;
+    }
+
+    .wf-template-card .wf-card-header {
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        margin-bottom: .5rem;
+    }
+
+    .wf-template-card .wf-card-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: .5rem;
+        background: linear-gradient(135deg, #6366f1, #a855f7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+
+    .wf-template-card .wf-card-title {
+        font-weight: 600;
+        font-size: .9rem;
+        line-height: 1.2;
+    }
+
+    .wf-template-card .wf-card-code {
+        font-size: .7rem;
+        color: var(--tblr-secondary);
+        font-family: var(--tblr-font-monospace);
+    }
+
+    .wf-template-card .wf-card-meta {
+        display: flex;
+        gap: .75rem;
+        flex-wrap: wrap;
+        margin-top: .5rem;
+    }
+
+    .wf-template-card .wf-card-meta-item {
+        font-size: .75rem;
+        color: var(--tblr-secondary);
+        display: flex;
+        align-items: center;
+        gap: .25rem;
+    }
+
+    .wf-template-card .wf-card-actions {
+        display: flex;
+        gap: .25rem;
+        margin-top: .5rem;
+        padding-top: .5rem;
+        border-top: 1px solid var(--tblr-border-color);
+    }
+
+/* ── Save Indicator ── */
+.wf-save-indicator {
+    display: flex;
+    align-items: center;
+    gap: .3rem;
+}
+
+/* ── Minimap (optional) ── */
+.wf-minimap {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    width: 160px;
+    height: 100px;
+    background: var(--tblr-bg-surface);
+    border: 1px solid var(--tblr-border-color);
+    border-radius: .35rem;
+    opacity: .8;
+    pointer-events: none;
+}
+
+/* ── Dark mode adjustments ── */
+[data-bs-theme="dark"] .wf-canvas-wrapper {
+    background: #1a1d21;
+}
+
+[data-bs-theme="dark"] .wf-node-body {
+    stroke: rgba(255, 255, 255, .15);
+}
+
+[data-bs-theme="dark"] .wf-connection-line {
+    stroke: #adb5bd;
+}
+
+[data-bs-theme="dark"] .wf-connection-label {
+    fill: #dee2e6;
+}
+
+/* ── Responsive ── */
+@@media (max-width: 768px) {
+    .wf-designer-layout {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .wf-palette,
+    .wf-properties {
+        width: 100%;
+        min-width: 100%;
+        max-height: 200px;
+    }
+
+    .wf-canvas-wrapper {
+        height: 400px;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Modern Workflow Pipeline Visualization
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Container ── */
+.workflow-pipeline-modern {
+    padding: 1.5rem;
+    background: var(--tblr-bg-surface);
+    border-radius: .75rem;
+    border: 1px solid var(--tblr-border-color);
+}
+
+/* ── Header ── */
+.wpm-header {
+    margin-bottom: 1.5rem;
+}
+
+.wpm-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--tblr-body-color);
+    display: flex;
+    align-items: center;
+}
+
+    .wpm-title i {
+        color: #6366f1;
+    }
+
+.wpm-subtitle {
+    font-size: .85rem;
+    color: var(--tblr-secondary);
+    margin-top: .25rem;
+}
+
+.wpm-refresh-btn {
+    border-radius: 2rem;
+}
+
+/* ── Progress Strip ── */
+.wpm-progress-strip {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-radius: .75rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid #e2e8f0;
+}
+
+[data-bs-theme="dark"] .wpm-progress-strip {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border-color: #334155;
+}
+
+.wpm-progress-info {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.wpm-progress-stat {
+    display: flex;
+    flex-direction: column;
+    gap: .125rem;
+}
+
+.wpm-stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #6366f1;
+    line-height: 1;
+}
+
+.wpm-stat-label {
+    font-size: .7rem;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--tblr-secondary);
+    font-weight: 600;
+}
+
+.wpm-progress-bar-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+}
+
+.wpm-progress-bar {
+    flex: 1;
+    height: 12px;
+    background: #e2e8f0;
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+}
+
+[data-bs-theme="dark"] .wpm-progress-bar {
+    background: #334155;
+}
+
+.wpm-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+    border-radius: 6px;
+    transition: width .6s cubic-bezier(.4, 0, .2, 1);
+    position: relative;
+}
+
+    .wpm-progress-fill::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.3) 50%, rgba(255,255,255,0) 100%);
+        animation: wpm-shimmer 2s infinite;
+    }
+
+@keyframes wpm-shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.wpm-progress-pct {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #10b981;
+    min-width: 50px;
+    text-align: right;
+}
+
+/* ── Loading State ── */
+.wpm-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    gap: 1rem;
+}
+
+.wpm-loading-spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid #e2e8f0;
+    border-top-color: #6366f1;
+    border-radius: 50%;
+    animation: wpm-spin 1s linear infinite;
+}
+
+@keyframes wpm-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.wpm-loading-text {
+    font-size: .9rem;
+    color: var(--tblr-secondary);
+}
+
+/* ── Error State ── */
+.wpm-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    gap: .5rem;
+    color: #ef4444;
+}
+
+    .wpm-error i {
+        font-size: 2.5rem;
+    }
+
+/* ── Phase Tabs ── */
+.wpm-phase-tabs {
+    margin-bottom: 1.5rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.wpm-phase-tabs-inner {
+    display: flex;
+    gap: .5rem;
+    padding-bottom: .5rem;
+}
+
+.wpm-phase-tab {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .5rem 1rem;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 2rem;
+    font-size: .8rem;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all .2s ease;
+}
+
+[data-bs-theme="dark"] .wpm-phase-tab {
+    background: #1e293b;
+    border-color: #334155;
+    color: #94a3b8;
+}
+
+.wpm-phase-tab:hover {
+    background: #e2e8f0;
+    color: #475569;
+}
+
+[data-bs-theme="dark"] .wpm-phase-tab:hover {
+    background: #334155;
+    color: #e2e8f0;
+}
+
+.wpm-phase-tab.active {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    border-color: transparent;
+    color: #fff;
+}
+
+.wpm-phase-tab-progress {
+    display: flex;
+    align-items: center;
+    gap: .25rem;
+}
+
+.wpm-phase-tab-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: .3;
+}
+
+.wpm-phase-tab.complete .wpm-phase-tab-dot {
+    background: #10b981;
+    opacity: 1;
+}
+
+.wpm-phase-tab.active .wpm-phase-tab-dot {
+    background: #fff;
+    opacity: 1;
+    animation: wpm-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes wpm-pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.3);
+        opacity: .7;
+    }
+}
+
+/* ── Pipeline Container ── */
+.wpm-pipeline-container {
+    padding: 1rem 0;
+    padding-top: 7rem; /* Extra space for tooltip to appear above steps */
+    overflow-x: auto;
+    overflow-y: visible; /* Allow tooltips to extend beyond container */
+    -webkit-overflow-scrolling: touch;
+}
+
+.wpm-pipeline {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    min-width: max-content;
+    padding: 1rem;
+}
+
+/* ── Pipeline Step ── */
+.wpm-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    min-width: 100px;
+}
+
+.wpm-step-connector {
+    position: absolute;
+    top: 32px;
+    left: 50%;
+    width: 100%;
+    height: 4px;
+    background: #e2e8f0;
+    z-index: 0;
+}
+
+[data-bs-theme="dark"] .wpm-step-connector {
+    background: #334155;
+}
+
+.wpm-step:last-child .wpm-step-connector {
+    display: none;
+}
+
+.wpm-step.completed .wpm-step-connector {
+    background: linear-gradient(90deg, #10b981 0%, #10b981 100%);
+}
+
+.wpm-step.in-progress .wpm-step-connector {
+    background: linear-gradient(90deg, #10b981 0%, #f59e0b 50%, #e2e8f0 100%);
+}
+
+/* ── Step Circle ── */
+.wpm-step-circle {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+    cursor: pointer;
+    transition: all .3s cubic-bezier(.4, 0, .2, 1);
+    border: 4px solid #e2e8f0;
+    background: #fff;
+}
+
+[data-bs-theme="dark"] .wpm-step-circle {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+.wpm-step-circle i {
+    font-size: 1.5rem;
+    color: #94a3b8;
+    transition: all .3s ease;
+}
+
+.wpm-step-circle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .15);
+}
+
+/* Step States */
+.wpm-step.completed .wpm-step-circle {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border-color: #059669;
+    box-shadow: 0 4px 16px rgba(16, 185, 129, .4);
+}
+
+    .wpm-step.completed .wpm-step-circle i {
+        color: #fff;
+    }
+
+.wpm-step.approved .wpm-step-circle {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    border-color: #047857;
+    box-shadow: 0 4px 16px rgba(5, 150, 105, .4);
+}
+
+    .wpm-step.approved .wpm-step-circle i {
+        color: #fff;
+    }
+
+.wpm-step.in-progress .wpm-step-circle {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    border-color: #d97706;
+    box-shadow: 0 4px 16px rgba(245, 158, 11, .4);
+    animation: wpm-glow-amber 2s ease-in-out infinite;
+}
+
+@keyframes wpm-glow-amber {
+    0%, 100% {
+        box-shadow: 0 4px 16px rgba(245, 158, 11, .4);
+    }
+
+    50% {
+        box-shadow: 0 4px 24px rgba(245, 158, 11, .6);
+    }
+}
+
+.wpm-step.in-progress .wpm-step-circle i {
+    color: #fff;
+}
+
+.wpm-step.pending .wpm-step-circle {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    border-color: #2563eb;
+    box-shadow: 0 4px 16px rgba(59, 130, 246, .4);
+}
+
+    .wpm-step.pending .wpm-step-circle i {
+        color: #fff;
+    }
+
+.wpm-step.rejected .wpm-step-circle {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    border-color: #dc2626;
+    box-shadow: 0 4px 16px rgba(239, 68, 68, .4);
+}
+
+    .wpm-step.rejected .wpm-step-circle i {
+        color: #fff;
+    }
+
+.wpm-step.cancelled .wpm-step-circle {
+    background: #6b7280;
+    border-color: #4b5563;
+    opacity: .6;
+}
+
+    .wpm-step.cancelled .wpm-step-circle i {
+        color: #fff;
+    }
+
+/* Current step indicator */
+.wpm-step.current .wpm-step-circle::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: -8px;
+    right: -8px;
+    bottom: -8px;
+    border-radius: 50%;
+    border: 3px solid currentColor;
+    opacity: .3;
+    animation: wpm-ring-pulse 2s ease-in-out infinite;
+}
+
+@keyframes wpm-ring-pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: .3;
+    }
+
+    50% {
+        transform: scale(1.1);
+        opacity: .1;
+    }
+}
+
+/* Check mark overlay for completed */
+.wpm-step.completed .wpm-step-circle::after,
+.wpm-step.approved .wpm-step-circle::after {
+    content: '\f26b'; /* Bootstrap Icons check */
+    font-family: 'bootstrap-icons';
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 22px;
+    height: 22px;
+    background: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .7rem;
+    color: #10b981;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .15);
+    border: 2px solid #10b981;
+}
+
+/* ── Step Info ── */
+.wpm-step-info {
+    text-align: center;
+    margin-top: .75rem;
+    max-width: 100px;
+}
+
+.wpm-step-name {
+    font-size: .75rem;
+    font-weight: 600;
+    color: var(--tblr-body-color);
+    line-height: 1.3;
+    margin-bottom: .25rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.wpm-step-status {
+    font-size: .65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    padding: .125rem .5rem;
+    border-radius: 1rem;
+    display: inline-block;
+}
+
+.wpm-step.completed .wpm-step-status {
+    background: rgba(16, 185, 129, .15);
+    color: #059669;
+}
+
+.wpm-step.approved .wpm-step-status {
+    background: rgba(5, 150, 105, .15);
+    color: #047857;
+}
+
+.wpm-step.in-progress .wpm-step-status {
+    background: rgba(245, 158, 11, .15);
+    color: #b45309;
+}
+
+.wpm-step.pending .wpm-step-status {
+    background: rgba(59, 130, 246, .15);
+    color: #1d4ed8;
+}
+
+.wpm-step.waiting .wpm-step-status {
+    background: rgba(148, 163, 184, .15);
+    color: #64748b;
+}
+
+.wpm-step.rejected .wpm-step-status {
+    background: rgba(239, 68, 68, .15);
+    color: #dc2626;
+}
+
+.wpm-step.cancelled .wpm-step-status {
+    background: rgba(107, 114, 128, .15);
+    color: #4b5563;
+    text-decoration: line-through;
+}
+
+/* ── Step Tooltip/Popup ── */
+.wpm-step-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-8px);
+    background: #1e293b;
+    color: #fff;
+    padding: .75rem 1rem;
+    border-radius: .5rem;
+    font-size: .75rem;
+    min-width: 180px;
+    z-index: 9999; /* High z-index to ensure tooltip is visible above all elements */
+    opacity: 0;
+    visibility: hidden;
+    transition: all .2s ease;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .25);
+    pointer-events: none; /* Prevent tooltip from interfering with hover */
+}
+
+    .wpm-step-tooltip::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 8px solid transparent;
+        border-top-color: #1e293b;
+    }
+
+.wpm-step:hover .wpm-step-tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(-12px);
+}
+
+.wpm-tooltip-title {
+    font-weight: 700;
+    margin-bottom: .5rem;
+    padding-bottom: .5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, .2);
+}
+
+.wpm-tooltip-row {
+    display: flex;
+    justify-content: space-between;
+    gap: .5rem;
+    margin-bottom: .25rem;
+}
+
+.wpm-tooltip-label {
+    color: rgba(255, 255, 255, .6);
+}
+
+.wpm-tooltip-value {
+    font-weight: 600;
+    text-align: right;
+}
+
+/* ── Legend ── */
+.wpm-legend {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--tblr-border-color);
+}
+
+.wpm-legend-title {
+    font-size: .7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--tblr-secondary);
+    margin-bottom: .5rem;
+}
+
+.wpm-legend-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.wpm-legend-item {
+    display: flex;
+    align-items: center;
+    gap: .375rem;
+    font-size: .75rem;
+    color: var(--tblr-secondary);
+}
+
+.wpm-legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* ── Overdue indicator ── */
+.wpm-step.overdue .wpm-step-circle {
+    animation: wpm-overdue-flash 1s ease-in-out infinite;
+}
+
+@keyframes wpm-overdue-flash {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, .4);
+    }
+
+    50% {
+        box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+    }
+}
+
+.wpm-step.overdue .wpm-step-name::after {
+    content: ' ⚠';
+    color: #ef4444;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .workflow-pipeline-modern {
+        padding: 1rem;
+    }
+
+    .wpm-progress-info {
+        flex-direction: column;
+        gap: .75rem;
+    }
+
+    .wpm-progress-stat {
+        flex-direction: row;
+        align-items: center;
+        gap: .5rem;
+    }
+
+        .wpm-progress-stat.text-end {
+            text-align: left !important;
+        }
+
+    .wpm-progress-bar-wrap {
+        width: 100%;
+    }
+
+    .wpm-step {
+        min-width: 80px;
+    }
+
+    .wpm-step-circle {
+        width: 48px;
+        height: 48px;
+    }
+
+        .wpm-step-circle i {
+            font-size: 1.125rem;
+        }
+
+    .wpm-step-connector {
+        top: 24px;
+    }
+
+    .wpm-step-tooltip {
+        display: none;
+    }
+}
+
+/* ── Per-Item Badge (multi-item job production steps) ── */
+.wpm-item-badge {
+    position: absolute;
+    top: -6px;
+    left: -6px;
+    min-width: 20px;
+    height: 20px;
+    background: #6366f1;
+    color: #fff;
+    border-radius: 10px;
+    font-size: .6rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    box-shadow: 0 2px 6px rgba(99, 102, 241, .4);
+    border: 2px solid #fff;
+    z-index: 2;
+}
+
+[data-bs-theme="dark"] .wpm-item-badge {
+    border-color: #1e293b;
+}
+
+/* ── Tooltip per-item breakdown ── */
+.wpm-tooltip-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, .15);
+    margin: .5rem 0;
+}
+
+.wpm-tooltip-items-title {
+    font-size: .65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: rgba(255, 255, 255, .5);
+    margin-bottom: .375rem;
+}
+
+.wpm-tooltip-item-row {
+    display: flex;
+    align-items: center;
+    gap: .375rem;
+    margin-bottom: .2rem;
+}
+
+.wpm-tooltip-item-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: #94a3b8;
+}
+
+.wpm-tooltip-item-dot.completed,
+.wpm-tooltip-item-dot.approved {
+    background: #10b981;
+}
+
+.wpm-tooltip-item-dot.in-progress {
+    background: #f59e0b;
+}
+
+.wpm-tooltip-item-dot.pending {
+    background: #3b82f6;
+}
+
+.wpm-tooltip-item-dot.rejected {
+    background: #ef4444;
+}
+
+.wpm-tooltip-item-name {
+    flex: 1;
+    font-size: .7rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 110px;
+}
+
+.wpm-tooltip-item-status {
+    font-size: .65rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, .65);
+    white-space: nowrap;
+}
+
+/* Widen tooltip when showing item breakdown */
+.wpm-step-tooltip:has(.wpm-tooltip-item-row) {
+    min-width: 220px;
+}
+

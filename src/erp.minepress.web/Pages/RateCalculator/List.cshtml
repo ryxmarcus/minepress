@@ -1,0 +1,216 @@
+@page
+@model erp.minepress.web.Pages.RateCalculator.ListModel
+@{
+    ViewData["Title"] = "Calculation History";
+    ViewData["ContainerClass"] = "container-xl";
+    ViewData["HidePageHeader"] = true;
+}
+
+<!-- Page Header -->
+<div class="page-header d-print-none mb-3">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-md bg-blue-lt text-blue">
+                <i class="bi bi-calculator fs-4"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="page-title mb-0">Calculation History</h2>
+            <div class="text-secondary mt-1">Browse all rate calculations, costing records, and BOM snapshots.</div>
+        </div>
+        <div class="col-auto d-flex gap-2">
+            <button class="btn btn-outline-secondary btn-sm" onclick="loadCalcList()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+            </button>
+            <a href="/RateCalculator" class="btn btn-primary btn-sm">
+                <i class="bi bi-plus-lg me-1"></i>New Calculation
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Row -->
+<div class="row g-3 mb-3" id="rcStats">
+    <div class="col-6 col-md-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-primary-lt me-3"><i class="bi bi-calculator"></i></span>
+                    <div>
+                        <div class="fw-bold fs-3" id="statTotal">0</div>
+                        <div class="text-secondary small">Total</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-success-lt me-3"><i class="bi bi-link-45deg"></i></span>
+                    <div>
+                        <div class="fw-bold fs-3" id="statLinked">0</div>
+                        <div class="text-secondary small">Linked</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-info-lt me-3"><i class="bi bi-cash-stack"></i></span>
+                    <div>
+                        <div class="fw-bold fs-3" id="statAvgCost">₹0</div>
+                        <div class="text-secondary small">Avg Cost/Unit</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-warning-lt me-3"><i class="bi bi-currency-rupee"></i></span>
+                    <div>
+                        <div class="fw-bold fs-3" id="statTotalValue">₹0</div>
+                        <div class="text-secondary small">Total Value</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card mb-3">
+    <div class="card-body py-2">
+        <div class="row g-2 align-items-center">
+            <div class="col-md-3">
+                <div class="input-icon">
+                    <span class="input-icon-addon"><i class="bi bi-search"></i></span>
+                    <input type="text" id="txtSearch" class="form-control form-control-sm" placeholder="Search ref no, customer, product..." />
+                </div>
+            </div>
+            <div class="col-md-2">
+                <select id="ddlStatusFilter" class="form-select form-select-sm">
+                    <option value="">All Statuses</option>
+                    <option value="DRAFT">Draft</option>
+                    <option value="FINAL">Final</option>
+                    <option value="REVISED">Revised</option>
+                    <option value="EXPIRED">Expired</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select id="ddlPrintingMode" class="form-select form-select-sm">
+                    <option value="">All Printing</option>
+                    <option value="OFFSET">Offset</option>
+                    <option value="DIGITAL">Digital</option>
+                    <option value="SCREEN">Screen</option>
+                    <option value="FLEX">Flex</option>
+                    <option value="UV">UV</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select id="ddlLinkedFilter" class="form-select form-select-sm">
+                    <option value="">All</option>
+                    <option value="enquiry">Linked to Enquiry</option>
+                    <option value="quotation">Linked to Quotation</option>
+                    <option value="job">Linked to Job</option>
+                    <option value="standalone">Standalone</option>
+                </select>
+            </div>
+            <div class="col-auto ms-auto">
+                <span class="text-muted small" id="filteredCount"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Calculation Table -->
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table table-hover">
+            <thead>
+                <tr>
+                    <th class="sortable" data-sort="calcRefNo" style="cursor:pointer;">Ref No <i class="bi bi-arrow-down-up small text-muted"></i></th>
+                    <th class="sortable" data-sort="createdOn" style="cursor:pointer;">Date <i class="bi bi-arrow-down-up small text-muted"></i></th>
+                    <th class="sortable" data-sort="partyName" style="cursor:pointer;">Customer <i class="bi bi-arrow-down-up small text-muted"></i></th>
+                    <th>Product</th>
+                    <th class="text-center">Qty</th>
+                    <th class="text-end sortable" data-sort="netTotal" style="cursor:pointer;">Net Total <i class="bi bi-arrow-down-up small text-muted"></i></th>
+                    <th class="text-end">Cost/Unit</th>
+                    <th>Linked To</th>
+                    <th class="sortable" data-sort="status" style="cursor:pointer;">Status <i class="bi bi-arrow-down-up small text-muted"></i></th>
+                    <th class="text-center" style="width:80px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="calcListBody">
+                <tr>
+                    <td colspan="10" class="text-center text-muted py-4">
+                        <div class="spinner-border spinner-border-sm me-2"></div>Loading calculations...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Paging Controls -->
+<div class="card mt-2" id="pagingControls" style="display:none;">
+    <div class="card-body py-2">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-muted small">Show</span>
+                <select id="ddlPageSize" class="form-select form-select-sm" style="width:auto;">
+                    <option value="10">10</option>
+                    <option value="25" selected>25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+                <span class="text-muted small">entries</span>
+            </div>
+            <div class="text-muted small" id="pagingInfo"></div>
+            <nav>
+                <ul class="pagination pagination-sm mb-0" id="paginationNav"></ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- Empty State -->
+<div id="emptyState" class="text-center py-5" style="display:none;">
+    <i class="bi bi-calculator" style="font-size:3rem; opacity:.3;"></i>
+    <div class="text-muted mt-2">No calculations found</div>
+    <a href="/RateCalculator" class="btn btn-primary mt-3">
+        <i class="bi bi-plus-lg me-1"></i>Create First Calculation
+    </a>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/rate-calculator.css" />
+    <style>
+        .rc-status-badge {
+            display: inline-flex; align-items: center; gap: .25rem;
+            padding: .2rem .6rem; border-radius: 9999px;
+            font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .5px;
+        }
+        .rc-status-draft  { background: rgba(var(--tblr-warning-rgb),.15); color: var(--tblr-warning); }
+        .rc-status-final  { background: rgba(var(--tblr-success-rgb),.15); color: var(--tblr-success); }
+        .rc-status-revised { background: rgba(var(--tblr-info-rgb),.15); color: var(--tblr-info); }
+        .rc-status-expired { background: rgba(var(--tblr-secondary-rgb),.15); color: var(--tblr-secondary); }
+        .rc-link-badge {
+            display: inline-flex; align-items: center; gap: .25rem;
+            padding: .15rem .5rem; border-radius: .25rem;
+            font-size: .7rem; font-weight: 500; text-decoration: none;
+        }
+        .rc-link-badge:hover { opacity: .85; }
+    </style>
+}
+
+@section Scripts {
+    <script src="~/js/rate-calculator-list.js"></script>
+}

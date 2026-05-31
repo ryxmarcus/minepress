@@ -1,0 +1,139 @@
+@page
+@model erp.minepress.web.Pages.Hrms.Loan.ApplyModel
+@{
+    ViewData["Title"] = "Apply Loan — HRMS";
+}
+
+<div class="hrms-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);">
+                <i class="bi bi-bank" style="font-size:1.5rem;"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="mb-0">Apply for Loan</h2>
+            <div class="text-white-75">Submit a new loan application</div>
+        </div>
+        <div class="col-auto">
+            <a href="/Hrms/Loan" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-arrow-left me-1"></i>Back to Loans
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Loan Application</h3>
+            </div>
+            <div class="card-body">
+                <form id="loanApplyForm">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label required">Loan Type</label>
+                            <select class="form-select" id="loanType" required>
+                                <option value="">Select loan type...</option>
+                                <option value="Personal">Personal Loan</option>
+                                <option value="Housing">Housing Loan</option>
+                                <option value="Vehicle">Vehicle Loan</option>
+                                <option value="Education">Education Loan</option>
+                                <option value="Emergency">Emergency Loan</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label required">Loan Date</label>
+                            <input type="date" class="form-control" id="loanDate" required />
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label required">Loan Amount (₹)</label>
+                            <input type="number" class="form-control" id="loanAmount" min="1000" step="1000" placeholder="e.g. 50000" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label required">Interest Rate (%)</label>
+                            <input type="number" class="form-control" id="loanInterest" min="0" max="30" step="0.5" placeholder="e.g. 8.5" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label required">Tenure (Months)</label>
+                            <input type="number" class="form-control" id="loanTenure" min="1" max="360" placeholder="e.g. 12" required />
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Calculated EMI</label>
+                            <input type="text" class="form-control" id="loanEmiDisplay" readonly />
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send me-1"></i>Submit Application
+                        </button>
+                        <a href="/Hrms/Loan" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h3 class="card-title"><i class="bi bi-info-circle me-1"></i>EMI Calculator</h3>
+            </div>
+            <div class="card-body">
+                <p class="text-secondary small mb-0">EMI is calculated using flat interest: EMI = (Principal + (Principal × Rate × Tenure / 1200)) / Tenure. Actual EMI may vary based on reducing balance method.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="/js/hrms.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const amtEl = document.getElementById('loanAmount');
+            const rateEl = document.getElementById('loanInterest');
+            const tenureEl = document.getElementById('loanTenure');
+            const emiEl = document.getElementById('loanEmiDisplay');
+            let emiValue = 0;
+
+            function calcEmi() {
+                const P = parseFloat(amtEl.value) || 0;
+                const R = parseFloat(rateEl.value) || 0;
+                const N = parseInt(tenureEl.value) || 0;
+                if (P > 0 && N > 0) {
+                    const totalInterest = P * R * N / 1200;
+                    emiValue = Math.ceil((P + totalInterest) / N);
+                    emiEl.value = '₹ ' + emiValue.toLocaleString('en-IN');
+                } else {
+                    emiValue = 0;
+                    emiEl.value = '';
+                }
+            }
+
+            amtEl.addEventListener('input', calcEmi);
+            rateEl.addEventListener('input', calcEmi);
+            tenureEl.addEventListener('input', calcEmi);
+
+            document.getElementById('loanApplyForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const payload = {
+                    loanType: document.getElementById('loanType').value,
+                    loanDate: document.getElementById('loanDate').value,
+                    loanAmount: parseFloat(amtEl.value),
+                    interestRate: parseFloat(rateEl.value),
+                    tenureMonths: parseInt(tenureEl.value),
+                    emiAmount: emiValue
+                };
+
+                const res = await Hrms.post('loans/apply', payload);
+                if (res) {
+                    Swal.fire({ icon: 'success', title: 'Loan Applied', text: res.message, timer: 2000 });
+                    setTimeout(() => window.location.href = '/Hrms/Loan', 2000);
+                }
+            });
+        });
+    </script>
+}

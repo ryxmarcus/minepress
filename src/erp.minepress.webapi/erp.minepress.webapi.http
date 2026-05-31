@@ -1,0 +1,6 @@
+@erp.minepress.webapi_HostAddress = http://localhost:5284
+
+GET {{erp.minepress.webapi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

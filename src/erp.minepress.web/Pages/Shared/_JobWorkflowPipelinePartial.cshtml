@@ -1,0 +1,85 @@
+<div id="jobWorkflowPipeline" class="workflow-pipeline-modern">
+    <!-- Header with Smart Strip -->
+    <div class="wpm-header">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div>
+                <h3 class="wpm-title"><i class="bi bi-diagram-3 me-2"></i>Workflow Pipeline</h3>
+                <div class="wpm-subtitle">Visual workflow progress with real-time status tracking</div>
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-primary wpm-refresh-btn" id="btnRefreshPipeline">
+                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+            </button>
+        </div>
+
+        <!-- Progress Summary Strip -->
+        <div class="wpm-progress-strip mt-3" id="wpmProgressStrip">
+            <div class="wpm-progress-info">
+                <div class="wpm-progress-stat">
+                    <span class="wpm-stat-value" id="wpmCompletedCount">0</span>
+                    <span class="wpm-stat-label">Completed</span>
+                </div>
+                <div class="wpm-progress-bar-wrap">
+                    <div class="wpm-progress-bar">
+                        <div class="wpm-progress-fill" id="wpmProgressFill"></div>
+                    </div>
+                    <span class="wpm-progress-pct" id="wpmProgressPct">0%</span>
+                </div>
+                <div class="wpm-progress-stat text-end">
+                    <span class="wpm-stat-value" id="wpmTotalSteps">0</span>
+                    <span class="wpm-stat-label">Total Steps</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="wpmLoader" class="wpm-loading">
+        <div class="wpm-loading-spinner"></div>
+        <div class="wpm-loading-text">Loading workflow pipeline...</div>
+    </div>
+
+    <!-- Error State -->
+    <div id="wpmError" class="wpm-error d-none">
+        <i class="bi bi-exclamation-triangle"></i>
+        <span id="wpmErrorText">Failed to load workflow pipeline.</span>
+        <button class="btn btn-sm btn-outline-danger mt-2" onclick="JobWorkflowPipeline.load(true)">Retry</button>
+    </div>
+
+    <!-- Phase Tabs -->
+    <div id="wpmPhaseTabs" class="wpm-phase-tabs d-none">
+        <div class="wpm-phase-tabs-inner" id="wpmPhaseTabsInner"></div>
+    </div>
+
+    <!-- Pipeline Visualization -->
+    <div id="wpmPipelineContainer" class="wpm-pipeline-container d-none">
+        <!-- The pipeline steps will be rendered here -->
+        <div class="wpm-pipeline" id="wpmPipeline"></div>
+    </div>
+
+    <!-- Legend -->
+    <div id="wpmLegend" class="wpm-legend d-none">
+        <div class="wpm-legend-title">Status Legend</div>
+        <div class="wpm-legend-items">
+            <div class="wpm-legend-item">
+                <span class="wpm-legend-dot" style="background: #10b981;"></span>
+                <span>Completed</span>
+            </div>
+            <div class="wpm-legend-item">
+                <span class="wpm-legend-dot" style="background: #f59e0b;"></span>
+                <span>In Progress</span>
+            </div>
+            <div class="wpm-legend-item">
+                <span class="wpm-legend-dot" style="background: #3b82f6;"></span>
+                <span>Pending</span>
+            </div>
+            <div class="wpm-legend-item">
+                <span class="wpm-legend-dot" style="background: #e2e8f0;"></span>
+                <span>Not Started</span>
+            </div>
+            <div class="wpm-legend-item">
+                <span class="wpm-legend-dot" style="background: #ef4444;"></span>
+                <span>Rejected</span>
+            </div>
+        </div>
+    </div>
+</div>

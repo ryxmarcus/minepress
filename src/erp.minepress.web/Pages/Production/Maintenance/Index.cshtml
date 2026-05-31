@@ -1,0 +1,606 @@
+@page
+@model erp.minepress.web.Pages.Production.Maintenance.IndexModel
+@{
+    ViewData["Title"] = "Machine Maintenance";
+    ViewData["ContainerClass"] = "container-xl";
+}
+
+<!-- ═══ Hero ═══ -->
+<div class="prod-hero prod-hero-modern d-print-none">
+    <div class="prod-hero-pattern"></div>
+    <div class="row align-items-center position-relative">
+        <div class="col-auto">
+            <div class="prod-hero-icon-wrap">
+                <i class="bi bi-wrench-adjustable"></i>
+                <span class="prod-hero-icon-pulse"></span>
+            </div>
+        </div>
+        <div class="col">
+            <h2 class="mb-1 fw-bold">Machine Maintenance</h2>
+            <div class="text-white-75">
+                <i class="bi bi-cpu me-1"></i>AI-powered scheduling · Preventive &amp; corrective tracking · Downtime analytics
+            </div>
+        </div>
+        <div class="col-auto d-flex gap-2">
+            <button class="btn btn-outline-light btn-sm" onclick="openAddMaintenance()">
+                <i class="bi bi-plus-circle me-1"></i>Schedule Maintenance
+            </button>
+            <button class="btn btn-outline-light btn-sm" onclick="loadMaintenance()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Insight Cards ═══ -->
+<div class="row g-3 mb-3">
+    <div class="col-sm-6 col-lg-3">
+        <div class="card prod-insight-card prod-insight-glow">
+            <div class="card-body py-3">
+                <div class="d-flex align-items-center">
+                    <div class="prod-insight-icon bg-primary-lt"><i class="bi bi-tools text-primary"></i></div>
+                    <div class="ms-3">
+                        <div class="text-muted small text-uppercase fw-semibold" style="letter-spacing:.03em;">Total Records</div>
+                        <div class="h3 mb-0 prod-stat-counter" id="maintTotal">—</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="card prod-insight-card prod-insight-glow">
+            <div class="card-body py-3">
+                <div class="d-flex align-items-center">
+                    <div class="prod-insight-icon bg-danger-lt"><i class="bi bi-exclamation-triangle text-danger"></i></div>
+                    <div class="ms-3">
+                        <div class="text-muted small text-uppercase fw-semibold" style="letter-spacing:.03em;">Overdue</div>
+                        <div class="h3 mb-0 prod-stat-counter" id="maintOverdue">—</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="card prod-insight-card prod-insight-glow">
+            <div class="card-body py-3">
+                <div class="d-flex align-items-center">
+                    <div class="prod-insight-icon bg-warning-lt"><i class="bi bi-clock-history text-warning"></i></div>
+                    <div class="ms-3">
+                        <div class="text-muted small text-uppercase fw-semibold" style="letter-spacing:.03em;">Due This Week</div>
+                        <div class="h3 mb-0 prod-stat-counter" id="maintDueSoon">—</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="card prod-insight-card prod-insight-glow">
+            <div class="card-body py-3">
+                <div class="d-flex align-items-center">
+                    <div class="prod-insight-icon bg-success-lt"><i class="bi bi-check-circle text-success"></i></div>
+                    <div class="ms-3">
+                        <div class="text-muted small text-uppercase fw-semibold" style="letter-spacing:.03em;">Up to Date</div>
+                        <div class="h3 mb-0 prod-stat-counter" id="maintOk">—</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Repair Status Summary ═══ -->
+<div class="row g-3 mb-3">
+    <div class="col-sm-6 col-lg-3">
+        <div class="card prod-insight-card border-start border-warning border-3">
+            <div class="card-body py-2">
+                <div class="d-flex align-items-center">
+                    <div class="ms-1">
+                        <div class="text-muted small">Pending Repair</div>
+                        <div class="h4 mb-0" id="maintRepairPending">—</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="card prod-insight-card border-start border-info border-3">
+            <div class="card-body py-2">
+                <div class="d-flex align-items-center">
+                    <div class="ms-1">
+                        <div class="text-muted small">In Progress</div>
+                        <div class="h4 mb-0" id="maintRepairInProgress">—</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="card prod-insight-card border-start border-success border-3">
+            <div class="card-body py-2">
+                <div class="d-flex align-items-center">
+                    <div class="ms-1">
+                        <div class="text-muted small">Completed</div>
+                        <div class="h4 mb-0" id="maintRepairCompleted">—</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="card prod-insight-card border-start border-cyan border-3">
+            <div class="card-body py-2">
+                <div class="d-flex align-items-center">
+                    <div class="ms-1">
+                        <div class="text-muted small">Avg Downtime</div>
+                        <div class="h4 mb-0"><span id="maintAvgDowntime">—</span> <small class="text-muted">min</small></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Filter ═══ -->
+<div class="card mb-3 d-print-none prod-filter-card">
+    <div class="card-body py-2">
+        <div class="row g-2 align-items-end">
+            <div class="col-auto">
+                <label class="form-label mb-0 small">Machine</label>
+                <select class="form-select form-select-sm" id="filterMachine" onchange="loadMaintenance()">
+                    <option value="">All Machines</option>
+                </select>
+            </div>
+            <div class="col-auto">
+                <label class="form-label mb-0 small">Schedule Status</label>
+                <select class="form-select form-select-sm" id="filterStatus" onchange="filterTable()">
+                    <option value="">All</option>
+                    <option value="overdue">Overdue</option>
+                    <option value="due-soon">Due This Week</option>
+                    <option value="ok">Up to Date</option>
+                </select>
+            </div>
+            <div class="col-auto">
+                <label class="form-label mb-0 small">Repair Status</label>
+                <select class="form-select form-select-sm" id="filterRepairStatus" onchange="filterTable()">
+                    <option value="">All</option>
+                    <option value="Pending">Pending</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Cancelled">Cancelled</option>
+                </select>
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-sm btn-ghost-secondary" onclick="$('#filterMachine,#filterStatus,#filterRepairStatus').val('');loadMaintenance();">
+                    <i class="bi bi-x-lg me-1"></i>Clear
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Maintenance Table ═══ -->
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table prod-maint-table">
+            <thead>
+                <tr>
+                    <th>Machine</th>
+                    <th>Type</th>
+                    <th>Frequency</th>
+                    <th>Last Done</th>
+                    <th>Next Due</th>
+                    <th>Repair Status</th>
+                    <th>Downtime</th>
+                    <th>Vendor</th>
+                    <th>Est. Cost</th>
+                    <th>Schedule</th>
+                    <th class="w-1"></th>
+                </tr>
+            </thead>
+            <tbody id="maintBody">
+                <tr>
+                    <td colspan="11" class="text-center text-muted py-4">
+                        <div class="spinner-border spinner-border-sm me-2"></div>Loading…
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ═══ Add/Edit Maintenance Modal ═══ -->
+<div class="modal modal-blur fade" id="maintModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="maintModalTitle">Schedule Maintenance</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editMaintId" value="" />
+
+                <div class="mb-3 p-2 rounded" style="background:var(--tblr-bg-surface-secondary);">
+                    <div class="fw-semibold small text-muted mb-2"><i class="bi bi-gear me-1"></i>Machine &amp; Type</div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Machine <span class="text-danger">*</span></label>
+                            <select class="form-select" id="maintMachineId"></select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Maintenance Type</label>
+                            <select class="form-select" id="maintType">
+                                <option>Preventive</option>
+                                <option>Corrective</option>
+                                <option>Breakdown</option>
+                                <option>Calibration</option>
+                                <option>Lubrication</option>
+                                <option>Inspection</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3 p-2 rounded" style="background:var(--tblr-bg-surface-secondary);">
+                    <div class="fw-semibold small text-muted mb-2"><i class="bi bi-calendar-event me-1"></i>Schedule</div>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Frequency (Days)</label>
+                            <input type="number" class="form-control" id="maintFrequency" min="1" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Last Maintenance</label>
+                            <input type="date" class="form-control" id="maintLastDate" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Next Due Date</label>
+                            <input type="date" class="form-control" id="maintNextDate" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3 p-2 rounded" style="background:var(--tblr-bg-surface-secondary);">
+                    <div class="fw-semibold small text-muted mb-2"><i class="bi bi-lightning me-1"></i>Breakdown &amp; Repair Tracking</div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Breakdown Start</label>
+                            <input type="datetime-local" class="form-control" id="maintBreakdownStart" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Breakdown End</label>
+                            <input type="datetime-local" class="form-control" id="maintBreakdownEnd" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Downtime (min)</label>
+                            <input type="number" class="form-control" id="maintDowntime" min="0" step="0.01" readonly />
+                            <small class="form-hint">Auto-calculated</small>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Repair Status</label>
+                            <select class="form-select" id="maintRepairStatus">
+                                <option value="Pending">Pending</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Completion Date</label>
+                            <input type="datetime-local" class="form-control" id="maintCompletionDate" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-0 p-2 rounded" style="background:var(--tblr-bg-surface-secondary);">
+                    <div class="fw-semibold small text-muted mb-2"><i class="bi bi-info-circle me-1"></i>Additional Info</div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Vendor</label>
+                            <input type="text" class="form-control" id="maintVendor" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Estimated Cost (₹)</label>
+                            <input type="number" class="form-control" id="maintCost" min="0" step="0.01" />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Remarks</label>
+                            <textarea class="form-control" id="maintRemarks" rows="2"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn me-auto" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-primary" onclick="saveMaintenance()">
+                    <i class="bi bi-check-lg me-1"></i>Save
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let maintData = [];
+        let machineList = [];
+
+        $(function () {
+            loadMachineDropdown();
+            loadMaintenance();
+
+            // Auto-calculate downtime when breakdown times change
+            $('#maintBreakdownStart, #maintBreakdownEnd').on('change', function () {
+                const s = $('#maintBreakdownStart').val();
+                const e = $('#maintBreakdownEnd').val();
+                if (s && e) {
+                    const diff = (new Date(e) - new Date(s)) / 60000;
+                    $('#maintDowntime').val(diff > 0 ? diff.toFixed(2) : '');
+                } else {
+                    $('#maintDowntime').val('');
+                }
+            });
+        });
+
+        async function loadMachineDropdown() {
+            try {
+                machineList = await $.get('/api/production/machines');
+                const $sel = $('#filterMachine, #maintMachineId');
+                $sel.each(function () {
+                    const isFilter = this.id === 'filterMachine';
+                    const $s = $(this);
+                    if (isFilter) $s.html('<option value="">All Machines</option>');
+                    else $s.empty();
+                    machineList.forEach(m => {
+                        $s.append(`<option value="${m.machineId}">${m.machineName} (${m.machineCode})</option>`);
+                    });
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadMaintenance() {
+            const machineId = $('#filterMachine').val();
+            const url = machineId ? `/api/production/maintenance?machineId=${machineId}` : '/api/production/maintenance';
+            try {
+                maintData = await $.get(url);
+                renderTable(maintData);
+                updateMaintStats();
+            } catch (e) {
+                $('#maintBody').html('<tr><td colspan="11" class="text-center text-danger">Failed to load</td></tr>');
+            }
+        }
+
+        function renderTable(data) {
+            const $body = $('#maintBody');
+            $body.empty();
+
+            if (data.length === 0) {
+                $body.html('<tr><td colspan="11" class="text-center text-muted py-4"><i class="bi bi-inbox me-2"></i>No maintenance records</td></tr>');
+                return;
+            }
+
+            data.forEach(m => {
+                const isOverdue = m.isOverdue;
+                const isDueSoon = !isOverdue && m.nextDueDate && daysDiff(m.nextDueDate) <= 7;
+                const rowClass = isOverdue ? 'prod-maint-overdue' : isDueSoon ? 'prod-maint-due-soon' : '';
+                const scheduleBadge = isOverdue
+                    ? '<span class="badge bg-danger-lt text-danger">Overdue</span>'
+                    : isDueSoon
+                    ? '<span class="badge bg-warning-lt text-warning">Due Soon</span>'
+                    : '<span class="badge bg-success-lt text-success">OK</span>';
+
+                const repairBadge = getRepairStatusBadge(m.repairStatus);
+                const dt = m.downtimeMinutes ? `${Number(m.downtimeMinutes).toFixed(0)} min` : '—';
+
+                $body.append(`
+                    <tr class="${rowClass}" data-status="${isOverdue ? 'overdue' : isDueSoon ? 'due-soon' : 'ok'}" data-repair="${escHtml(m.repairStatus || 'Pending')}">
+                        <td>
+                            <strong>${escHtml(m.machineName || '—')}</strong>
+                            <div class="text-muted small">${escHtml(m.machineCode || '')}</div>
+                        </td>
+                        <td>${escHtml(m.maintenanceType || '—')}</td>
+                        <td>${m.frequencyDays ? m.frequencyDays + ' days' : '—'}</td>
+                        <td>${m.lastMaintenanceDate ? formatDate(m.lastMaintenanceDate) : '—'}</td>
+                        <td>${m.nextDueDate ? formatDate(m.nextDueDate) : '—'}</td>
+                        <td>${repairBadge}</td>
+                        <td>${dt}</td>
+                        <td>${escHtml(m.vendorName || '—')}</td>
+                        <td>${m.estimatedCost ? '₹' + Number(m.estimatedCost).toLocaleString('en-IN') : '—'}</td>
+                        <td>${scheduleBadge}</td>
+                        <td>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-ghost-secondary dropdown-toggle" data-bs-toggle="dropdown"></button>
+                                <div class="dropdown-menu dropdown-menu-end">
+                                    <a class="dropdown-item" href="javascript:void(0)" onclick="editMaint(${m.maintenanceId})">
+                                        <i class="bi bi-pencil me-2"></i>Edit
+                                    </a>
+                                    <a class="dropdown-item" href="javascript:void(0)" onclick="startRepair(${m.maintenanceId})">
+                                        <i class="bi bi-play-circle me-2 text-info"></i>Start Repair
+                                    </a>
+                                    <a class="dropdown-item" href="javascript:void(0)" onclick="completeMaint(${m.maintenanceId})">
+                                        <i class="bi bi-check-circle me-2 text-success"></i>Mark Complete
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>`);
+            });
+        }
+
+        function getRepairStatusBadge(status) {
+            switch (status) {
+                case 'In Progress': return '<span class="badge bg-info-lt text-info">In Progress</span>';
+                case 'Completed': return '<span class="badge bg-success-lt text-success">Completed</span>';
+                case 'Cancelled': return '<span class="badge bg-secondary-lt text-secondary">Cancelled</span>';
+                default: return '<span class="badge bg-warning-lt text-warning">Pending</span>';
+            }
+        }
+
+        function updateMaintStats() {
+            $('#maintTotal').text(maintData.length);
+            const overdue = maintData.filter(m => m.isOverdue).length;
+            const dueSoon = maintData.filter(m => !m.isOverdue && m.nextDueDate && daysDiff(m.nextDueDate) <= 7).length;
+            $('#maintOverdue').text(overdue);
+            $('#maintDueSoon').text(dueSoon);
+            $('#maintOk').text(maintData.length - overdue - dueSoon);
+
+            // Repair status stats
+            $('#maintRepairPending').text(maintData.filter(m => !m.repairStatus || m.repairStatus === 'Pending').length);
+            $('#maintRepairInProgress').text(maintData.filter(m => m.repairStatus === 'In Progress').length);
+            $('#maintRepairCompleted').text(maintData.filter(m => m.repairStatus === 'Completed').length);
+
+            // Average downtime
+            const withDt = maintData.filter(m => m.downtimeMinutes > 0);
+            const avgDt = withDt.length > 0 ? (withDt.reduce((s, m) => s + m.downtimeMinutes, 0) / withDt.length).toFixed(0) : '—';
+            $('#maintAvgDowntime').text(avgDt);
+        }
+
+        function filterTable() {
+            const status = $('#filterStatus').val();
+            const repair = $('#filterRepairStatus').val();
+            $('#maintBody tr').each(function () {
+                let show = true;
+                if (status && $(this).data('status') !== status) show = false;
+                if (repair && $(this).data('repair') !== repair) show = false;
+                $(this).toggle(show);
+            });
+        }
+
+        function openAddMaintenance() {
+            $('#editMaintId').val('');
+            $('#maintModalTitle').text('Schedule Maintenance');
+            $('#maintMachineId').val('');
+            $('#maintType').val('Preventive');
+            $('#maintFrequency').val('');
+            $('#maintCost').val('');
+            $('#maintLastDate').val('');
+            $('#maintNextDate').val('');
+            $('#maintVendor').val('');
+            $('#maintRemarks').val('');
+            $('#maintBreakdownStart').val('');
+            $('#maintBreakdownEnd').val('');
+            $('#maintDowntime').val('');
+            $('#maintRepairStatus').val('Pending');
+            $('#maintCompletionDate').val('');
+            showModal('maintModal');
+        }
+
+        function editMaint(id) {
+            const m = maintData.find(x => x.maintenanceId === id);
+            if (!m) return;
+            $('#editMaintId').val(id);
+            $('#maintModalTitle').text('Edit Maintenance');
+            $('#maintMachineId').val(m.machineId || '');
+            $('#maintType').val(m.maintenanceType || 'Preventive');
+            $('#maintFrequency').val(m.frequencyDays || '');
+            $('#maintCost').val(m.estimatedCost || '');
+            $('#maintLastDate').val(m.lastMaintenanceDate || '');
+            $('#maintNextDate').val(m.nextDueDate || '');
+            $('#maintVendor').val(m.vendorName || '');
+            $('#maintRemarks').val(m.remarks || '');
+            $('#maintBreakdownStart').val(m.breakdownStartTime ? toLocalDatetime(new Date(m.breakdownStartTime)) : '');
+            $('#maintBreakdownEnd').val(m.breakdownEndTime ? toLocalDatetime(new Date(m.breakdownEndTime)) : '');
+            $('#maintDowntime').val(m.downtimeMinutes || '');
+            $('#maintRepairStatus').val(m.repairStatus || 'Pending');
+            $('#maintCompletionDate').val(m.completionDate ? toLocalDatetime(new Date(m.completionDate)) : '');
+            showModal('maintModal');
+        }
+
+        async function saveMaintenance() {
+            const id = $('#editMaintId').val();
+            const payload = {
+                machineId: parseInt($('#maintMachineId').val()) || null,
+                maintenanceType: $('#maintType').val(),
+                frequencyDays: parseInt($('#maintFrequency').val()) || null,
+                lastMaintenanceDate: $('#maintLastDate').val() || null,
+                nextDueDate: $('#maintNextDate').val() || null,
+                vendorName: $('#maintVendor').val() || null,
+                estimatedCost: parseFloat($('#maintCost').val()) || null,
+                remarks: $('#maintRemarks').val() || null,
+                breakdownStartTime: $('#maintBreakdownStart').val() || null,
+                breakdownEndTime: $('#maintBreakdownEnd').val() || null,
+                downtimeMinutes: parseFloat($('#maintDowntime').val()) || null,
+                repairStatus: $('#maintRepairStatus').val() || 'Pending',
+                completionDate: $('#maintCompletionDate').val() || null
+            };
+
+            try {
+                if (id) {
+                    await $.ajax({ url: `/api/production/maintenance/${id}`, method: 'PUT', contentType: 'application/json', data: JSON.stringify(payload) });
+                } else {
+                    await $.ajax({ url: '/api/production/maintenance', method: 'POST', contentType: 'application/json', data: JSON.stringify(payload) });
+                }
+                hideModal('maintModal');
+                Swal2.toast('Maintenance saved', 'success');
+                loadMaintenance();
+            } catch (e) {
+                Swal2.error('Failed to save');
+            }
+        }
+
+        async function startRepair(id) {
+            const ok = await Swal2.confirm('Start repair for this maintenance record?');
+            if (!ok) return;
+            const m = maintData.find(x => x.maintenanceId === id);
+            if (!m) return;
+            const payload = {
+                machineId: m.machineId,
+                maintenanceType: m.maintenanceType,
+                frequencyDays: m.frequencyDays,
+                lastMaintenanceDate: m.lastMaintenanceDate,
+                nextDueDate: m.nextDueDate,
+                vendorName: m.vendorName,
+                estimatedCost: m.estimatedCost,
+                remarks: m.remarks,
+                breakdownStartTime: m.breakdownStartTime || new Date().toISOString(),
+                breakdownEndTime: m.breakdownEndTime,
+                downtimeMinutes: m.downtimeMinutes,
+                repairStatus: 'In Progress',
+                completionDate: m.completionDate
+            };
+            try {
+                await $.ajax({ url: `/api/production/maintenance/${id}`, method: 'PUT', contentType: 'application/json', data: JSON.stringify(payload) });
+                Swal2.toast('Repair started', 'success');
+                loadMaintenance();
+            } catch (e) {
+                Swal2.error('Failed to start repair');
+            }
+        }
+
+        async function completeMaint(id) {
+            const ok = await Swal2.confirm('Mark this maintenance as complete?');
+            if (!ok) return;
+            try {
+                await $.post(`/api/production/maintenance/${id}/complete`);
+                Swal2.toast('Maintenance completed', 'success');
+                loadMaintenance();
+            } catch (e) {
+                Swal2.error('Failed to complete');
+            }
+        }
+
+        function showModal(id) {
+            const ModalClass = (typeof minepress !== 'undefined' && minepress.Modal) || (typeof bootstrap !== 'undefined' && bootstrap.Modal);
+            if (ModalClass) new ModalClass(document.getElementById(id)).show();
+        }
+        function hideModal(id) {
+            const ModalClass = (typeof minepress !== 'undefined' && minepress.Modal) || (typeof bootstrap !== 'undefined' && bootstrap.Modal);
+            if (ModalClass) ModalClass.getInstance(document.getElementById(id))?.hide();
+        }
+
+        function toLocalDatetime(d) {
+            const pad = n => String(n).padStart(2, '0');
+            return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+        }
+        function daysDiff(dateStr) {
+            return Math.ceil((new Date(dateStr) - new Date()) / 86400000);
+        }
+        function formatDate(d) {
+            return new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+        }
+        function escHtml(str) {
+            if (!str) return '';
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+    </script>
+}

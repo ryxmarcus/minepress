@@ -1,0 +1,83 @@
+@page
+@model erp.minepress.web.Pages.TenantAdmin.IndexModel
+@{
+    ViewData["Title"] = "Tenant Admin";
+}
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title mb-0">Tenant Management Control Plane</h3>
+        <a class="btn btn-outline-danger btn-sm" href="/TenantAdmin/Account/Logout">Logout</a>
+    </div>
+    <div class="card-body">
+        <p>Manage all tenants, credentials, and security controls from this portal.</p>
+        <div class="d-flex gap-2">
+            <a class="btn btn-primary" href="/TenantAdmin/Tenants">Manage Tenants</a>
+            <a class="btn btn-outline-primary" href="/TenantAdmin/Diagnostics">Diagnostics</a>
+        </div>
+    </div>
+
+<div class="card mt-3">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="card-title mb-0">Live Tenant Connection Status</h4>
+        <button type="button" class="btn btn-outline-secondary btn-sm" id="btnRefreshTenantStatus">Refresh</button>
+    </div>
+    <div class="card-body">
+        <div id="tenantStatusError" class="alert alert-danger d-none"></div>
+        <div class="row g-3" id="tenantStatusGrid" style="display:none;">
+            <div class="col-md-3">
+                <div class="text-secondary small">Tenant Resolved</div>
+                <div class="fw-bold" id="tsTenantResolved">-</div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-secondary small">Mode</div>
+                <div class="fw-bold" id="tsMode">-</div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-secondary small">Tenant Key</div>
+                <div class="fw-bold" id="tsTenantKey">-</div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-secondary small">Source</div>
+                <div class="fw-bold" id="tsSource">-</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            const errorBox = document.getElementById('tenantStatusError');
+            const grid = document.getElementById('tenantStatusGrid');
+            const refreshBtn = document.getElementById('btnRefreshTenantStatus');
+
+            async function loadStatus() {
+                errorBox.classList.add('d-none');
+                grid.style.display = 'none';
+
+                try {
+                    const response = await fetch('/api/tenant-diagnostics/connection', { credentials: 'include' });
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    document.getElementById('tsTenantResolved').textContent = data.tenantResolved ? 'Yes' : 'No';
+                    document.getElementById('tsMode').textContent = data.effectiveConnectionMode || '-';
+                    document.getElementById('tsTenantKey').textContent = data.tenantKey || '-';
+                    document.getElementById('tsSource').textContent = data.tenantSource || '-';
+
+                    grid.style.display = 'flex';
+                } catch (err) {
+                    errorBox.textContent = 'Unable to load tenant status: ' + (err?.message || err);
+                    errorBox.classList.remove('d-none');
+                }
+            }
+
+            refreshBtn.addEventListener('click', loadStatus);
+            loadStatus();
+        })();
+    </script>
+}
+</div>

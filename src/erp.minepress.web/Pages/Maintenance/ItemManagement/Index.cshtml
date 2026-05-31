@@ -1,0 +1,578 @@
+@page
+@model erp.minepress.web.Pages.Maintenance.ItemManagement.IndexModel
+@{
+    ViewData["Title"] = "Item Management";
+    ViewData["ContainerClass"] = "container-xl";
+    ViewData["HidePageHeader"] = true;
+}
+
+<!-- ── Page Header ── -->
+<div class="page-header d-print-none mb-3">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-md bg-azure-lt text-azure">
+                <i class="bi bi-box-seam fs-4"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="page-title mb-0">Item Management</h2>
+            <div class="text-secondary mt-1">Unified inventory of Chemicals, Inks, Papers, Plates &amp; Other Items — AI-powered insights</div>
+        </div>
+        <div class="col-auto">
+            <a href="/Maintenance/ItemManagement/Create" class="btn btn-primary btn-sm">
+                <i class="bi bi-plus-lg me-1"></i>New Item
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ KPI Cards ═══ -->
+<div class="im-kpi-row" id="imKpiRow">
+    <div class="im-kpi-card kpi-total im-animate im-animate-d1">
+        <div class="kpi-icon"><i class="bi bi-boxes"></i></div>
+        <div class="kpi-value" id="kpiTotal">--</div>
+        <div class="kpi-label">Total Items</div>
+    </div>
+    <div class="im-kpi-card kpi-active im-animate im-animate-d2">
+        <div class="kpi-icon"><i class="bi bi-check-circle"></i></div>
+        <div class="kpi-value" id="kpiActive">--</div>
+        <div class="kpi-label">Active</div>
+    </div>
+    <div class="im-kpi-card kpi-inactive im-animate im-animate-d3">
+        <div class="kpi-icon"><i class="bi bi-x-circle"></i></div>
+        <div class="kpi-value" id="kpiInactive">--</div>
+        <div class="kpi-label">Inactive</div>
+    </div>
+    <div class="im-kpi-card kpi-lowstock im-animate im-animate-d4">
+        <div class="kpi-icon"><i class="bi bi-exclamation-triangle"></i></div>
+        <div class="kpi-value" id="kpiLowStock">--</div>
+        <div class="kpi-label">Low Stock</div>
+    </div>
+</div>
+
+<!-- ═══ AI Insight Bar ═══ -->
+<div class="im-ai-bar im-animate" id="imAiBar">
+    <div class="ai-icon"><i class="bi bi-stars"></i></div>
+    <div class="ai-text" id="imAiText">Analyzing inventory data...</div>
+</div>
+
+<!-- ═══ Group Filter Tabs ═══ -->
+<div class="im-group-tabs im-animate" id="imGroupTabs">
+    <button class="im-group-tab active" data-group="ALL" onclick="ImApp.filterGroup('ALL')">
+        <i class="bi bi-grid-3x3-gap"></i> All <span class="tab-count" id="cntAll">0</span>
+    </button>
+    <button class="im-group-tab" data-group="CHEMICAL" onclick="ImApp.filterGroup('CHEMICAL')">
+        <i class="bi bi-droplet-half"></i> Chemical <span class="tab-count" id="cntChemical">0</span>
+    </button>
+    <button class="im-group-tab" data-group="INK" onclick="ImApp.filterGroup('INK')">
+        <i class="bi bi-palette"></i> Ink <span class="tab-count" id="cntInk">0</span>
+    </button>
+    <button class="im-group-tab" data-group="PAPER" onclick="ImApp.filterGroup('PAPER')">
+        <i class="bi bi-file-earmark"></i> Paper <span class="tab-count" id="cntPaper">0</span>
+    </button>
+    <button class="im-group-tab" data-group="PLATE" onclick="ImApp.filterGroup('PLATE')">
+        <i class="bi bi-disc"></i> Plate <span class="tab-count" id="cntPlate">0</span>
+    </button>
+    <button class="im-group-tab" data-group="OTHER" onclick="ImApp.filterGroup('OTHER')">
+        <i class="bi bi-three-dots"></i> Other <span class="tab-count" id="cntOther">0</span>
+    </button>
+</div>
+
+<!-- ═══ Filter Bar ═══ -->
+<div class="im-filter-bar im-animate">
+    <div class="input-icon flex-grow-1" style="max-width:320px;">
+        <span class="input-icon-addon"><i class="bi bi-search"></i></span>
+        <input type="text" class="form-control" id="imSearch" placeholder="Search items..." oninput="ImApp.debounceSearch()">
+    </div>
+    <select class="form-select" id="imFilterCategory" onchange="ImApp.loadItems()">
+        <option value="">All Categories</option>
+    </select>
+    <select class="form-select" id="imFilterStatus" onchange="ImApp.loadItems()">
+        <option value="">All Status</option>
+        <option value="true">Active</option>
+        <option value="false">Inactive</option>
+    </select>
+    <select class="form-select" id="imFilterUom" onchange="ImApp.loadItems()">
+        <option value="">All UOM</option>
+    </select>
+    <select class="form-select" id="imFilterStock" onchange="ImApp.loadItems()">
+        <option value="">All Stock</option>
+        <option value="low">Low Stock</option>
+        <option value="out">Out of Stock</option>
+    </select>
+</div>
+
+<!-- ═══ Items Table ═══ -->
+<div class="im-table-wrap im-animate">
+    <table class="table im-table" id="imTable">
+        <thead>
+            <tr>
+                <th>Group</th>
+                <th>Code</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>UOM</th>
+                <th class="text-end">Rate</th>
+                <th class="text-end">Stock</th>
+                <th>HSN</th>
+                <th>GST %</th>
+                <th>Status</th>
+                <th class="text-center">Actions</th>
+            </tr>
+        </thead>
+        <tbody id="imTbody">
+            <tr><td colspan="11" class="text-center text-muted py-4">Loading items...</td></tr>
+        </tbody>
+    </table>
+    <div class="im-pagination">
+        <div id="imPageInfo" class="text-muted">Showing 0 items</div>
+        <nav>
+            <ul class="pagination pagination-sm mb-0" id="imPager"></ul>
+        </nav>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MODAL: View Item Detail
+     ═══════════════════════════════════════════════════════════════ -->
+<div class="modal modal-blur fade im-modal" id="modalViewItem" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-status bg-primary"></div>
+            <div class="modal-header">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="im-modal-icon bg-primary-lt">
+                        <i class="bi bi-eye"></i>
+                    </span>
+                    <h5 class="modal-title">Item Detail</h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="viewItemBody">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MODAL: Create / Edit Item
+     ═══════════════════════════════════════════════════════════════ -->
+<div class="modal modal-blur fade im-modal" id="modalEditItem" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-status" id="editModalStatus"></div>
+            <div class="modal-header">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="im-modal-icon" id="editModalIcon">
+                        <i class="bi bi-plus-circle"></i>
+                    </span>
+                    <div>
+                        <h5 class="modal-title" id="editItemTitle">New Item</h5>
+                        <div class="text-secondary small" id="editItemSubtitle">Fill in the details to create a new item</div>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Section 1 — Group Selection -->
+            <div class="modal-body">
+                <input type="hidden" id="editMode" value="create" />
+                <input type="hidden" id="editOrigGroup" />
+                <input type="hidden" id="editOrigCode" />
+
+                <div class="im-modal-section">
+                    <div class="im-section-label"><i class="bi bi-collection"></i>Select Item Group</div>
+                    <div class="im-group-selector" id="groupSelectorRow">
+                    <label class="im-group-option" data-group="CHEMICAL">
+                        <input type="radio" name="itemGroupRadio" value="CHEMICAL" class="d-none" />
+                        <span class="im-group-option-inner chemical">
+                            <i class="bi bi-droplet-half"></i>
+                            <span>Chemical</span>
+                        </span>
+                    </label>
+                    <label class="im-group-option" data-group="INK">
+                        <input type="radio" name="itemGroupRadio" value="INK" class="d-none" />
+                        <span class="im-group-option-inner ink">
+                            <i class="bi bi-palette"></i>
+                            <span>Ink</span>
+                        </span>
+                    </label>
+                    <label class="im-group-option" data-group="PAPER">
+                        <input type="radio" name="itemGroupRadio" value="PAPER" class="d-none" />
+                        <span class="im-group-option-inner paper">
+                            <i class="bi bi-file-earmark"></i>
+                            <span>Paper</span>
+                        </span>
+                    </label>
+                    <label class="im-group-option" data-group="PLATE">
+                        <input type="radio" name="itemGroupRadio" value="PLATE" class="d-none" />
+                        <span class="im-group-option-inner plate">
+                            <i class="bi bi-disc"></i>
+                            <span>Plate</span>
+                        </span>
+                    </label>
+                    <label class="im-group-option" data-group="OTHER">
+                        <input type="radio" name="itemGroupRadio" value="OTHER" class="d-none" />
+                        <span class="im-group-option-inner other">
+                            <i class="bi bi-three-dots"></i>
+                            <span>Other</span>
+                        </span>
+                    </label>
+                        </div>
+                        <select class="d-none" id="fItemGroup">
+                            <option value="">Select Group</option>
+                            <option value="CHEMICAL">Chemical</option>
+                            <option value="INK">Ink</option>
+                            <option value="PAPER">Paper</option>
+                            <option value="PLATE">Plate</option>
+                            <option value="OTHER">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+            <!-- Section 2 — Basic Information -->
+            <div class="modal-body">
+                <div class="im-modal-section">
+                    <div class="im-section-label"><i class="bi bi-info-circle"></i>Basic Information</div>
+                    <div class="row g-3">
+                    <div class="col-lg-4">
+                        <div class="mb-3">
+                            <label class="form-label required">Item Code</label>
+                            <div class="input-group input-group-flat">
+                                <span class="input-group-text"><i class="bi bi-upc-scan"></i></span>
+                                <input type="text" class="form-control" id="fItemCode" placeholder="e.g. CHM-001" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-8">
+                        <div class="mb-3">
+                            <label class="form-label required">Item Name</label>
+                            <input type="text" class="form-control" id="fItemName" placeholder="Enter item name" />
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="mb-3">
+                            <label class="form-label">Category</label>
+                            <input type="text" class="form-control" id="fItemCategory" placeholder="Item category" />
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="mb-3">
+                            <label class="form-label">UOM</label>
+                            <input type="text" class="form-control" id="fUom" placeholder="Kg, Ltr, Nos..." />
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="mb-3">
+                            <label class="form-label">Purchase Rate</label>
+                            <div class="input-group input-group-flat">
+                                <span class="input-group-text"><i class="bi bi-currency-rupee"></i></span>
+                                <input type="number" step="any" class="form-control" id="fPurchaseRate" placeholder="0.00" />
+                            </div>
+                        </div>
+                    </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3 — Stock & Tax -->
+                <div class="modal-body">
+                    <div class="im-modal-section">
+                        <div class="im-section-label"><i class="bi bi-box-seam"></i>Stock &amp; Tax</div>
+                        <div class="row g-3">
+                    <div class="col-lg-3">
+                        <div class="mb-3">
+                            <label class="form-label">Reorder Level</label>
+                            <input type="number" step="any" class="form-control" id="fReorderLevel" placeholder="0" />
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="mb-3">
+                            <label class="form-label">Current Stock</label>
+                            <input type="number" step="any" class="form-control" id="fCurrentStock" placeholder="0" />
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="mb-3">
+                            <label class="form-label">HSN Code</label>
+                            <input type="text" class="form-control" id="fHsnCode" placeholder="HSN code" />
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="mb-3">
+                            <label class="form-label">GST Rate (%)</label>
+                            <div class="input-group input-group-flat">
+                                <input type="number" step="any" class="form-control" id="fGstRate" placeholder="0" />
+                                <span class="input-group-text">%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div>
+                            <label class="form-label">Remarks</label>
+                            <textarea class="form-control" id="fRemarks" rows="2" placeholder="Additional notes about this item..."></textarea>
+                        </div>
+                    </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 4 — Group-Specific Fields -->
+                <!-- ── Chemical ── -->
+                <div class="modal-body im-group-fields" id="fieldsChemical">
+                    <div class="im-modal-section">
+                        <div class="im-section-label im-section-chemical"><i class="bi bi-droplet-half"></i>Chemical Details</div>
+                        <div class="row g-3">
+                    <div class="col-lg-4">
+                        <div class="mb-3">
+                            <label class="form-label">Chemical Type</label>
+                            <input type="text" class="form-control" id="fChemicalType" />
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="mb-3">
+                            <label class="form-label">Process Stage</label>
+                            <input type="text" class="form-control" id="fProcessStage" />
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="mb-3">
+                            <label class="form-label">Manufacturer</label>
+                            <input type="text" class="form-control" id="fChemManufacturer" />
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="mb-3">
+                            <label class="form-label">Brand</label>
+                            <input type="text" class="form-control" id="fChemBrand" />
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="mb-3">
+                            <label class="form-label">Dilution Ratio</label>
+                            <input type="text" class="form-control" id="fDilutionRatio" />
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="mb-3">
+                            <label class="form-label">Shelf Life (months)</label>
+                            <input type="number" class="form-control" id="fChemShelfLife" />
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="mb-3">
+                            <label class="form-label">Hazardous</label>
+                            <select class="form-select" id="fHazardous">
+                                <option value="">—</option>
+                                <option value="true">Yes</option>
+                                <option value="false">No</option>
+                            </select>
+                        </div>
+                    </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── Ink ── -->
+                <div class="modal-body im-group-fields" id="fieldsInk">
+                    <div class="im-modal-section">
+                        <div class="im-section-label im-section-ink"><i class="bi bi-palette"></i>Ink Details</div>
+                        <div class="row g-3">
+                    <div class="col-lg-4">
+                        <div class="mb-3">
+                            <label class="form-label">Ink Type</label>
+                            <input type="text" class="form-control" id="fInkType" />
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="mb-3">
+                            <label class="form-label">Color Name</label>
+                            <input type="text" class="form-control" id="fColorName" />
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="mb-3">
+                            <label class="form-label">Pantone Code</label>
+                            <input type="text" class="form-control" id="fPantoneCode" />
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="mb-3">
+                            <label class="form-label">Manufacturer</label>
+                            <input type="text" class="form-control" id="fInkManufacturer" />
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="mb-3">
+                            <label class="form-label">Coverage (sq.m/Kg)</label>
+                            <input type="number" step="any" class="form-control" id="fCoverage" />
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="mb-3">
+                            <label class="form-label">Wastage %</label>
+                            <input type="number" step="any" class="form-control" id="fInkWastage" />
+                        </div>
+                    </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── Paper ── -->
+                <div class="modal-body im-group-fields" id="fieldsPaper">
+                    <div class="im-modal-section">
+                        <div class="im-section-label im-section-paper"><i class="bi bi-file-earmark"></i>Paper Details</div>
+                        <div class="row g-3">
+                    <div class="col-lg-3">
+                        <div class="mb-3">
+                            <label class="form-label">Paper Type</label>
+                            <input type="text" class="form-control" id="fPaperType" />
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="mb-3">
+                            <label class="form-label">GSM</label>
+                            <input type="number" class="form-control" id="fGsm" />
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="mb-3">
+                            <label class="form-label">Finish</label>
+                            <input type="text" class="form-control" id="fPaperFinish" />
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="mb-3">
+                            <label class="form-label">Grain Direction</label>
+                            <input type="text" class="form-control" id="fGrainDir" />
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="mb-3">
+                            <label class="form-label">Length (mm)</label>
+                            <input type="number" class="form-control" id="fSheetLength" />
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="mb-3">
+                            <label class="form-label">Width (mm)</label>
+                            <input type="number" class="form-control" id="fSheetWidth" />
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="mb-3">
+                            <label class="form-label">Supplier</label>
+                            <input type="text" class="form-control" id="fPaperSupplier" />
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="mb-3">
+                            <label class="form-label">Brand</label>
+                            <input type="text" class="form-control" id="fPaperBrand" />
+                        </div>
+                    </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── Plate ── -->
+                <div class="modal-body im-group-fields" id="fieldsPlate">
+                    <div class="im-modal-section">
+                        <div class="im-section-label im-section-plate"><i class="bi bi-disc"></i>Plate Details</div>
+                        <div class="row g-3">
+                    <div class="col-lg-4">
+                        <div class="mb-3">
+                            <label class="form-label">Plate Type</label>
+                            <input type="text" class="form-control" id="fPlateType" />
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="mb-3">
+                            <label class="form-label">Thickness (mm)</label>
+                            <input type="number" step="any" class="form-control" id="fThickness" />
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="mb-3">
+                            <label class="form-label">Max Impressions</label>
+                            <input type="number" class="form-control" id="fMaxImpressions" />
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="mb-3">
+                            <label class="form-label">Length (mm)</label>
+                            <input type="number" class="form-control" id="fPlateLength" />
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="mb-3">
+                            <label class="form-label">Width (mm)</label>
+                            <input type="number" class="form-control" id="fPlateWidth" />
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="mb-3">
+                            <label class="form-label">Processing Cost</label>
+                            <div class="input-group input-group-flat">
+                                <span class="input-group-text"><i class="bi bi-currency-rupee"></i></span>
+                                <input type="number" step="any" class="form-control" id="fProcessingCost" />
+                            </div>
+                        </div>
+                    </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── Other ── -->
+                <div class="modal-body im-group-fields" id="fieldsOther">
+                    <div class="im-modal-section">
+                        <div class="im-section-label im-section-other"><i class="bi bi-three-dots"></i>Other Item Details</div>
+                        <div class="row g-3">
+                    <div class="col-lg-4">
+                        <div class="mb-3">
+                            <label class="form-label">Item Type</label>
+                            <input type="text" class="form-control" id="fOtherItemType" />
+                        </div>
+                    </div>
+                    <div class="col-lg-8">
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <input type="text" class="form-control" id="fOtherDesc" />
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="mb-3">
+                            <label class="form-label">Supplier</label>
+                            <input type="text" class="form-control" id="fOtherSupplier" />
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="mb-3">
+                            <label class="form-label">Brand</label>
+                            <input type="text" class="form-control" id="fOtherBrand" />
+                        </div>
+                    </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x me-1"></i>Cancel
+                    </a>
+                    <button class="btn btn-primary ms-auto" onclick="ImApp.saveItem()">
+                        <i class="bi bi-check-lg me-1"></i>Save Item
+                    </button>
+                </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link href="/css/item-management.css" rel="stylesheet" />
+}
+
+@section Scripts {
+    <script src="/js/item-management.js"></script>
+}

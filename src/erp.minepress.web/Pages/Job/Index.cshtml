@@ -1,0 +1,491 @@
+@page
+@model erp.minepress.web.Pages.Job.IndexModel
+@{
+    ViewData["Title"] = "Jobs";
+}
+
+<!-- Hero Header -->
+<div class="jb-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);">
+                <i class="bi bi-briefcase-fill" style="font-size:1.5rem;"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="mb-0">Jobs</h2>
+            <div class="text-white-75">Manage production jobs, track progress and delivery.</div>
+        </div>
+        <div class="col-auto d-flex gap-2">
+            <button class="btn btn-outline-light btn-sm" onclick="loadJobList()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+            </button>
+            <a href="/Job/Create" class="btn btn-light">
+                <i class="bi bi-plus-lg me-1"></i>New Job
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Row -->
+<div class="row g-3 mb-3" id="jbStats">
+    <div class="col-6 col-md-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-primary-lt me-3"><i class="bi bi-briefcase"></i></span>
+                    <div>
+                        <div class="fw-bold fs-3" id="statTotal">0</div>
+                        <div class="text-secondary small">Total</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-warning-lt me-3"><i class="bi bi-plus-circle"></i></span>
+                    <div>
+                        <div class="fw-bold fs-3" id="statCreated">0</div>
+                        <div class="text-secondary small">Created</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-info-lt me-3"><i class="bi bi-printer"></i></span>
+                    <div>
+                        <div class="fw-bold fs-3" id="statInProgress">0</div>
+                        <div class="text-secondary small">In Progress</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-success-lt me-3"><i class="bi bi-check-circle"></i></span>
+                    <div>
+                        <div class="fw-bold fs-3" id="statDelivered">0</div>
+                        <div class="text-secondary small">Delivered</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card mb-3">
+    <div class="card-body py-2">
+        <div class="row g-2 align-items-center">
+            <div class="col-md-4">
+                <div class="input-icon">
+                    <span class="input-icon-addon"><i class="bi bi-search"></i></span>
+                    <input type="text" id="txtSearch" class="form-control form-control-sm" placeholder="Search job no, customer, product..." />
+                </div>
+            </div>
+            <div class="col-md-2">
+                <select id="ddlStatusFilter" class="form-select form-select-sm">
+                    <option value="">All Statuses</option>
+                    <option value="CREATED">Created</option>
+                    <option value="JOB_ASSIGNED">Assigned</option>
+                    <option value="PRINTING_STARTED">Printing</option>
+                    <option value="PRINTING_COMPLETED">Print Done</option>
+                    <option value="FINISHING_STARTED">Finishing</option>
+                    <option value="FINISHING_COMPLETED">Finish Done</option>
+                    <option value="QUALITY_CHECK">QC</option>
+                    <option value="PACKING_DONE">Packed</option>
+                    <option value="DISPATCHED">Dispatched</option>
+                    <option value="DELIVERED">Delivered</option>
+                    <option value="JOB_ON_HOLD">On Hold</option>
+                    <option value="JOB_CANCELLED">Cancelled</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select id="ddlPriorityFilter" class="form-select form-select-sm">
+                    <option value="">All Priorities</option>
+                    <option value="LOW">Low</option>
+                    <option value="NORMAL">Normal</option>
+                    <option value="HIGH">High</option>
+                    <option value="URGENT">Urgent</option>
+                </select>
+            </div>
+            <div class="col-auto ms-auto">
+                <span class="text-muted small" id="filteredCount"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Job Table -->
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table jb-list-table table-hover">
+            <thead>
+                <tr>
+                    <th class="sortable" data-sort="jobNo" style="cursor:pointer;">Job No <i class="bi bi-arrow-down-up small text-muted"></i></th>
+                    <th class="sortable" data-sort="jobDate" style="cursor:pointer;">Date <i class="bi bi-arrow-down-up small text-muted"></i></th>
+                    <th class="sortable" data-sort="customerName" style="cursor:pointer;">Customer <i class="bi bi-arrow-down-up small text-muted"></i></th>
+                    <th>Product</th>
+                    <th>Source</th>
+                    <th class="text-center">Items</th>
+                    <th class="text-end sortable" data-sort="netAmount" style="cursor:pointer;">Net Amount <i class="bi bi-arrow-down-up small text-muted"></i></th>
+                    <th>Delivery</th>
+                    <th class="sortable" data-sort="status" style="cursor:pointer;">Status <i class="bi bi-arrow-down-up small text-muted"></i></th>
+                    <th class="text-center" style="width:100px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="jobListBody">
+                <tr>
+                    <td colspan="10" class="text-center text-muted py-4">
+                        <div class="spinner-border spinner-border-sm me-2"></div>Loading jobs...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Paging Controls -->
+<div class="card mt-2" id="pagingControls" style="display:none;">
+    <div class="card-body py-2">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-muted small">Show</span>
+                <select id="ddlPageSize" class="form-select form-select-sm" style="width:auto;">
+                    <option value="10">10</option>
+                    <option value="25" selected>25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+                <span class="text-muted small">entries</span>
+            </div>
+            <div class="text-muted small" id="pagingInfo"></div>
+            <nav>
+                <ul class="pagination pagination-sm mb-0" id="paginationNav"></ul>
+            </nav>
+        </div>
+    </div>
+</div>
+<div id="emptyState" class="text-center py-5" style="display:none;">
+    <i class="bi bi-briefcase" style="font-size:3rem; opacity:.3;"></i>
+    <div class="text-muted mt-2">No jobs found</div>
+    <a href="/Job/Create" class="btn btn-primary mt-3">
+        <i class="bi bi-plus-lg me-1"></i>Create First Job
+    </a>
+</div>
+
+@section Scripts {
+    <script>
+        const JB_LIST_API = '/api/job';
+        let allJobs = [];
+        let currentPage = 1;
+        let pageSize = 25;
+        let sortField = 'jobNo';
+        let sortDir = 'desc';
+
+        const inProgressStatuses = ['JOB_ASSIGNED','ARTWORK_RECEIVED','DESIGN_STARTED','DESIGN_COMPLETED','PLATE_PREPARED','PRINTING_STARTED','PRINTING_COMPLETED','FINISHING_STARTED','FINISHING_COMPLETED','QUALITY_CHECK','PACKING_DONE','DISPATCHED'];
+
+        $(document).ready(function () {
+            loadJobList();
+            $('#txtSearch, #ddlStatusFilter, #ddlPriorityFilter').on('input change', function () { currentPage = 1; applyFilters(); });
+            $('#ddlPageSize').on('change', function () { pageSize = parseInt($(this).val()); currentPage = 1; applyFilters(); });
+            $(document).on('click', '.sortable', function () {
+                const field = $(this).data('sort');
+                if (sortField === field) { sortDir = sortDir === 'asc' ? 'desc' : 'asc'; }
+                else { sortField = field; sortDir = 'asc'; }
+                $('.sortable i').attr('class', 'bi bi-arrow-down-up small text-muted');
+                $(this).find('i').attr('class', sortDir === 'asc' ? 'bi bi-arrow-up small text-primary' : 'bi bi-arrow-down small text-primary');
+                applyFilters();
+            });
+        });
+
+        function loadJobList() {
+            $('#jobListBody').html('<tr><td colspan="10" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2"></div>Loading jobs...</td></tr>');
+            $.get(`${JB_LIST_API}/list`, function (data) {
+                allJobs = data;
+                updateStats();
+                applyFilters();
+            }).fail(function () {
+                $('#jobListBody').html('<tr><td colspan="10" class="text-center text-danger py-3"><i class="bi bi-exclamation-circle me-1"></i>Failed to load jobs.</td></tr>');
+            });
+        }
+
+        function updateStats() {
+            $('#statTotal').text(allJobs.length);
+            $('#statCreated').text(allJobs.filter(j => j.status === 'CREATED').length);
+            $('#statInProgress').text(allJobs.filter(j => inProgressStatuses.includes(j.status)).length);
+            $('#statDelivered').text(allJobs.filter(j => j.status === 'DELIVERED').length);
+        }
+
+        function applyFilters() {
+            const q = ($('#txtSearch').val() || '').toLowerCase();
+            const status = $('#ddlStatusFilter').val();
+            const priority = $('#ddlPriorityFilter').val();
+
+            let filtered = allJobs.filter(j => {
+                if (q && !(j.jobNo || '').toLowerCase().includes(q) &&
+                    !(j.customerName || '').toLowerCase().includes(q) &&
+                    !(j.productName || '').toLowerCase().includes(q) &&
+                    !(j.enquiryNo || '').toLowerCase().includes(q) &&
+                    !(j.quotationNo || '').toLowerCase().includes(q)) return false;
+                if (status && j.status !== status) return false;
+                if (priority && j.priority !== priority) return false;
+                return true;
+            });
+
+            filtered.sort((a, b) => {
+                let va = a[sortField], vb = b[sortField];
+                if (va == null) va = '';
+                if (vb == null) vb = '';
+                if (typeof va === 'string') va = va.toLowerCase();
+                if (typeof vb === 'string') vb = vb.toLowerCase();
+                if (va < vb) return sortDir === 'asc' ? -1 : 1;
+                if (va > vb) return sortDir === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            const totalItems = filtered.length;
+            const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+            if (currentPage > totalPages) currentPage = totalPages;
+            const start = (currentPage - 1) * pageSize;
+            const paged = filtered.slice(start, start + pageSize);
+
+            $('#filteredCount').text(filtered.length < allJobs.length
+                ? `Showing ${filtered.length} of ${allJobs.length}` : '');
+            renderJobTable(paged);
+            renderPaging(totalItems, totalPages);
+        }
+
+        function renderPaging(totalItems, totalPages) {
+            if (totalItems === 0) { $('#pagingControls').hide(); return; }
+            $('#pagingControls').show();
+            const start = (currentPage - 1) * pageSize + 1;
+            const end = Math.min(currentPage * pageSize, totalItems);
+            $('#pagingInfo').text(`Showing ${start} to ${end} of ${totalItems} entries`);
+
+            let navHtml = '';
+            navHtml += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}"><a class="page-link" href="javascript:void(0)" onclick="goToPage(${currentPage - 1})">&laquo;</a></li>`;
+            const maxButtons = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+            let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+            if (endPage - startPage < maxButtons - 1) startPage = Math.max(1, endPage - maxButtons + 1);
+            for (let i = startPage; i <= endPage; i++) {
+                navHtml += `<li class="page-item ${i === currentPage ? 'active' : ''}"><a class="page-link" href="javascript:void(0)" onclick="goToPage(${i})">${i}</a></li>`;
+            }
+            navHtml += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}"><a class="page-link" href="javascript:void(0)" onclick="goToPage(${currentPage + 1})">&raquo;</a></li>`;
+            $('#paginationNav').html(navHtml);
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            applyFilters();
+        }
+
+        function renderJobTable(data) {
+            if (data.length === 0) {
+                $('#jobListBody').html('');
+                $('#emptyState').show();
+                return;
+            }
+            $('#emptyState').hide();
+
+            let html = '';
+            data.forEach(j => {
+                const statusClass = getStatusClass(j.status);
+                const priorityBadge = {
+                    'LOW': '<span class="badge bg-secondary-lt">Low</span>',
+                    'NORMAL': '<span class="badge bg-primary-lt">Normal</span>',
+                    'HIGH': '<span class="badge bg-warning-lt">High</span>',
+                    'URGENT': '<span class="badge bg-danger-lt"><i class="bi bi-exclamation-triangle-fill me-1"></i>Urgent</span>'
+                }[j.priority] || '';
+
+                const isNew = j.status === 'CREATED';
+                const isClosed = j.status === 'DELIVERED' || j.status === 'JOB_CANCELLED';
+
+                let sourceHtml = '<span class="text-muted">Direct</span>';
+                if (j.quotationNo) {
+                    sourceHtml = `<a href="/Quotation/Details?id=${j.quotationId}" class="badge bg-green-lt text-decoration-none">${esc(j.quotationNo)}</a>`;
+                } else if (j.enquiryNo) {
+                    sourceHtml = `<a href="/Enquiry/Details?id=${j.enquiryId}" class="badge bg-blue-lt text-decoration-none">${esc(j.enquiryNo)}</a>`;
+                }
+
+                html += `<tr class="jb-list-row" data-id="${j.jobId}">
+                    <td>
+                        <a href="/Job/Details?id=${j.jobId}" class="fw-semibold text-primary text-decoration-none">${esc(j.jobNo)}</a>
+                        <div class="text-muted small">${j.createdOn || ''}</div>
+                    </td>
+                    <td>${esc(j.jobDate)}</td>
+                    <td>
+                        <div class="fw-semibold">${esc(j.customerName)}</div>
+                        <div class="text-muted small">${esc(j.customerCode || '')}</div>
+                    </td>
+                    <td class="small">${esc(j.productName || '')}</td>
+                    <td>${sourceHtml}</td>
+                    <td class="text-center"><span class="badge bg-primary-lt">${j.itemCount}</span></td>
+                    <td class="text-end fw-semibold">${j.netAmount != null ? '₹' + Number(j.netAmount).toLocaleString('en-IN', {minimumFractionDigits:2}) : '-'}</td>
+                    <td class="small">${j.deliveryDate || '<span class="text-muted">-</span>'}</td>
+                    <td>
+                        <span class="jb-status-badge ${statusClass}">${formatStatus(j.status)}</span>
+                        ${j.progressPercent != null && j.progressPercent > 0 ? `<div class="progress mt-1" style="height:4px;"><div class="progress-bar bg-purple" style="width:${j.progressPercent}%"></div></div>` : ''}
+                    </td>
+                    <td class="text-center">
+                        <div class="dropdown">
+                            <button class="btn btn-ghost-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-three-dots-vertical"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end jb-action-dropdown">
+                                <h6 class="dropdown-header">View</h6>
+                                <a class="dropdown-item" href="/Job/Details?id=${j.jobId}">
+                                    <i class="bi bi-eye me-2 text-primary"></i>View Details
+                                </a>
+
+                                <div class="dropdown-divider"></div>
+                                <h6 class="dropdown-header">Actions</h6>
+                                ${!isClosed ? `<a class="dropdown-item" href="javascript:void(0)" onclick="sendJobEmail(${j.jobId}, '${esc(j.jobNo)}')">
+                                    <i class="bi bi-envelope me-2 text-success"></i>Email to Customer
+                                </a>` : ''}
+                                ${!isClosed ? `<a class="dropdown-item" href="javascript:void(0)" onclick="updateStatus(${j.jobId}, 'JOB_ASSIGNED', '${esc(j.jobNo)}')">
+                                    <i class="bi bi-person-check me-2 text-info"></i>Assign Job
+                                </a>` : ''}
+                                ${!isClosed ? `<a class="dropdown-item" href="javascript:void(0)" onclick="updateStatus(${j.jobId}, 'PRINTING_STARTED', '${esc(j.jobNo)}')">
+                                    <i class="bi bi-printer me-2 text-purple"></i>Start Printing
+                                </a>` : ''}
+                                ${!isClosed ? `<a class="dropdown-item" href="javascript:void(0)" onclick="updateStatus(${j.jobId}, 'DELIVERED', '${esc(j.jobNo)}')">
+                                    <i class="bi bi-check-circle me-2 text-success"></i>Mark Delivered
+                                </a>` : ''}
+                                ${!isClosed ? `<a class="dropdown-item" href="/Challan/Create?FromJobId=${j.jobId}">
+                                    <i class="bi bi-truck me-2 text-teal"></i>Create Challan
+                                </a>` : ''}
+                                ${!isClosed ? `<a class="dropdown-item" href="/Outsource/Create?FromJobId=${j.jobId}">
+                                    <i class="bi bi-box-arrow-up-right me-2 text-purple"></i>Outsource Job
+                                </a>` : ''}
+                                ${!isClosed ? `<a class="dropdown-item" href="/Accounting/SalesInvoice/Create?FromJobId=${j.jobId}">
+                                    <i class="bi bi-receipt me-2 text-primary"></i>Create Invoice
+                                </a>` : ''}
+
+                                ${isNew ? `<div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="javascript:void(0)" onclick="updateStatus(${j.jobId}, 'JOB_CANCELLED', '${esc(j.jobNo)}')">
+                                    <i class="bi bi-x-circle me-2 text-warning"></i>Cancel
+                                </a>
+                                <a class="dropdown-item text-danger" href="javascript:void(0)" onclick="deleteJob(${j.jobId}, '${esc(j.jobNo)}')">
+                                    <i class="bi bi-trash me-2"></i>Delete
+                                </a>` : ''}
+                            </div>
+                        </div>
+                    </td>
+                </tr>`;
+            });
+
+            $('#jobListBody').html(html);
+        }
+
+        function getStatusClass(status) {
+            const map = {
+                'CREATED': 'jb-status-created',
+                'JOB_ASSIGNED': 'jb-status-assigned',
+                'ARTWORK_RECEIVED': 'jb-status-progress',
+                'DESIGN_STARTED': 'jb-status-progress',
+                'DESIGN_COMPLETED': 'jb-status-progress',
+                'PLATE_PREPARED': 'jb-status-progress',
+                'PRINTING_STARTED': 'jb-status-printing',
+                'PRINTING_COMPLETED': 'jb-status-printing',
+                'FINISHING_STARTED': 'jb-status-finishing',
+                'FINISHING_COMPLETED': 'jb-status-finishing',
+                'QUALITY_CHECK': 'jb-status-qc',
+                'PACKING_DONE': 'jb-status-packed',
+                'DISPATCHED': 'jb-status-dispatched',
+                'DELIVERED': 'jb-status-delivered',
+                'JOB_ON_HOLD': 'jb-status-hold',
+                'JOB_CANCELLED': 'jb-status-cancelled',
+                'JOB_REVISED': 'jb-status-revised'
+            };
+            return map[status] || 'bg-secondary-lt';
+        }
+
+        function formatStatus(status) {
+            if (!status) return 'N/A';
+            return status.replace(/_/g, ' ').replace(/\bJOB\b/g, '').trim() || status;
+        }
+
+        // ── Actions ──
+        async function updateStatus(id, status, jobNo) {
+            const confirmed = await Swal2.confirmStatus(jobNo, formatStatus(status));
+            if (!confirmed) return;
+            try {
+                await $.ajax({
+                    url: `${JB_LIST_API}/updatestatus`,
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ jobId: id, status: status })
+                });
+                Swal2.success(`Status updated to ${formatStatus(status)}`);
+                loadJobList();
+            } catch (err) {
+                Swal2.error(err.responseJSON?.message || 'Failed to update status');
+            }
+        }
+
+        async function deleteJob(id, jobNo) {
+            const confirmed = await Swal2.confirmDelete(jobNo);
+            if (!confirmed) return;
+            try {
+                Swal2.showLoading('Deleting...');
+                await $.ajax({
+                    url: `${JB_LIST_API}/delete/${id}`,
+                    method: 'DELETE'
+                });
+                Swal2.hideLoading();
+                Swal2.success('Job deleted successfully.');
+                loadJobList();
+            } catch (err) {
+                Swal2.hideLoading();
+                Swal2.error(err.responseJSON?.message || 'Failed to delete');
+            }
+        }
+
+        async function sendJobEmail(id, jobNo) {
+            const result = await Swal.fire({
+                title: 'Email Job Confirmation?',
+                html: `Send <strong>${jobNo}</strong> confirmation to the customer's email?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: '<i class="bi bi-envelope me-1"></i>Send Email',
+                confirmButtonColor: '#6f42c1'
+            });
+            if (!result.isConfirmed) return;
+            try {
+                Swal2.showLoading('Sending email...');
+                const res = await $.ajax({
+                    url: `${JB_LIST_API}/send-email/${id}`,
+                    method: 'POST'
+                });
+                Swal2.hideLoading();
+                Swal2.success(res.message || 'Job emailed successfully.');
+                loadJobList();
+            } catch (err) {
+                Swal2.hideLoading();
+                Swal2.error(err.responseJSON?.message || 'Failed to send email');
+            }
+        }
+
+        // ── Helpers ──
+        function esc(value) {
+            return (value || '')
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#39;');
+        }
+    </script>
+}

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>@ViewData["Title"] - MinePress ERP</title>
+    <meta name="msapplication-TileColor" content="#066fd1" />
+    <meta name="theme-color" content="#0a0a23" />
+    <!-- MinePress (Tabler) core CSS — includes Bootstrap 5 -->
+    <link href="/dist/css/minepress.min.css" rel="stylesheet" />
+    <link href="/dist/css/minepress-vendors.min.css" rel="stylesheet" />
+    <link href="/dist/css/minepress-themes.min.css" rel="stylesheet" />
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <!-- TV Display CSS -->
+    <link href="/css/helpdesk-tv.css" rel="stylesheet" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body class="tv-body">
+    @RenderBody()
+
+    <!-- jQuery -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@@3.7.1/dist/jquery.min.js"></script>
+    <!-- MinePress (Tabler) core JS -->
+    <script src="/dist/js/minepress.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

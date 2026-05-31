@@ -1,0 +1,569 @@
+@page
+@using System.Linq
+@using System.Text.Json
+@model erp.minepress.web.Pages.Workspace.PlateMakingModel
+@{
+    ViewData["Title"] = "Plate Making";
+    ViewData["ContainerClass"] = "container-fluid";
+    ViewData["HidePageHeader"] = true;
+
+    // ── Parse config_data (hyb_job_rate_calculator) ───────────────────────
+    var hasRateJson = !string.IsNullOrWhiteSpace(Model.JobRateConfigJson);
+    System.Text.Json.JsonElement root = default;
+    System.Text.Json.JsonElement jobTypeEl = default;
+    var parts = new List<System.Text.Json.JsonElement>();
+
+    string ReadText(System.Text.Json.JsonElement parent, string prop)
+    {
+        if (parent.ValueKind is System.Text.Json.JsonValueKind.Null or System.Text.Json.JsonValueKind.Undefined)
+            return string.Empty;
+        if (!parent.TryGetProperty(prop, out var item) || item.ValueKind == System.Text.Json.JsonValueKind.Null || item.ValueKind == System.Text.Json.JsonValueKind.Undefined)
+            return string.Empty;
+        return item.ValueKind == System.Text.Json.JsonValueKind.String ? (item.GetString() ?? string.Empty) : item.ToString();
+    }
+
+    List<string> ReadArray(System.Text.Json.JsonElement parent, string prop)
+    {
+        if (parent.ValueKind is System.Text.Json.JsonValueKind.Null or System.Text.Json.JsonValueKind.Undefined)
+            return new List<string>();
+        if (!parent.TryGetProperty(prop, out var arr) || arr.ValueKind != System.Text.Json.JsonValueKind.Array)
+            return new List<string>();
+        return arr.EnumerateArray()
+            .Select(x => x.ValueKind == System.Text.Json.JsonValueKind.String ? x.GetString() ?? string.Empty : x.ToString())
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .ToList();
+    }
+
+    var parsed = false;
+    if (hasRateJson)
+    {
+        try
+        {
+            var rateDoc = System.Text.Json.JsonDocument.Parse(Model.JobRateConfigJson!);
+            root      = rateDoc.RootElement;
+            jobTypeEl = root.TryGetProperty("jobType", out var _jt) ? _jt : default;
+            parts     = root.TryGetProperty("productParts", out var partsEl) && partsEl.ValueKind == System.Text.Json.JsonValueKind.Array
+                            ? partsEl.EnumerateArray().ToList()
+                            : new List<System.Text.Json.JsonElement>();
+            parsed = true;
+        }
+        catch { parsed = false; }
+    }
+
+    // ── Build plate table rows from config ────────────────────────────────
+    // Each row: (PartName, ActivityName, Colors, Plates)
+    // Accumulate per unique activity per part (plateDtp items in config or fallback)
+    var plateRows = new List<(string PartName, string ActivityName, int NumberOfColors, int NumberOfPlates)>();
+
+    if (parsed)
+    {
+        var partSeq = 0;
+        foreach (var p in parts)
+        {
+            var partName  = ReadText(p, "partName");
+            var spec      = p.TryGetProperty("specification", out var specE) ? specE : default;
+            var designEl  = p.TryGetProperty("designDtp",    out var dEl)   ? dEl   : default;
+
+            int.TryParse(ReadText(spec, "pages"),  out int pages);
+            int.TryParse(ReadText(spec, "colors"), out int colors);
+            if (colors <= 0) colors = 4; // CMYK default
+
+            // Try designDtp items as plate activities; fall back to generic "Plate Making"
+            var items = designEl.ValueKind == System.Text.Json.JsonValueKind.Object
+                            ? ReadArray(designEl, "designItems")
+                            : new List<string>();
+
+            if (items.Count > 0)
+            {
+                foreach (var di in items)
+                {
+                    plateRows.Add((partName, di, colors, colors)); // plates = 1 per color per side
+                }
+            }
+            else
+            {
+                plateRows.Add((partName, string.IsNullOrWhiteSpace(partName) ? "Plate Making" : $"{partName} Plates", colors, colors));
+            }
+            partSeq++;
+        }
+    }
+
+    // Fallback: no parts but config parsed
+    if (plateRows.Count == 0 && parsed)
+    {
+        plateRows.Add(("—", "Plate Making", 4, 4));
+    }
+}
+
+<!-- Page Header -->
+<div class="page-header d-print-none mb-3">
+    <div class="container-xl">
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <span class="avatar avatar-md bg-blue-lt text-blue">
+                    <i class="bi bi-layers-fill fs-3"></i>
+                </span>
+            </div>
+            <div class="col">
+                <h2 class="page-title mb-0">Plate Making</h2>
+                <div class="text-secondary mt-1">Task #@Model.TaskId • @Model.UserFullName</div>
+            </div>
+            <div class="col-auto d-flex gap-2">
+                <button class="btn btn-outline-secondary btn-sm" id="pmRefreshBtn">
+                    <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+                </button>
+                <a href="/Workspace/MyTasks" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>Back to My Tasks
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 3-Column Layout -->
+<div class="pw-create-layout">
+
+    <!-- ═══════ LEFT SIDEBAR ═══════ -->
+    <aside class="pw-create-sidebar pw-create-sidebar-left">
+
+        <!-- Task Summary -->
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="avatar avatar-xs bg-teal-lt text-teal"><i class="bi bi-clipboard-check"></i></span>
+                    <h3 class="card-title mb-0">Task Summary</h3>
+                </div>
+            </div>
+            <div class="card-body" id="pmTaskSummary">
+                <div class="text-center py-4"><div class="spinner-border spinner-border-sm"></div></div>
+            </div>
+        </div>
+
+    </aside>
+
+    <!-- ═══════ CENTER ═══════ -->
+    <main class="pw-create-main">
+
+        <!-- Plate Making Input Table -->
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex align-items-center gap-2 flex-grow-1">
+                    <span class="avatar avatar-sm bg-blue text-white"><i class="bi bi-layers-fill"></i></span>
+                    <div>
+                        <h3 class="card-title mb-0">Plate Making Progress</h3>
+                        <div class="text-secondary" style="font-size:.75rem;">Track plates required, made and pending per activity / part</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Totals bar -->
+            <div class="prw-totals-bar" id="pmTotalsBar">
+                <div class="prw-total-item">
+                    <span>Activities</span><strong id="pmTotalActivities">0</strong>
+                </div>
+                <div class="prw-total-item">
+                    <span>Colors</span><strong id="pmTotalColors">0</strong>
+                </div>
+                <div class="prw-total-item">
+                    <span>Required</span><strong id="pmTotalRequired">0</strong>
+                </div>
+                <div class="prw-total-item">
+                    <span>Made</span><strong id="pmTotalMade">0</strong>
+                </div>
+                <div class="prw-total-item prw-total-balance">
+                    <span>Pending</span><strong id="pmTotalPending">0</strong>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <div class="table-responsive w-100">
+                    <table class="table table-vcenter table-hover mb-0 w-100" id="pmPlateMakingTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width:36px;"></th>
+                                <th style="min-width:160px;">Plate Making Activity</th>
+                                <th style="width:110px;white-space:normal;">Part</th>
+                                <th style="width:110px;white-space:normal;">Plate Type</th>
+                                <th style="width:90px;white-space:normal;">Colors</th>
+                                <th style="width:110px;white-space:normal;">Plates Required</th>
+                                <th style="width:110px;white-space:normal;">Plates Made</th>
+                                <th style="width:90px;white-space:normal;" class="text-end">Pending</th>
+                                <th style="width:180px;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pmPlateMakingTableBody">
+                            @if (Model.SavedPlateMakingEntries.Count > 0)
+                            {
+                                // ── Render from saved DB rows ──────────────────────────────────
+                                foreach (var entry in Model.SavedPlateMakingEntries)
+                                {
+                                    var idx = (int)entry.PlateMakingId;
+                                    <tr class="pm-plate-row @(entry.IsCompleted ? "table-success" : "")"
+                                        data-row="@idx"
+                                        data-plate-making-id="@entry.PlateMakingId"
+                                        data-completed="@(entry.IsCompleted.ToString().ToLower())">
+                                        <td>
+                                            <input type="checkbox" class="form-check-input pm-row-check" value="@idx">
+                                        </td>
+                                        <td style="word-break:break-word;white-space:normal;max-width:0;">
+                                            <div class="d-flex align-items-start gap-2">
+                                                <span class="avatar avatar-xs bg-blue-lt text-blue flex-shrink-0 mt-1"><i class="bi bi-layers-fill"></i></span>
+                                                <div class="fw-semibold pm-activity-name" style="white-space:normal;word-break:break-word;overflow-wrap:anywhere;">@entry.ActivityName</div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="text-secondary" style="font-size:.8rem;">@(entry.PartName ?? "—")</span>
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control form-control-sm pm-plate-type w-100"
+                                                   value="@(entry.PlateType ?? "")" placeholder="CTP / Conv."
+                                                   @(entry.IsCompleted ? "disabled" : "")>
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control form-control-sm pm-colors w-100"
+                                                   value="@entry.NumberOfColors" min="0"
+                                                   @(entry.IsCompleted ? "disabled" : "")>
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control form-control-sm pm-required w-100"
+                                                   value="@entry.NumberOfPlates" min="0"
+                                                   @(entry.IsCompleted ? "disabled" : "")>
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control form-control-sm pm-made w-100"
+                                                   value="@entry.PlatesMade" min="0"
+                                                   @(entry.IsCompleted ? "disabled" : "")>
+                                        </td>
+                                        <td class="text-end" style="overflow:hidden;">
+                                            <span class="badge @(entry.IsCompleted ? "bg-green-lt text-green" : "bg-orange-lt text-orange") pm-pending fw-bold">
+                                                @(entry.PlatesPending ?? Math.Max(0, entry.NumberOfPlates - entry.PlatesMade))
+                                            </span>
+                                        </td>
+                                        <td style="width:180px;">
+                                            <div class="d-flex gap-1 flex-wrap">
+                                                @if (entry.IsCompleted)
+                                                {
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary pm-update-task" data-row="@idx" disabled title="Row already completed">
+                                                        <i class="bi bi-arrow-repeat"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-success pm-complete-task" data-row="@idx" disabled>
+                                                        <i class="bi bi-check-circle-fill me-1"></i>Done
+                                                    </button>
+                                                }
+                                                else
+                                                {
+                                                    <button type="button" class="btn btn-sm btn-outline-primary pm-update-task" data-row="@idx" title="Update this row">
+                                                        <i class="bi bi-arrow-repeat me-1"></i>Update
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-outline-success pm-complete-task" data-row="@idx" title="Mark as complete">
+                                                        <i class="bi bi-check-circle me-1"></i>Complete
+                                                    </button>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else if (plateRows.Count > 0)
+                            {
+                                // ── Render from job config (not yet saved) ─────────────────────
+                                var rowIndex = 0;
+                                foreach (var row in plateRows)
+                                {
+                                    <tr class="pm-plate-row" data-row="@rowIndex">
+                                        <td>
+                                            <input type="checkbox" class="form-check-input pm-row-check" value="@rowIndex">
+                                        </td>
+                                        <td style="word-break:break-word;white-space:normal;max-width:0;">
+                                            <div class="d-flex align-items-start gap-2">
+                                                <span class="avatar avatar-xs bg-blue-lt text-blue flex-shrink-0 mt-1"><i class="bi bi-layers-fill"></i></span>
+                                                <div class="fw-semibold pm-activity-name" style="white-space:normal;word-break:break-word;overflow-wrap:anywhere;">@row.ActivityName</div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="text-secondary pm-part-name" style="font-size:.8rem;" data-part="@row.PartName">@row.PartName</span>
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control form-control-sm pm-plate-type w-100"
+                                                   value="" placeholder="CTP / Conv.">
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control form-control-sm pm-colors w-100"
+                                                   value="@row.NumberOfColors" min="0"
+                                                   data-original="@row.NumberOfColors">
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control form-control-sm pm-required w-100"
+                                                   value="@row.NumberOfPlates" min="0"
+                                                   data-original="@row.NumberOfPlates">
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control form-control-sm pm-made w-100"
+                                                   value="0" min="0" placeholder="0">
+                                        </td>
+                                        <td class="text-end" style="overflow:hidden;">
+                                            <span class="badge bg-orange-lt text-orange pm-pending fw-bold">@row.NumberOfPlates</span>
+                                        </td>
+                                        <td style="width:180px;">
+                                            <div class="d-flex gap-1 flex-wrap">
+                                                <button type="button" class="btn btn-sm btn-outline-primary pm-update-task" data-row="@rowIndex" title="Update this row">
+                                                    <i class="bi bi-arrow-repeat me-1"></i>Update
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-success pm-complete-task" data-row="@rowIndex" title="Mark as complete">
+                                                    <i class="bi bi-check-circle me-1"></i>Complete
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    rowIndex++;
+                                }
+                            }
+                            else
+                            {
+                                <tr id="pmNoConfigRow">
+                                    <td colspan="9" class="text-center text-secondary py-4">
+                                        <i class="bi bi-layers me-2"></i>No plate config found. Add rows manually.
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Job Rate Config Card (collapsible) -->
+        @if (parsed)
+        {
+            <div class="card mt-3 pw-rate-card">
+                <div class="card-header">
+                    <div class="d-flex align-items-center gap-2 flex-grow-1">
+                        <span class="avatar avatar-sm bg-blue text-white"><i class="bi bi-calculator-fill"></i></span>
+                        <div>
+                            <h3 class="card-title mb-0">Job Details</h3>
+                            <div class="text-secondary" style="font-size:.75rem;">@(jobTypeEl.ValueKind == System.Text.Json.JsonValueKind.Object ? ReadText(jobTypeEl, "value") : "—") • @ReadText(root, "productType")</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-sm btn-outline-secondary rounded-pill px-2" type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#pmRateCollapse_@(Model.TaskId)"
+                            aria-expanded="false"
+                            aria-controls="pmRateCollapse_@(Model.TaskId)">
+                        <i class="bi bi-chevron-down" id="pmRateToggleIcon_@(Model.TaskId)"></i>
+                    </button>
+                </div>
+
+                <div class="collapse" id="pmRateCollapse_@(Model.TaskId)">
+                    <div class="card-body pw-rate-body">
+                        <div class="pw-rate-summary-grid">
+                            <div class="pw-rate-stat">
+                                <span><i class="bi bi-box-seam me-1"></i>Product Type</span>
+                                <strong>@(string.IsNullOrWhiteSpace(ReadText(root, "productType")) ? "—" : ReadText(root, "productType"))</strong>
+                            </div>
+                            <div class="pw-rate-stat">
+                                <span><i class="bi bi-rulers me-1"></i>Product Size</span>
+                                <strong>@(string.IsNullOrWhiteSpace(ReadText(root, "productSize")) ? "—" : ReadText(root, "productSize"))</strong>
+                            </div>
+                            <div class="pw-rate-stat">
+                                <span><i class="bi bi-aspect-ratio me-1"></i>Trim Size</span>
+                                <strong>@ReadText(root, "trimWidth") × @ReadText(root, "trimHeight") mm</strong>
+                            </div>
+                            <div class="pw-rate-stat">
+                                <span><i class="bi bi-hash me-1"></i>Quantity</span>
+                                <strong>@ReadText(root, "quantity")</strong>
+                            </div>
+                            <div class="pw-rate-stat">
+                                <span><i class="bi bi-layers me-1"></i>Sides</span>
+                                <strong>@(ReadText(root, "sides") == "1" ? "Single Side" : ReadText(root, "sides") == "2" ? "Both Sides" : ReadText(root, "sides"))</strong>
+                            </div>
+                        </div>
+
+                        @if (parts.Count > 0)
+                        {
+                            <div class="pw-rate-section">
+                                <div class="pw-rate-section-title"><i class="bi bi-box-seam"></i>Part-wise Plate Plan</div>
+                                <div class="pw-rate-parts-grid">
+                                    @foreach (var part in parts)
+                                    {
+                                        var partName  = ReadText(part, "partName");
+                                        var spec      = part.TryGetProperty("specification", out var specEl) ? specEl : default;
+                                        var designEl2 = part.TryGetProperty("designDtp",     out var dEl2)  ? dEl2   : default;
+                                        var designItems = designEl2.ValueKind == System.Text.Json.JsonValueKind.Object
+                                                          ? ReadArray(designEl2, "designItems")
+                                                          : new List<string>();
+
+                                        <div class="pw-rate-part-card">
+                                            <div class="pw-rate-part-title">@partName</div>
+                                            <div class="pw-rate-part-spec">
+                                                <span><i class="bi bi-files"></i>@ReadText(spec, "pages") pages</span>
+                                                <span><i class="bi bi-palette"></i>@ReadText(spec, "color") color</span>
+                                                <span><i class="bi bi-layers"></i>@ReadText(spec, "paper")</span>
+                                            </div>
+                                            <div class="pw-rate-process-lines">
+                                                <div>
+                                                    <label>Plate Activities</label>
+                                                    <p>@(designItems.Count > 0 ? string.Join(" • ", designItems) : "Plate Making")</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+
+    </main>
+
+    <!-- ═══════ RIGHT SIDEBAR ═══════ -->
+    <aside class="pw-create-sidebar pw-create-sidebar-right">
+
+        <!-- Work Notes -->
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="avatar avatar-xs bg-yellow-lt text-yellow"><i class="bi bi-pencil-square"></i></span>
+                    <h3 class="card-title mb-0">Work Notes</h3>
+                </div>
+            </div>
+            <div class="card-body">
+                <textarea class="form-control" rows="6" id="pmNotes" placeholder="Enter plate making details, observations or issues...">@(Model.SavedPlateMakingEntries.Select(e => e.Notes).FirstOrDefault(n => !string.IsNullOrWhiteSpace(n)) ?? string.Empty)</textarea>
+            </div>
+        </div>
+
+        <!-- User-wise Plate Making Activity -->
+        @if (Model.UserPlateMakingActivities.Count > 0)
+        {
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex align-items-center gap-2 flex-grow-1">
+                        <span class="avatar avatar-xs bg-blue-lt text-blue"><i class="bi bi-people-fill"></i></span>
+                        <h3 class="card-title mb-0">Plate Maker Activity</h3>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="dw-user-activity-list">
+                        @foreach (var ua in Model.UserPlateMakingActivities)
+                        {
+                            var pct = ua.NumberOfPlates > 0
+                                ? (int)Math.Round((double)ua.PlatesMade / ua.NumberOfPlates * 100)
+                                : (ua.PlatesMade > 0 ? 100 : 0);
+                            var barColor = pct >= 100 ? "bg-success" : pct >= 50 ? "bg-info" : "bg-warning";
+                            var initials = string.Join("", ua.UserName.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(w => w[0])).ToUpper();
+
+                            <div class="dw-user-activity-row">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="avatar avatar-sm bg-blue text-white fw-bold" style="font-size:.7rem;">@initials</span>
+                                    <div class="flex-grow-1 overflow-hidden">
+                                        <div class="fw-semibold text-truncate" style="font-size:.85rem;">@ua.UserName</div>
+                                        <div class="text-secondary" style="font-size:.72rem;">
+                                            @ua.TotalActivities activit@(ua.TotalActivities == 1 ? "y" : "ies")
+                                            &bull; @ua.CompletedCount done
+                                        </div>
+                                    </div>
+                                    <span class="badge @(pct >= 100 ? "bg-success-lt text-success" : pct >= 50 ? "bg-info-lt text-info" : "bg-warning-lt text-warning") fw-semibold">@pct%</span>
+                                </div>
+                                <div class="progress mb-2" style="height:5px;">
+                                    <div class="progress-bar @barColor" style="width:@pct%" role="progressbar"></div>
+                                </div>
+                                <div class="dw-user-stat-row">
+                                    <div class="dw-user-stat">
+                                        <span class="text-secondary">Required</span>
+                                        <strong>@ua.NumberOfPlates</strong>
+                                    </div>
+                                    <div class="dw-user-stat">
+                                        <span class="text-secondary">Made</span>
+                                        <strong class="text-success">@ua.PlatesMade</strong>
+                                    </div>
+                                    <div class="dw-user-stat">
+                                        <span class="text-secondary">Pending</span>
+                                        <strong class="@(ua.PlatesPending > 0 ? "text-orange" : "text-success")">@ua.PlatesPending</strong>
+                                    </div>
+                                </div>
+                                @if (ua.LastSavedOn.HasValue)
+                                {
+                                    <div class="text-secondary mt-1" style="font-size:.7rem;">
+                                        <i class="bi bi-clock me-1"></i>Last saved @ua.LastSavedOn.Value.ToString("dd MMM yyyy, hh:mm tt")
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Issued Plates from Store -->
+        <div class="card" id="pmIssuedPlatesCard">
+            <div class="card-header">
+                <div class="d-flex align-items-center gap-2 flex-grow-1">
+                    <span class="avatar avatar-xs bg-teal-lt text-teal"><i class="bi bi-boxes"></i></span>
+                    <h3 class="card-title mb-0">Issued Plates (Store)</h3>
+                </div>
+                <button class="btn btn-sm btn-ghost-secondary ms-auto" id="pmRefreshPlatesBtn" title="Refresh">
+                    <i class="bi bi-arrow-clockwise"></i>
+                </button>
+            </div>
+            <div class="card-body p-0" id="pmIssuedPlatesBody">
+                <div class="text-center py-3 text-secondary" style="font-size:.82rem;">
+                    <div class="spinner-border spinner-border-sm me-1"></div> Loading…
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <button type="button" id="pmStartBtn" class="btn w-100 py-2 btn-outline-primary">
+            <i class="bi bi-play-fill me-2"></i>Start Step
+        </button>
+
+        <button type="button" id="pmSaveBtn" class="btn w-100 py-2 btn-outline-secondary">
+            <i class="bi bi-save me-2"></i>Save Progress
+        </button>
+
+        <button type="button" id="pmCompleteBtn" class="btn w-100 py-2" style="background:#10b981;color:#fff;">
+            <i class="bi bi-check-lg me-2"></i>Complete Step
+        </button>
+    </aside>
+</div>
+
+@section Styles {
+    <style>
+        /* Re-use dw-user-activity styles (already defined globally) */
+        .pm-issued-plates-list { padding: .5rem .75rem; display: flex; flex-direction: column; gap: .5rem; }
+        .pm-issued-part-group  { border: 1px solid var(--tblr-border-color, #e6e7e9); border-radius: .375rem; overflow: hidden; }
+        .pm-issued-part-label  { background: var(--tblr-bg-surface-secondary, #f8f9fa); padding: .3rem .6rem; font-size: .76rem; font-weight: 600; color: var(--tblr-secondary, #6c757d); border-bottom: 1px solid var(--tblr-border-color, #e6e7e9); }
+        .pm-issued-plate-row   { padding: .45rem .6rem; border-bottom: 1px solid var(--tblr-border-color, #e6e7e9); }
+        .pm-issued-plate-row:last-child { border-bottom: none; }
+        .pm-issued-plate-name  { font-size: .82rem; font-weight: 500; }
+        .pm-issued-plate-meta  { font-size: .72rem; color: var(--tblr-secondary, #6c757d); }
+    </style>
+}
+
+@section Scripts {
+    <script src="/js/workspace-plate-making.js"></script>
+    <script>
+        const pmTaskId = @Model.TaskId;
+        document.addEventListener('DOMContentLoaded', function () { PlateMaking.init(pmTaskId); });
+    </script>
+    <script>
+        (function () {
+            setTimeout(() => {
+                document.querySelectorAll('[id^="pmRateCollapse_"]').forEach(collapseEl => {
+                    const iconId = collapseEl.id.replace('pmRateCollapse_', 'pmRateToggleIcon_');
+                    const iconEl = document.getElementById(iconId);
+                    if (!iconEl) return;
+                    collapseEl.addEventListener('show.bs.collapse', function () {
+                        iconEl.classList.remove('bi-chevron-down');
+                        iconEl.classList.add('bi-chevron-up');
+                    });
+                    collapseEl.addEventListener('hide.bs.collapse', function () {
+                        iconEl.classList.remove('bi-chevron-up');
+                        iconEl.classList.add('bi-chevron-down');
+                    });
+                });
+            }, 50);
+        })();
+    </script>
+}

@@ -1,0 +1,345 @@
+/* ===== MinePress Job Module — CSS ===== */
+
+/* ══════ Job Hero ══════ */
+.jb-hero,
+.jb-detail-hero {
+    background: linear-gradient(135deg, #6f42c1, #9b59b6);
+    color: #fff;
+    padding: 1.25rem 1.5rem;
+    border-radius: var(--tblr-border-radius-lg);
+    margin-bottom: 1rem;
+}
+
+/* ══════ List Page ══════ */
+.jb-list-table th {
+    font-weight: 600; font-size: .8rem;
+    text-transform: uppercase; letter-spacing: .5px;
+    color: var(--tblr-secondary-color);
+}
+.jb-list-table tbody tr { transition: background .1s; }
+.jb-list-table tbody tr:hover { background: var(--tblr-purple-bg-subtle); }
+
+.jb-status-badge {
+    font-size: .72rem; font-weight: 600;
+    padding: 3px 10px; border-radius: var(--tblr-border-radius-pill);
+    display: inline-block;
+}
+.jb-status-pill { font-size: .8rem; padding: 4px 14px; }
+
+/* Status badges for all job lifecycle states */
+.jb-status-created     { background: var(--tblr-success-bg-subtle);   color: var(--tblr-green); }
+.jb-status-assigned    { background: var(--tblr-info-bg-subtle);      color: var(--tblr-info); }
+.jb-status-progress    { background: var(--tblr-purple-bg-subtle);    color: var(--tblr-purple); }
+.jb-status-printing    { background: var(--tblr-primary-bg-subtle);   color: var(--tblr-primary); }
+.jb-status-finishing   { background: var(--tblr-cyan-bg-subtle);      color: var(--tblr-cyan); }
+.jb-status-qc          { background: var(--tblr-teal-bg-subtle);      color: var(--tblr-teal); }
+.jb-status-packed      { background: var(--tblr-yellow-bg-subtle);    color: var(--tblr-yellow); }
+.jb-status-dispatched  { background: var(--tblr-azure-bg-subtle);     color: var(--tblr-azure); }
+.jb-status-delivered   { background: var(--tblr-green-bg-subtle);     color: var(--tblr-green); }
+.jb-status-hold        { background: var(--tblr-warning-bg-subtle);   color: var(--tblr-yellow); }
+.jb-status-cancelled   { background: var(--tblr-danger-bg-subtle);    color: var(--tblr-red); }
+.jb-status-revised     { background: var(--tblr-azure-bg-subtle);     color: var(--tblr-azure); }
+
+/* Action dropdown */
+.jb-action-dropdown {
+    min-width: 240px;
+    max-height: 420px;
+    overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(0,0,0,.12);
+    border-radius: var(--tblr-border-radius-lg);
+    padding: .25rem 0;
+}
+.jb-action-dropdown .dropdown-header {
+    font-size: .68rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .5px;
+    color: var(--tblr-secondary-color);
+    padding: .5rem .75rem .25rem;
+}
+.jb-action-dropdown .dropdown-item {
+    font-size: .82rem; padding: .4rem .75rem;
+    transition: all .15s;
+}
+.jb-action-dropdown .dropdown-item:hover {
+    background: var(--tblr-purple-bg-subtle);
+}
+
+/* ══════ Details Page ══════ */
+
+/* Tab navigation */
+.jb-detail-tabs {
+    border-bottom: 2px solid var(--tblr-border-color);
+}
+.jb-detail-tabs .nav-link {
+    font-weight: 600; font-size: .85rem;
+    color: var(--tblr-secondary-color);
+    border: none; border-bottom: 3px solid transparent;
+    padding: .65rem 1.1rem; margin-bottom: -2px;
+    transition: all .2s;
+}
+.jb-detail-tabs .nav-link:hover {
+    color: #6f42c1;
+    border-bottom-color: var(--tblr-border-color);
+}
+.jb-detail-tabs .nav-link.active {
+    color: #6f42c1;
+    border-bottom-color: #6f42c1;
+    background: transparent;
+}
+
+/* Detail cards */
+.jb-detail-card {
+    border: var(--tblr-border-width) solid var(--tblr-border-color);
+    transition: box-shadow .2s;
+}
+.jb-detail-card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,.06);
+}
+.jb-detail-card .card-header {
+    background: transparent;
+    border-bottom: 1px solid var(--tblr-border-color);
+    padding: .75rem 1rem;
+}
+.jb-detail-card .card-header .card-title {
+    font-size: .85rem; margin: 0;
+}
+
+/* Customer avatar */
+.jb-detail-avatar {
+    width: 52px; height: 52px;
+    background: linear-gradient(135deg, #6f42c1, #9b59b6);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 1rem; flex-shrink: 0;
+}
+
+/* Info list */
+.jb-detail-info-list {
+    display: flex; flex-direction: column; gap: .6rem;
+}
+.jb-detail-info-item {
+    display: grid;
+    grid-template-columns: 20px 1fr 1.2fr;
+    gap: .5rem; align-items: center; font-size: .82rem;
+}
+.jb-detail-info-item i { font-size: .85rem; }
+
+/* Item detail cards */
+.jb-item-detail-card {
+    border: var(--tblr-border-width) solid var(--tblr-border-color);
+    border-left: 4px solid #6f42c1;
+    transition: all .2s;
+}
+.jb-item-detail-card:hover {
+    border-left-color: #9b59b6;
+    box-shadow: 0 4px 16px rgba(0,0,0,.06);
+}
+
+/* Metric boxes */
+.jb-detail-metric {
+    background: var(--tblr-bg-surface-secondary);
+    border-radius: var(--tblr-border-radius);
+    padding: .5rem .65rem; text-align: center;
+}
+.jb-detail-metric-label {
+    font-size: .68rem; text-transform: uppercase;
+    letter-spacing: .4px; color: var(--tblr-secondary-color);
+    font-weight: 600;
+}
+.jb-detail-metric-value {
+    font-size: .9rem; font-weight: 700;
+    color: var(--tblr-body-color); margin-top: .15rem;
+}
+
+/* ══════ Create Page — 3-Column Layout ══════ */
+
+.jb-create-layout {
+    display: grid;
+    grid-template-columns: 3fr 6fr 3fr;
+    gap: 1rem;
+    align-items: start;
+    padding: 0 .5rem;
+}
+
+/* Sidebars: sticky + scrollable */
+.jb-create-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+    position: sticky;
+    top: .75rem;
+    max-height: calc(100vh - 1.5rem);
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+.jb-create-sidebar::-webkit-scrollbar { width: 3px; }
+.jb-create-sidebar::-webkit-scrollbar-thumb { background: var(--tblr-border-color); border-radius: 3px; }
+
+/* Center (main) */
+.jb-create-main {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+}
+
+/* ── Offcanvas Rate Calculator Drawer ── */
+.jb-drawer {
+    width: 720px !important;
+    max-width: 92vw;
+}
+.jb-drawer .offcanvas-header {
+    padding: .75rem 1.25rem;
+    background: var(--tblr-bg-surface);
+}
+.jb-drawer-body {
+    padding: 1rem 1.25rem;
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+.jb-drawer-body::-webkit-scrollbar { width: 4px; }
+.jb-drawer-body::-webkit-scrollbar-thumb { background: var(--tblr-border-color); border-radius: 4px; }
+.jb-drawer-body .card { box-shadow: none; border: var(--tblr-border-width) solid var(--tblr-border-color); }
+.jb-drawer-body .row { margin-left: 0; margin-right: 0; }
+.jb-drawer-body > #rateCalculatorWidget { min-width: 0; overflow: hidden; }
+
+/* Offcanvas footer (sticky Add Item button) */
+.jb-drawer .offcanvas-footer {
+    background: var(--tblr-bg-surface);
+}
+
+/* ── Estimate button (center column) — purple-themed ── */
+.jb-estimate-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    border-radius: var(--tblr-border-radius-lg);
+    font-size: .95rem;
+    transition: all .2s;
+    border: 2px dashed #6f42c1;
+    background: var(--tblr-purple-bg-subtle);
+    color: #6f42c1;
+}
+.jb-estimate-btn:hover {
+    background: #6f42c1;
+    color: #fff;
+    border-style: solid;
+    box-shadow: 0 4px 12px rgba(111, 66, 193, .3);
+}
+
+/* ── Items list ── */
+.jb-items-list {
+    min-height: 60px;
+}
+
+/* ── Item chips ── */
+.jb-item-chip {
+    border: var(--tblr-border-width) solid var(--tblr-border-color);
+    border-radius: var(--tblr-border-radius);
+    padding: .6rem .75rem;
+    margin-bottom: .5rem;
+    position: relative;
+    transition: all .15s;
+}
+.jb-item-chip:hover { border-color: #6f42c1; box-shadow: 0 2px 8px rgba(0,0,0,.04); }
+.jb-item-chip .btn-close { position: absolute; top: .4rem; right: .4rem; font-size: .5rem; }
+.jb-item-name { font-weight: 600; font-size: .825rem; }
+.jb-item-meta { font-size: .73rem; color: var(--tblr-secondary-color); }
+.jb-item-price { font-weight: 700; color: #6f42c1; font-size: .9rem; }
+
+/* ══════ Dark Mode ══════ */
+[data-bs-theme="dark"] .jb-detail-tabs .nav-link:hover {
+    color: #b197fc;
+}
+[data-bs-theme="dark"] .jb-detail-tabs .nav-link.active {
+    color: #b197fc;
+    border-bottom-color: #b197fc;
+}
+[data-bs-theme="dark"] .jb-detail-avatar {
+    background: linear-gradient(135deg, #7c3aed, #a78bfa);
+}
+[data-bs-theme="dark"] .jb-item-detail-card {
+    border-left-color: #b197fc;
+}
+[data-bs-theme="dark"] .jb-item-detail-card:hover {
+    border-left-color: #c4b5fd;
+    box-shadow: 0 4px 16px rgba(0,0,0,.2);
+}
+[data-bs-theme="dark"] .jb-item-price {
+    color: #b197fc;
+}
+[data-bs-theme="dark"] .jb-estimate-btn {
+    border-color: #b197fc;
+    color: #b197fc;
+}
+[data-bs-theme="dark"] .jb-estimate-btn:hover {
+    background: #7c3aed;
+    border-color: #7c3aed;
+    box-shadow: 0 4px 12px rgba(124,58,237,.4);
+}
+[data-bs-theme="dark"] .jb-item-chip:hover {
+    border-color: #b197fc;
+    box-shadow: 0 2px 8px rgba(0,0,0,.15);
+}
+[data-bs-theme="dark"] .jb-detail-card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,.2);
+}
+[data-bs-theme="dark"] .jb-action-dropdown {
+    box-shadow: 0 8px 32px rgba(0,0,0,.3);
+}
+[data-bs-theme="dark"] .timeline-event-card:hover {
+    box-shadow: 0 2px 12px rgba(0,0,0,.15);
+}
+.timeline {
+    list-style: none;
+    padding: 0;
+    position: relative;
+}
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 19px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--tblr-border-color);
+}
+.timeline-event {
+    position: relative;
+    padding-left: 52px;
+    margin-bottom: 1rem;
+}
+.timeline-event-icon {
+    position: absolute;
+    left: 6px;
+    top: .5rem;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .8rem;
+    z-index: 1;
+}
+.timeline-event-card {
+    border: var(--tblr-border-width) solid var(--tblr-border-color);
+    transition: box-shadow .15s;
+}
+.timeline-event-card:hover {
+    box-shadow: 0 2px 12px rgba(0,0,0,.06);
+}
+
+/* ── Responsive ── */
+@media (max-width: 991px) {
+    .jb-create-layout {
+        grid-template-columns: 1fr;
+        padding: 0;
+    }
+    .jb-create-sidebar { position: static; max-height: none; }
+    .jb-create-main { order: -1; }
+    .jb-create-sidebar-right { order: 1; }
+}
+@media (max-width: 767px) {
+    .jb-create-layout { grid-template-columns: 1fr; gap: .75rem; }
+}

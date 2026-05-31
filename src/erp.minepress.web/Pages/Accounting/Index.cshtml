@@ -1,0 +1,425 @@
+@page
+@model erp.minepress.web.Pages.Accounting.IndexModel
+@{
+    ViewData["Title"] = "Accounting";
+}
+
+<!-- Hero Header -->
+<div class="acc-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);">
+                <i class="bi bi-journal-bookmark-fill" style="font-size:1.5rem;"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="mb-0">Accounting</h2>
+            <div class="text-white-75">Receivables, Payables, Invoicing, Banking &amp; Financial Reports</div>
+        </div>
+        <div class="col-auto d-flex gap-2">
+            <button class="btn btn-outline-light btn-sm" onclick="loadDashboard()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+            </button>
+            <a href="/Accounting/SalesInvoice/Create" class="btn btn-light">
+                <i class="bi bi-plus-lg me-1"></i>New Invoice
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- AI Insight Chip -->
+<div class="acc-ai-chip d-print-none" id="aiInsight" style="display:none;">
+    <i class="bi bi-stars me-2"></i>
+    <span id="aiInsightText"></span>
+</div>
+
+<!-- KPI Stats Row -->
+<div class="row g-3 mb-3" id="accKpis">
+    <div class="col-6 col-lg-3">
+        <div class="card acc-kpi">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="kpi-icon bg-primary-lt me-3">
+                        <i class="bi bi-arrow-down-circle text-primary"></i>
+                    </div>
+                    <div>
+                        <div class="kpi-value text-primary" id="kpiReceivable">₹0</div>
+                        <div class="kpi-label">Receivable</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card acc-kpi">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="kpi-icon bg-danger-lt me-3">
+                        <i class="bi bi-arrow-up-circle text-danger"></i>
+                    </div>
+                    <div>
+                        <div class="kpi-value text-danger" id="kpiPayable">₹0</div>
+                        <div class="kpi-label">Payable</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card acc-kpi">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="kpi-icon bg-success-lt me-3">
+                        <i class="bi bi-graph-up-arrow text-success"></i>
+                    </div>
+                    <div>
+                        <div class="kpi-value text-success" id="kpiSalesMonth">₹0</div>
+                        <div class="kpi-label">Sales (Month)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card acc-kpi">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="kpi-icon bg-azure-lt me-3">
+                        <i class="bi bi-wallet2 text-azure"></i>
+                    </div>
+                    <div>
+                        <div class="kpi-value" id="kpiNetFlow">₹0</div>
+                        <div class="kpi-label">Net Cash Flow</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Secondary KPIs -->
+<div class="row g-3 mb-3">
+    <div class="col-6 col-md-4 col-lg-2">
+        <div class="card card-sm">
+            <div class="card-body text-center">
+                <div class="fw-bold fs-4 text-warning" id="kpiOverdueAR">0</div>
+                <div class="text-muted small">Overdue AR</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+        <div class="card card-sm">
+            <div class="card-body text-center">
+                <div class="fw-bold fs-4 text-orange" id="kpiOverdueAP">0</div>
+                <div class="text-muted small">Overdue AP</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+        <div class="card card-sm">
+            <div class="card-body text-center">
+                <div class="fw-bold fs-4 text-info" id="kpiPendingSales">0</div>
+                <div class="text-muted small">Draft Sales Inv</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+        <div class="card card-sm">
+            <div class="card-body text-center">
+                <div class="fw-bold fs-4 text-purple" id="kpiPendingPurchase">0</div>
+                <div class="text-muted small">Draft Purchase Inv</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+        <div class="card card-sm">
+            <div class="card-body text-center">
+                <div class="fw-bold fs-4 text-teal" id="kpiReceipts">₹0</div>
+                <div class="text-muted small">Receipts (Month)</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+        <div class="card card-sm">
+            <div class="card-body text-center">
+                <div class="fw-bold fs-4 text-pink" id="kpiPayments">₹0</div>
+                <div class="text-muted small">Payments (Month)</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Module Quick Links Grid -->
+<div class="row g-3 mb-4">
+    <div class="col-12">
+        <h4 class="mb-3"><i class="bi bi-grid-3x3-gap me-2"></i>Modules</h4>
+    </div>
+    <!-- Accounts Receivable -->
+    <div class="col-6 col-md-4 col-lg-3">
+        <a href="/Accounting/SalesInvoice" class="card acc-module-card text-decoration-none">
+            <div class="card-body text-center py-4">
+                <div class="acc-module-icon bg-primary-lt mb-2">
+                    <i class="bi bi-receipt-cutoff text-primary fs-2"></i>
+                </div>
+                <h6 class="mb-1">Sales Invoices</h6>
+                <div class="text-muted small">Create, manage &amp; send invoices</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-md-4 col-lg-3">
+        <a href="/Accounting/Receipt" class="card acc-module-card text-decoration-none">
+            <div class="card-body text-center py-4">
+                <div class="acc-module-icon bg-success-lt mb-2">
+                    <i class="bi bi-cash-stack text-success fs-2"></i>
+                </div>
+                <h6 class="mb-1">Receipts</h6>
+                <div class="text-muted small">Payment receipts from customers</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-md-4 col-lg-3">
+        <a href="/Accounting/CreditNote" class="card acc-module-card text-decoration-none">
+            <div class="card-body text-center py-4">
+                <div class="acc-module-icon bg-cyan-lt mb-2">
+                    <i class="bi bi-file-earmark-minus text-cyan fs-2"></i>
+                </div>
+                <h6 class="mb-1">Credit Notes</h6>
+                <div class="text-muted small">Sales returns &amp; adjustments</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-md-4 col-lg-3">
+        <a href="/Accounting/ArOutstanding" class="card acc-module-card text-decoration-none">
+            <div class="card-body text-center py-4">
+                <div class="acc-module-icon bg-yellow-lt mb-2">
+                    <i class="bi bi-clock-history text-yellow fs-2"></i>
+                </div>
+                <h6 class="mb-1">AR Outstanding</h6>
+                <div class="text-muted small">Receivable aging &amp; follow-up</div>
+            </div>
+        </a>
+    </div>
+    <!-- Accounts Payable -->
+    <div class="col-6 col-md-4 col-lg-3">
+        <a href="/Accounting/PurchaseInvoice" class="card acc-module-card text-decoration-none">
+            <div class="card-body text-center py-4">
+                <div class="acc-module-icon bg-danger-lt mb-2">
+                    <i class="bi bi-file-earmark-arrow-down text-danger fs-2"></i>
+                </div>
+                <h6 class="mb-1">Purchase Invoices</h6>
+                <div class="text-muted small">Supplier invoices &amp; bills</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-md-4 col-lg-3">
+        <a href="/Accounting/Payment" class="card acc-module-card text-decoration-none">
+            <div class="card-body text-center py-4">
+                <div class="acc-module-icon bg-orange-lt mb-2">
+                    <i class="bi bi-credit-card text-orange fs-2"></i>
+                </div>
+                <h6 class="mb-1">Payments</h6>
+                <div class="text-muted small">Supplier &amp; vendor payments</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-md-4 col-lg-3">
+        <a href="/Accounting/DebitNote" class="card acc-module-card text-decoration-none">
+            <div class="card-body text-center py-4">
+                <div class="acc-module-icon bg-pink-lt mb-2">
+                    <i class="bi bi-file-earmark-plus text-pink fs-2"></i>
+                </div>
+                <h6 class="mb-1">Debit Notes</h6>
+                <div class="text-muted small">Purchase returns &amp; adjustments</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-md-4 col-lg-3">
+        <a href="/Accounting/PurchaseOrder" class="card acc-module-card text-decoration-none">
+            <div class="card-body text-center py-4">
+                <div class="acc-module-icon bg-indigo-lt mb-2">
+                    <i class="bi bi-cart-check text-indigo fs-2"></i>
+                </div>
+                <h6 class="mb-1">Purchase Orders</h6>
+                <div class="text-muted small">Order management &amp; tracking</div>
+            </div>
+        </a>
+    </div>
+    <!-- Banking & GL -->
+    <div class="col-6 col-md-4 col-lg-3">
+        <a href="/Accounting/JournalVoucher" class="card acc-module-card text-decoration-none">
+            <div class="card-body text-center py-4">
+                <div class="acc-module-icon bg-teal-lt mb-2">
+                    <i class="bi bi-journal-text text-teal fs-2"></i>
+                </div>
+                <h6 class="mb-1">Journal Vouchers</h6>
+                <div class="text-muted small">General ledger entries</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-md-4 col-lg-3">
+        <a href="/Accounting/ExpenseVoucher" class="card acc-module-card text-decoration-none">
+            <div class="card-body text-center py-4">
+                <div class="acc-module-icon bg-lime-lt mb-2">
+                    <i class="bi bi-wallet text-lime fs-2"></i>
+                </div>
+                <h6 class="mb-1">Expenses</h6>
+                <div class="text-muted small">Business expense vouchers</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-md-4 col-lg-3">
+        <a href="/Accounting/BankReconciliation" class="card acc-module-card text-decoration-none">
+            <div class="card-body text-center py-4">
+                <div class="acc-module-icon bg-purple-lt mb-2">
+                    <i class="bi bi-bank text-purple fs-2"></i>
+                </div>
+                <h6 class="mb-1">Bank Reconciliation</h6>
+                <div class="text-muted small">Match bank &amp; book entries</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-md-4 col-lg-3">
+        <a href="/Accounting/ProformaInvoice" class="card acc-module-card text-decoration-none">
+            <div class="card-body text-center py-4">
+                <div class="acc-module-icon bg-azure-lt mb-2">
+                    <i class="bi bi-file-earmark-richtext text-azure fs-2"></i>
+                </div>
+                <h6 class="mb-1">Proforma Invoices</h6>
+                <div class="text-muted small">Pre-delivery quotations</div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<!-- Recent Transactions -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h3 class="card-title"><i class="bi bi-clock-history me-2"></i>Recent Transactions</h3>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table table-hover">
+            <thead>
+                <tr>
+                    <th style="width:40px;"></th>
+                    <th>Document</th>
+                    <th>Date</th>
+                    <th>Party</th>
+                    <th class="text-end">Amount</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="recentTxnBody">
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">
+                        <div class="spinner-border spinner-border-sm me-2"></div>Loading...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const ACC_API = '/api/accounting';
+
+        $(document).ready(function () {
+            loadDashboard();
+        });
+
+        function loadDashboard() {
+            $.get(`${ACC_API}/dashboard`, function (d) {
+                // KPIs
+                $('#kpiReceivable').text(fmtCurrency(d.totalReceivable));
+                $('#kpiPayable').text(fmtCurrency(d.totalPayable));
+                $('#kpiSalesMonth').text(fmtCurrency(d.salesThisMonth));
+                $('#kpiNetFlow').text(fmtCurrency(d.netFlow))
+                    .toggleClass('text-success', d.netFlow >= 0)
+                    .toggleClass('text-danger', d.netFlow < 0);
+
+                // Secondary KPIs
+                $('#kpiOverdueAR').text(d.overdueReceivable);
+                $('#kpiOverdueAP').text(d.overduePayable);
+                $('#kpiPendingSales').text(d.pendingSalesInvoices);
+                $('#kpiPendingPurchase').text(d.pendingPurchaseInvoices);
+                $('#kpiReceipts').text(fmtCurrency(d.receiptsThisMonth));
+                $('#kpiPayments').text(fmtCurrency(d.paymentsThisMonth));
+
+                // AI Insight
+                generateInsight(d);
+
+                // Recent Transactions
+                renderRecentTransactions(d.recentTransactions || []);
+            }).fail(function () {
+                $('#recentTxnBody').html('<tr><td colspan="6" class="text-center text-danger py-3"><i class="bi bi-exclamation-circle me-1"></i>Failed to load dashboard data.</td></tr>');
+            });
+        }
+
+        function generateInsight(d) {
+            let msg = '';
+            if (d.overdueReceivable > 0) {
+                msg = `You have ${d.overdueReceivable} overdue receivable${d.overdueReceivable > 1 ? 's' : ''} — consider sending payment reminders.`;
+            } else if (d.netFlow > 0) {
+                msg = `Positive cash flow of ${fmtCurrency(d.netFlow)} this month. Collections are strong!`;
+            } else if (d.pendingSalesInvoices > 0) {
+                msg = `${d.pendingSalesInvoices} sales invoice${d.pendingSalesInvoices > 1 ? 's' : ''} in draft. Review and post to update your books.`;
+            } else if (d.pendingExpenseApprovals > 0) {
+                msg = `${d.pendingExpenseApprovals} expense${d.pendingExpenseApprovals > 1 ? 's' : ''} pending approval.`;
+            }
+            if (msg) {
+                $('#aiInsightText').text(msg);
+                $('#aiInsight').show();
+            } else {
+                $('#aiInsight').hide();
+            }
+        }
+
+        function renderRecentTransactions(txns) {
+            if (txns.length === 0) {
+                $('#recentTxnBody').html('<tr><td colspan="6" class="text-center text-muted py-4">No recent transactions</td></tr>');
+                return;
+            }
+            let html = '';
+            txns.forEach(t => {
+                const statusCls = getAccStatusClass(t.status);
+                html += `<tr>
+                    <td><span class="avatar avatar-sm bg-${t.color}-lt"><i class="bi ${t.icon}"></i></span></td>
+                    <td><span class="fw-semibold">${esc(t.docNo)}</span><div class="text-muted small">${esc(t.type)}</div></td>
+                    <td class="text-muted small">${esc(t.date)}</td>
+                    <td>${esc(t.partyName)}</td>
+                    <td class="text-end fw-semibold">${fmtCurrency(t.amount)}</td>
+                    <td><span class="acc-status-badge ${statusCls}">${formatStatus(t.status)}</span></td>
+                </tr>`;
+            });
+            $('#recentTxnBody').html(html);
+        }
+
+        function getAccStatusClass(s) {
+            const m = {
+                'DRAFT': 'acc-status-draft', 'POSTED': 'acc-status-posted', 'APPROVED': 'acc-status-approved',
+                'PENDING': 'acc-status-pending', 'PENDING_APPROVAL': 'acc-status-pending',
+                'CANCELLED': 'acc-status-cancelled', 'PAID': 'acc-status-paid',
+                'PARTIALLY_PAID': 'acc-status-partial', 'OVERDUE': 'acc-status-overdue',
+                'OPEN': 'acc-status-open', 'RECONCILED': 'acc-status-reconciled',
+                'SENT': 'acc-status-posted', 'CONVERTED': 'acc-status-approved'
+            };
+            return m[s] || 'bg-secondary-lt';
+        }
+
+        function formatStatus(s) {
+            return s ? s.replace(/_/g, ' ') : 'N/A';
+        }
+
+        function fmtCurrency(v) {
+            if (v == null) return '₹0';
+            return '₹' + Number(v).toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+        }
+
+        function esc(s) {
+            if (!s) return '';
+            const d = document.createElement('div');
+            d.appendChild(document.createTextNode(s));
+            return d.innerHTML;
+        }
+    </script>
+}

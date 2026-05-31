@@ -1,0 +1,460 @@
+@page
+@model erp.minepress.web.Pages.Store.StockSummary.IndexModel
+@{
+    ViewData["Title"] = "Stock Summary";
+    ViewData["ContainerClass"] = "container-xl";
+}
+
+<!-- ═══ Hero ═══ -->
+<div class="store-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);">
+                <i class="bi bi-bar-chart-line" style="font-size:1.5rem;"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="mb-0">Stock Summary</h2>
+            <div class="text-white-75">Category-wise &amp; item-wise opening, purchase, issue &amp; closing stock report.</div>
+        </div>
+        <div class="col-auto d-flex gap-2">
+            <button class="btn btn-outline-light btn-sm" onclick="printReport()"><i class="bi bi-printer me-1"></i>Print</button>
+            <button class="btn btn-outline-light btn-sm" onclick="shareWhatsApp()"><i class="bi bi-whatsapp me-1"></i>WhatsApp</button>
+            <button class="btn btn-outline-light btn-sm" onclick="shareMail()"><i class="bi bi-envelope me-1"></i>Mail</button>
+            <button class="btn btn-outline-light btn-sm" onclick="loadData()"><i class="bi bi-arrow-clockwise me-1"></i>Refresh</button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ AI Insight Cards ═══ -->
+<div class="row g-3 mb-3">
+    <div class="col-sm-6 col-lg-3">
+        <div class="card ss-insight-card">
+            <div class="card-body py-3">
+                <div class="d-flex align-items-center">
+                    <div class="ss-insight-icon bg-primary-lt"><i class="bi bi-box-seam text-primary"></i></div>
+                    <div class="ms-3">
+                        <div class="text-muted small">Total Items</div>
+                        <div class="h3 mb-0" id="statTotalItems">—</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="card ss-insight-card">
+            <div class="card-body py-3">
+                <div class="d-flex align-items-center">
+                    <div class="ss-insight-icon bg-success-lt"><i class="bi bi-currency-rupee text-success"></i></div>
+                    <div class="ms-3">
+                        <div class="text-muted small">Total Stock Value</div>
+                        <div class="h3 mb-0" id="statTotalValue">—</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="card ss-insight-card">
+            <div class="card-body py-3">
+                <div class="d-flex align-items-center">
+                    <div class="ss-insight-icon bg-warning-lt"><i class="bi bi-exclamation-triangle text-warning"></i></div>
+                    <div class="ms-3">
+                        <div class="text-muted small">Low Stock Alerts</div>
+                        <div class="h3 mb-0" id="statLowStock">—</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="card ss-insight-card">
+            <div class="card-body py-3">
+                <div class="d-flex align-items-center">
+                    <div class="ss-insight-icon bg-info-lt"><i class="bi bi-tags text-info"></i></div>
+                    <div class="ms-3">
+                        <div class="text-muted small">Categories</div>
+                        <div class="h3 mb-0" id="statCategories">—</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Filters ═══ -->
+<div class="card mb-3 d-print-none">
+    <div class="card-body py-2">
+        <div class="row g-2 align-items-center">
+            <div class="col-md-3">
+                <div class="input-icon">
+                    <span class="input-icon-addon"><i class="bi bi-search"></i></span>
+                    <input type="text" id="txtSearch" class="form-control form-control-sm" placeholder="Search item name or code..." />
+                </div>
+            </div>
+            <div class="col-md-2">
+                <select id="ddlGroup" class="form-select form-select-sm">
+                    <option value="">All Groups</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select id="ddlCategory" class="form-select form-select-sm">
+                    <option value="">All Categories</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select id="ddlStockFilter" class="form-select form-select-sm">
+                    <option value="">All Stock</option>
+                    <option value="low">Low Stock Only</option>
+                    <option value="zero">Zero Stock</option>
+                    <option value="positive">In Stock</option>
+                </select>
+            </div>
+            <div class="col-auto ms-auto">
+                <span class="text-muted small" id="filteredInfo"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Category-wise Stock Table ═══ -->
+<div id="stockContainer"></div>
+
+<!-- ═══ Empty State ═══ -->
+<div id="emptyState" class="text-center py-5" style="display:none;">
+    <i class="bi bi-inbox" style="font-size:3rem; opacity:.3;"></i>
+    <div class="text-muted mt-2">No stock items found matching your filters.</div>
+</div>
+
+<!-- ═══ Loading State ═══ -->
+<div id="loadingState" class="text-center py-5">
+    <div class="spinner-border text-primary me-2"></div>
+    <div class="text-muted mt-2">Loading stock summary...</div>
+</div>
+
+<!-- ═══ Drilldown Modal ═══ -->
+<div class="modal fade" id="drilldownModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="drilldownTitle">Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0" id="drilldownBody">
+                <div class="text-center py-4"><div class="spinner-border spinner-border-sm"></div></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Print Header (only visible in print) ═══ -->
+<div class="d-none d-print-block ss-print-header mb-3">
+    <h2 class="mb-1">Stock Summary Report</h2>
+    <div class="text-muted small">Generated on <span id="printDate"></span></div>
+</div>
+
+@section Scripts {
+    <script src="/js/store.js"></script>
+    <script>
+        const API = '/api/store';
+        let allData = [];
+        let drilldownModalInstance = null;
+
+        $(document).ready(function () {
+            loadFilters();
+            loadData();
+            $('#txtSearch, #ddlGroup, #ddlCategory, #ddlStockFilter').on('input change', applyFilters);
+            $('#printDate').text(new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }));
+        });
+
+        async function loadFilters() {
+            try {
+                const f = await $.getJSON(`${API}/stock-summary/filters`);
+                const $grp = $('#ddlGroup'), $cat = $('#ddlCategory');
+                (f.groups || []).forEach(g => $grp.append(`<option value="${esc(g.groupName)}">${esc(g.groupName)}</option>`));
+                (f.categories || []).forEach(c => $cat.append(`<option value="${esc(c.categoryName)}">${esc(c.categoryName)}</option>`));
+            } catch (_) { }
+        }
+
+        async function loadData() {
+            $('#loadingState').show();
+            $('#stockContainer').empty();
+            $('#emptyState').hide();
+            try {
+                allData = await $.getJSON(`${API}/stock-summary`);
+                updateInsightCards(allData);
+                applyFilters();
+            } catch (e) {
+                $('#loadingState').hide();
+                $('#stockContainer').html('<div class="alert alert-danger"><i class="bi bi-exclamation-circle me-1"></i>Failed to load stock summary.</div>');
+            }
+        }
+
+        function updateInsightCards(data) {
+            const totalItems = data.length;
+            const totalValue = data.reduce((s, d) => s + (d.closingValue || 0), 0);
+            const lowStock = data.filter(d => d.isLowStock).length;
+            const categories = [...new Set(data.map(d => d.itemCategory))].length;
+
+            $('#statTotalItems').text(totalItems.toLocaleString('en-IN'));
+            $('#statTotalValue').html('₹' + totalValue.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+            $('#statLowStock').text(lowStock);
+            if (lowStock > 0) $('#statLowStock').addClass('text-warning');
+            else $('#statLowStock').removeClass('text-warning');
+            $('#statCategories').text(categories);
+        }
+
+        function applyFilters() {
+            const q = ($('#txtSearch').val() || '').toLowerCase();
+            const grp = $('#ddlGroup').val();
+            const cat = $('#ddlCategory').val();
+            const stockFilter = $('#ddlStockFilter').val();
+
+            let filtered = allData.filter(d => {
+                if (q && !(d.itemName || '').toLowerCase().includes(q) && !(d.itemCode || '').toLowerCase().includes(q)) return false;
+                if (grp && d.itemGroup !== grp) return false;
+                if (cat && d.itemCategory !== cat) return false;
+                if (stockFilter === 'low' && !d.isLowStock) return false;
+                if (stockFilter === 'zero' && d.closing !== 0) return false;
+                if (stockFilter === 'positive' && d.closing <= 0) return false;
+                return true;
+            });
+
+            $('#filteredInfo').text(filtered.length < allData.length ? `${filtered.length} of ${allData.length} items` : `${allData.length} items`);
+            renderCategoryWise(filtered);
+            $('#loadingState').hide();
+        }
+
+        function renderCategoryWise(data) {
+            if (!data.length) { $('#stockContainer').empty(); $('#emptyState').show(); return; }
+            $('#emptyState').hide();
+
+            // Group by category
+            const cats = {};
+            data.forEach(d => {
+                const key = d.itemCategory || 'Uncategorized';
+                if (!cats[key]) cats[key] = [];
+                cats[key].push(d);
+            });
+
+            let html = '';
+            let catIdx = 0;
+            Object.keys(cats).sort().forEach(catName => {
+                const items = cats[catName];
+                const catTotal = items.reduce((s, d) => s + (d.closingValue || 0), 0);
+                const catLow = items.filter(d => d.isLowStock).length;
+                const collapseId = `cat_${catIdx++}`;
+
+                html += `<div class="card ss-category-card mb-3">`;
+                html += `<div class="card-header ss-category-header py-2" data-bs-toggle="collapse" data-bs-target="#${collapseId}" style="cursor:pointer;">`;
+                html += `<div class="d-flex align-items-center w-100">`;
+                html += `<i class="bi bi-chevron-down ss-collapse-icon me-2"></i>`;
+                html += `<h3 class="card-title mb-0"><i class="bi bi-tag me-2 text-primary"></i>${esc(catName)}</h3>`;
+                html += `<div class="ms-auto d-flex gap-3 align-items-center">`;
+                html += `<span class="badge bg-primary-lt">${items.length} item${items.length !== 1 ? 's' : ''}</span>`;
+                if (catLow > 0) html += `<span class="badge bg-warning-lt"><i class="bi bi-exclamation-triangle me-1"></i>${catLow} low</span>`;
+                html += `<span class="text-muted small fw-semibold">₹${catTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>`;
+                html += `</div></div></div>`;
+
+                html += `<div class="collapse show" id="${collapseId}">`;
+                html += `<div class="table-responsive">`;
+                html += `<table class="table table-vcenter table-sm table-hover mb-0 ss-stock-table">`;
+                html += `<thead><tr>`;
+                html += `<th style="width:36px;">#</th>`;
+                html += `<th style="width:100px;">Code</th>`;
+                html += `<th style="min-width:180px;">Item Name</th>`;
+                html += `<th style="width:70px;">UOM</th>`;
+                html += `<th class="text-center" style="width:90px;">Opening</th>`;
+                html += `<th class="text-center" style="width:100px;">Purchased</th>`;
+                html += `<th class="text-center" style="width:100px;">Issued</th>`;
+                html += `<th class="text-center" style="width:100px;">Closing</th>`;
+                html += `<th class="text-end" style="width:90px;">Rate</th>`;
+                html += `<th class="text-end" style="width:120px;">Value</th>`;
+                html += `<th class="text-center d-print-none" style="width:60px;">Status</th>`;
+                html += `</tr></thead><tbody>`;
+
+                items.forEach((d, idx) => {
+                    const lowClass = d.isLowStock ? ' ss-low-stock-row' : '';
+                    const zeroClass = d.closing <= 0 ? ' ss-zero-stock-row' : '';
+                    html += `<tr class="${lowClass}${zeroClass}">`;
+                    html += `<td class="text-muted">${idx + 1}</td>`;
+                    html += `<td class="text-muted small">${esc(d.itemCode)}</td>`;
+                    html += `<td>${esc(d.itemName)}${d.itemGroup ? `<div class="text-muted small">${esc(d.itemGroup)}</div>` : ''}</td>`;
+                    html += `<td>${esc(d.uom)}</td>`;
+                    html += `<td class="text-center">${fmtQty(d.opening)}</td>`;
+                    html += `<td class="text-center">${d.purchased > 0 ? `<a href="javascript:void(0)" class="ss-drill-link text-success fw-semibold" onclick="drillPurchases(${d.materialId},'${esc(d.itemName)}')">${fmtQty(d.purchased)}</a>` : `<span class="text-muted">0</span>`}</td>`;
+                    html += `<td class="text-center">${d.issued > 0 ? `<a href="javascript:void(0)" class="ss-drill-link text-danger fw-semibold" onclick="drillIssues(${d.materialId},'${esc(d.itemName)}')">${fmtQty(d.issued)}</a>` : `<span class="text-muted">0</span>`}</td>`;
+                    html += `<td class="text-center fw-bold ${d.closing <= 0 ? 'text-danger' : d.isLowStock ? 'text-warning' : 'text-success'}">${fmtQty(d.closing)}</td>`;
+                    html += `<td class="text-end">${fmtCur(d.rate)}</td>`;
+                    html += `<td class="text-end fw-semibold">${fmtCur(d.closingValue)}</td>`;
+                    html += `<td class="text-center d-print-none">`;
+                    if (d.closing <= 0) html += `<span class="badge bg-danger-lt">Out</span>`;
+                    else if (d.isLowStock) html += `<span class="badge bg-warning-lt">Low</span>`;
+                    else html += `<span class="badge bg-success-lt">OK</span>`;
+                    html += `</td></tr>`;
+                });
+
+                // Category subtotal row
+                const catOpening = items.reduce((s, d) => s + d.opening, 0);
+                const catPurchased = items.reduce((s, d) => s + d.purchased, 0);
+                const catIssued = items.reduce((s, d) => s + d.issued, 0);
+                const catClosing = items.reduce((s, d) => s + d.closing, 0);
+                html += `<tr class="ss-subtotal-row">`;
+                html += `<td colspan="4" class="text-end fw-bold">Subtotal</td>`;
+                html += `<td class="text-center fw-bold">${fmtQty(catOpening)}</td>`;
+                html += `<td class="text-center fw-bold text-success">${fmtQty(catPurchased)}</td>`;
+                html += `<td class="text-center fw-bold text-danger">${fmtQty(catIssued)}</td>`;
+                html += `<td class="text-center fw-bold">${fmtQty(catClosing)}</td>`;
+                html += `<td></td>`;
+                html += `<td class="text-end fw-bold">${fmtCur(catTotal)}</td>`;
+                html += `<td class="d-print-none"></td>`;
+                html += `</tr>`;
+
+                html += `</tbody></table></div></div></div>`;
+            });
+
+            // Grand total card
+            const grandOpening = data.reduce((s, d) => s + d.opening, 0);
+            const grandPurchased = data.reduce((s, d) => s + d.purchased, 0);
+            const grandIssued = data.reduce((s, d) => s + d.issued, 0);
+            const grandClosing = data.reduce((s, d) => s + d.closing, 0);
+            const grandValue = data.reduce((s, d) => s + (d.closingValue || 0), 0);
+
+            html += `<div class="card ss-grand-total-card">`;
+            html += `<div class="card-body py-2">`;
+            html += `<div class="row align-items-center text-center">`;
+            html += `<div class="col"><div class="text-muted small">Opening</div><div class="h4 mb-0">${fmtQty(grandOpening)}</div></div>`;
+            html += `<div class="col"><div class="text-muted small">Purchased</div><div class="h4 mb-0 text-success">${fmtQty(grandPurchased)}</div></div>`;
+            html += `<div class="col"><div class="text-muted small">Issued</div><div class="h4 mb-0 text-danger">${fmtQty(grandIssued)}</div></div>`;
+            html += `<div class="col"><div class="text-muted small">Closing</div><div class="h4 mb-0">${fmtQty(grandClosing)}</div></div>`;
+            html += `<div class="col"><div class="text-muted small">Total Value</div><div class="h4 mb-0 text-primary">₹${grandValue.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div></div>`;
+            html += `</div></div></div>`;
+
+            $('#stockContainer').html(html);
+        }
+
+        // ── Drilldown ──
+
+        function getDrilldownModal() {
+            if (!drilldownModalInstance) {
+                const ModalClass = (typeof minepress !== 'undefined' && minepress.Modal) || (typeof bootstrap !== 'undefined' && bootstrap.Modal);
+                drilldownModalInstance = new ModalClass(document.getElementById('drilldownModal'));
+            }
+            return drilldownModalInstance;
+        }
+
+        async function drillPurchases(materialId, itemName) {
+            $('#drilldownTitle').html(`<i class="bi bi-box-arrow-in-down me-2 text-success"></i>Purchases — ${esc(itemName)}`);
+            $('#drilldownBody').html('<div class="text-center py-4"><div class="spinner-border spinner-border-sm"></div></div>');
+            getDrilldownModal().show();
+            try {
+                const items = await $.getJSON(`${API}/stock-summary/purchases/${materialId}`);
+                if (!items.length) { $('#drilldownBody').html('<div class="text-muted text-center py-4"><i class="bi bi-inbox me-1"></i>No purchase records found.</div>'); return; }
+                let html = '<table class="table table-sm table-vcenter table-hover mb-0"><thead><tr>';
+                html += '<th>Receive No</th><th>Date</th><th>Supplier</th><th>Status</th><th class="text-center">Qty</th><th>UOM</th><th class="text-end">Rate</th><th class="text-end">Amount</th>';
+                html += '</tr></thead><tbody>';
+                let totalQty = 0, totalAmt = 0;
+                items.forEach(i => {
+                    totalQty += i.quantity; totalAmt += i.amount;
+                    const sBadge = i.status === 'RECEIVED' ? 'bg-green-lt' : i.status === 'DRAFT' ? 'bg-yellow-lt' : 'bg-secondary-lt';
+                    html += `<tr>`;
+                    html += `<td class="fw-semibold">${esc(i.receiveNo)}</td>`;
+                    html += `<td>${esc(i.receiveDate)}</td>`;
+                    html += `<td>${esc(i.supplierName)}</td>`;
+                    html += `<td><span class="badge ${sBadge}">${esc(i.status)}</span></td>`;
+                    html += `<td class="text-center">${fmtQty(i.quantity)}</td>`;
+                    html += `<td>${esc(i.uom)}</td>`;
+                    html += `<td class="text-end">${fmtCur(i.rate)}</td>`;
+                    html += `<td class="text-end">${fmtCur(i.amount)}</td>`;
+                    html += `</tr>`;
+                });
+                html += `<tr class="fw-bold"><td colspan="4" class="text-end">Total</td><td class="text-center">${fmtQty(totalQty)}</td><td></td><td></td><td class="text-end">${fmtCur(totalAmt)}</td></tr>`;
+                html += '</tbody></table>';
+                $('#drilldownBody').html(html);
+            } catch (e) {
+                $('#drilldownBody').html('<div class="text-danger text-center py-4"><i class="bi bi-exclamation-circle me-1"></i>Failed to load purchase details.</div>');
+            }
+        }
+
+        async function drillIssues(materialId, itemName) {
+            $('#drilldownTitle').html(`<i class="bi bi-box-arrow-up me-2 text-danger"></i>Issues — ${esc(itemName)}`);
+            $('#drilldownBody').html('<div class="text-center py-4"><div class="spinner-border spinner-border-sm"></div></div>');
+            getDrilldownModal().show();
+            try {
+                const items = await $.getJSON(`${API}/stock-summary/issues/${materialId}`);
+                if (!items.length) { $('#drilldownBody').html('<div class="text-muted text-center py-4"><i class="bi bi-inbox me-1"></i>No issue records found.</div>'); return; }
+                let html = '<table class="table table-sm table-vcenter table-hover mb-0"><thead><tr>';
+                html += '<th>Issue No</th><th>Date</th><th>Job</th><th>Status</th><th class="text-center">Qty</th><th>UOM</th><th class="text-end">Rate</th><th class="text-end">Amount</th>';
+                html += '</tr></thead><tbody>';
+                let totalQty = 0, totalAmt = 0;
+                items.forEach(i => {
+                    totalQty += i.quantity; totalAmt += i.amount;
+                    const sBadge = i.status === 'ISSUED' ? 'bg-orange-lt' : i.status === 'DRAFT' ? 'bg-yellow-lt' : 'bg-secondary-lt';
+                    html += `<tr>`;
+                    html += `<td class="fw-semibold">${esc(i.issueNo)}</td>`;
+                    html += `<td>${esc(i.issueDate)}</td>`;
+                    html += `<td>${esc(i.jobNo)}</td>`;
+                    html += `<td><span class="badge ${sBadge}">${esc(i.status)}</span></td>`;
+                    html += `<td class="text-center">${fmtQty(i.quantity)}</td>`;
+                    html += `<td>${esc(i.uom)}</td>`;
+                    html += `<td class="text-end">${fmtCur(i.rate)}</td>`;
+                    html += `<td class="text-end">${fmtCur(i.amount)}</td>`;
+                    html += `</tr>`;
+                });
+                html += `<tr class="fw-bold"><td colspan="4" class="text-end">Total</td><td class="text-center">${fmtQty(totalQty)}</td><td></td><td></td><td class="text-end">${fmtCur(totalAmt)}</td></tr>`;
+                html += '</tbody></table>';
+                $('#drilldownBody').html(html);
+            } catch (e) {
+                $('#drilldownBody').html('<div class="text-danger text-center py-4"><i class="bi bi-exclamation-circle me-1"></i>Failed to load issue details.</div>');
+            }
+        }
+
+        // ── Share / Print ──
+
+        function buildReportText() {
+            const totalItems = allData.length;
+            const totalValue = allData.reduce((s, d) => s + (d.closingValue || 0), 0);
+            const lowStock = allData.filter(d => d.isLowStock).length;
+            const cats = [...new Set(allData.map(d => d.itemCategory))];
+            let text = `📊 STOCK SUMMARY REPORT\n`;
+            text += `Generated: ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}\n\n`;
+            text += `Total Items: ${totalItems}\n`;
+            text += `Total Stock Value: ₹${totalValue.toLocaleString('en-IN', { minimumFractionDigits: 2 })}\n`;
+            text += `Low Stock Alerts: ${lowStock}\n`;
+            text += `Categories: ${cats.length}\n\n`;
+            cats.sort().forEach(cat => {
+                const items = allData.filter(d => d.itemCategory === cat);
+                text += `── ${cat} (${items.length} items) ──\n`;
+                items.forEach(d => {
+                    text += `  ${d.itemCode} | ${d.itemName} | Open: ${d.opening} | Purch: ${d.purchased} | Issue: ${d.issued} | Close: ${d.closing}\n`;
+                });
+                text += `\n`;
+            });
+            return text;
+        }
+
+        function shareWhatsApp() {
+            const text = buildReportText();
+            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+        }
+
+        function shareMail() {
+            const subject = `Stock Summary Report — ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}`;
+            const body = buildReportText();
+            window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        }
+
+        function printReport() {
+            window.print();
+        }
+
+        // ── Helpers ──
+
+        function fmtQty(v) {
+            const n = parseFloat(v) || 0;
+            return n % 1 === 0 ? n.toLocaleString('en-IN') : n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 4 });
+        }
+        function fmtCur(v) { return (parseFloat(v) || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+        function esc(v) { return (v || '').toString().replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;'); }
+    </script>
+}

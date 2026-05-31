@@ -1,0 +1,61 @@
+@page
+@model erp.minepress.web.Pages.Accounting.BankReconciliation.IndexModel
+@{
+    ViewData["Title"] = "Bank Reconciliation";
+}
+
+<div class="acc-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto"><span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);"><i class="bi bi-bank" style="font-size:1.5rem;"></i></span></div>
+        <div class="col"><h2 class="mb-0">Bank Reconciliation</h2><div class="text-white-75">Match bank statements with book records</div></div>
+        <div class="col-auto d-flex gap-2">
+            <a href="/Accounting" class="btn btn-outline-light btn-sm"><i class="bi bi-arrow-left me-1"></i>Back</a>
+            <button class="btn btn-outline-light btn-sm" onclick="loadList()"><i class="bi bi-arrow-clockwise me-1"></i>Refresh</button>
+        </div>
+    </div>
+</div>
+
+<div class="acc-sub-nav d-print-none mb-3">
+    <a href="/Accounting/JournalVoucher" class="acc-sub-nav-item"><i class="bi bi-journal-text me-1"></i>Journals</a>
+    <a href="/Accounting/ExpenseVoucher" class="acc-sub-nav-item"><i class="bi bi-cash-coin me-1"></i>Expenses</a>
+    <a href="/Accounting/BankReconciliation" class="acc-sub-nav-item active"><i class="bi bi-bank me-1"></i>Reconciliation</a>
+</div>
+
+<div class="card mb-3"><div class="card-body py-2"><div class="row g-2 align-items-center">
+    <div class="col-md-4"><div class="input-icon"><span class="input-icon-addon"><i class="bi bi-search"></i></span><input type="text" id="txtSearch" class="form-control form-control-sm" placeholder="Search reconciliation no..." /></div></div>
+    <div class="col-md-2"><select id="ddlStatus" class="form-select form-select-sm"><option value="">All</option><option value="IN_PROGRESS">In Progress</option><option value="COMPLETED">Completed</option><option value="DRAFT">Draft</option></select></div>
+</div></div></div>
+
+<div class="card"><div class="table-responsive"><table class="table table-vcenter card-table table-hover acc-list-table">
+    <thead><tr><th>Recon No</th><th>Statement Date</th><th class="text-end">Statement Bal</th><th class="text-end">Book Bal</th><th class="text-end">Reconciled</th><th class="text-end">Difference</th><th>Progress</th><th>Status</th></tr></thead>
+    <tbody id="listBody"><tr><td colspan="8" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2"></div>Loading...</td></tr></tbody>
+</table></div></div>
+
+@section Scripts {
+    <script>
+        let allData = [];
+        $(document).ready(function () { loadList(); $('#txtSearch, #ddlStatus').on('input change', applyFilters); });
+        function loadList() {
+            $.get('/api/accounting/bank-reconciliations', function (data) { allData = data; applyFilters(); })
+            .fail(function () { $('#listBody').html('<tr><td colspan="8" class="text-center text-danger py-3">Failed to load.</td></tr>'); });
+        }
+        function applyFilters() {
+            const q = ($('#txtSearch').val() || '').toLowerCase(), st = $('#ddlStatus').val();
+            let f = allData.filter(i => { if (q && !(i.reconciliationNo || '').toLowerCase().includes(q)) return false; if (st && i.status !== st) return false; return true; });
+            let html = '';
+            if (!f.length) html = '<tr><td colspan="8" class="text-center text-muted py-4">No reconciliations found</td></tr>';
+            f.forEach(i => {
+                const sc = { 'DRAFT': 'acc-status-draft', 'IN_PROGRESS': 'acc-status-pending', 'COMPLETED': 'acc-status-reconciled' }[i.status] || 'bg-secondary-lt';
+                const total = i.totalItems || 1;
+                const recon = i.reconciledItems || 0;
+                const pct = Math.round((recon / total) * 100);
+                const diffClass = (i.differenceAmount || 0) === 0 ? 'text-success' : 'text-danger';
+                const progress = `<div class="d-flex align-items-center gap-2"><div class="progress flex-fill" style="height:6px;"><div class="progress-bar bg-primary" style="width:${pct}%"></div></div><span class="small text-muted">${recon}/${total}</span></div>`;
+                html += `<tr><td class="fw-semibold">${esc(i.reconciliationNo)}</td><td class="text-muted small">${esc(i.statementDate)}</td><td class="text-end">${fmt(i.statementBalance)}</td><td class="text-end">${fmt(i.bookBalance)}</td><td class="text-end">${fmt(i.reconciledBalance)}</td><td class="text-end fw-semibold ${diffClass}">${fmt(i.differenceAmount)}</td><td style="min-width:150px;">${progress}</td><td><span class="acc-status-badge ${sc}">${(i.status || '').replace(/_/g, ' ')}</span></td></tr>`;
+            });
+            $('#listBody').html(html);
+        }
+        function fmt(v) { return v != null ? '₹' + Number(v).toLocaleString('en-IN', { minimumFractionDigits: 2 }) : '₹0.00'; }
+        function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.appendChild(document.createTextNode(s)); return d.innerHTML; }
+    </script>
+}

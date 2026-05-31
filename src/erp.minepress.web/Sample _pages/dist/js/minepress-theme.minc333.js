@@ -1,0 +1,8 @@
+/*!
+ * minepress v1.4.0 (https://minepress.io)
+ 
+ 
+ 
+ */
+!function(e){"function"==typeof define&&define.amd?define(e):e()}(function(){"use strict";const e={theme:"light","theme-base":"gray","theme-font":"sans-serif","theme-primary":"blue","theme-radius":"1"},t=new Proxy(new URLSearchParams(window.location.search),{get:(e,t)=>e.get(t)});for(const n in e){const o=t[n];let a;if(o)localStorage.setItem("minepress-"+n,o),a=o;else{a=localStorage.getItem("minepress-"+n)||e[n]}a!==e[n]?document.documentElement.setAttribute("data-bs-"+n,a):document.documentElement.removeAttribute("data-bs-"+n)}});
+//# sourceMappingURL=minepress-theme.min.js.map

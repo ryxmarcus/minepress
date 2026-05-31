@@ -1,0 +1,354 @@
+@page
+@model erp.minepress.web.Pages.Maintenance.Party.IndexModel
+@{
+    ViewData["Title"] = "Party Management";
+    ViewData["ContainerClass"] = "container-xl";
+    ViewData["HidePageHeader"] = true;
+}
+
+<!-- ── Page Header ── -->
+<div class="page-header d-print-none mb-3">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-md bg-purple-lt text-purple">
+                <i class="bi bi-people-fill fs-4"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="page-title mb-0">Party Management</h2>
+            <div class="text-secondary mt-1">Manage customers, suppliers &amp; vendors in one place</div>
+        </div>
+        <div class="col-auto">
+            <a href="/Maintenance/Party/Create" class="btn btn-primary btn-sm">
+                <i class="bi bi-plus-lg me-1"></i>New Party
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- ── KPI Cards ── -->
+<div class="row g-3 mb-3" id="kpiRow">
+    <div class="col-6 col-md-3">
+        <div class="card pm-kpi" onclick="filterByRole('')">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="kpi-icon bg-primary-lt text-primary"><i class="bi bi-people"></i></div>
+                <div>
+                    <div class="kpi-value" id="kpiTotal">—</div>
+                    <div class="kpi-label">Total Parties</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card pm-kpi" onclick="filterByRole('Customer')">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="kpi-icon bg-blue-lt text-blue"><i class="bi bi-person"></i></div>
+                <div>
+                    <div class="kpi-value" id="kpiCustomers">—</div>
+                    <div class="kpi-label">Customers</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card pm-kpi" onclick="filterByRole('Supplier')">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="kpi-icon bg-green-lt text-green"><i class="bi bi-truck"></i></div>
+                <div>
+                    <div class="kpi-value" id="kpiSuppliers">—</div>
+                    <div class="kpi-label">Suppliers</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card pm-kpi" onclick="filterByRole('Vendor')">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="kpi-icon bg-orange-lt text-orange"><i class="bi bi-building"></i></div>
+                <div>
+                    <div class="kpi-value" id="kpiVendors">—</div>
+                    <div class="kpi-label">Vendors</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Party List Card ── -->
+<div class="card pm-table-card">
+    <div class="card-header">
+        <div class="pm-filter-bar">
+            <input type="text" id="txtSearch" class="form-control form-control-sm pm-search-input"
+                   placeholder="Search by name, code, email, GST…" oninput="debounceLoad()" />
+            <select id="ddlRoleFilter" class="form-select form-select-sm" onchange="loadParties()">
+                <option value="">All Roles</option>
+                <option value="Customer">Customer</option>
+                <option value="Supplier">Supplier</option>
+                <option value="Vendor">Vendor</option>
+            </select>
+            <select id="ddlStatusFilter" class="form-select form-select-sm" onchange="loadParties()">
+                <option value="">All Status</option>
+                <option value="true">Active</option>
+                <option value="false">Inactive</option>
+            </select>
+            <button class="btn btn-ghost-secondary btn-sm" onclick="resetFilters()" title="Reset Filters">
+                <i class="bi bi-arrow-counterclockwise"></i>
+            </button>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table pm-table">
+            <thead>
+                <tr>
+                    <th style="width:35%">Party</th>
+                    <th>Roles</th>
+                    <th>Contact</th>
+                    <th>GST No</th>
+                    <th>Status</th>
+                    <th style="width:100px" class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="partyTableBody">
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <div class="mt-2 small">Loading parties…</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="pm-pagination" id="paginationBar">
+        <span class="pm-page-info" id="pageInfo">—</span>
+        <div class="btn-group btn-group-sm">
+            <button class="btn btn-ghost-secondary" id="btnPrev" onclick="changePage(-1)" disabled><i class="bi bi-chevron-left"></i></button>
+            <button class="btn btn-ghost-secondary" id="btnNext" onclick="changePage(1)" disabled><i class="bi bi-chevron-right"></i></button>
+        </div>
+    </div>
+</div>
+
+<!-- ── Quick-View Drawer ── -->
+<div class="pm-drawer-backdrop" id="drawerBackdrop" onclick="closeDrawer()"></div>
+<div class="pm-drawer" id="partyDrawer">
+    <div class="pm-drawer-header">
+        <h5 id="drawerTitle">Party Details</h5>
+        <button class="pm-drawer-close" onclick="closeDrawer()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="pm-drawer-body" id="drawerBody">
+        <div class="text-center text-muted py-4"><div class="spinner-border"></div></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const PARTY_API = '/api/party';
+        let currentPage = 1;
+        const pageSize = 20;
+        let debounceTimer = null;
+
+        $(document).ready(function () {
+            loadKpis();
+            loadParties();
+        });
+
+        function debounceLoad() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => { currentPage = 1; loadParties(); }, 300);
+        }
+
+        function loadKpis() {
+            $.get(`${PARTY_API}/kpis`, function (d) {
+                $('#kpiTotal').text(d.total ?? 0);
+                $('#kpiCustomers').text(d.customers ?? 0);
+                $('#kpiSuppliers').text(d.suppliers ?? 0);
+                $('#kpiVendors').text(d.vendors ?? 0);
+            });
+        }
+
+        function loadParties() {
+            const q = $('#txtSearch').val() || '';
+            const role = $('#ddlRoleFilter').val() || '';
+            const status = $('#ddlStatusFilter').val() || '';
+            const params = new URLSearchParams({ q, role, status, page: currentPage, size: pageSize });
+
+            $.get(`${PARTY_API}/list?${params}`, function (data) {
+                renderTable(data.items);
+                renderPagination(data);
+            }).fail(function () {
+                $('#partyTableBody').html('<tr><td colspan="6" class="text-center text-danger py-3">Failed to load parties.</td></tr>');
+            });
+        }
+
+        function renderTable(items) {
+            if (!items || items.length === 0) {
+                $('#partyTableBody').html(`<tr><td colspan="6" class="pm-empty-state">
+                    <i class="bi bi-inbox"></i><div>No parties found</div></td></tr>`);
+                return;
+            }
+            let html = '';
+            items.forEach(p => {
+                const roles = (p.roles || []).map(r => {
+                    const cls = r.toLowerCase();
+                    return `<span class="pm-role-pill ${cls}">${esc(r)}</span>`;
+                }).join('');
+                const statusCls = p.isActive ? 'active' : 'inactive';
+                const statusTxt = p.isActive ? 'Active' : 'Inactive';
+                html += `<tr>
+                    <td>
+                        <div class="pm-party-name">${esc(p.name)}</div>
+                        <div class="pm-party-code">${esc(p.code || '—')}</div>
+                    </td>
+                    <td>${roles || '<span class="text-muted">—</span>'}</td>
+                    <td>
+                        <div class="small">${p.email ? '<i class="bi bi-envelope me-1 text-muted"></i>' + esc(p.email) : ''}</div>
+                        <div class="small">${p.mobile ? '<i class="bi bi-telephone me-1 text-muted"></i>' + esc(String(p.mobile)) : ''}</div>
+                    </td>
+                    <td><span class="small font-monospace">${esc(p.gstNo || '—')}</span></td>
+                    <td><span class="pm-status ${statusCls}"><span class="pm-status-dot"></span>${statusTxt}</span></td>
+                    <td class="text-center">
+                        <button class="pm-action-btn me-1" onclick="openDrawer(${p.id})" title="Quick View"><i class="bi bi-eye"></i></button>
+                        <a class="pm-action-btn me-1" href="/Maintenance/Party/Create?id=${p.id}" title="Edit"><i class="bi bi-pencil"></i></a>
+                        <button class="pm-action-btn danger" onclick="toggleStatus(${p.id}, ${p.isActive})" title="${p.isActive ? 'Deactivate' : 'Activate'}">
+                            <i class="bi bi-${p.isActive ? 'x-circle' : 'check-circle'}"></i>
+                        </button>
+                    </td>
+                </tr>`;
+            });
+            $('#partyTableBody').html(html);
+        }
+
+        function renderPagination(data) {
+            const start = (data.page - 1) * data.size + 1;
+            const end = Math.min(data.page * data.size, data.total);
+            $('#pageInfo').text(data.total > 0 ? `${start}–${end} of ${data.total}` : 'No records');
+            $('#btnPrev').prop('disabled', data.page <= 1);
+            $('#btnNext').prop('disabled', data.page >= data.totalPages);
+        }
+
+        function changePage(dir) {
+            currentPage += dir;
+            loadParties();
+        }
+
+        function filterByRole(role) {
+            $('#ddlRoleFilter').val(role);
+            currentPage = 1;
+            loadParties();
+        }
+
+        function resetFilters() {
+            $('#txtSearch').val('');
+            $('#ddlRoleFilter').val('');
+            $('#ddlStatusFilter').val('');
+            currentPage = 1;
+            loadParties();
+        }
+
+        // ── Quick-View Drawer ──
+        function openDrawer(id) {
+            $('#drawerBackdrop').addClass('show');
+            $('#partyDrawer').addClass('show');
+            $('#drawerBody').html('<div class="text-center text-muted py-4"><div class="spinner-border"></div></div>');
+            $.get(`${PARTY_API}/detail/${id}`, function (d) {
+                $('#drawerTitle').text(d.name || 'Party Details');
+                let html = '';
+                // Basic Info
+                html += `<div class="pm-drawer-section">
+                    <div class="pm-drawer-section-title"><i class="bi bi-info-circle"></i> Basic Information</div>
+                    <div class="pm-drawer-row"><span class="label">Code</span><span class="value">${esc(d.code || '—')}</span></div>
+                    <div class="pm-drawer-row"><span class="label">Email</span><span class="value">${esc(d.email || '—')}</span></div>
+                    <div class="pm-drawer-row"><span class="label">Mobile</span><span class="value">${d.mobile || '—'}</span></div>
+                    <div class="pm-drawer-row"><span class="label">GST No</span><span class="value font-monospace">${esc(d.gstNo || '—')}</span></div>
+                    <div class="pm-drawer-row"><span class="label">PAN No</span><span class="value font-monospace">${esc(d.panNo || '—')}</span></div>
+                    <div class="pm-drawer-row"><span class="label">Status</span><span class="value">${d.isActive ? '<span class="pm-status active"><span class="pm-status-dot"></span>Active</span>' : '<span class="pm-status inactive"><span class="pm-status-dot"></span>Inactive</span>'}</span></div>
+                </div>`;
+                // Roles
+                if (d.roles && d.roles.length) {
+                    html += `<div class="pm-drawer-section">
+                        <div class="pm-drawer-section-title"><i class="bi bi-tags"></i> Roles</div>
+                        <div>${d.roles.map(r => `<span class="pm-role-pill ${r.toLowerCase()}">${esc(r)}</span>`).join(' ')}</div>
+                    </div>`;
+                }
+                // Contacts
+                if (d.contacts && d.contacts.length) {
+                    html += `<div class="pm-drawer-section">
+                        <div class="pm-drawer-section-title"><i class="bi bi-person-lines-fill"></i> Contacts (${d.contacts.length})</div>`;
+                    d.contacts.forEach(c => {
+                        html += `<div class="mb-2 p-2 rounded" style="background:var(--tblr-bg-surface-secondary)">
+                            <div class="fw-semibold small">${esc(c.contactName || '—')} <span class="text-muted fw-normal">· ${esc(c.designation || '')}</span></div>
+                            <div class="small text-muted">${c.email ? '<i class="bi bi-envelope me-1"></i>' + esc(c.email) : ''} ${c.mobile ? '<i class="bi bi-telephone ms-2 me-1"></i>' + c.mobile : ''}</div>
+                        </div>`;
+                    });
+                    html += '</div>';
+                }
+                // Addresses
+                if (d.addresses && d.addresses.length) {
+                    html += `<div class="pm-drawer-section">
+                        <div class="pm-drawer-section-title"><i class="bi bi-geo-alt"></i> Addresses (${d.addresses.length})</div>`;
+                    d.addresses.forEach(a => {
+                        html += `<div class="mb-2 p-2 rounded" style="background:var(--tblr-bg-surface-secondary)">
+                            <div class="fw-semibold small">${esc(a.addressType)} ${a.isDefault ? '<span class="badge bg-primary-lt">Default</span>' : ''}</div>
+                            <div class="small text-muted">${esc(a.addressLine1 || '')} ${esc(a.addressLine2 || '')}</div>
+                            <div class="small text-muted">${esc(a.cityName || '')} ${esc(a.stateName || '')} ${esc(a.postalCode || '')}</div>
+                        </div>`;
+                    });
+                    html += '</div>';
+                }
+                // Banks
+                if (d.banks && d.banks.length) {
+                    html += `<div class="pm-drawer-section">
+                        <div class="pm-drawer-section-title"><i class="bi bi-bank"></i> Bank Accounts (${d.banks.length})</div>`;
+                    d.banks.forEach(b => {
+                        html += `<div class="mb-2 p-2 rounded" style="background:var(--tblr-bg-surface-secondary)">
+                            <div class="fw-semibold small">${esc(b.bankName || '—')} — ${esc(b.branchName || '')}</div>
+                            <div class="small text-muted font-monospace">A/c: ${esc(b.accountNo || '—')} · IFSC: ${esc(b.ifscCode || '—')}</div>
+                        </div>`;
+                    });
+                    html += '</div>';
+                }
+                // Actions
+                html += `<div class="mt-3 d-flex gap-2">
+                    <a href="/Maintenance/Party/Create?id=${d.id}" class="btn btn-primary btn-sm w-100"><i class="bi bi-pencil me-1"></i>Edit Party</a>
+                    <button class="btn btn-outline-secondary btn-sm w-100" onclick="closeDrawer()">Close</button>
+                </div>`;
+                $('#drawerBody').html(html);
+            }).fail(function () {
+                $('#drawerBody').html('<div class="text-center text-danger py-3">Failed to load details.</div>');
+            });
+        }
+
+        function closeDrawer() {
+            $('#drawerBackdrop').removeClass('show');
+            $('#partyDrawer').removeClass('show');
+        }
+
+        function toggleStatus(id, currentActive) {
+            const action = currentActive ? 'deactivate' : 'activate';
+            Swal.fire({
+                title: `${currentActive ? 'Deactivate' : 'Activate'} Party?`,
+                text: `Are you sure you want to ${action} this party?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: `Yes, ${action}`,
+                cancelButtonText: 'Cancel'
+            }).then(res => {
+                if (res.isConfirmed) {
+                    $.ajax({
+                        url: `${PARTY_API}/toggle-status/${id}`,
+                        method: 'POST',
+                        success: function () {
+                            Swal.fire({ icon: 'success', title: 'Done', text: `Party ${action}d successfully.`, timer: 1500, showConfirmButton: false });
+                            loadParties();
+                            loadKpis();
+                        },
+                        error: function () {
+                            Swal.fire({ icon: 'error', title: 'Error', text: `Failed to ${action} party.` });
+                        }
+                    });
+                }
+            });
+        }
+
+        function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.appendChild(document.createTextNode(s)); return d.innerHTML; }
+    </script>
+}

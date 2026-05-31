@@ -1,0 +1,146 @@
+/* ===== MinePress Customer Activity Dashboard — Shared Styles ===== */
+
+/* ── Profile Card ── */
+.ca-profile-card {
+    background: linear-gradient(135deg, var(--tblr-primary) 0%, var(--tblr-azure) 100%);
+    color: #fff;
+    border: 0;
+    border-radius: .75rem;
+    overflow: hidden;
+}
+.ca-profile-card .card-body { position: relative; z-index: 1; }
+.ca-profile-card .text-muted { color: rgba(255,255,255,.65) !important; }
+.ca-profile-card h3 { color: #fff; }
+.ca-profile-card .ca-avatar-gradient {
+    background: rgba(255,255,255,.2) !important;
+    color: #fff !important;
+    border: 2px solid rgba(255,255,255,.3);
+}
+
+/* ── AI Badges ── */
+.ca-ai-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: .25rem .75rem;
+    border-radius: 2rem;
+    background: linear-gradient(135deg, rgba(255,193,7,.15), rgba(255,152,0,.15));
+    color: #f59f00;
+    font-size: .75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    border: 1px solid rgba(255,193,7,.25);
+}
+.ca-ai-badge-sm {
+    display: inline-flex;
+    align-items: center;
+    padding: .15rem .5rem;
+    border-radius: 2rem;
+    background: linear-gradient(135deg, rgba(255,193,7,.1), rgba(255,152,0,.1));
+    color: #f59f00;
+    font-size: .7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .02em;
+}
+
+/* ── KPI Cards ── */
+.ca-kpi-card {
+    border-radius: .5rem;
+    transition: transform .15s ease, box-shadow .15s ease;
+    background: var(--tblr-bg-surface);
+}
+.ca-kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,.08);
+}
+.ca-kpi-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: .375rem;
+    font-size: .85rem;
+}
+
+/* ── Finance Card ── */
+.ca-finance-card {
+    border-radius: .5rem;
+    border-left: 3px solid var(--tblr-success);
+}
+
+/* ── Activity Cards ── */
+.ca-activity-card {
+    border-radius: .5rem;
+    overflow: hidden;
+    transition: box-shadow .15s ease;
+}
+.ca-activity-card:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,.06);
+}
+.ca-activity-card .card-header {
+    padding: .5rem .75rem;
+    background: var(--tblr-bg-surface);
+}
+.ca-compact-table th {
+    font-size: .7rem;
+    padding: .35rem .5rem !important;
+    letter-spacing: .03em;
+}
+.ca-compact-table td {
+    font-size: .8rem;
+    padding: .35rem .5rem !important;
+}
+.ca-compact-table .badge {
+    font-size: .65rem;
+    padding: .15rem .4rem;
+}
+.ca-highlight-row {
+    background: var(--tblr-primary-bg-subtle) !important;
+    border-left: 3px solid var(--tblr-primary);
+}
+
+/* ── AI Insights Card ── */
+.ca-ai-insights-card {
+    border-radius: .5rem;
+    border-top: 3px solid var(--tblr-warning);
+    background: linear-gradient(180deg, rgba(255,193,7,.03) 0%, transparent 40%);
+}
+.ca-insight-item {
+    display: flex;
+    align-items: flex-start;
+    gap: .5rem;
+    padding: .5rem .75rem;
+    border-radius: .375rem;
+    background: var(--tblr-bg-surface);
+    border: 1px solid var(--tblr-border-color);
+}
+.ca-insight-icon {
+    flex-shrink: 0;
+    width: 22px;
+    text-align: center;
+    font-size: .9rem;
+    margin-top: 1px;
+}
+
+/* ── Dark mode adjustments ── */
+[data-bs-theme="dark"] .ca-profile-card {
+    background: linear-gradient(135deg, #1a3a5c 0%, #1a3a4c 100%);
+}
+[data-bs-theme="dark"] .ca-kpi-card,
+[data-bs-theme="dark"] .ca-activity-card,
+[data-bs-theme="dark"] .ca-insight-item {
+    background: var(--tblr-bg-surface);
+}
+[data-bs-theme="dark"] .ca-ai-badge,
+[data-bs-theme="dark"] .ca-ai-badge-sm {
+    background: linear-gradient(135deg, rgba(255,193,7,.08), rgba(255,152,0,.08));
+    border-color: rgba(255,193,7,.15);
+}
+
+/* ── Print ── */
+@media print {
+    .ca-profile-card { background: #f8f9fa !important; color: #000 !important; }
+    .ca-kpi-card:hover { transform: none; box-shadow: none; }
+}

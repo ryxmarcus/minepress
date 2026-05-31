@@ -1,0 +1,443 @@
+@page
+@model erp.minepress.web.Pages.Outsource.IndexModel
+@{
+    ViewData["Title"] = "Outsource Orders";
+}
+
+<!-- Hero Header -->
+<div class="os-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);">
+                <i class="bi bi-box-arrow-up-right" style="font-size:1.5rem;"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="mb-0">Job Outsourcing</h2>
+            <div class="text-white-75">Manage outsource orders, track vendor progress & material movement.</div>
+        </div>
+        <div class="col-auto d-flex gap-2">
+            <button class="btn btn-outline-light btn-sm" onclick="loadList()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+            </button>
+            <a href="/Outsource/Create" class="btn btn-light">
+                <i class="bi bi-plus-lg me-1"></i>New Outsource
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Row -->
+<div class="row g-3 mb-3" id="osStats">
+    <div class="col-6 col-md-2">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-purple-lt me-3"><i class="bi bi-box-arrow-up-right"></i></span>
+                    <div>
+                        <div class="fw-bold fs-3" id="statTotal">0</div>
+                        <div class="text-secondary small">Total</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-warning-lt me-3"><i class="bi bi-plus-circle"></i></span>
+                    <div>
+                        <div class="fw-bold fs-3" id="statCreated">0</div>
+                        <div class="text-secondary small">Created</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-azure-lt me-3"><i class="bi bi-send"></i></span>
+                    <div>
+                        <div class="fw-bold fs-3" id="statSent">0</div>
+                        <div class="text-secondary small">Sent</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-cyan-lt me-3"><i class="bi bi-gear-wide-connected"></i></span>
+                    <div>
+                        <div class="fw-bold fs-3" id="statInProcess">0</div>
+                        <div class="text-secondary small">In Process</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-success-lt me-3"><i class="bi bi-box-arrow-in-down"></i></span>
+                    <div>
+                        <div class="fw-bold fs-3" id="statReceived">0</div>
+                        <div class="text-secondary small">Received</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-secondary-lt me-3"><i class="bi bi-lock"></i></span>
+                    <div>
+                        <div class="fw-bold fs-3" id="statClosed">0</div>
+                        <div class="text-secondary small">Closed</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters & Search -->
+<div class="card mb-3 d-print-none">
+    <div class="card-body py-2">
+        <div class="row g-2 align-items-center">
+            <div class="col-md-3">
+                <div class="input-icon">
+                    <span class="input-icon-addon"><i class="bi bi-search"></i></span>
+                    <input type="text" id="osSearch" class="form-control form-control-sm" placeholder="Search outsource no, job, vendor…" />
+                </div>
+            </div>
+            <div class="col-md-2">
+                <select id="osStatusFilter" class="form-select form-select-sm">
+                    <option value="">All Statuses</option>
+                    <option value="OUTSOURCE_CREATED">Created</option>
+                    <option value="VENDOR_ASSIGNED">Vendor Assigned</option>
+                    <option value="MATERIAL_SENT">Material Sent</option>
+                    <option value="PROCESS_STARTED">Process Started</option>
+                    <option value="PROCESS_COMPLETED">Process Completed</option>
+                    <option value="QUALITY_CHECKED">Quality Checked</option>
+                    <option value="MATERIAL_RECEIVED">Received</option>
+                    <option value="REWORK_REQUIRED">Rework Required</option>
+                    <option value="PAYMENT_INITIATED">Payment Initiated</option>
+                    <option value="PAYMENT_COMPLETED">Payment Completed</option>
+                    <option value="OUTSOURCE_CLOSED">Closed</option>
+                    <option value="OUTSOURCE_CANCELLED">Cancelled</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select id="osProcessFilter" class="form-select form-select-sm">
+                    <option value="">All Processes</option>
+                </select>
+            </div>
+            <div class="col-auto ms-auto">
+                <span class="text-muted small" id="osResultCount"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Table -->
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table os-list-table" id="osTable">
+            <thead>
+                <tr>
+                    <th class="w-1">#</th>
+                    <th data-sort="outsourceNo">Outsource No</th>
+                    <th data-sort="outsourceDate">Date</th>
+                    <th data-sort="jobNo">Job</th>
+                    <th data-sort="vendorName">Vendor</th>
+                    <th data-sort="processType">Process</th>
+                    <th class="text-end" data-sort="totalQuantity">Qty</th>
+                    <th class="text-end" data-sort="totalAmount">Amount</th>
+                    <th data-sort="expectedDelivery">Expected</th>
+                    <th data-sort="status">Status</th>
+                    <th class="text-center w-1">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="osBody">
+                <tr><td colspan="11" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2"></div>Loading…</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <!-- Pagination -->
+    <div class="card-footer d-flex align-items-center justify-content-between py-2">
+        <span class="text-muted small" id="osPagInfo"></span>
+        <ul class="pagination pagination-sm m-0" id="osPagination"></ul>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    const OS_API = '/api/outsource';
+    let allData = [], filtered = [], sortField = '', sortAsc = true, currentPage = 1;
+    const PAGE_SIZE = 15;
+
+    $(function () {
+        loadList();
+        $('#osSearch').on('input', applyFilters);
+        $('#osStatusFilter, #osProcessFilter').on('change', applyFilters);
+        // Sortable headers
+        $('#osTable th[data-sort]').css('cursor', 'pointer').on('click', function () {
+            const f = $(this).data('sort');
+            if (sortField === f) sortAsc = !sortAsc; else { sortField = f; sortAsc = true; }
+            renderTable();
+        });
+    });
+
+    async function loadList() {
+        try {
+            allData = await $.get(`${OS_API}/list`);
+            populateProcessFilter();
+            applyFilters();
+            updateStats();
+        } catch (err) {
+            Swal2.error(err.responseJSON?.message || 'Failed to load outsource list');
+        }
+    }
+
+    function populateProcessFilter() {
+        const types = [...new Set(allData.map(o => o.processType).filter(Boolean))];
+        const sel = $('#osProcessFilter');
+        sel.find('option:not(:first)').remove();
+        types.sort().forEach(t => sel.append(`<option value="${t}">${t}</option>`));
+    }
+
+    function updateStats() {
+        $('#statTotal').text(allData.length);
+        $('#statCreated').text(allData.filter(o => o.status === 'OUTSOURCE_CREATED' || o.status === 'VENDOR_ASSIGNED').length);
+        $('#statSent').text(allData.filter(o => o.status === 'MATERIAL_SENT' || o.status === 'VENDOR_ACKNOWLEDGED').length);
+        $('#statInProcess').text(allData.filter(o => ['PROCESS_STARTED','PROCESS_COMPLETED','QUALITY_CHECKED','REWORK_REQUIRED','REWORK_SENT','REWORK_COMPLETED'].includes(o.status)).length);
+        $('#statReceived').text(allData.filter(o => o.status === 'MATERIAL_RECEIVED').length);
+        $('#statClosed').text(allData.filter(o => o.status === 'OUTSOURCE_CLOSED' || o.status === 'PAYMENT_COMPLETED').length);
+    }
+
+    function applyFilters() {
+        const q = ($('#osSearch').val() || '').toLowerCase();
+        const st = $('#osStatusFilter').val();
+        const pt = $('#osProcessFilter').val();
+        filtered = allData.filter(o => {
+            if (st && o.status !== st) return false;
+            if (pt && o.processType !== pt) return false;
+            if (q) {
+                const haystack = `${o.outsourceNo} ${o.jobNo} ${o.vendorName} ${o.customerName} ${o.processType}`.toLowerCase();
+                if (!haystack.includes(q)) return false;
+            }
+            return true;
+        });
+        currentPage = 1;
+        renderTable();
+    }
+
+    function renderTable() {
+        let data = [...filtered];
+        if (sortField) {
+            data.sort((a, b) => {
+                let va = a[sortField] ?? '', vb = b[sortField] ?? '';
+                if (typeof va === 'number') return sortAsc ? va - vb : vb - va;
+                return sortAsc ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
+            });
+        }
+        const total = data.length;
+        const pages = Math.ceil(total / PAGE_SIZE) || 1;
+        if (currentPage > pages) currentPage = pages;
+        const start = (currentPage - 1) * PAGE_SIZE;
+        const slice = data.slice(start, start + PAGE_SIZE);
+
+        $('#osResultCount').text(`${total} record(s)`);
+
+        if (!slice.length) {
+            $('#osBody').html('<tr><td colspan="11" class="text-center text-muted py-4"><i class="bi bi-inbox me-2"></i>No outsource orders found.</td></tr>');
+            $('#osPagInfo').text(''); $('#osPagination').html('');
+            return;
+        }
+
+        let html = '';
+        slice.forEach((o, i) => {
+            const idx = start + i + 1;
+            const esc = s => $('<span>').text(s || '').html();
+            const statusClass = getStatusClass(o.status);
+            const isClosed = o.status === 'OUTSOURCE_CLOSED' || o.status === 'OUTSOURCE_CANCELLED';
+            const isNew = o.status === 'OUTSOURCE_CREATED';
+
+            html += `<tr>
+                <td class="text-muted small">${idx}</td>
+                <td>
+                    <a href="/Outsource/Details?id=${o.outsourceId}" class="fw-bold text-decoration-none">${esc(o.outsourceNo)}</a>
+                    <div class="text-muted small">${o.itemCount} item(s)</div>
+                </td>
+                <td class="small">${esc(o.outsourceDate)}</td>
+                <td>
+                    <a href="/Job/Details?id=${o.jobId}" class="text-decoration-none">${esc(o.jobNo)}</a>
+                    <div class="text-muted small">${esc(o.customerName)}</div>
+                </td>
+                <td class="fw-semibold">${esc(o.vendorName)}</td>
+                <td><span class="badge bg-purple-lt">${esc(o.processType || '—')}</span></td>
+                <td class="text-end fw-semibold">${o.totalQuantity != null ? Number(o.totalQuantity).toLocaleString('en-IN') : '-'}</td>
+                <td class="text-end fw-semibold">${o.totalAmount != null ? '₹' + Number(o.totalAmount).toLocaleString('en-IN', {minimumFractionDigits:2}) : '-'}</td>
+                <td class="small">${esc(o.expectedDelivery) || '<span class="text-muted">—</span>'}</td>
+                <td><span class="os-status-badge ${statusClass}">${formatStatus(o.status)}</span></td>
+                <td class="text-center">
+                    <div class="dropdown">
+                        <button class="btn btn-ghost-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown"><i class="bi bi-three-dots-vertical"></i></button>
+                        <div class="dropdown-menu dropdown-menu-end os-action-dropdown">
+                            <h6 class="dropdown-header">View</h6>
+                            <a class="dropdown-item" href="/Outsource/Details?id=${o.outsourceId}">
+                                <i class="bi bi-eye me-2 text-purple"></i>View Details
+                            </a>
+                            <a class="dropdown-item" href="/Job/Details?id=${o.jobId}">
+                                <i class="bi bi-briefcase me-2 text-primary"></i>View Job
+                            </a>
+
+                            ${!isClosed ? `<div class="dropdown-divider"></div>
+                            <h6 class="dropdown-header">Status</h6>
+                            ${isNew ? `<a class="dropdown-item" href="javascript:void(0)" onclick="updateStatus(${o.outsourceId}, 'VENDOR_ASSIGNED', '${esc(o.outsourceNo)}')">
+                                <i class="bi bi-person-check me-2 text-info"></i>Assign Vendor
+                            </a>` : ''}
+                            <a class="dropdown-item" href="javascript:void(0)" onclick="updateStatus(${o.outsourceId}, 'MATERIAL_SENT', '${esc(o.outsourceNo)}')">
+                                <i class="bi bi-send me-2 text-azure"></i>Material Sent
+                            </a>
+                            <a class="dropdown-item" href="javascript:void(0)" onclick="updateStatus(${o.outsourceId}, 'MATERIAL_RECEIVED', '${esc(o.outsourceNo)}')">
+                                <i class="bi bi-box-arrow-in-down me-2 text-success"></i>Material Received
+                            </a>
+                            <a class="dropdown-item" href="javascript:void(0)" onclick="updateStatus(${o.outsourceId}, 'OUTSOURCE_CLOSED', '${esc(o.outsourceNo)}')">
+                                <i class="bi bi-lock me-2 text-dark"></i>Close
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <h6 class="dropdown-header">Accounting</h6>
+                            <a class="dropdown-item" href="javascript:void(0)" onclick="makePayment(${o.outsourceId}, '${esc(o.outsourceNo)}', ${o.totalAmount || 0})">
+                                <i class="bi bi-wallet2 me-2 text-success"></i>Make Payment
+                            </a>
+                            <a class="dropdown-item" href="/Accounting/SalesInvoice/Create?FromJobId=${o.jobId}">
+                                <i class="bi bi-receipt me-2 text-primary"></i>Create Invoice
+                            </a>` : ''}
+
+                            ${isNew ? `<div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="javascript:void(0)" onclick="updateStatus(${o.outsourceId}, 'OUTSOURCE_CANCELLED', '${esc(o.outsourceNo)}')">
+                                <i class="bi bi-x-circle me-2 text-warning"></i>Cancel
+                            </a>
+                            <a class="dropdown-item text-danger" href="javascript:void(0)" onclick="deleteOutsource(${o.outsourceId}, '${esc(o.outsourceNo)}')">
+                                <i class="bi bi-trash me-2"></i>Delete
+                            </a>` : ''}
+                        </div>
+                    </div>
+                </td>
+            </tr>`;
+        });
+        $('#osBody').html(html);
+
+        // Pagination
+        $('#osPagInfo').text(`Showing ${start + 1}–${Math.min(start + PAGE_SIZE, total)} of ${total}`);
+        let pag = '';
+        for (let p = 1; p <= pages; p++) {
+            pag += `<li class="page-item ${p === currentPage ? 'active' : ''}"><a class="page-link" href="javascript:void(0)" onclick="goPage(${p})">${p}</a></li>`;
+        }
+        $('#osPagination').html(pag);
+    }
+
+    function goPage(p) { currentPage = p; renderTable(); }
+
+    function getStatusClass(status) {
+        const map = {
+            'OUTSOURCE_CREATED': 'os-status-created',
+            'VENDOR_ASSIGNED': 'os-status-vendor_assigned',
+            'MATERIAL_SENT': 'os-status-material_sent',
+            'VENDOR_ACKNOWLEDGED': 'os-status-vendor_ack',
+            'PROCESS_STARTED': 'os-status-process_started',
+            'PROCESS_COMPLETED': 'os-status-process_done',
+            'QUALITY_CHECKED': 'os-status-quality',
+            'MATERIAL_RECEIVED': 'os-status-received',
+            'RETURN_DELAYED': 'os-status-delayed',
+            'REWORK_REQUIRED': 'os-status-rework',
+            'REWORK_SENT': 'os-status-rework',
+            'REWORK_COMPLETED': 'os-status-quality',
+            'PAYMENT_INITIATED': 'os-status-payment',
+            'PAYMENT_COMPLETED': 'os-status-payment',
+            'OUTSOURCE_CLOSED': 'os-status-closed',
+            'OUTSOURCE_CANCELLED': 'os-status-cancelled'
+        };
+        return map[status] || 'bg-secondary-lt';
+    }
+
+    function formatStatus(status) {
+        if (!status) return 'N/A';
+        return status.replace(/_/g, ' ');
+    }
+
+    // ── Actions ──
+    async function updateStatus(id, status, osNo) {
+        const label = formatStatus(status);
+        const confirmed = await Swal2.confirmStatus(osNo, label);
+        if (!confirmed) return;
+        try {
+            await $.ajax({ url: `${OS_API}/updatestatus`, method: 'POST', contentType: 'application/json', data: JSON.stringify({ outsourceId: id, status }) });
+            Swal2.success(`Status updated to ${label}`);
+            loadList();
+        } catch (err) { Swal2.error(err.responseJSON?.message || 'Failed to update status'); }
+    }
+
+    async function deleteOutsource(id, osNo) {
+        const confirmed = await Swal2.confirmDelete(osNo);
+        if (!confirmed) return;
+        try {
+            Swal2.showLoading('Deleting…');
+            await $.ajax({ url: `${OS_API}/delete/${id}`, method: 'DELETE' });
+            Swal2.hideLoading();
+            Swal2.success('Outsource order deleted.');
+            loadList();
+        } catch (err) { Swal2.hideLoading(); Swal2.error(err.responseJSON?.message || 'Failed to delete'); }
+    }
+
+    async function makePayment(outsourceId, osNo, totalAmount) {
+        const { value: formValues } = await Swal.fire({
+            title: `Make Payment — ${osNo}`,
+            html: `<div class="text-start">
+                <label class="form-label small">Amount (₹)</label>
+                <input type="number" id="swalPayAmt" class="form-control" step="0.01" min="0.01" value="${totalAmount.toFixed(2)}" />
+                <label class="form-label small mt-2">Payment Mode</label>
+                <select id="swalPayMode" class="form-select">
+                    <option value="BANK_TRANSFER">Bank Transfer</option>
+                    <option value="CASH">Cash</option>
+                    <option value="CHEQUE">Cheque</option>
+                    <option value="UPI">UPI</option>
+                    <option value="NEFT">NEFT</option>
+                </select>
+            </div>`,
+            focusConfirm: false,
+            showCancelButton: true,
+            confirmButtonText: '<i class="bi bi-check-lg me-1"></i>Record Payment',
+            preConfirm: () => {
+                const amt = parseFloat(document.getElementById('swalPayAmt').value);
+                if (!amt || amt <= 0) { Swal.showValidationMessage('Enter a valid amount'); return false; }
+                return { amount: amt, paymentMode: document.getElementById('swalPayMode').value };
+            }
+        });
+        if (!formValues) return;
+        try {
+            Swal.fire({ title: 'Processing...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            const result = await $.ajax({
+                url: '/api/accounting/outsource-payment',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ outsourceId, amount: formValues.amount, paymentMode: formValues.paymentMode })
+            });
+            await Swal.fire({ icon: 'success', title: 'Payment Recorded', text: result.message, timer: 2500, showConfirmButton: false });
+            loadList();
+        } catch (err) {
+            Swal.fire({ icon: 'error', title: 'Error', text: err.responseJSON?.message || 'Failed to record payment.' });
+        }
+    }
+</script>
+}

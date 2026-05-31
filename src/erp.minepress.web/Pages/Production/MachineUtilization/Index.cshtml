@@ -1,0 +1,450 @@
+@page
+@model erp.minepress.web.Pages.Production.MachineUtilization.IndexModel
+@{
+    ViewData["Title"] = "Machine Utilization Reports";
+    ViewData["ContainerClass"] = "container-xl";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/production.css" />
+}
+
+<!-- ═══ Hero ═══ -->
+<div class="prod-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);">
+                <i class="bi bi-bar-chart-line" style="font-size:1.5rem;"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="mb-0">Machine Utilization Reports</h2>
+            <div class="text-white-75">Analyze machine performance · Utilization rates · Downtime reports</div>
+        </div>
+        <div class="col-auto d-flex gap-2">
+            <button class="btn btn-outline-light btn-sm" onclick="window.print()">
+                <i class="bi bi-printer me-1"></i>Print
+            </button>
+            <button class="btn btn-outline-light btn-sm" onclick="MachineUtil.refresh()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Insight Cards ═══ -->
+<div class="row g-3 mb-3">
+    <div class="col-6 col-lg-3">
+        <div class="card prod-insight-card">
+            <div class="card-body py-3">
+                <div class="d-flex align-items-center">
+                    <div class="prod-insight-icon bg-primary-lt"><i class="bi bi-gear text-primary"></i></div>
+                    <div class="ms-3">
+                        <div class="text-muted small">Total Machines</div>
+                        <div class="h3 mb-0" id="utilTotalMachines">—</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card prod-insight-card">
+            <div class="card-body py-3">
+                <div class="d-flex align-items-center">
+                    <div class="prod-insight-icon bg-success-lt"><i class="bi bi-activity text-success"></i></div>
+                    <div class="ms-3">
+                        <div class="text-muted small">Active Now</div>
+                        <div class="h3 mb-0" id="utilActive">—</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card prod-insight-card">
+            <div class="card-body py-3">
+                <div class="d-flex align-items-center">
+                    <div class="prod-insight-icon bg-warning-lt"><i class="bi bi-tools text-warning"></i></div>
+                    <div class="ms-3">
+                        <div class="text-muted small">Under Maintenance</div>
+                        <div class="h3 mb-0" id="utilMaint">—</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card prod-insight-card">
+            <div class="card-body py-3">
+                <div class="d-flex align-items-center">
+                    <div class="prod-insight-icon bg-cyan-lt"><i class="bi bi-percent text-cyan"></i></div>
+                    <div class="ms-3">
+                        <div class="text-muted small">Avg Utilization</div>
+                        <div class="h3 mb-0" id="utilAvgRate">—</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Filters ═══ -->
+<div class="card prod-filter-card mb-3">
+    <div class="card-body py-2 px-3">
+        <div class="row g-2 align-items-end">
+            <div class="col-sm-6 col-md-3">
+                <label class="form-label small mb-1">Machine Category</label>
+                <select class="form-select form-select-sm" id="utilCategoryFilter" onchange="MachineUtil.refresh()">
+                    <option value="">All Categories</option>
+                </select>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <label class="form-label small mb-1">Date From</label>
+                <input type="date" class="form-control form-control-sm" id="utilDateFrom" onchange="MachineUtil.refresh()">
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <label class="form-label small mb-1">Date To</label>
+                <input type="date" class="form-control form-control-sm" id="utilDateTo" onchange="MachineUtil.refresh()">
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <label class="form-label small mb-1">Status</label>
+                <select class="form-select form-select-sm" id="utilStatusFilter" onchange="MachineUtil.refresh()">
+                    <option value="">All</option>
+                    <option value="running">Running</option>
+                    <option value="idle">Idle</option>
+                    <option value="maintenance">Under Maintenance</option>
+                    <option value="breakdown">Breakdown</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Maintenance & Breakdown Alerts ═══ -->
+<div class="row g-3 mb-3">
+    <div class="col-md-6">
+        <div class="prod-alert-panel">
+            <div class="prod-alert-header prod-alert-header-maint">
+                <span><i class="bi bi-tools me-2 text-warning"></i>Scheduled Maintenance</span>
+                <span class="badge bg-warning-lt text-warning" id="utilMaintAlertCount">0</span>
+            </div>
+            <div class="prod-alert-body" id="utilMaintAlertBody">
+                <div class="prod-alert-empty"><i class="bi bi-check-circle me-1"></i>No upcoming maintenance</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="prod-alert-panel">
+            <div class="prod-alert-header prod-alert-header-breakdown">
+                <span><i class="bi bi-lightning-charge me-2 text-danger"></i>Active Breakdowns</span>
+                <span class="badge bg-danger-lt text-danger" id="utilBreakdownCount">0</span>
+            </div>
+            <div class="prod-alert-body" id="utilBreakdownBody">
+                <div class="prod-alert-empty"><i class="bi bi-check-circle me-1"></i>No active breakdowns</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Machine Utilization Cards ═══ -->
+<div class="row g-3" id="utilMachineGrid">
+    <div class="col-12 text-center text-muted py-4">
+        <i class="bi bi-hourglass-split"></i> Loading machine data…
+    </div>
+</div>
+
+<!-- ═══ Detailed Table ═══ -->
+<div class="card mt-3">
+    <div class="card-header py-2">
+        <h4 class="mb-0" style="font-size:.92rem;"><i class="bi bi-table me-2"></i>Detailed Machine Report</h4>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-vcenter card-table prod-maint-table">
+                <thead>
+                    <tr>
+                        <th>Machine</th>
+                        <th>Category</th>
+                        <th>Speed (sheets/hr)</th>
+                        <th>Cost (₹/hr)</th>
+                        <th>Manpower Req.</th>
+                        <th>Jobs Allocated</th>
+                        <th>Utilization</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="utilTableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const MachineUtil = (function () {
+            'use strict';
+
+            let allMachines = [];
+            let machineStatus = [];
+            let allocByMachine = {}; // machineId -> [{ jobNo, employees, ... }]
+            let breakdownData = []; // active breakdowns
+            let maintenanceData = []; // maintenance records
+
+            async function init() {
+                const today = new Date().toISOString().split('T')[0];
+                const monthAgo = new Date(Date.now() - 30 * 86400000).toISOString().split('T')[0];
+                $('#utilDateFrom').val(monthAgo);
+                $('#utilDateTo').val(today);
+
+                await loadData();
+            }
+
+            async function loadData() {
+                try {
+                    const [machines, status, stats, filterData, allocations, breakdowns, maintenance] = await Promise.all([
+                        $.get('/api/production/machines'),
+                        $.get('/api/production/machine-status'),
+                        $.get('/api/production/stats'),
+                        $.get('/api/production/filter-data'),
+                        $.get('/api/production/machine-allocations'),
+                        $.get('/api/production/breakdowns'),
+                        $.get('/api/production/maintenance')
+                    ]);
+
+                    allMachines = machines;
+                    machineStatus = status;
+                    breakdownData = breakdowns.filter(b =>
+                        b.breakdownStatus === 'Open' || b.breakdownStatus === 'Assigned' || b.breakdownStatus === 'In Progress');
+                    maintenanceData = maintenance;
+
+                    // Group allocations by machine
+                    allocByMachine = {};
+                    allocations.forEach(a => {
+                        if (!allocByMachine[a.machineId]) allocByMachine[a.machineId] = [];
+                        allocByMachine[a.machineId].push(a);
+                    });
+
+                    // Populate category filter
+                    const $cat = $('#utilCategoryFilter');
+                    if ($cat.find('option').length <= 1) {
+                        filterData.machineCategories.forEach(c =>
+                            $cat.append(`<option value="${escHtml(c)}">${escHtml(c)}</option>`)
+                        );
+                    }
+
+                    // Stats (include breakdown count)
+                    const breakdownMachineCount = breakdownData.length > 0
+                        ? new Set(breakdownData.map(b => b.machineId)).size : 0;
+                    $('#utilTotalMachines').text(stats.totalMachines);
+                    $('#utilActive').text(stats.running);
+                    $('#utilMaint').text(status.filter(s => s.maintenanceDue).length + breakdownMachineCount);
+
+                    const utilRate = machines.length > 0 ? Math.round((stats.running / stats.totalMachines) * 100) : 0;
+                    $('#utilAvgRate').text(utilRate + '%');
+
+                    renderGrid(machines, status);
+                    renderTable(machines, status);
+                    renderMaintBreakdownAlerts();
+                } catch (e) {
+                    console.error('Failed to load utilization data', e);
+                }
+            }
+
+            function renderMaintBreakdownAlerts() {
+                // Scheduled maintenance (due within 7 days, not completed)
+                const maintDue = maintenanceData.filter(m => {
+                    if (!m.nextDueDate) return false;
+                    const due = new Date(m.nextDueDate);
+                    const now = new Date();
+                    const diff = (due - now) / 86400000;
+                    return diff <= 7 && m.repairStatus !== 'Completed';
+                });
+                $('#utilMaintAlertCount').text(maintDue.length);
+                const $mBody = $('#utilMaintAlertBody');
+                $mBody.empty();
+                if (maintDue.length === 0) {
+                    $mBody.html('<div class="prod-alert-empty"><i class="bi bi-check-circle me-1"></i>No upcoming maintenance</div>');
+                } else {
+                    maintDue.forEach(m => {
+                        const dueDate = m.nextDueDate ? new Date(m.nextDueDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }) : '—';
+                        const isOverdue = m.isOverdue;
+                        $mBody.append(`
+                            <div class="prod-alert-item">
+                                <div class="prod-alert-icon ${isOverdue ? 'bg-danger-lt' : 'bg-warning-lt'}">
+                                    <i class="bi bi-tools ${isOverdue ? 'text-danger' : 'text-warning'}"></i>
+                                </div>
+                                <div class="flex-fill">
+                                    <div class="fw-medium">${escHtml(m.machineName || '—')}</div>
+                                    <div class="text-muted" style="font-size:.72rem;">${escHtml(m.maintenanceType || '')} · Due: ${dueDate}${m.downtimeMinutes ? ' · Est. ' + m.downtimeMinutes + ' min downtime' : ''}</div>
+                                </div>
+                                <span class="badge ${isOverdue ? 'bg-danger-lt text-danger' : 'bg-warning-lt text-warning'}" style="font-size:.65rem;">
+                                    ${isOverdue ? 'OVERDUE' : (m.repairStatus || 'Pending')}
+                                </span>
+                            </div>`);
+                    });
+                }
+
+                // Active breakdowns
+                $('#utilBreakdownCount').text(breakdownData.length);
+                const $bBody = $('#utilBreakdownBody');
+                $bBody.empty();
+                if (breakdownData.length === 0) {
+                    $bBody.html('<div class="prod-alert-empty"><i class="bi bi-check-circle me-1"></i>No active breakdowns</div>');
+                } else {
+                    breakdownData.forEach(b => {
+                        const startTime = b.breakdownStartTime ? new Date(b.breakdownStartTime).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—';
+                        const sevClass = b.severityLevel === 'Critical' ? 'bg-danger-lt text-danger' : b.severityLevel === 'High' ? 'bg-orange-lt text-orange' : 'bg-warning-lt text-warning';
+                        const downtime = b.downtimeMinutes ? Math.round(b.downtimeMinutes) + ' min' : 'Ongoing';
+                        $bBody.append(`
+                            <div class="prod-alert-item">
+                                <div class="prod-alert-icon bg-danger-lt">
+                                    <i class="bi bi-lightning-charge text-danger"></i>
+                                </div>
+                                <div class="flex-fill">
+                                    <div class="fw-medium">${escHtml(b.machineName || '—')}</div>
+                                    <div class="text-muted" style="font-size:.72rem;">${escHtml(b.faultCategory || '')} · ${escHtml(b.technicianName || 'No tech')} · Downtime: ${downtime}</div>
+                                </div>
+                                <div class="d-flex gap-1">
+                                    <span class="badge ${sevClass}" style="font-size:.65rem;">${escHtml(b.severityLevel || '—')}</span>
+                                    <span class="badge bg-secondary-lt" style="font-size:.65rem;">${escHtml(b.breakdownStatus)}</span>
+                                </div>
+                            </div>`);
+                    });
+                }
+            }
+
+            function renderGrid(machines, status) {
+                const category = $('#utilCategoryFilter').val();
+                const statusFilter = $('#utilStatusFilter').val();
+                const $grid = $('#utilMachineGrid');
+                $grid.empty();
+
+                let filtered = machines;
+                if (category) filtered = filtered.filter(m => m.machineCategory === category);
+
+                if (filtered.length === 0) {
+                    $grid.html('<div class="col-12 text-center text-muted py-4"><i class="bi bi-inbox"></i> No machines found</div>');
+                    return;
+                }
+
+                filtered.forEach(m => {
+                    const ms = status.find(s => s.machineId === m.machineId) || {};
+                    const isRunning = ms.maintenanceDue ? false : true; // simplified
+                    const isMaint = ms.maintenanceDue || false;
+                    const statusText = isMaint ? 'Maintenance' : isRunning ? 'Available' : 'Idle';
+                    const statusClass = isMaint ? 'bg-warning-lt text-warning' : isRunning ? 'bg-success-lt text-success' : 'bg-secondary-lt text-secondary';
+
+                    if (statusFilter === 'running' && !isRunning) return;
+                    if (statusFilter === 'idle' && (isRunning || isMaint)) return;
+                    if (statusFilter === 'maintenance' && !isMaint) return;
+
+                    $grid.append(`
+                        <div class="col-sm-6 col-lg-4 col-xl-3">
+                            <div class="card prod-machine-card">
+                                <div class="card-body p-3">
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="prod-status-dot ${isMaint ? 'prod-status-maint' : 'prod-status-idle'}"></span>
+                                            <strong style="font-size:.85rem;">${escHtml(m.machineName)}</strong>
+                                        </div>
+                                        <span class="badge ${statusClass}" style="font-size:.65rem;">${statusText}</span>
+                                    </div>
+                                    <div class="text-muted mb-2" style="font-size:.72rem;">${escHtml(m.machineCategory || '')} · ${escHtml(m.machineCode || '')}</div>
+                                    ${(() => {
+                                        const mAllocs = allocByMachine[m.machineId] || [];
+                                        if (mAllocs.length === 0) return '';
+                                        const jobBadges = mAllocs.map(a =>
+                                            '<span class="badge bg-primary-lt text-primary me-1 mb-1" style="font-size:.65rem;">' + escHtml(a.jobNo) + '</span>'
+                                        ).join('');
+                                        const allEmps = mAllocs.flatMap(a => a.employees || []);
+                                        const empIcons = allEmps.slice(0, 4).map(e =>
+                                            '<span class="prod-emp-chip" title="' + escHtml(e.employeeName) + ' (' + escHtml(e.roleCode) + ')">'
+                                            + '<i class="bi bi-person-fill"></i>' + escHtml((e.employeeName || '').split(' ')[0]) + '</span>'
+                                        ).join('');
+                                        const moreEmps = allEmps.length > 4 ? '<span class="prod-emp-chip prod-emp-chip-more">+' + (allEmps.length - 4) + '</span>' : '';
+                                        return '<div class="mb-2"><div class="text-muted" style="font-size:.68rem;">Jobs Allocated</div><div class="mt-1">' + jobBadges + '</div></div>'
+                                            + (allEmps.length > 0 ? '<div class="mb-2"><div class="text-muted" style="font-size:.68rem;">Manpower <span class="badge bg-cyan-lt text-cyan" style="font-size:.6rem;">' + allEmps.length + '</span></div><div class="prod-emp-bar-chips mt-1">' + empIcons + moreEmps + '</div></div>' : '');
+                                    })()}
+                                    <div class="row g-2" style="font-size:.78rem;">
+                                        <div class="col-6">
+                                            <div class="text-muted" style="font-size:.68rem;">Speed</div>
+                                            <div class="fw-medium">${m.maxSpeedPerHour ? m.maxSpeedPerHour + '/hr' : '—'}</div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="text-muted" style="font-size:.68rem;">Cost</div>
+                                            <div class="fw-medium">${m.hourlyRunningCost ? '₹' + m.hourlyRunningCost + '/hr' : '—'}</div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="text-muted" style="font-size:.68rem;">Max Colors</div>
+                                            <div class="fw-medium">${m.maxColors || '—'}</div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="text-muted" style="font-size:.68rem;">Manpower</div>
+                                            <div class="fw-medium">${m.manpowerRequired || '—'}</div>
+                                        </div>
+                                    </div>
+                                    ${ms.nextMaintenanceDate ? `
+                                    <div class="mt-2 p-2 rounded" style="background:var(--tblr-warning-bg-subtle);font-size:.72rem;">
+                                        <i class="bi bi-tools me-1 text-warning"></i>Next maintenance: ${new Date(ms.nextMaintenanceDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
+                                    </div>` : ''}
+                                </div>
+                            </div>
+                        </div>`);
+                });
+            }
+
+            function renderTable(machines, status) {
+                const category = $('#utilCategoryFilter').val();
+                const $body = $('#utilTableBody');
+                $body.empty();
+
+                let filtered = machines;
+                if (category) filtered = filtered.filter(m => m.machineCategory === category);
+
+                filtered.forEach(m => {
+                    const ms = status.find(s => s.machineId === m.machineId) || {};
+                    const isMaint = ms.maintenanceDue || false;
+                    const statusText = isMaint ? 'Maintenance Due' : 'Available';
+                    const statusClass = isMaint ? 'bg-warning-lt text-warning' : 'bg-success-lt text-success';
+                    const mAllocs = allocByMachine[m.machineId] || [];
+                    const jobBadges = mAllocs.length > 0
+                        ? mAllocs.map(a => `<span class="badge bg-primary-lt text-primary me-1" style="font-size:.65rem;">${escHtml(a.jobNo)}</span>`).join('')
+                        : '—';
+
+                    $body.append(`
+                        <tr class="${isMaint ? 'prod-maint-due-soon' : ''}">
+                            <td>
+                                <div class="fw-medium">${escHtml(m.machineName)}</div>
+                                <div class="text-muted" style="font-size:.72rem;">${escHtml(m.machineCode || '')}</div>
+                            </td>
+                            <td style="font-size:.82rem;">${escHtml(m.machineCategory || '—')}</td>
+                            <td style="font-size:.82rem;">${m.maxSpeedPerHour || '—'}</td>
+                            <td style="font-size:.82rem;">${m.hourlyRunningCost ? '₹' + m.hourlyRunningCost : '—'}</td>
+                            <td style="font-size:.82rem;">${m.manpowerRequired || '—'}</td>
+                            <td style="font-size:.82rem;">${jobBadges}</td>
+                            <td style="width:100px;">
+                                <div class="progress progress-sm">
+                                    <div class="progress-bar ${isMaint ? 'bg-warning' : 'bg-primary'}" style="width:${isMaint ? 20 : (mAllocs.length > 0 ? 60 : 0)}%"></div>
+                                </div>
+                            </td>
+                            <td><span class="badge ${statusClass}" style="font-size:.68rem;">${statusText}</span></td>
+                        </tr>`);
+                });
+            }
+
+            function refresh() { loadData(); }
+
+            function escHtml(str) {
+                if (!str) return '';
+                const d = document.createElement('div');
+                d.textContent = str;
+                return d.innerHTML;
+            }
+
+            $(function () { init(); });
+
+            return { refresh };
+        })();
+    </script>
+}

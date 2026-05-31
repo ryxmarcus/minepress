@@ -1,0 +1,214 @@
+@page
+@model erp.minepress.web.Pages.Display.IndexModel
+@{
+    Layout = "_LayoutTV";
+    ViewData["Title"] = "Helpdesk Display";
+}
+
+<!-- ═══ Top Header Bar ═══ -->
+<header class="tv-header">
+    <div class="tv-header-brand">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+             stroke-linejoin="round" class="tv-logo-icon">
+            <path d="M6 9v6a5 5 0 0 0 10 0V9" />
+            <path d="M6 9a5 5 0 0 1 10 0" />
+            <path d="M4 15h16" />
+            <path d="M9 9v3" /><path d="M15 9v3" />
+        </svg>
+        <span class="tv-brand-text">MinePress</span>
+        <span class="tv-brand-divider">|</span>
+        <span class="tv-brand-sub">Production Live</span>
+    </div>
+    <div class="tv-header-stats" id="tvHeaderStats">
+        <!-- filled by JS -->
+    </div>
+    <div class="tv-header-meta">
+        <button class="tv-speech-btn" id="tvSpeechToggle" title="Toggle Speech">
+            <i class="bi bi-volume-up" id="tvSpeechIcon"></i>
+        </button>
+        <span class="tv-speech-indicator" id="tvSpeechIndicator">
+            <span class="tv-speech-wave"></span>
+            <span class="tv-speech-wave"></span>
+            <span class="tv-speech-wave"></span>
+        </span>
+        <span class="tv-live-dot"></span>
+        <span class="tv-clock" id="tvClock"></span>
+    </div>
+</header>
+
+<!-- ═══ KPI Strip ═══ -->
+<section class="tv-kpi-strip" id="tvKpiStrip">
+    <div class="tv-kpi" data-kpi="machines-running">
+        <i class="bi bi-gear-wide-connected tv-kpi-icon text-success"></i>
+        <div class="tv-kpi-data">
+            <span class="tv-kpi-val" id="kpiRunning">–</span>
+            <span class="tv-kpi-label">Running</span>
+        </div>
+    </div>
+    <div class="tv-kpi" data-kpi="machines-idle">
+        <i class="bi bi-pause-circle tv-kpi-icon text-warning"></i>
+        <div class="tv-kpi-data">
+            <span class="tv-kpi-val" id="kpiIdle">–</span>
+            <span class="tv-kpi-label">Idle</span>
+        </div>
+    </div>
+    <div class="tv-kpi" data-kpi="machines-down">
+        <i class="bi bi-exclamation-triangle tv-kpi-icon text-danger"></i>
+        <div class="tv-kpi-data">
+            <span class="tv-kpi-val" id="kpiBreakdown">–</span>
+            <span class="tv-kpi-label">Breakdown</span>
+        </div>
+    </div>
+    <div class="tv-kpi" data-kpi="active-jobs">
+        <i class="bi bi-briefcase tv-kpi-icon text-info"></i>
+        <div class="tv-kpi-data">
+            <span class="tv-kpi-val" id="kpiActiveJobs">–</span>
+            <span class="tv-kpi-label">Active Jobs</span>
+        </div>
+    </div>
+    <div class="tv-kpi" data-kpi="queue">
+        <i class="bi bi-hourglass-split tv-kpi-icon text-secondary"></i>
+        <div class="tv-kpi-data">
+            <span class="tv-kpi-val" id="kpiQueued">–</span>
+            <span class="tv-kpi-label">In Queue</span>
+        </div>
+    </div>
+    <div class="tv-kpi" data-kpi="overdue">
+        <i class="bi bi-alarm tv-kpi-icon text-danger"></i>
+        <div class="tv-kpi-data">
+            <span class="tv-kpi-val" id="kpiOverdue">–</span>
+            <span class="tv-kpi-label">Overdue</span>
+        </div>
+    </div>
+    <div class="tv-kpi" data-kpi="workforce">
+        <i class="bi bi-people tv-kpi-icon text-primary"></i>
+        <div class="tv-kpi-data">
+            <span class="tv-kpi-val" id="kpiWorkers">–</span>
+            <span class="tv-kpi-label">Workers</span>
+        </div>
+    </div>
+</section>
+
+<!-- ═══ Tab Navigation ═══ -->
+<nav class="tv-tabs">
+    <button class="tv-tab active" data-tab="running" id="tabRunning">
+        <i class="bi bi-play-circle"></i>
+        <span>Running Jobs</span>
+        <span class="tv-tab-badge" id="badgeRunning">0</span>
+    </button>
+    <button class="tv-tab" data-tab="queue" id="tabQueue">
+        <i class="bi bi-collection"></i>
+        <span>Jobs in Queue</span>
+        <span class="tv-tab-badge" id="badgeQueue">0</span>
+    </button>
+    <button class="tv-tab" data-tab="machines" id="tabMachines">
+        <i class="bi bi-cpu"></i>
+        <span>Machines</span>
+        <span class="tv-tab-badge" id="badgeMachines">0</span>
+    </button>
+    <button class="tv-tab" data-tab="workforce" id="tabWorkforce">
+        <i class="bi bi-person-badge"></i>
+        <span>Workforce</span>
+        <span class="tv-tab-badge" id="badgeWorkforce">0</span>
+    </button>
+</nav>
+
+<!-- ═══ Process Stage Tabs ═══ -->
+<nav class="tv-stage-tabs" id="tvStageTabs">
+    <button class="tv-stage-tab active" data-stage="all"><i class="bi bi-grid-3x3-gap"></i><span>All Stages</span></button>
+    <button class="tv-stage-tab" data-stage="designing"><i class="bi bi-pencil-square"></i><span>Designing/DTP</span></button>
+    <button class="tv-stage-tab" data-stage="ctp"><i class="bi bi-layers"></i><span>CTP</span></button>
+    <button class="tv-stage-tab" data-stage="printing"><i class="bi bi-printer"></i><span>PRINTING</span></button>
+    <button class="tv-stage-tab" data-stage="binding"><i class="bi bi-link-45deg"></i><span>BINDING</span></button>
+    <button class="tv-stage-tab" data-stage="finishing"><i class="bi bi-stars"></i><span>FINISHING</span></button>
+    <button class="tv-stage-tab" data-stage="delivery"><i class="bi bi-truck"></i><span>DELIVERY</span></button>
+</nav>
+
+<!-- ═══ Tab Panels ═══ -->
+<main class="tv-main">
+
+    <!-- ── Running Jobs ── -->
+    <div class="tv-panel active" id="panelRunning">
+        <div class="tv-card-grid" id="gridRunning">
+            <div class="tv-empty-state">
+                <i class="bi bi-hourglass"></i>
+                <span>Loading...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Jobs in Queue ── -->
+    <div class="tv-panel" id="panelQueue">
+        <div class="tv-table-wrap">
+            <table class="tv-table" id="tableQueue">
+                <thead>
+                    <tr>
+                        <th>Job #</th>
+                        <th>Customer</th>
+                        <th>Priority</th>
+                        <th>Delivery</th>
+                        <th>Process Flow</th>
+                        <th>Stage</th>
+                    </tr>
+                </thead>
+                <tbody id="tbodyQueue">
+                    <tr><td colspan="6" class="tv-empty-cell">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ── Machines ── -->
+    <div class="tv-panel" id="panelMachines">
+        <div class="tv-card-grid tv-machine-grid" id="gridMachines">
+            <div class="tv-empty-state">
+                <i class="bi bi-hourglass"></i>
+                <span>Loading...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Workforce ── -->
+    <div class="tv-panel" id="panelWorkforce">
+        <div class="tv-table-wrap">
+            <table class="tv-table" id="tableWorkforce">
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Code</th>
+                        <th>Role</th>
+                        <th>Process</th>
+                        <th>Start Time</th>
+                        <th>Total Time</th>
+                    </tr>
+                </thead>
+                <tbody id="tbodyWorkforce">
+                    <tr><td colspan="6" class="tv-empty-cell">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</main>
+
+<!-- ═══ Speech Event Toast ═══ -->
+<div class="tv-speech-toast-container" id="tvSpeechToasts"></div>
+
+<!-- ═══ AI Insight Bar ═══ -->
+<footer class="tv-ai-bar" id="tvAiBar">
+    <div class="tv-ai-icon">
+        <i class="bi bi-stars"></i>
+        <span>AI</span>
+    </div>
+    <div class="tv-ai-ticker" id="tvAiTicker">
+        <span class="tv-ai-msg">Analyzing production data...</span>
+    </div>
+</footer>
+
+<!-- ═══ Auto-Cycle Progress ═══ -->
+<div class="tv-cycle-bar" id="tvCycleBar"></div>
+
+@section Scripts {
+    <script src="/js/helpdesk-tv.js"></script>
+}

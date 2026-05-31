@@ -1,0 +1,400 @@
+@page
+@model erp.minepress.web.Pages.Admin.ErrorLogs.IndexModel
+@{
+    ViewData["Title"] = "Error Log";
+}
+
+<div class="container-xl">
+    <div class="page-header d-print-none mb-3">
+        <div class="row align-items-center">
+            <div class="col">
+                <h2 class="page-title">
+                    <i class="bi bi-bug me-2 text-danger"></i>System Error Log
+                </h2>
+                <div class="text-muted mt-1" style="font-size:.82rem;">
+                    Centralized exception &amp; error tracker — all layers, all requests
+                </div>
+            </div>
+            <div class="col-auto ms-auto d-print-none">
+                <button class="btn btn-outline-secondary btn-sm" onclick="ErrorLog.refresh()">
+                    <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Filters ── -->
+    <div class="card mb-3">
+        <div class="card-body py-2">
+            <div class="row g-2 align-items-end">
+                <div class="col-sm-2">
+                    <label class="form-label form-label-sm mb-1">Severity</label>
+                    <select id="fSeverity" class="form-select form-select-sm" onchange="ErrorLog.load()">
+                        <option value="">All</option>
+                        <option value="Critical">Critical</option>
+                        <option value="Error">Error</option>
+                        <option value="Warning">Warning</option>
+                        <option value="Info">Info</option>
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <label class="form-label form-label-sm mb-1">Layer</label>
+                    <select id="fLayer" class="form-select form-select-sm" onchange="ErrorLog.load()">
+                        <option value="">All</option>
+                        <option value="API">API</option>
+                        <option value="UI">UI</option>
+                        <option value="Background">Background</option>
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <label class="form-label form-label-sm mb-1">Reviewed</label>
+                    <select id="fReviewed" class="form-select form-select-sm" onchange="ErrorLog.load()">
+                        <option value="">All</option>
+                        <option value="false">Pending Review</option>
+                        <option value="true">Reviewed</option>
+                    </select>
+                </div>
+                <div class="col-sm-3">
+                    <label class="form-label form-label-sm mb-1">Search</label>
+                    <input id="fSearch" type="text" class="form-control form-control-sm" placeholder="Message, path, user…" oninput="ErrorLog.debounceLoad()" />
+                </div>
+                <div class="col-sm-3">
+                    <label class="form-label form-label-sm mb-1">Date Range</label>
+                    <div class="input-group input-group-sm">
+                        <input id="fDateFrom" type="date" class="form-control form-control-sm" onchange="ErrorLog.load()" />
+                        <span class="input-group-text">–</span>
+                        <input id="fDateTo" type="date" class="form-control form-control-sm" onchange="ErrorLog.load()" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Stats Bar ── -->
+    <div class="row g-2 mb-3" id="errorStatsBar">
+        <div class="col-6 col-sm-3">
+            <div class="card card-sm text-center">
+                <div class="card-body py-2">
+                    <div class="h3 mb-0 text-danger" id="statCritical">—</div>
+                    <div class="text-muted" style="font-size:.72rem;">Critical</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-sm-3">
+            <div class="card card-sm text-center">
+                <div class="card-body py-2">
+                    <div class="h3 mb-0 text-orange" id="statError">—</div>
+                    <div class="text-muted" style="font-size:.72rem;">Error</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-sm-3">
+            <div class="card card-sm text-center">
+                <div class="card-body py-2">
+                    <div class="h3 mb-0 text-warning" id="statPending">—</div>
+                    <div class="text-muted" style="font-size:.72rem;">Pending Review</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-sm-3">
+            <div class="card card-sm text-center">
+                <div class="card-body py-2">
+                    <div class="h3 mb-0 text-success" id="statReviewed">—</div>
+                    <div class="text-muted" style="font-size:.72rem;">Reviewed</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Table ── -->
+    <div class="card">
+        <div class="card-body p-0">
+            <div id="errorLogTableWrap">
+                <div class="text-center p-4 text-muted">
+                    <div class="spinner-border spinner-border-sm me-2"></div>Loading…
+                </div>
+            </div>
+        </div>
+        <div class="card-footer d-flex align-items-center justify-content-between py-2">
+            <div class="text-muted" style="font-size:.78rem;" id="errorLogPagingInfo">—</div>
+            <div id="errorLogPaging" class="d-flex gap-1"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Detail Modal ── -->
+<div class="modal modal-blur fade" id="errorDetailModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-bug me-2 text-danger"></i>Error Detail</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="errorDetailBody">
+                <div class="text-center p-4"><div class="spinner-border spinner-border-sm"></div></div>
+            </div>
+            <div class="modal-footer">
+                <div class="me-auto d-flex gap-2 align-items-center" id="reviewSection" style="display:none!important">
+                    <input id="reviewNotes" type="text" class="form-control form-control-sm" placeholder="Review notes…" style="width:260px;" />
+                    <button class="btn btn-success btn-sm" onclick="ErrorLog.markReviewed()">
+                        <i class="bi bi-check-lg me-1"></i>Mark Reviewed
+                    </button>
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+const ErrorLog = (function () {
+    'use strict';
+
+    let currentPage = 1;
+    const pageSize = 25;
+    let debounceTimer = null;
+    let activeErrorLogId = null;
+    let detailModal = null;
+
+    function init() {
+        detailModal = new bootstrap.Modal(document.getElementById('errorDetailModal'));
+        // Default date range: last 7 days
+        const today = new Date();
+        const weekAgo = new Date(today); weekAgo.setDate(today.getDate() - 7);
+        document.getElementById('fDateTo').value = today.toISOString().slice(0, 10);
+        document.getElementById('fDateFrom').value = weekAgo.toISOString().slice(0, 10);
+        load();
+        loadStats();
+    }
+
+    function debounceLoad() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => load(), 350);
+    }
+
+    function refresh() { load(); loadStats(); }
+
+    async function load(page) {
+        currentPage = page || 1;
+        const params = new URLSearchParams();
+        params.set('page', currentPage);
+        params.set('pageSize', pageSize);
+        const severity = document.getElementById('fSeverity').value;
+        const layer = document.getElementById('fLayer').value;
+        const reviewed = document.getElementById('fReviewed').value;
+        const search = document.getElementById('fSearch').value.trim();
+        const dateFrom = document.getElementById('fDateFrom').value;
+        const dateTo = document.getElementById('fDateTo').value;
+        if (severity) params.set('severity', severity);
+        if (layer) params.set('layer', layer);
+        if (reviewed !== '') params.set('isReviewed', reviewed);
+        if (search) params.set('search', search);
+        if (dateFrom) params.set('dateFrom', dateFrom);
+        if (dateTo) params.set('dateTo', dateTo);
+
+        const wrap = document.getElementById('errorLogTableWrap');
+        wrap.innerHTML = '<div class="text-center p-4 text-muted"><div class="spinner-border spinner-border-sm me-2"></div>Loading…</div>';
+
+        try {
+            const res = await $.get('/api/admin/error-logs?' + params.toString());
+            renderTable(res.items);
+            renderPaging(res.totalCount, res.page, res.pageSize);
+        } catch (e) {
+            wrap.innerHTML = '<div class="text-center p-4 text-danger"><i class="bi bi-exclamation-triangle me-2"></i>Failed to load error logs.</div>';
+        }
+    }
+
+    async function loadStats() {
+        try {
+            const res = await $.get('/api/admin/error-logs/stats');
+            document.getElementById('statCritical').textContent = res.critical ?? 0;
+            document.getElementById('statError').textContent = res.error ?? 0;
+            document.getElementById('statPending').textContent = res.pendingReview ?? 0;
+            document.getElementById('statReviewed').textContent = res.reviewed ?? 0;
+        } catch (e) { /* silent */ }
+    }
+
+    function renderTable(items) {
+        const wrap = document.getElementById('errorLogTableWrap');
+        if (!items || items.length === 0) {
+            wrap.innerHTML = '<div class="text-center p-4 text-muted"><i class="bi bi-check-circle me-2 text-success"></i>No errors found for the selected filters.</div>';
+            return;
+        }
+
+        let html = `<div class="table-responsive"><table class="table table-vcenter table-sm table-hover mb-0">
+            <thead><tr>
+                <th style="width:60px;">ID</th>
+                <th style="width:80px;">Severity</th>
+                <th style="width:60px;">Layer</th>
+                <th>Message</th>
+                <th>Path</th>
+                <th style="width:90px;">User</th>
+                <th style="width:130px;">Time</th>
+                <th style="width:80px;">Status</th>
+                <th style="width:50px;"></th>
+            </tr></thead><tbody>`;
+
+        items.forEach(e => {
+            const sevClass = e.severity === 'Critical' ? 'bg-danger-lt text-danger'
+                : e.severity === 'Error' ? 'bg-orange-lt text-orange'
+                : e.severity === 'Warning' ? 'bg-warning-lt text-warning'
+                : 'bg-azure-lt text-azure';
+            const reviewedBadge = e.isReviewed
+                ? '<span class="badge bg-success-lt text-success" style="font-size:.6rem;">Reviewed</span>'
+                : '<span class="badge bg-warning-lt text-warning" style="font-size:.6rem;">Pending</span>';
+            const dt = new Date(e.createdOn).toLocaleString('en-IN', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+            const msgShort = (e.message || '').length > 80 ? e.message.slice(0, 80) + '…' : (e.message || '—');
+
+            html += `<tr>
+                <td class="text-muted" style="font-size:.75rem;">#${e.errorLogId}</td>
+                <td><span class="badge ${sevClass}" style="font-size:.65rem;">${escHtml(e.severity)}</span></td>
+                <td><span class="badge bg-secondary-lt text-secondary" style="font-size:.65rem;">${escHtml(e.layer)}</span></td>
+                <td style="font-size:.78rem;max-width:280px;" title="${escHtml(e.message)}">${escHtml(msgShort)}</td>
+                <td style="font-size:.72rem;color:var(--tblr-muted);">${escHtml(e.requestPath || '—')}</td>
+                <td style="font-size:.72rem;">${escHtml(e.userName || '—')}</td>
+                <td style="font-size:.72rem;">${dt}</td>
+                <td>${reviewedBadge}</td>
+                <td>
+                    <button class="btn btn-sm btn-ghost-primary py-0 px-1" onclick="ErrorLog.showDetail(${e.errorLogId})" title="View Detail">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </td>
+            </tr>`;
+        });
+
+        html += '</tbody></table></div>';
+        wrap.innerHTML = html;
+    }
+
+    function renderPaging(total, page, size) {
+        const totalPages = Math.ceil(total / size);
+        document.getElementById('errorLogPagingInfo').textContent =
+            `Showing ${Math.min((page - 1) * size + 1, total)}–${Math.min(page * size, total)} of ${total} errors`;
+
+        const pagingEl = document.getElementById('errorLogPaging');
+        pagingEl.innerHTML = '';
+        if (totalPages <= 1) return;
+
+        const makeBtn = (label, p, active, disabled) => {
+            const btn = document.createElement('button');
+            btn.className = `btn btn-sm ${active ? 'btn-primary' : 'btn-outline-secondary'} py-0 px-2`;
+            btn.textContent = label;
+            btn.disabled = disabled;
+            btn.onclick = () => load(p);
+            return btn;
+        };
+
+        pagingEl.appendChild(makeBtn('«', 1, false, page === 1));
+        pagingEl.appendChild(makeBtn('‹', page - 1, false, page === 1));
+
+        const start = Math.max(1, page - 2), end = Math.min(totalPages, start + 4);
+        for (let i = start; i <= end; i++) {
+            pagingEl.appendChild(makeBtn(i, i, i === page, false));
+        }
+
+        pagingEl.appendChild(makeBtn('›', page + 1, false, page === totalPages));
+        pagingEl.appendChild(makeBtn('»', totalPages, false, page === totalPages));
+    }
+
+    async function showDetail(errorLogId) {
+        activeErrorLogId = errorLogId;
+        document.getElementById('errorDetailBody').innerHTML =
+            '<div class="text-center p-4"><div class="spinner-border spinner-border-sm"></div></div>';
+        document.getElementById('reviewSection').style.display = 'none';
+        detailModal.show();
+
+        try {
+            const e = await $.get(`/api/admin/error-logs/${errorLogId}`);
+            renderDetail(e);
+            if (!e.isReviewed) {
+                document.getElementById('reviewSection').style.removeProperty('display');
+            }
+        } catch (ex) {
+            document.getElementById('errorDetailBody').innerHTML =
+                '<div class="text-center text-danger p-3"><i class="bi bi-exclamation-triangle me-2"></i>Failed to load detail.</div>';
+        }
+    }
+
+    function renderDetail(e) {
+        const dt = new Date(e.createdOn).toLocaleString('en-IN');
+        const sevClass = e.severity === 'Critical' ? 'bg-danger-lt text-danger'
+            : e.severity === 'Error' ? 'bg-orange-lt text-orange'
+            : 'bg-warning-lt text-warning';
+
+        let html = `
+        <div class="row g-3">
+            <div class="col-12">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="badge ${sevClass}">${escHtml(e.severity)}</span>
+                    <span class="badge bg-secondary-lt text-secondary">${escHtml(e.layer)}</span>
+                    <span class="text-muted" style="font-size:.78rem;">#${e.errorLogId} · ${dt}</span>
+                    ${e.isReviewed ? '<span class="badge bg-success-lt text-success ms-1">Reviewed</span>' : ''}
+                </div>
+                <div class="alert alert-danger py-2 mb-2">
+                    <strong>${escHtml(e.exceptionType || 'Exception')}</strong><br>
+                    <span style="font-size:.85rem;">${escHtml(e.message)}</span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <table class="table table-sm table-bordered mb-0" style="font-size:.78rem;">
+                    <tr><th class="bg-light" style="width:120px;">Request Path</th><td>${escHtml(e.requestPath)}</td></tr>
+                    <tr><th class="bg-light">HTTP Method</th><td>${escHtml(e.httpMethod)}</td></tr>
+                    <tr><th class="bg-light">Source</th><td>${escHtml(e.source)}</td></tr>
+                    <tr><th class="bg-light">Method</th><td>${escHtml(e.methodName || '—')}</td></tr>
+                    <tr><th class="bg-light">User</th><td>${escHtml(e.userName)} (ID: ${e.userId})</td></tr>
+                    <tr><th class="bg-light">IP Address</th><td>${escHtml(e.ipAddress)}</td></tr>
+                    <tr><th class="bg-light">Tenant</th><td>${escHtml(e.tenantKey)}</td></tr>
+                    <tr><th class="bg-light">Machine</th><td>${escHtml(e.machineName)}</td></tr>
+                    <tr><th class="bg-light">App Version</th><td>${escHtml(e.appVersion)}</td></tr>
+                    <tr><th class="bg-light">Correlation ID</th><td><code style="font-size:.7rem;">${escHtml(e.correlationId)}</code></td></tr>
+                </table>
+            </div>
+            <div class="col-md-6">
+                ${e.additionalData ? `<div class="mb-2"><strong style="font-size:.78rem;">Additional Data</strong><div class="text-muted" style="font-size:.75rem;">${escHtml(e.additionalData)}</div></div>` : ''}
+                ${e.requestData ? `<div class="mb-2"><strong style="font-size:.78rem;">Request Data</strong><pre class="bg-light p-2 rounded" style="font-size:.7rem;max-height:100px;overflow:auto;">${escHtml(e.requestData)}</pre></div>` : ''}
+                ${e.userAgent ? `<div class="mb-2"><strong style="font-size:.78rem;">User Agent</strong><div class="text-muted" style="font-size:.72rem;word-break:break-all;">${escHtml(e.userAgent)}</div></div>` : ''}
+                ${e.isReviewed ? `<div class="alert alert-success py-1" style="font-size:.75rem;"><strong>Reviewed by:</strong> ${escHtml(e.reviewedBy)}<br><strong>Notes:</strong> ${escHtml(e.reviewNotes)}</div>` : ''}
+            </div>
+            <div class="col-12">
+                <strong style="font-size:.78rem;">Stack Trace</strong>
+                <pre class="bg-dark text-white p-3 rounded mt-1" style="font-size:.7rem;max-height:250px;overflow:auto;white-space:pre-wrap;">${escHtml(e.stackTrace)}</pre>
+            </div>
+            ${e.innerException ? `<div class="col-12"><strong style="font-size:.78rem;">Inner Exception</strong><pre class="bg-secondary-lt p-3 rounded mt-1" style="font-size:.7rem;max-height:150px;overflow:auto;white-space:pre-wrap;">${escHtml(e.innerException)}</pre></div>` : ''}
+        </div>`;
+
+        document.getElementById('errorDetailBody').innerHTML = html;
+    }
+
+    async function markReviewed() {
+        if (!activeErrorLogId) return;
+        const notes = document.getElementById('reviewNotes').value.trim();
+        try {
+            await $.ajax({
+                url: `/api/admin/error-logs/${activeErrorLogId}/review`,
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ notes })
+            });
+            Swal2.toast('Marked as reviewed', 'success');
+            detailModal.hide();
+            load(currentPage);
+            loadStats();
+        } catch (e) {
+            Swal2.error('Failed to mark as reviewed');
+        }
+    }
+
+    function escHtml(str) {
+        if (!str) return '';
+        const d = document.createElement('div');
+        d.textContent = str;
+        return d.innerHTML;
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+
+    return { load, refresh, showDetail, markReviewed, debounceLoad };
+})();
+</script>
+}

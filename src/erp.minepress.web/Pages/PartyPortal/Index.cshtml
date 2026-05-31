@@ -1,0 +1,555 @@
+@page "/PartyPortal"
+@model erp.minepress.web.Pages.PartyPortal.IndexModel
+@{
+    Layout = "_LayoutParty";
+    ViewData["Title"] = "Party Portal";
+
+    var roles = Model.Roles;
+    var tabCount = roles.Count;
+    var firstRole = roles.FirstOrDefault() ?? "Customer";
+}
+
+<!-- ═══ Hero Welcome Section ═══ -->
+<section class="pp-hero">
+    <div class="pp-hero-bg"></div>
+    <div class="pp-hero-content">
+        <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="pp-hero-avatar">
+                @Model.PartyName.Substring(0, 1).ToUpper()
+            </div>
+            <div>
+                <h1 class="pp-hero-title" id="pp-greeting">Welcome, @Model.PartyName</h1>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    @foreach (var role in roles)
+                    {
+                        var pillClass = role switch
+                        {
+                            "Customer" => "pp-pill-blue",
+                            "Supplier" => "pp-pill-green",
+                            "Vendor" => "pp-pill-orange",
+                            _ => "pp-pill-gray"
+                        };
+                        <span class="pp-role-pill @pillClass">
+                            <i class="bi @(role switch { "Customer" => "bi-people", "Supplier" => "bi-truck", "Vendor" => "bi-briefcase", _ => "bi-person" })"></i>
+                            @role
+                        </span>
+                    }
+                    <span class="pp-date-pill">
+                        <i class="bi bi-calendar3"></i>
+                        @DateTime.Now.ToString("dd MMM yyyy, dddd")
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══ AI Insights Panel ═══ -->
+<section class="pp-insights-section" id="pp-insights-section">
+    <div class="pp-insights-header">
+        <div class="pp-insights-icon">
+            <i class="bi bi-stars"></i>
+        </div>
+        <div>
+            <h3 class="pp-insights-title">Smart Insights</h3>
+            <p class="pp-insights-sub">Powered by your activity data</p>
+        </div>
+    </div>
+    <div class="pp-insights-grid" id="pp-insights-grid">
+        <div class="pp-insight-skeleton"></div>
+        <div class="pp-insight-skeleton"></div>
+        <div class="pp-insight-skeleton"></div>
+    </div>
+</section>
+
+<!-- ═══ Quick Actions ═══ -->
+<section class="pp-actions-section">
+    <h3 class="pp-section-heading">
+        <i class="bi bi-lightning-charge-fill"></i> Quick Actions
+    </h3>
+    <div class="pp-actions-grid">
+        @if (Model.IsCustomer)
+        {
+            <button class="pp-action-card pp-ac-blue" onclick="PartyPortal.showSection('approvals')">
+                <div class="pp-ac-icon"><i class="bi bi-check-circle"></i></div>
+                <span class="pp-ac-label">Approvals</span>
+            </button>
+            <button class="pp-action-card pp-ac-purple" onclick="PartyPortal.showSection('job-tracking')">
+                <div class="pp-ac-icon"><i class="bi bi-geo-alt"></i></div>
+                <span class="pp-ac-label">Job Tracking</span>
+            </button>
+            <button class="pp-action-card pp-ac-cyan" onclick="PartyPortal.showSection('requests')">
+                <div class="pp-ac-icon"><i class="bi bi-send"></i></div>
+                <span class="pp-ac-label">Requests</span>
+            </button>
+            <button class="pp-action-card pp-ac-orange" onclick="PartyPortal.showSection('complaints')">
+                <div class="pp-ac-icon"><i class="bi bi-exclamation-triangle"></i></div>
+                <span class="pp-ac-label">Complaints</span>
+            </button>
+            <button class="pp-action-card pp-ac-green" onclick="PartyPortal.showSection('feedback')">
+                <div class="pp-ac-icon"><i class="bi bi-chat-heart"></i></div>
+                <span class="pp-ac-label">Feedback</span>
+            </button>
+        }
+        @if (Model.IsSupplier)
+        {
+            <button class="pp-action-card pp-ac-teal" onclick="PartyPortal.showSection('purchase-orders')">
+                <div class="pp-ac-icon"><i class="bi bi-cart3"></i></div>
+                <span class="pp-ac-label">PO Status</span>
+            </button>
+        }
+        @if (Model.IsVendor)
+        {
+            <button class="pp-action-card pp-ac-red" onclick="PartyPortal.showSection('contracts')">
+                <div class="pp-ac-icon"><i class="bi bi-file-earmark-text"></i></div>
+                <span class="pp-ac-label">Contracts</span>
+            </button>
+        }
+    </div>
+</section>
+
+<!-- ═══ Role Tabs ═══ -->
+@if (tabCount > 1)
+{
+    <div class="pp-tabs-wrap">
+        <ul class="nav pp-modern-tabs" role="tablist">
+            @for (var i = 0; i < roles.Count; i++)
+            {
+                var role = roles[i];
+                var tabId = role.ToLower();
+                var iconClass = role switch
+                {
+                    "Customer" => "bi-people",
+                    "Supplier" => "bi-truck",
+                    "Vendor" => "bi-briefcase",
+                    _ => "bi-person"
+                };
+                <li class="nav-item" role="presentation">
+                    <button class="pp-tab-btn @(i == 0 ? "active" : "")"
+                            id="tab-@tabId"
+                            data-bs-toggle="tab"
+                            data-bs-target="#pane-@tabId"
+                            type="button" role="tab">
+                        <i class="bi @iconClass"></i>
+                        <span>@role</span>
+                    </button>
+                </li>
+            }
+        </ul>
+    </div>
+}
+
+<!-- ═══ Dashboard Panels ═══ -->
+<div class="tab-content">
+    @for (var i = 0; i < roles.Count; i++)
+    {
+        var role = roles[i];
+        var tabId = role.ToLower();
+        <div class="tab-pane fade @(i == 0 ? "show active" : "")"
+             id="pane-@tabId" role="tabpanel" aria-labelledby="tab-@tabId">
+
+            @if (role == "Customer")
+            {
+                <!-- Customer Stats -->
+                <div class="pp-stats-grid">
+                    <div class="pp-stat pp-stat-blue">
+                        <div class="pp-stat-glow"></div>
+                        <div class="pp-stat-body">
+                            <div class="pp-stat-top">
+                                <span class="pp-stat-badge">Total</span>
+                                <span class="pp-stat-trend" id="stat-cust-enq-trend"></span>
+                            </div>
+                            <div class="pp-stat-num" id="stat-cust-enquiries" data-target="0">–</div>
+                            <div class="pp-stat-lbl">Enquiries</div>
+                        </div>
+                        <div class="pp-stat-ring"><i class="bi bi-envelope-paper"></i></div>
+                    </div>
+                    <div class="pp-stat pp-stat-purple">
+                        <div class="pp-stat-glow"></div>
+                        <div class="pp-stat-body">
+                            <div class="pp-stat-top">
+                                <span class="pp-stat-badge">Pending</span>
+                            </div>
+                            <div class="pp-stat-num" id="stat-cust-quotations" data-target="0">–</div>
+                            <div class="pp-stat-lbl">Quotations</div>
+                        </div>
+                        <div class="pp-stat-ring"><i class="bi bi-file-earmark-ruled"></i></div>
+                    </div>
+                    <div class="pp-stat pp-stat-green">
+                        <div class="pp-stat-glow"></div>
+                        <div class="pp-stat-body">
+                            <div class="pp-stat-top">
+                                <span class="pp-stat-badge">Active</span>
+                            </div>
+                            <div class="pp-stat-num" id="stat-cust-jobs" data-target="0">–</div>
+                            <div class="pp-stat-lbl">Jobs</div>
+                        </div>
+                        <div class="pp-stat-ring"><i class="bi bi-gear-wide-connected"></i></div>
+                    </div>
+                    <div class="pp-stat pp-stat-teal">
+                        <div class="pp-stat-glow"></div>
+                        <div class="pp-stat-body">
+                            <div class="pp-stat-top">
+                                <span class="pp-stat-badge">Total</span>
+                            </div>
+                            <div class="pp-stat-num" id="stat-cust-challans" data-target="0">–</div>
+                            <div class="pp-stat-lbl">Challans</div>
+                        </div>
+                        <div class="pp-stat-ring"><i class="bi bi-truck"></i></div>
+                    </div>
+                </div>
+
+                <!-- Customer Sections -->
+                <div class="pp-cards-grid">
+                    <!-- Pending Tasks & Approvals (Full Width) -->
+                    <div class="pp-glass-card pp-workspace-card" id="section-workspace">
+                        <div class="pp-gc-header">
+                            <div class="pp-gc-icon pp-gci-blue"><i class="bi bi-clipboard2-check"></i></div>
+                            <h4 class="pp-gc-title">Pending Tasks & Approvals</h4>
+                            <div class="pp-workspace-summary" id="workspace-summary">
+                                <span class="badge bg-secondary" id="ws-badge-approvals" title="Pending Approvals">0</span>
+                                <span class="badge bg-secondary" id="ws-badge-tasks" title="Active Tasks">0</span>
+                            </div>
+                            <button class="pp-gc-action" onclick="PartyPortal.refreshWorkspace()" title="Refresh workspace">
+                                <i class="bi bi-arrow-clockwise"></i>
+                            </button>
+                        </div>
+                        <div class="pp-gc-body p-0">
+                            <!-- Tab navigation -->
+                            <ul class="nav nav-tabs pp-workspace-tabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="ws-tab-approvals" data-bs-toggle="tab" data-bs-target="#ws-pane-approvals" type="button" role="tab" aria-controls="ws-pane-approvals" aria-selected="true">
+                                        <i class="bi bi-shield-check"></i>
+                                        <span>Approvals</span>
+                                        <span class="badge bg-danger ms-1" id="ws-count-approvals">0</span>
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="ws-tab-tasks" data-bs-toggle="tab" data-bs-target="#ws-pane-tasks" type="button" role="tab" aria-controls="ws-pane-tasks" aria-selected="false">
+                                        <i class="bi bi-list-task"></i>
+                                        <span>Tasks</span>
+                                        <span class="badge bg-secondary ms-1" id="ws-count-tasks">0</span>
+                                    </button>
+                                </li>
+                            </ul>
+                            <!-- Tab content -->
+                            <div class="tab-content">
+                                <!-- Approvals Tab -->
+                                <div class="tab-pane fade show active" id="ws-pane-approvals" role="tabpanel" aria-labelledby="ws-tab-approvals">
+                                    <div class="pp-workspace-list" id="workspace-approvals-list">
+                                        <div class="pp-empty-state">
+                                            <i class="bi bi-shield-check"></i>
+                                            <p>No pending approvals at the moment</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Tasks Tab -->
+                                <div class="tab-pane fade" id="ws-pane-tasks" role="tabpanel" aria-labelledby="ws-tab-tasks">
+                                    <div class="pp-workspace-list" id="workspace-tasks-list">
+                                        <div class="pp-empty-state">
+                                            <i class="bi bi-list-task"></i>
+                                            <p>No active tasks at the moment</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pp-glass-card" id="section-approvals" style="display:none;">
+                        <div class="pp-gc-header">
+                            <div class="pp-gc-icon pp-gci-green"><i class="bi bi-check-circle"></i></div>
+                            <h4 class="pp-gc-title">Approvals</h4>
+                        </div>
+                        <div class="pp-gc-body">
+                            <div class="pp-empty-state" id="approvals-list">
+                                <i class="bi bi-inbox"></i>
+                                <p>No pending approvals</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pp-glass-card" id="section-job-tracking">
+                        <div class="pp-gc-header">
+                            <div class="pp-gc-icon pp-gci-blue"><i class="bi bi-geo-alt"></i></div>
+                            <h4 class="pp-gc-title">Job Tracking</h4>
+                        </div>
+                        <div class="pp-gc-body">
+                            <div class="pp-empty-state" id="job-tracking-list">
+                                <i class="bi bi-geo-alt"></i>
+                                <p>No active jobs to track</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pp-glass-card" id="section-requests">
+                        <div class="pp-gc-header">
+                            <div class="pp-gc-icon pp-gci-cyan"><i class="bi bi-send"></i></div>
+                            <h4 class="pp-gc-title">Requests</h4>
+                            <button class="pp-gc-action" onclick="PartyPortal.newRequest()">
+                                <i class="bi bi-plus-lg"></i>
+                            </button>
+                        </div>
+                        <div class="pp-gc-body">
+                            <div class="pp-empty-state" id="requests-list">
+                                <i class="bi bi-send"></i>
+                                <p>No open requests</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pp-glass-card" id="section-complaints">
+                        <div class="pp-gc-header">
+                            <div class="pp-gc-icon pp-gci-orange"><i class="bi bi-exclamation-triangle"></i></div>
+                            <h4 class="pp-gc-title">Complaints</h4>
+                            <button class="pp-gc-action" onclick="PartyPortal.newComplaint()">
+                                <i class="bi bi-plus-lg"></i>
+                            </button>
+                        </div>
+                        <div class="pp-gc-body">
+                            <div class="pp-empty-state" id="complaints-list">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                <p>No open complaints</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pp-glass-card" id="section-feedback">
+                        <div class="pp-gc-header">
+                            <div class="pp-gc-icon pp-gci-pink"><i class="bi bi-chat-heart"></i></div>
+                            <h4 class="pp-gc-title">Feedback</h4>
+                            <button class="pp-gc-action" onclick="PartyPortal.newFeedback()">
+                                <i class="bi bi-plus-lg"></i>
+                            </button>
+                        </div>
+                        <div class="pp-gc-body">
+                            <div class="pp-empty-state" id="feedback-list">
+                                <i class="bi bi-chat-heart"></i>
+                                <p>No feedback submitted</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            else if (role == "Supplier")
+            {
+                <!-- Supplier Stats -->
+                <div class="pp-stats-grid">
+                    <div class="pp-stat pp-stat-teal">
+                        <div class="pp-stat-glow"></div>
+                        <div class="pp-stat-body">
+                            <div class="pp-stat-top"><span class="pp-stat-badge">Total</span></div>
+                            <div class="pp-stat-num" id="stat-supp-grns" data-target="0">–</div>
+                            <div class="pp-stat-lbl">Purchase Receipts</div>
+                        </div>
+                        <div class="pp-stat-ring"><i class="bi bi-cart3"></i></div>
+                    </div>
+                    <div class="pp-stat pp-stat-orange">
+                        <div class="pp-stat-glow"></div>
+                        <div class="pp-stat-body">
+                            <div class="pp-stat-top"><span class="pp-stat-badge">Pending</span></div>
+                            <div class="pp-stat-num" id="stat-supp-pending" data-target="0">–</div>
+                            <div class="pp-stat-lbl">Pending Delivery</div>
+                        </div>
+                        <div class="pp-stat-ring"><i class="bi bi-hourglass-split"></i></div>
+                    </div>
+                    <div class="pp-stat pp-stat-green">
+                        <div class="pp-stat-glow"></div>
+                        <div class="pp-stat-body">
+                            <div class="pp-stat-top"><span class="pp-stat-badge">Count</span></div>
+                            <div class="pp-stat-num" id="stat-supp-payments" data-target="0">–</div>
+                            <div class="pp-stat-lbl">Payments</div>
+                        </div>
+                        <div class="pp-stat-ring"><i class="bi bi-credit-card"></i></div>
+                    </div>
+                    <div class="pp-stat pp-stat-blue">
+                        <div class="pp-stat-glow"></div>
+                        <div class="pp-stat-body">
+                            <div class="pp-stat-top"><span class="pp-stat-badge">Total</span></div>
+                            <div class="pp-stat-num pp-stat-currency" id="stat-supp-pay-total" data-target="0">–</div>
+                            <div class="pp-stat-lbl">Payment Value</div>
+                        </div>
+                        <div class="pp-stat-ring"><i class="bi bi-currency-rupee"></i></div>
+                    </div>
+                </div>
+
+                <div class="pp-cards-grid">
+                    <div class="pp-glass-card" id="section-purchase-orders">
+                        <div class="pp-gc-header">
+                            <div class="pp-gc-icon pp-gci-teal"><i class="bi bi-cart3"></i></div>
+                            <h4 class="pp-gc-title">Purchase Orders</h4>
+                        </div>
+                        <div class="pp-gc-body">
+                            <div class="pp-empty-state" id="purchase-orders-list">
+                                <i class="bi bi-cart3"></i>
+                                <p>No active purchase orders</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pp-glass-card">
+                        <div class="pp-gc-header">
+                            <div class="pp-gc-icon pp-gci-blue"><i class="bi bi-clock-history"></i></div>
+                            <h4 class="pp-gc-title">Delivery Schedule</h4>
+                        </div>
+                        <div class="pp-gc-body">
+                            <div class="pp-empty-state" id="supplier-deliveries-list">
+                                <i class="bi bi-truck"></i>
+                                <p>No upcoming deliveries</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            else if (role == "Vendor")
+            {
+                <!-- Vendor Stats -->
+                <div class="pp-stats-grid">
+                    <div class="pp-stat pp-stat-purple">
+                        <div class="pp-stat-glow"></div>
+                        <div class="pp-stat-body">
+                            <div class="pp-stat-top"><span class="pp-stat-badge">Total</span></div>
+                            <div class="pp-stat-num" id="stat-vend-total" data-target="0">–</div>
+                            <div class="pp-stat-lbl">Outsource Orders</div>
+                        </div>
+                        <div class="pp-stat-ring"><i class="bi bi-box-arrow-up-right"></i></div>
+                    </div>
+                    <div class="pp-stat pp-stat-orange">
+                        <div class="pp-stat-glow"></div>
+                        <div class="pp-stat-body">
+                            <div class="pp-stat-top"><span class="pp-stat-badge">Active</span></div>
+                            <div class="pp-stat-num" id="stat-vend-active" data-target="0">–</div>
+                            <div class="pp-stat-lbl">Work In Progress</div>
+                        </div>
+                        <div class="pp-stat-ring"><i class="bi bi-tools"></i></div>
+                    </div>
+                    <div class="pp-stat pp-stat-green">
+                        <div class="pp-stat-glow"></div>
+                        <div class="pp-stat-body">
+                            <div class="pp-stat-top"><span class="pp-stat-badge">Done</span></div>
+                            <div class="pp-stat-num" id="stat-vend-completed" data-target="0">–</div>
+                            <div class="pp-stat-lbl">Completed</div>
+                        </div>
+                        <div class="pp-stat-ring"><i class="bi bi-check-circle"></i></div>
+                    </div>
+                    <div class="pp-stat pp-stat-blue">
+                        <div class="pp-stat-glow"></div>
+                        <div class="pp-stat-body">
+                            <div class="pp-stat-top"><span class="pp-stat-badge">Total</span></div>
+                            <div class="pp-stat-num pp-stat-currency" id="stat-vend-payments" data-target="0">–</div>
+                            <div class="pp-stat-lbl">Payments</div>
+                        </div>
+                        <div class="pp-stat-ring"><i class="bi bi-currency-rupee"></i></div>
+                    </div>
+                </div>
+
+                <div class="pp-cards-grid">
+                    <div class="pp-glass-card" id="section-contracts">
+                        <div class="pp-gc-header">
+                            <div class="pp-gc-icon pp-gci-purple"><i class="bi bi-file-earmark-text"></i></div>
+                            <h4 class="pp-gc-title">Outsource Orders</h4>
+                        </div>
+                        <div class="pp-gc-body">
+                            <div class="pp-empty-state" id="contracts-list">
+                                <i class="bi bi-file-earmark-text"></i>
+                                <p>No active outsource orders</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pp-glass-card">
+                        <div class="pp-gc-header">
+                            <div class="pp-gc-icon pp-gci-orange"><i class="bi bi-tools"></i></div>
+                            <h4 class="pp-gc-title">Work Orders</h4>
+                        </div>
+                        <div class="pp-gc-body">
+                            <div class="pp-empty-state" id="vendor-work-orders-list">
+                                <i class="bi bi-tools"></i>
+                                <p>No active work orders</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    @if (tabCount == 0)
+    {
+        <div class="pp-empty-hero">
+            <div class="pp-empty-hero-icon">
+                <i class="bi bi-shield-exclamation"></i>
+            </div>
+            <h3>No Roles Assigned</h3>
+            <p>Your account does not have any active roles. Please contact the administrator.</p>
+        </div>
+    }
+</div>
+
+<!-- ═══ Activity & Summary Row ═══ -->
+<div class="pp-bottom-grid">
+    <!-- Activity Breakdown Mini Chart -->
+    <div class="pp-glass-card pp-activity-summary-card">
+        <div class="pp-gc-header">
+            <div class="pp-gc-icon pp-gci-purple"><i class="bi bi-pie-chart"></i></div>
+            <h4 class="pp-gc-title">Activity Breakdown</h4>
+        </div>
+        <div class="pp-gc-body">
+            <div id="pp-activity-chart" class="pp-bar-chart">
+                <div class="text-center text-secondary py-3">
+                    <div class="spinner-border spinner-border-sm"></div>
+                </div>
+            </div>
+            <div class="pp-activity-summary-footer" id="pp-activity-summary-footer">
+                <span class="text-secondary small">Loading summary...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Activity Feed -->
+    <div class="pp-glass-card pp-activity-feed-card" id="activity">
+        <div class="pp-gc-header">
+            <div class="pp-gc-icon pp-gci-blue"><i class="bi bi-activity"></i></div>
+            <h4 class="pp-gc-title">Recent Activity</h4>
+            <div class="d-flex align-items-center gap-2 ms-auto">
+                <select class="pp-filter-select" id="pp-activity-filter">
+                    <option value="">All Types</option>
+                    <option value="ENQUIRY">Enquiry</option>
+                    <option value="QUOTATION">Quotation</option>
+                    <option value="JOB">Job</option>
+                    <option value="CHALLAN">Challan</option>
+                    <option value="INVOICE">Invoice</option>
+                    <option value="RECEIPT">Receipt</option>
+                    <option value="PAYMENT">Payment</option>
+                    <option value="PURCHASE">Purchase</option>
+                    <option value="OUTSOURCE">Outsource</option>
+                    <option value="PRODUCTION">Production</option>
+                    <option value="APPROVAL">Approval</option>
+                    <option value="DOCUMENT">Document</option>
+                    <option value="COMMUNICATION">Communication</option>
+                    <option value="VISIT">Visit</option>
+                    <option value="COMPLAINT">Complaint</option>
+                </select>
+                <span class="text-secondary small" id="pp-activity-count"></span>
+            </div>
+        </div>
+        <div class="pp-gc-body p-0">
+            <div id="pp-activity-timeline" class="pp-activity-timeline">
+                <div class="text-center text-secondary py-4">
+                    <div class="spinner-border spinner-border-sm mb-2"></div>
+                    <div class="small">Loading activity...</div>
+                </div>
+            </div>
+        </div>
+        <div class="pp-gc-footer d-none" id="pp-activity-more-wrap">
+            <button class="pp-load-more-btn" id="pp-activity-load-more">
+                <i class="bi bi-arrow-down-circle me-1"></i>Load More
+            </button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="/js/party-portal.js"></script>
+    <script src="/js/party-activity.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            PartyPortal.init(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(new { partyId = Model.PartyId, roles = Model.Roles, partyName = Model.PartyName })));
+            PartyActivity.init();
+        });
+    </script>
+}

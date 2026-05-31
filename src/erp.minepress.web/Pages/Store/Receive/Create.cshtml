@@ -1,0 +1,344 @@
+@page
+@model erp.minepress.web.Pages.Store.Receive.CreateModel
+@{
+    ViewData["Title"] = "New Store Receive";
+    ViewData["ContainerClass"] = "container-xl";
+}
+
+<!-- ═══ Hero ═══ -->
+<div class="store-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto"><span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);"><i class="bi bi-box-arrow-in-down" style="font-size:1.5rem;"></i></span></div>
+        <div class="col">
+            <h2 class="mb-0">New Store Receive</h2>
+            <div class="text-white-75">Receive materials from purchases, returns, or stock adjustments.</div>
+        </div>
+        <div class="col-auto">
+            <a href="/Store/Receive" class="btn btn-outline-light btn-sm"><i class="bi bi-arrow-left me-1"></i>Back to List</a>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Section 1: Receive Details (compact horizontal) ═══ -->
+<div class="card si-details-card mb-3">
+    <div class="card-body py-3">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-2">
+                <label class="form-label mb-1"><i class="bi bi-tag me-1"></i>Receive Type</label>
+                <select id="ddlReceiveType" class="form-select form-select-sm">
+                    <option value="PURCHASE" selected>Purchase</option>
+                    <option value="RETURN">Return</option>
+                    <option value="STOCK_ADJUSTMENT">Stock Adjustment</option>
+                </select>
+            </div>
+            <div class="col-md-2" id="supplierSection">
+                <label class="form-label mb-1"><i class="bi bi-building me-1"></i>Supplier</label>
+                <button type="button" class="btn btn-outline-success btn-sm w-100" onclick="openSupplierPicker()"><i class="bi bi-search me-1"></i>Select Supplier</button>
+            </div>
+            <div class="col-md-4" id="supplierDisplay" style="display:none;">
+                <div id="selectedSupplierCard" class="sp-selected-card"></div>
+            </div>
+            <div class="col-md-2" id="grnSection">
+                <label class="form-label mb-1"><i class="bi bi-file-earmark-text me-1"></i>GRN No</label>
+                <input type="text" id="txtGrnNo" class="form-control form-control-sm" placeholder="Optional GRN ref..." />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label mb-1"><i class="bi bi-chat-left-text me-1"></i>Remarks</label>
+                <input type="text" id="txtRemarks" class="form-control form-control-sm" placeholder="Optional..." />
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Section 2: Receive Items (full width) ═══ -->
+<div class="card si-items-card">
+    <div class="card-header py-2">
+        <h3 class="card-title"><i class="bi bi-list-check me-2"></i>Receive Items</h3>
+        <div class="card-actions">
+            <span class="text-muted small me-3" id="itemCountLabel">0 items</span>
+            <button class="btn btn-success btn-sm" onclick="openItemPicker()"><i class="bi bi-box-seam me-1"></i>Add from Master</button>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 si-items-table">
+                <thead>
+                    <tr>
+                        <th style="width:36px;"></th>
+                        <th style="min-width:100px;width:110px;">Category</th>
+                        <th style="width:100px;">Code</th>
+                        <th style="min-width:200px;">Material</th>
+                        <th class="text-center" style="width:90px;">Ordered</th>
+                        <th class="text-center" style="width:90px;">Received</th>
+                        <th class="text-center" style="width:90px;">Rejected</th>
+                        <th style="width:80px;">UOM</th>
+                        <th class="text-end" style="width:100px;">Rate</th>
+                        <th class="text-end" style="width:120px;">Amount</th>
+                        <th style="width:40px;"></th>
+                    </tr>
+                </thead>
+                <tbody id="itemsBody"></tbody>
+                <tfoot>
+                    <tr class="si-total-row">
+                        <td colspan="9" class="text-end pe-3">Grand Total</td>
+                        <td class="text-end" id="grandTotal">0.00</td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Item Picker Modal (shared) ═══ -->
+<partial name="_ItemPickerPartial" />
+
+<!-- ═══ Supplier Picker Modal (shared) ═══ -->
+<partial name="_SupplierPickerPartial" />
+
+<!-- ═══ Action Bar ═══ -->
+<div class="si-action-bar">
+    <div class="d-flex justify-content-between align-items-center">
+        <a href="/Store/Receive" class="btn btn-ghost-secondary"><i class="bi bi-x-lg me-1"></i>Cancel</a>
+        <button class="btn btn-success btn-lg px-4" id="btnSave" onclick="saveReceive()"><i class="bi bi-check-lg me-1"></i>Save Receive</button>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="/js/store.js"></script>
+    <script src="/js/item-picker.js"></script>
+    <script src="/js/supplier-picker.js"></script>
+    <script>
+        let selectedSupplierId = null, selectedSupplierName = null;
+        let itemIndex = 0;
+
+        $(document).ready(function () {
+            // Toggle form sections based on Receive Type
+            $('#ddlReceiveType').on('change', function () {
+                const type = $(this).val();
+                const isPurchase = type === 'PURCHASE';
+                $('#supplierSection').toggle(isPurchase);
+                $('#grnSection').toggle(isPurchase);
+                if (!isPurchase) clearSupplier();
+            });
+        });
+
+        function openSupplierPicker() {
+            SupplierPicker.open({
+                onSelect: function (s) {
+                    selectedSupplierId = s.id;
+                    selectedSupplierName = s.name;
+                    $('#selectedSupplierCard').html(
+                        `<div class="sp-selected-icon"><i class="bi bi-building"></i></div>` +
+                        `<div class="sp-selected-info">` +
+                        `<div class="sp-selected-name">${esc(s.name)}</div>` +
+                        `<div class="sp-selected-detail">${esc(s.code || '')}${s.city ? ' · ' + esc(s.city) : ''}${s.gstno ? ' · ' + esc(s.gstno) : ''}</div>` +
+                        `</div>` +
+                        `<button type="button" class="sp-remove-btn" onclick="clearSupplier()" title="Remove"><i class="bi bi-x-circle"></i></button>`
+                    );
+                    $('#supplierDisplay').show();
+                }
+            });
+        }
+
+        function clearSupplier() {
+            selectedSupplierId = null;
+            selectedSupplierName = null;
+            $('#selectedSupplierCard').empty();
+            $('#supplierDisplay').hide();
+        }
+
+        function addItemRow(data) {
+            const i = itemIndex++;
+            const d = data || {};
+            const hasData = !!d.materialId;
+            const html = `<tr id="row_${i}" class="si-item-row">
+                <td class="text-center"><input type="checkbox" class="form-check-input si-check" checked /></td>
+                <td><select class="form-select form-select-sm item-category" data-idx="${i}" ${hasData?'disabled':''}>
+                    <option value="PAPER" ${d.materialCategory==='PAPER'?'selected':''}>Paper</option>
+                    <option value="INK" ${d.materialCategory==='INK'?'selected':''}>Ink</option>
+                    <option value="PLATE" ${d.materialCategory==='PLATE'?'selected':''}>Plate</option>
+                    <option value="CHEMICAL" ${d.materialCategory==='CHEMICAL'?'selected':''}>Chemical</option>
+                    <option value="OTHER" ${d.materialCategory==='OTHER'?'selected':''}>Other</option>
+                </select>${hasData?`<input type="hidden" name="cat_${i}" value="${esc(d.materialCategory||'OTHER')}"/>`:''}</td>
+                <td class="text-muted small" id="matCodeDisplay_${i}">${esc(d.materialCode||'')}</td>
+                <td style="position:relative;">
+                    <input type="hidden" id="matId_${i}" value="${d.materialId||''}" />
+                    <input type="hidden" id="matCode_${i}" value="${esc(d.materialCode||'')}" />
+                    <input type="text" class="form-control form-control-sm mat-search" data-idx="${i}" id="matName_${i}" value="${esc(d.materialName||'')}" placeholder="Search material..." autocomplete="off" ${hasData?'readonly':''} />
+                    <div class="list-group position-absolute w-100 shadow-sm" id="matResults_${i}" style="display:none;z-index:1050;max-height:200px;overflow-y:auto;"></div>
+                </td>
+                <td><input type="number" class="form-control form-control-sm text-center si-num-input" id="ordQty_${i}" value="${d.orderedQuantity||0}" step="0.001" min="0" /></td>
+                <td><input type="number" class="form-control form-control-sm text-center si-num-input item-qty" data-idx="${i}" id="rcvQty_${i}" value="${d.receivedQuantity||0}" step="0.001" min="0" /></td>
+                <td><input type="number" class="form-control form-control-sm text-center si-num-input" id="rejQty_${i}" value="${d.rejectedQuantity||0}" step="0.001" min="0" /></td>
+                <td><input type="text" class="form-control form-control-sm text-center si-uom-input" id="uom_${i}" value="${esc(d.uom||'Pcs')}" /></td>
+                <td><input type="number" class="form-control form-control-sm text-end si-num-input item-rate" data-idx="${i}" id="rate_${i}" value="${d.rate||0}" step="0.01" min="0" /></td>
+                <td class="text-end fw-bold si-amt-cell" id="amt_${i}">0.00</td>
+                <td><button class="btn btn-icon btn-ghost-danger btn-sm" onclick="$('#row_${i}').remove();calcTotal();updateItemCount();"><i class="bi bi-x-lg"></i></button></td>
+            </tr>`;
+            $('#itemsBody').append(html);
+            calcRowAmount(i);
+            updateItemCount();
+        }
+
+        // Material autocomplete search
+        let matSearchTimer;
+        $(document).on('input', '.mat-search', function () {
+            clearTimeout(matSearchTimer);
+            const idx = $(this).data('idx');
+            const q = $(this).val();
+            const cat = $(`#row_${idx} .item-category`).val();
+            if (q.length < 2) { $(`#matResults_${idx}`).hide(); return; }
+            matSearchTimer = setTimeout(() => {
+                $.get(`/api/store/materials/search?category=${cat}&q=${encodeURIComponent(q)}`, function (items) {
+                    const $results = $(`#matResults_${idx}`);
+                    if (!items.length) { $results.html('<div class="list-group-item text-muted small py-1">No items found</div>').show(); return; }
+                    let html = '';
+                    items.forEach(m => {
+                        html += `<a href="javascript:void(0)" class="list-group-item list-group-item-action small py-1" onclick="selectMaterial(${idx},${JSON.stringify(m).replace(/"/g,'&quot;')})">
+                            <strong>${esc(m.materialCode)}</strong> — ${esc(m.materialName)}
+                            <span class="text-muted">${esc(m.specification||'')} | Stock: ${m.currentStock} | Rate: ${m.rate}</span>
+                        </a>`;
+                    });
+                    $results.html(html).show();
+                });
+            }, 300);
+        });
+
+        $(document).on('click', function (e) {
+            if (!$(e.target).closest('.mat-search, [id^=matResults_]').length) $('[id^=matResults_]').hide();
+        });
+
+        function selectMaterial(idx, m) {
+            $(`#matId_${idx}`).val(m.materialId || '');
+            $(`#matCode_${idx}`).val(m.materialCode || '');
+            $(`#matCodeDisplay_${idx}`).text(m.materialCode || '');
+            $(`#matName_${idx}`).val(m.materialName);
+            $(`#uom_${idx}`).val(m.uom || 'Pcs');
+            $(`#rate_${idx}`).val(m.rate || 0);
+            $(`#matResults_${idx}`).hide();
+            calcRowAmount(idx);
+        }
+
+        $(document).on('change', '.item-category', function () {
+            const idx = $(this).data('idx');
+            $(`#matName_${idx}`).val('').trigger('focus');
+            $(`#matId_${idx}`).val('');
+            $(`#matCode_${idx}`).val('');
+            $(`#matCodeDisplay_${idx}`).text('');
+        });
+
+        $(document).on('input', '.item-qty, .item-rate', function () { calcRowAmount($(this).data('idx')); });
+
+        function updateItemCount() {
+            const cnt = $('#itemsBody tr').length;
+            $('#itemCountLabel').text(`${cnt} item${cnt !== 1 ? 's' : ''}`);
+        }
+
+        function calcRowAmount(i) {
+            const qty = parseFloat($(`#rcvQty_${i}`).val()) || 0;
+            const rate = parseFloat($(`#rate_${i}`).val()) || 0;
+            $(`#amt_${i}`).text((qty * rate).toLocaleString('en-IN', { minimumFractionDigits: 2 }));
+            calcTotal();
+        }
+
+        function calcTotal() {
+            let total = 0;
+            $('#itemsBody tr').each(function () {
+                const amt = parseFloat($(this).find('td:nth-child(10)').text().replace(/,/g, '')) || 0;
+                total += amt;
+            });
+            $('#grandTotal').text(total.toLocaleString('en-IN', { minimumFractionDigits: 2 }));
+        }
+
+        async function saveReceive() {
+            const receiveType = $('#ddlReceiveType').val();
+
+            // Validate supplier for PURCHASE type
+            if (receiveType === 'PURCHASE' && !selectedSupplierId) {
+                Swal2.error('Please select a supplier for Purchase receive.');
+                return;
+            }
+
+            const items = [];
+            $('#itemsBody tr').each(function () {
+                const idx = $(this).attr('id').replace('row_', '');
+                items.push({
+                    materialCategory: $(this).find('.item-category').val(),
+                    materialId: parseInt($(`#matId_${idx}`).val()) || null,
+                    materialCode: $(`#matCode_${idx}`).val(),
+                    materialName: $(`#matName_${idx}`).val(),
+                    orderedQuantity: parseFloat($(`#ordQty_${idx}`).val()) || 0,
+                    receivedQuantity: parseFloat($(`#rcvQty_${idx}`).val()) || 0,
+                    rejectedQuantity: parseFloat($(`#rejQty_${idx}`).val()) || 0,
+                    acceptedQuantity: (parseFloat($(`#rcvQty_${idx}`).val()) || 0) - (parseFloat($(`#rejQty_${idx}`).val()) || 0),
+                    uom: $(`#uom_${idx}`).val(),
+                    rate: parseFloat($(`#rate_${idx}`).val()) || 0,
+                    isSelected: $(this).find('input[type=checkbox]').prop('checked')
+                });
+            });
+
+            if (!items.length) { Swal2.error('Please add at least one item.'); return; }
+
+            const selectedItems = items.filter(i => i.isSelected);
+            if (!selectedItems.length) { Swal2.error('Please select (check) at least one item to receive.'); return; }
+
+            // Validate: all selected items must have received qty > 0
+            const zeroQtyItems = selectedItems.filter(i => i.receivedQuantity <= 0);
+            if (zeroQtyItems.length) {
+                Swal2.error(`${zeroQtyItems.length} selected item(s) have zero received quantity. Please enter a valid quantity or uncheck them.`);
+                return;
+            }
+
+            // Validate: all selected items must have a material selected
+            const noMaterialItems = selectedItems.filter(i => !i.materialName);
+            if (noMaterialItems.length) {
+                Swal2.error(`${noMaterialItems.length} selected item(s) have no material selected. Please select a material or uncheck them.`);
+                return;
+            }
+
+            const confirmed = await Swal2.confirm(
+                'Save Receive?',
+                `Do you really want to save this store receive with <strong>${selectedItems.length}</strong> item(s)?`,
+                { icon: 'question', confirmText: '<i class="bi bi-check-lg me-1"></i>Yes, Save', confirmClass: 'btn btn-success' }
+            );
+            if (!confirmed) return;
+
+            const payload = {
+                receiveType: receiveType,
+                supplierId: selectedSupplierId,
+                supplierName: selectedSupplierName,
+                grnNo: $('#txtGrnNo').val(),
+                remarks: $('#txtRemarks').val(),
+                items
+            };
+            try {
+                Swal2.showLoading('Saving...');
+                const resp = await $.ajax({ url: '/api/store/receives/save', method: 'POST', contentType: 'application/json', data: JSON.stringify(payload) });
+                Swal2.hideLoading();
+                await Swal2.success(resp.message || 'Saved');
+                window.location.href = '/Store/Receive';
+            } catch (err) { Swal2.hideLoading(); Swal2.error(err.responseJSON?.message || 'Failed to save.'); }
+        }
+
+        function openItemPicker() {
+            ItemPicker.open({
+                onSelect: function (item) {
+                    addItemRow({
+                        materialCategory: (item.itemGroup || 'OTHER').toUpperCase(),
+                        materialId: item.sourceId || '',
+                        materialCode: item.itemCode || '',
+                        materialName: item.itemName || '',
+                        uom: item.uom || 'Pcs',
+                        rate: item.purchaseRate || 0,
+                        orderedQuantity: 0,
+                        receivedQuantity: 0,
+                        rejectedQuantity: 0
+                    });
+                }
+            });
+        }
+
+        function esc(v) { return (v||'').toString().replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;'); }
+    </script>
+}

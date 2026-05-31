@@ -1,0 +1,35 @@
+@page
+@model erp.minepress.web.Pages.ErrorModel
+@{
+    Layout = "_AuthLayout";
+    ViewData["Title"] = "Something went wrong";
+}
+
+<div class="container py-6">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="card-title mb-0">We hit an unexpected error</h3>
+                </div>
+                <div class="card-body">
+                    <p class="mb-3">@Model.Message</p>
+
+                    <div class="alert alert-warning mb-3" role="alert">
+                        <div><strong>Reference ID:</strong> @(string.IsNullOrWhiteSpace(Model.ErrorId) ? "N/A" : Model.ErrorId)</div>
+                        <div><strong>Time (UTC):</strong> @Model.UtcTimestamp.ToString("dd-MMM-yyyy HH:mm:ss")</div>
+                    </div>
+
+                    <p class="text-secondary mb-3">
+                        Please share the reference ID with support/admin so we can trace and fix the issue quickly.
+                    </p>
+
+                    <div class="d-flex gap-2">
+                        <a class="btn btn-primary" href="/">Go to Home</a>
+                        <a class="btn btn-outline-secondary" href="/Account/Login">Go to Login</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

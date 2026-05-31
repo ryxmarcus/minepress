@@ -1,0 +1,61 @@
+@page
+@model erp.minepress.web.Pages.Accounting.GoodsReceipt.IndexModel
+@{
+    ViewData["Title"] = "Goods Receipt Notes";
+}
+
+<div class="acc-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto"><span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);"><i class="bi bi-box-seam" style="font-size:1.5rem;"></i></span></div>
+        <div class="col"><h2 class="mb-0">Goods Receipt Notes</h2><div class="text-white-75">Track received goods against purchase orders</div></div>
+        <div class="col-auto d-flex gap-2">
+            <a href="/Accounting" class="btn btn-outline-light btn-sm"><i class="bi bi-arrow-left me-1"></i>Back</a>
+            <button class="btn btn-outline-light btn-sm" onclick="loadList()"><i class="bi bi-arrow-clockwise me-1"></i>Refresh</button>
+        </div>
+    </div>
+</div>
+
+<div class="acc-sub-nav d-print-none mb-3">
+    <a href="/Accounting/PurchaseOrder" class="acc-sub-nav-item"><i class="bi bi-cart-check me-1"></i>Purchase Orders</a>
+    <a href="/Accounting/GoodsReceipt" class="acc-sub-nav-item active"><i class="bi bi-box-seam me-1"></i>Goods Receipts</a>
+    <a href="/Accounting/PurchaseInvoice" class="acc-sub-nav-item"><i class="bi bi-receipt me-1"></i>Purchase Invoices</a>
+    <a href="/Accounting/Payment" class="acc-sub-nav-item"><i class="bi bi-wallet2 me-1"></i>Payments</a>
+</div>
+
+<div class="card mb-3"><div class="card-body py-2"><div class="row g-2 align-items-center">
+    <div class="col-md-4"><div class="input-icon"><span class="input-icon-addon"><i class="bi bi-search"></i></span><input type="text" id="txtSearch" class="form-control form-control-sm" placeholder="Search GRN no, supplier, PO..." /></div></div>
+    <div class="col-md-2"><select id="ddlStatus" class="form-select form-select-sm"><option value="">All</option><option value="DRAFT">Draft</option><option value="INSPECTED">Inspected</option><option value="ACCEPTED">Accepted</option><option value="PARTIAL">Partial</option><option value="CANCELLED">Cancelled</option></select></div>
+</div></div></div>
+
+<div class="card"><div class="table-responsive"><table class="table table-vcenter card-table table-hover acc-list-table">
+    <thead><tr><th>GRN No</th><th>Date</th><th>Supplier</th><th>PO No</th><th class="text-end">Total Qty</th><th class="text-end">Accepted</th><th class="text-end">Rejected</th><th>Status</th></tr></thead>
+    <tbody id="listBody"><tr><td colspan="8" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2"></div>Loading...</td></tr></tbody>
+</table></div></div>
+
+@section Scripts {
+    <script>
+        let allData = [];
+        $(document).ready(function () { loadList(); $('#txtSearch, #ddlStatus').on('input change', applyFilters); });
+        function loadList() {
+            $.get('/api/accounting/goods-receipts', function (data) { allData = data; applyFilters(); })
+            .fail(function () { $('#listBody').html('<tr><td colspan="8" class="text-center text-danger py-3">Failed to load.</td></tr>'); });
+        }
+        function applyFilters() {
+            const q = ($('#txtSearch').val() || '').toLowerCase(), st = $('#ddlStatus').val();
+            let f = allData.filter(i => {
+                if (q && !(i.grnNo || '').toLowerCase().includes(q) && !(i.supplierName || '').toLowerCase().includes(q) && !(i.poNo || '').toLowerCase().includes(q)) return false;
+                if (st && i.status !== st) return false;
+                return true;
+            });
+            let html = '';
+            if (!f.length) html = '<tr><td colspan="8" class="text-center text-muted py-4">No goods receipts found</td></tr>';
+            f.forEach(i => {
+                const sc = { 'DRAFT': 'acc-status-draft', 'INSPECTED': 'acc-status-pending', 'ACCEPTED': 'acc-status-approved', 'PARTIAL': 'acc-status-partial', 'CANCELLED': 'acc-status-cancelled' }[i.status] || 'bg-secondary-lt';
+                const rejClass = (i.totalRejectedQty || 0) > 0 ? 'text-danger fw-semibold' : 'text-muted';
+                html += `<tr><td class="fw-semibold">${esc(i.grnNo)}</td><td class="text-muted small">${esc(i.grnDate)}</td><td>${esc(i.supplierName)}</td><td class="small">${esc(i.poNo || '-')}</td><td class="text-end">${i.totalQuantity || 0}</td><td class="text-end">${i.totalAcceptedQty || 0}</td><td class="text-end ${rejClass}">${i.totalRejectedQty || 0}</td><td><span class="acc-status-badge ${sc}">${(i.status || '').replace(/_/g, ' ')}</span></td></tr>`;
+            });
+            $('#listBody').html(html);
+        }
+        function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.appendChild(document.createTextNode(s)); return d.innerHTML; }
+    </script>
+}

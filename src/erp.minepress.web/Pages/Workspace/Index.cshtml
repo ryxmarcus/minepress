@@ -1,0 +1,261 @@
+@page
+@model erp.minepress.web.Pages.Workspace.IndexModel
+@{
+    ViewData["Title"] = "My Workspace";
+}
+
+<!-- ═══ Hero Header ═══ -->
+<div class="ws-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-lg ws-hero-avatar">
+                <i class="bi bi-kanban" style="font-size:1.5rem;"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="mb-1">My Workspace</h2>
+            <div class="text-white-75 d-flex align-items-center gap-2">
+                <span class="badge bg-white text-dark">
+                    <i class="bi bi-person-circle me-1"></i>@Model.UserFullName
+                </span>
+                <span class="badge bg-white text-dark">
+                    <i class="bi bi-building me-1"></i>@Model.DeptCode — @Model.DeptName
+                </span>
+                <span id="wsHeroTime" class="small opacity-75"></span>
+            </div>
+        </div>
+        <div class="col-auto d-flex gap-2 flex-wrap">
+            <button class="btn btn-outline-light btn-sm" onclick="Workspace.refresh()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+            </button>
+            <a href="/Workspace/MyTasks" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-list-task me-1"></i>All Tasks
+            </a>
+            <a href="/Workspace/Approvals" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-shield-check me-1"></i>Approvals
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Stats Row ═══ -->
+<div class="row g-3 mb-4" id="wsStatsRow">
+    <div class="col-6 col-md-3">
+        <div class="card card-sm ws-stat-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-primary-lt me-3">
+                        <i class="bi bi-hourglass-split"></i>
+                    </span>
+                    <div>
+                        <div class="fw-bold h3 mb-0" id="statPending">-</div>
+                        <div class="text-secondary small">Pending Tasks</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card card-sm ws-stat-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-cyan-lt me-3">
+                        <i class="bi bi-play-circle"></i>
+                    </span>
+                    <div>
+                        <div class="fw-bold h3 mb-0" id="statInProgress">-</div>
+                        <div class="text-secondary small">In Progress</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card card-sm ws-stat-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-success-lt me-3">
+                        <i class="bi bi-check-circle"></i>
+                    </span>
+                    <div>
+                        <div class="fw-bold h3 mb-0" id="statCompleted">-</div>
+                        <div class="text-secondary small">Completed</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card card-sm ws-stat-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-danger-lt me-3">
+                        <i class="bi bi-exclamation-triangle"></i>
+                    </span>
+                    <div>
+                        <div class="fw-bold h3 mb-0" id="statOverdue">-</div>
+                        <div class="text-secondary small">Overdue</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Additional Stats Row ═══ -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card card-sm ws-stat-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-purple-lt me-3">
+                        <i class="bi bi-shield-lock"></i>
+                    </span>
+                    <div>
+                        <div class="fw-bold h3 mb-0" id="statApprovals">-</div>
+                        <div class="text-secondary small">Pending Approvals</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card card-sm ws-stat-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-orange-lt me-3">
+                        <i class="bi bi-send-check"></i>
+                    </span>
+                    <div>
+                        <div class="fw-bold h3 mb-0" id="statAssigned">-</div>
+                        <div class="text-secondary small">Assigned by Me</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card card-sm ws-stat-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-yellow-lt me-3">
+                        <i class="bi bi-calendar-event"></i>
+                    </span>
+                    <div>
+                        <div class="fw-bold h3 mb-0" id="statTodayDue">-</div>
+                        <div class="text-secondary small">Due Today</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card card-sm ws-stat-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <span class="avatar avatar-sm bg-teal-lt me-3">
+                        <i class="bi bi-activity"></i>
+                    </span>
+                    <div>
+                        <div class="fw-bold h3 mb-0" id="statTotal">-</div>
+                        <div class="text-secondary small">Total Active</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ AI Suggestions Panel ═══ -->
+<div class="row g-3 mb-4">
+    <div class="col-12">
+        <div class="card ws-ai-card">
+            <div class="card-header d-flex align-items-center">
+                <div class="d-flex align-items-center">
+                    <span class="ws-ai-pulse me-2"></span>
+                    <i class="bi bi-cpu me-2 text-primary"></i>
+                    <h3 class="card-title mb-0">AI Smart Suggestions</h3>
+                </div>
+                <div class="ms-auto">
+                    <button class="btn btn-ghost-primary btn-sm" onclick="Workspace.loadAiSuggestions()">
+                        <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+                    </button>
+                </div>
+            </div>
+            <div class="card-body p-0" id="wsAiSuggestions">
+                <div class="text-center py-4 text-secondary">
+                    <div class="spinner-border spinner-border-sm me-2"></div>
+                    Analyzing your workspace...
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Recent Tasks + Recent Approvals ═══ -->
+<div class="row g-3 mb-4">
+    <!-- Recent Tasks -->
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-header d-flex align-items-center">
+                <h3 class="card-title mb-0"><i class="bi bi-list-task me-2"></i>Recent Tasks</h3>
+                <a href="/Workspace/MyTasks" class="btn btn-ghost-primary btn-sm ms-auto">View All</a>
+            </div>
+            <div class="card-body p-0" id="wsRecentTasks">
+                <div class="text-center py-4 text-secondary">
+                    <div class="spinner-border spinner-border-sm me-2"></div>Loading...
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Recent Approvals -->
+    <div class="col-lg-5">
+        <div class="card">
+            <div class="card-header d-flex align-items-center">
+                <h3 class="card-title mb-0"><i class="bi bi-shield-check me-2"></i>Pending Approvals</h3>
+                <a href="/Workspace/Approvals" class="btn btn-ghost-primary btn-sm ms-auto">View All</a>
+            </div>
+            <div class="card-body p-0" id="wsRecentApprovals">
+                <div class="text-center py-4 text-secondary">
+                    <div class="spinner-border spinner-border-sm me-2"></div>Loading...
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Quick Links ═══ -->
+<div class="row g-3 mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-center flex-wrap gap-2">
+                    <span class="text-secondary me-2"><i class="bi bi-lightning-charge me-1"></i>Quick Access:</span>
+                    <a href="/Workspace/Calendar" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-calendar3 me-1"></i>Calendar View
+                    </a>
+                    <a href="/Workspace/Notifications" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-bell me-1"></i>Notifications
+                    </a>
+                    <a href="/Workspace/History" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-clock-history me-1"></i>Activity History
+                    </a>
+                    <a href="/Dashboard" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-speedometer2 me-1"></i>Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link href="/css/workspace.css" rel="stylesheet" />
+}
+
+@section Scripts {
+    <script src="/js/workspace.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => Workspace.initIndex());
+    </script>
+}

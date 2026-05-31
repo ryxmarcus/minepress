@@ -1,0 +1,27 @@
+User Creates Enquiry
+        │
+        ▼
+┌─────────────────────────────┐
+│  WorkspaceProcessEngine     │
+│  processCode = "ENQ_JOB"    │
+├─────────────────────────────┤
+│  ① Lookup Roles: 35,36,4   │
+│  ② Lookup Dept:  1007(CST) │
+│  ③ Match Users: role∩dept   │
+├─────────────────────────────┤
+│  ④ Config: SLA=12h, P=1    │
+│  ⑤ Create PENDING tasks    │
+│  ⑥ Email + Popup + Logs    │
+│  ⑦ Party Activity Log      │
+└──────────┬──────────────────┘
+           │ Task completed/approved
+           ▼
+┌─────────────────────────────┐
+│  GenerateNextStepTasksAsync │
+│  → Next: ENQ_EST (seq 3)   │
+│  → Dept: 1008 (Estimation) │
+│  → Roles: 35,4             │
+│  → Type: APPROVAL           │
+└──────────┬──────────────────┘
+           │ ... cascades through
+           ▼  all 41 processes

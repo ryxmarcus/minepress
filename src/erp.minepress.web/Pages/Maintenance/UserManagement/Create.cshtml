@@ -1,0 +1,355 @@
+@page
+@model erp.minepress.web.Pages.Maintenance.UserManagement.CreateModel
+@{
+    ViewData["Title"] = "Create New User";
+    ViewData["ContainerClass"] = "container-xl";
+    ViewData["HidePageHeader"] = true;
+}
+
+<!-- ── Page Header ── -->
+<div class="page-header d-print-none mb-3">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-md bg-indigo-lt text-indigo">
+                <i class="bi bi-person-plus-fill fs-4"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="page-title mb-0">Create New User</h2>
+            <div class="text-secondary mt-1">Set up a new user account with roles, permissions &amp; access configuration</div>
+        </div>
+        <div class="col-auto">
+            <a href="/Maintenance/UserManagement" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i>Back to Users
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ AI Assistant Bar ═══ -->
+<div class="uc-ai-bar">
+    <div class="uc-ai-icon"><i class="bi bi-stars"></i></div>
+    <div class="flex-fill">
+        <div class="fw-semibold small">AI Setup Assistant</div>
+        <div id="ucAiHint" class="text-secondary" style="font-size:.78rem;">
+            Fill in the user details below. AI will suggest roles and access based on department &amp; designation.
+        </div>
+    </div>
+    <div id="ucAiBadges" class="d-flex gap-2 flex-wrap"></div>
+</div>
+
+<!-- ═══ Wizard Steps Indicator ═══ -->
+<div class="uc-steps-bar">
+    <div class="uc-step active" data-step="1" onclick="UcApp.goStep(1)">
+        <div class="uc-step-num">1</div>
+        <div class="uc-step-label">Personal Info</div>
+    </div>
+    <div class="uc-step-line"></div>
+    <div class="uc-step" data-step="2" onclick="UcApp.goStep(2)">
+        <div class="uc-step-num">2</div>
+        <div class="uc-step-label">Access &amp; Security</div>
+    </div>
+    <div class="uc-step-line"></div>
+    <div class="uc-step" data-step="3" onclick="UcApp.goStep(3)">
+        <div class="uc-step-num">3</div>
+        <div class="uc-step-label">Roles &amp; Permissions</div>
+    </div>
+    <div class="uc-step-line"></div>
+    <div class="uc-step" data-step="4" onclick="UcApp.goStep(4)">
+        <div class="uc-step-num">4</div>
+        <div class="uc-step-label">Review &amp; Create</div>
+    </div>
+</div>
+
+<!-- ═══ Wizard Content ═══ -->
+<div class="uc-wizard-wrap">
+
+    <!-- ── Step 1: Personal Info ── -->
+    <div class="uc-step-panel active" id="ucStep1">
+        <div class="uc-section-card">
+            <div class="uc-section-header">
+                <div class="uc-section-icon icon-primary"><i class="bi bi-person-vcard"></i></div>
+                <div>
+                    <h3 class="uc-section-title">Personal Information</h3>
+                    <p class="uc-section-desc">Basic identity and contact details for the new user</p>
+                </div>
+            </div>
+            <div class="row g-3">
+                <div class="col-lg-4">
+                    <label class="form-label uc-label required">User Code</label>
+                    <div class="input-group uc-input-group">
+                        <span class="input-group-text"><i class="bi bi-hash"></i></span>
+                        <input type="text" class="form-control" id="ucUserCode" placeholder="e.g. USR001" />
+                    </div>
+                    <div class="form-text">Unique identifier for this user</div>
+                </div>
+                <div class="col-lg-4">
+                    <label class="form-label uc-label required">Username (Login)</label>
+                    <div class="input-group uc-input-group">
+                        <span class="input-group-text"><i class="bi bi-at"></i></span>
+                        <input type="text" class="form-control" id="ucUsername" placeholder="e.g. john.doe" />
+                    </div>
+                    <div class="form-text">Used for logging into the system</div>
+                </div>
+                <div class="col-lg-4">
+                    <label class="form-label uc-label required">Full Name</label>
+                    <div class="input-group uc-input-group">
+                        <span class="input-group-text"><i class="bi bi-person"></i></span>
+                        <input type="text" class="form-control" id="ucName" placeholder="Full name" />
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <label class="form-label uc-label">Email Address</label>
+                    <div class="input-group uc-input-group">
+                        <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                        <input type="email" class="form-control" id="ucEmail" placeholder="email@company.com" />
+                    </div>
+                    <div class="form-text">Welcome email will be sent here</div>
+                </div>
+                <div class="col-lg-4">
+                    <label class="form-label uc-label">Mobile Number</label>
+                    <div class="input-group uc-input-group">
+                        <span class="input-group-text"><i class="bi bi-phone"></i></span>
+                        <input type="text" class="form-control" id="ucMobile" placeholder="Mobile number" />
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <label class="form-label uc-label">Employee Code</label>
+                    <div class="input-group uc-input-group">
+                        <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
+                        <input type="text" class="form-control" id="ucEmpCode" placeholder="Link to employee" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="uc-section-card">
+            <div class="uc-section-header">
+                <div class="uc-section-icon icon-indigo"><i class="bi bi-building"></i></div>
+                <div>
+                    <h3 class="uc-section-title">Organization Details</h3>
+                    <p class="uc-section-desc">Department, designation and location assignment</p>
+                </div>
+            </div>
+            <div class="row g-3">
+                <div class="col-lg-4">
+                    <label class="form-label uc-label required">User Type</label>
+                    <select class="form-select" id="ucUserType">
+                        <option value="">Select type…</option>
+                        <option value="EMPLOYEE">Employee</option>
+                        <option value="ADMIN">Admin</option>
+                        <option value="CUSTOMER">Customer</option>
+                        <option value="VENDOR">Vendor</option>
+                        <option value="OTHER">Other</option>
+                    </select>
+                </div>
+                <div class="col-lg-4">
+                    <label class="form-label uc-label required">Department</label>
+                    <select class="form-select" id="ucDepartment">
+                        <option value="">Select department…</option>
+                    </select>
+                </div>
+                <div class="col-lg-4">
+                    <label class="form-label uc-label required">Designation</label>
+                    <select class="form-select" id="ucDesignation">
+                        <option value="">Select designation…</option>
+                    </select>
+                </div>
+                <div class="col-lg-4">
+                    <label class="form-label uc-label required">Location</label>
+                    <select class="form-select" id="ucLocation">
+                        <option value="">Select location…</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Step 2: Access & Security ── -->
+    <div class="uc-step-panel" id="ucStep2">
+        <div class="uc-section-card">
+            <div class="uc-section-header">
+                <div class="uc-section-icon icon-amber"><i class="bi bi-key-fill"></i></div>
+                <div>
+                    <h3 class="uc-section-title">Authentication</h3>
+                    <p class="uc-section-desc">Set the initial password for this user account</p>
+                </div>
+            </div>
+            <div class="row g-3">
+                <div class="col-lg-6">
+                    <label class="form-label uc-label required">Password</label>
+                    <div class="input-group uc-input-group">
+                        <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                        <input type="password" class="form-control" id="ucPassword" placeholder="Set initial password" />
+                        <button class="btn btn-outline-secondary" type="button" onclick="UcApp.togglePwdVisibility()">
+                            <i class="bi bi-eye" id="ucPwdEyeIcon"></i>
+                        </button>
+                    </div>
+                    <div class="form-text">Min 8 characters. Default: Welcome@123</div>
+                </div>
+                <div class="col-lg-6">
+                    <label class="form-label uc-label">Password Strength</label>
+                    <div class="uc-pwd-strength mt-2" id="ucPwdStrength">
+                        <div class="uc-pwd-bar">
+                            <div class="uc-pwd-fill" id="ucPwdFill" style="width:0%"></div>
+                        </div>
+                        <div class="uc-pwd-label" id="ucPwdLabel">Enter a password</div>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <button class="btn btn-sm btn-outline-primary" type="button" onclick="UcApp.generatePassword()">
+                        <i class="bi bi-shuffle me-1"></i>Generate Strong Password
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="uc-section-card">
+            <div class="uc-section-header">
+                <div class="uc-section-icon icon-cyan"><i class="bi bi-shield-lock"></i></div>
+                <div>
+                    <h3 class="uc-section-title">Access Flags</h3>
+                    <p class="uc-section-desc">Configure system access levels and privileges</p>
+                </div>
+            </div>
+            <div class="row g-3">
+                <div class="col-lg-4">
+                    <div class="uc-flag-card" id="flagAdmin">
+                        <div class="uc-flag-icon"><i class="bi bi-shield-lock-fill"></i></div>
+                        <div class="flex-fill">
+                            <div class="uc-flag-title">System Admin</div>
+                            <div class="uc-flag-desc">Full administrative privileges</div>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="ucIsSystemAdmin" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="uc-flag-card" id="flagApproval">
+                        <div class="uc-flag-icon"><i class="bi bi-check2-square"></i></div>
+                        <div class="flex-fill">
+                            <div class="uc-flag-title">Approval User</div>
+                            <div class="uc-flag-desc">Can approve workflows</div>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="ucIsApprovalUser" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="uc-flag-card" id="flagProduction">
+                        <div class="uc-flag-icon"><i class="bi bi-gear-fill"></i></div>
+                        <div class="flex-fill">
+                            <div class="uc-flag-title">Production User</div>
+                            <div class="uc-flag-desc">Access production modules</div>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="ucIsProductionUser" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="uc-flag-card" id="flagWeb">
+                        <div class="uc-flag-icon"><i class="bi bi-globe"></i></div>
+                        <div class="flex-fill">
+                            <div class="uc-flag-title">Web Access</div>
+                            <div class="uc-flag-desc">Can login via web browser</div>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="ucIsWebAccess" checked />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="uc-flag-card" id="flagMobile">
+                        <div class="uc-flag-icon"><i class="bi bi-phone-fill"></i></div>
+                        <div class="flex-fill">
+                            <div class="uc-flag-title">Mobile Access</div>
+                            <div class="uc-flag-desc">Can login via mobile app</div>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="ucIsMobileAccess" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Step 3: Roles & Permissions ── -->
+    <div class="uc-step-panel" id="ucStep3">
+        <div class="uc-section-card">
+            <div class="uc-section-header">
+                <div class="uc-section-icon icon-purple"><i class="bi bi-shield-check"></i></div>
+                <div>
+                    <h3 class="uc-section-title">Assign Roles</h3>
+                    <p class="uc-section-desc">Select one or more roles for this user. AI will suggest based on department.</p>
+                </div>
+            </div>
+            <div id="ucAiRoleSuggestion" class="uc-ai-suggestion d-none">
+                <i class="bi bi-stars me-1"></i>
+                <span id="ucAiRoleText"></span>
+            </div>
+            <div class="uc-role-grid" id="ucRoleGrid">
+                <div class="text-center text-secondary py-3">Loading roles…</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Step 4: Review & Create ── -->
+    <div class="uc-step-panel" id="ucStep4">
+        <div class="uc-section-card">
+            <div class="uc-section-header">
+                <div class="uc-section-icon icon-green"><i class="bi bi-clipboard-check"></i></div>
+                <div>
+                    <h3 class="uc-section-title">Review &amp; Confirm</h3>
+                    <p class="uc-section-desc">Verify all details before creating the user account</p>
+                </div>
+            </div>
+
+            <div class="uc-review-grid" id="ucReviewGrid">
+                <!-- Populated by JS -->
+            </div>
+
+            <div class="uc-ai-summary mt-3" id="ucAiSummary">
+                <div class="uc-ai-summary-header">
+                    <i class="bi bi-cpu me-1"></i> AI Pre-Creation Analysis
+                </div>
+                <div id="ucAiChecks" class="uc-ai-checks">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <div class="uc-email-notice mt-3">
+                <i class="bi bi-envelope-check me-2"></i>
+                <div>
+                    <strong>Email Notification</strong>
+                    <div class="small text-secondary">A welcome email with login credentials will be sent to the user's email address. HR will also be notified.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Wizard Navigation ═══ -->
+<div class="uc-wizard-nav">
+    <button class="btn btn-outline-secondary" id="ucBtnPrev" onclick="UcApp.prevStep()" style="display:none;">
+        <i class="bi bi-arrow-left me-1"></i>Previous
+    </button>
+    <div class="flex-fill"></div>
+    <button class="btn btn-primary" id="ucBtnNext" onclick="UcApp.nextStep()">
+        Next <i class="bi bi-arrow-right ms-1"></i>
+    </button>
+    <button class="btn btn-success btn-lg" id="ucBtnCreate" onclick="UcApp.createUser()" style="display:none;">
+        <i class="bi bi-person-check me-1"></i>Create User &amp; Send Credentials
+    </button>
+</div>
+
+@section Styles {
+    <link href="/css/user-create.css" rel="stylesheet" />
+}
+
+@section Scripts {
+    <script src="/js/user-create.js"></script>
+}

@@ -1,0 +1,96 @@
+@page
+@model erp.minepress.web.Pages.Hrms.Leaves.IndexModel
+@{
+    ViewData["Title"] = "Leaves — HRMS";
+}
+
+<!-- Hero Header -->
+<div class="hrms-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);">
+                <i class="bi bi-calendar-x" style="font-size:1.5rem;"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="mb-0">Leave Management</h2>
+            <div class="text-white-75">Apply for leave, check balances & track requests</div>
+        </div>
+        <div class="col-auto d-flex gap-2">
+            <button class="btn btn-outline-light btn-sm" onclick="Hrms.loadLeaves()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+            </button>
+            <a href="/Hrms/Leaves/Apply" class="btn btn-light">
+                <i class="bi bi-plus-lg me-1"></i>Apply Leave
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Leave Balance Cards -->
+<div class="row g-3 mb-3" id="leaveBalanceCards">
+    <div class="col-12 text-center text-secondary py-3">
+        <div class="spinner-border spinner-border-sm me-2" role="status"></div>Loading balances...
+    </div>
+</div>
+
+<!-- Filter Tabs -->
+<div class="card">
+    <div class="card-header">
+        <ul class="nav nav-tabs card-header-tabs" id="leaveFilterTabs">
+            <li class="nav-item">
+                <a class="nav-link active" href="#" data-filter="">All</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-filter="PENDING">Pending</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-filter="APPROVED">Approved</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-filter="REJECTED">Rejected</a>
+            </li>
+        </ul>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table">
+            <thead>
+                <tr>
+                    <th>Leave No</th>
+                    <th>Type</th>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Days</th>
+                    <th>Reason</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="leaveTableBody">
+                <tr>
+                    <td colspan="7" class="text-center text-secondary py-4">
+                        <div class="spinner-border spinner-border-sm me-2" role="status"></div>Loading...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="/js/hrms.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            Hrms.loadLeaveBalances();
+            Hrms.loadLeaves();
+
+            document.querySelectorAll('#leaveFilterTabs .nav-link').forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    document.querySelectorAll('#leaveFilterTabs .nav-link').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    Hrms.loadLeaves(tab.dataset.filter);
+                });
+            });
+        });
+    </script>
+}

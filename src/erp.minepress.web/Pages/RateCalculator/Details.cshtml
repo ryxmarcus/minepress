@@ -1,0 +1,399 @@
+@page
+@model erp.minepress.web.Pages.RateCalculator.DetailsModel
+@{
+    ViewData["Title"] = "Calculation Details";
+    ViewData["HidePageHeader"] = true;
+}
+
+<!-- Loading Spinner -->
+<div id="detailsLoader" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status"></div>
+    <div class="text-muted mt-2">Loading calculation details...</div>
+</div>
+
+<!-- Error State -->
+<div id="detailsError" class="text-center py-5" style="display:none;">
+    <i class="bi bi-exclamation-triangle text-danger" style="font-size:3rem;"></i>
+    <div class="text-muted mt-2" id="errorMessage">Failed to load calculation.</div>
+    <a href="/RateCalculator/List" class="btn btn-primary mt-3"><i class="bi bi-arrow-left me-1"></i>Back to List</a>
+</div>
+
+<!-- Main Content -->
+<div id="detailsContent" style="display:none;">
+
+    <!-- Page Header -->
+    <div class="page-header d-print-none mb-3">
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <span class="avatar avatar-md bg-blue-lt text-blue">
+                    <i class="bi bi-calculator-fill fs-4"></i>
+                </span>
+            </div>
+            <div class="col">
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <h2 class="page-title mb-0" id="hdCalcRefNo"></h2>
+                    <span id="hdStatus"></span>
+                    <span id="hdVersion"></span>
+                </div>
+                <div class="text-secondary mt-1 small">
+                    <i class="bi bi-calendar3 me-1"></i><span id="hdDate"></span>
+                    <span class="mx-2">&middot;</span>
+                    <i class="bi bi-person me-1"></i><span id="hdCreatedBy"></span>
+                </div>
+            </div>
+            <div class="col-auto d-flex gap-2">
+                <a href="/RateCalculator/List" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i>Back
+                </a>
+                <a class="btn btn-outline-secondary btn-sm" href="javascript:void(0)" onclick="window.print()">
+                    <i class="bi bi-printer me-1"></i>Print
+                </a>
+                <a class="btn btn-primary btn-sm" href="/RateCalculator" id="btnRecalculate">
+                    <i class="bi bi-arrow-repeat me-1"></i>New Calculation
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ Summary Cards ═══ -->
+    <div class="row g-3 mb-3">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <span class="avatar avatar-sm bg-primary-lt me-3"><i class="bi bi-currency-rupee"></i></span>
+                        <div>
+                            <div class="text-secondary small">Grand Total</div>
+                            <div class="fw-bold fs-3" id="smGrandTotal">₹0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <span class="avatar avatar-sm bg-success-lt me-3"><i class="bi bi-cash-stack"></i></span>
+                        <div>
+                            <div class="text-secondary small">Net Total</div>
+                            <div class="fw-bold fs-3" id="smNetTotal">₹0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <span class="avatar avatar-sm bg-info-lt me-3"><i class="bi bi-tag"></i></span>
+                        <div>
+                            <div class="text-secondary small">Cost / Unit</div>
+                            <div class="fw-bold fs-3" id="smCostPerUnit">₹0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <span class="avatar avatar-sm bg-warning-lt me-3"><i class="bi bi-box-seam"></i></span>
+                        <div>
+                            <div class="text-secondary small">Quantity</div>
+                            <div class="fw-bold fs-3" id="smQuantity">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ Job Configuration Card ═══ -->
+    <div class="card mb-3">
+        <div class="card-header">
+            <h3 class="card-title"><i class="bi bi-gear me-2"></i>Job Configuration</h3>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <div class="text-secondary small">Customer</div>
+                    <div class="fw-semibold" id="cfgCustomer">—</div>
+                </div>
+                <div class="col-md-3">
+                    <div class="text-secondary small">Job Type</div>
+                    <div class="fw-semibold" id="cfgJobType">—</div>
+                </div>
+                <div class="col-md-3">
+                    <div class="text-secondary small">Product Type</div>
+                    <div class="fw-semibold" id="cfgProductType">—</div>
+                </div>
+                <div class="col-md-3">
+                    <div class="text-secondary small">Product Size</div>
+                    <div class="fw-semibold" id="cfgProductSize">—</div>
+                </div>
+                <div class="col-md-2">
+                    <div class="text-secondary small">Printing Mode</div>
+                    <div class="fw-semibold" id="cfgPrintingMode">—</div>
+                </div>
+                <div class="col-md-2">
+                    <div class="text-secondary small">Trim Size</div>
+                    <div class="fw-semibold" id="cfgTrimSize">—</div>
+                </div>
+                <div class="col-md-2">
+                    <div class="text-secondary small">Total Pages</div>
+                    <div class="fw-semibold" id="cfgTotalPages">—</div>
+                </div>
+                <div class="col-md-2">
+                    <div class="text-secondary small">Customer Material</div>
+                    <div class="fw-semibold" id="cfgCustomerMaterial">—</div>
+                </div>
+                <div class="col-md-2">
+                    <div class="text-secondary small">Validity</div>
+                    <div class="fw-semibold" id="cfgValidity">—</div>
+                </div>
+                <div class="col-md-2">
+                    <div class="text-secondary small">Linked Documents</div>
+                    <div id="cfgLinkedDocs">—</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ Tab Navigation ═══ -->
+    <ul class="nav nav-tabs rcd-tabs d-print-none" id="detailTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="tab-costbreakdown" data-bs-toggle="tab" data-bs-target="#pane-costbreakdown" type="button">
+                <i class="bi bi-pie-chart me-1"></i>Cost Breakdown
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-bom" data-bs-toggle="tab" data-bs-target="#pane-bom" type="button">
+                <i class="bi bi-box-seam me-1"></i>BOM
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-rules" data-bs-toggle="tab" data-bs-target="#pane-rules" type="button">
+                <i class="bi bi-shield-check me-1"></i>Applied Rules
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-distribution" data-bs-toggle="tab" data-bs-target="#pane-distribution" type="button">
+                <i class="bi bi-diagram-3 me-1"></i>Distribution
+            </button>
+        </li>
+    </ul>
+
+    <!-- ═══ Tab Content ═══ -->
+    <div class="tab-content mt-3" id="detailTabContent">
+
+        <!-- ── Cost Breakdown ── -->
+        <div class="tab-pane fade show active" id="pane-costbreakdown" role="tabpanel">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="bi bi-pie-chart me-2 text-primary"></i>Cost Breakdown</h3>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-vcenter card-table">
+                        <thead>
+                            <tr>
+                                <th style="width:40px;"></th>
+                                <th>Cost Item</th>
+                                <th>Category</th>
+                                <th>Detail</th>
+                                <th class="text-end">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody id="costBreakdownBody">
+                            <tr><td colspan="5" class="text-center text-muted py-4">No cost breakdown data available.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── BOM ── -->
+        <div class="tab-pane fade" id="pane-bom" role="tabpanel">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="bi bi-box-seam me-2 text-teal"></i>Bill of Materials</h3>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-vcenter card-table">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Material</th>
+                                <th>Specification</th>
+                                <th>For Part</th>
+                                <th class="text-end">Quantity</th>
+                                <th>Unit</th>
+                                <th class="text-end">Rate</th>
+                                <th class="text-end">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bomBody">
+                            <tr><td colspan="8" class="text-center text-muted py-4">No BOM data available.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Applied Rules ── -->
+        <div class="tab-pane fade" id="pane-rules" role="tabpanel">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="bi bi-shield-check me-2 text-orange"></i>Applied Rules & Insights</h3>
+                </div>
+                <div class="card-body p-0">
+                    <div id="rulesContainer" class="p-3">
+                        <div class="text-center text-muted py-4">No applied rules data available.</div>
+                    </div>
+                </div>
+            </div>
+            <!-- AI Insights -->
+            <div class="card mt-3" id="aiInsightsCard" style="display:none;">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="bi bi-stars me-2 text-purple"></i>AI Insights</h3>
+                </div>
+                <div class="card-body p-0">
+                    <div id="aiInsightsContainer" class="p-3"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Distribution ── -->
+        <div class="tab-pane fade" id="pane-distribution" role="tabpanel">
+            <div class="row g-3">
+                <!-- Cost Distribution Chart -->
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="bi bi-diagram-3 me-2 text-info"></i>Cost Distribution</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="costDistributionChart"></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Parts Breakdown -->
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="bi bi-layers me-2 text-purple"></i>Parts Breakdown</h3>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="partsContainer" class="p-3">
+                                <div class="text-center text-muted py-4">No parts data available.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Recommended Machines -->
+                <div class="col-12" id="machinesCard" style="display:none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="bi bi-gear-wide-connected me-2 text-cyan"></i>Recommended Machines</h3>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="machinesContainer" class="p-3"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Remarks -->
+            <div class="row g-3 mt-0" id="remarksRow" style="display:none;">
+                <div class="col-md-6" id="internalRemarksCol" style="display:none;">
+                    <div class="card">
+                        <div class="card-header"><h3 class="card-title"><i class="bi bi-chat-left-text me-2"></i>Internal Remarks</h3></div>
+                        <div class="card-body"><p id="txtInternalRemarks" class="mb-0 text-muted">—</p></div>
+                    </div>
+                </div>
+                <div class="col-md-6" id="clientRemarksCol" style="display:none;">
+                    <div class="card">
+                        <div class="card-header"><h3 class="card-title"><i class="bi bi-chat-right-text me-2"></i>Client Remarks</h3></div>
+                        <div class="card-body"><p id="txtClientRemarks" class="mb-0 text-muted">—</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/rate-calculator.css" />
+    <style>
+        .rcd-tabs .nav-link {
+            font-weight: 500; font-size: .875rem;
+            color: var(--tblr-secondary); border: none;
+            padding: .65rem 1.25rem;
+        }
+        .rcd-tabs .nav-link.active {
+            color: var(--tblr-primary);
+            border-bottom: 2px solid var(--tblr-primary);
+            background: transparent;
+        }
+        .rcd-tabs .nav-link:hover:not(.active) { color: var(--tblr-body-color); }
+
+        .rcd-rule-card {
+            background: var(--tblr-bg-surface);
+            border: 1px solid var(--tblr-border-color);
+            border-radius: .5rem;
+            padding: .75rem 1rem;
+            margin-bottom: .5rem;
+            transition: border-color .2s;
+        }
+        .rcd-rule-card:hover { border-color: var(--tblr-primary-border-subtle); }
+
+        .rcd-insight-card {
+            border-radius: .5rem;
+            padding: .75rem 1rem;
+            margin-bottom: .5rem;
+        }
+        .rcd-insight-info  { background: rgba(var(--tblr-info-rgb),.1); border-left: 3px solid var(--tblr-info); }
+        .rcd-insight-warn  { background: rgba(var(--tblr-warning-rgb),.1); border-left: 3px solid var(--tblr-warning); }
+        .rcd-insight-error { background: rgba(var(--tblr-danger-rgb),.1); border-left: 3px solid var(--tblr-danger); }
+
+        .rcd-part-card {
+            background: var(--tblr-bg-surface);
+            border: 1px solid var(--tblr-border-color);
+            border-radius: .5rem;
+            padding: .75rem 1rem;
+            margin-bottom: .75rem;
+        }
+
+        .rcd-dist-bar {
+            height: 24px;
+            border-radius: .25rem;
+            margin-bottom: .5rem;
+            display: flex;
+            overflow: hidden;
+        }
+        .rcd-dist-bar > div {
+            height: 100%;
+            transition: width .3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .65rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .rcd-machine-card {
+            background: var(--tblr-bg-surface);
+            border: 1px solid var(--tblr-border-color);
+            border-radius: .5rem;
+            padding: .75rem 1rem;
+            margin-bottom: .5rem;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script src="~/js/rate-calculator-details.js"></script>
+}

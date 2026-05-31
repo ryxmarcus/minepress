@@ -1,0 +1,333 @@
+/* ══════════════════════════════════════════════════
+   Job Picker – Shared Modal Styles (.jp-*)
+   Matches Item-Picker / Supplier-Picker visual language
+   ══════════════════════════════════════════════════ */
+
+/* ══════ Modal Shell ══════ */
+.jp-modal-content {
+    border: 0;
+    border-radius: var(--tblr-border-radius-lg, 8px);
+    box-shadow: 0 12px 24px rgba(0,0,0,.12), 0 24px 80px rgba(0,0,0,.25);
+    display: flex;
+    flex-direction: column;
+    max-height: 88vh;
+    overflow: hidden;
+}
+
+/* ══════ Header ══════ */
+.jp-header {
+    background: linear-gradient(135deg, #6741d9 0%, #9775fa 100%);
+    color: #fff;
+    padding: 1rem 1.5rem;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.jp-header-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--tblr-border-radius, 4px);
+    background: rgba(255,255,255,.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+}
+.jp-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    line-height: 1.25;
+}
+.jp-subtitle {
+    font-size: .8rem;
+    color: rgba(255,255,255,.7);
+}
+.jp-close {
+    margin-left: auto;
+    background: rgba(255,255,255,.15);
+    border: none;
+    color: #fff;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background .15s;
+    cursor: pointer;
+    font-size: .9rem;
+}
+.jp-close:hover {
+    background: rgba(255,255,255,.3);
+}
+
+/* ══════ Toolbar ══════ */
+.jp-toolbar {
+    padding: .75rem 1.25rem;
+    border-bottom: 1px solid var(--tblr-border-color);
+    background: var(--tblr-bg-surface, #fff);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    flex-wrap: wrap;
+}
+.jp-filter-wrap {
+    min-width: 130px;
+    position: relative;
+}
+.jp-search-wrap {
+    flex: 1;
+    min-width: 200px;
+    position: relative;
+}
+.jp-search-wrap .jp-search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--tblr-secondary-color);
+    font-size: .85rem;
+    pointer-events: none;
+}
+.jp-search-input {
+    padding-left: 2rem !important;
+    padding-right: 5rem !important;
+}
+.jp-spinner {
+    position: absolute;
+    right: 60px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+.jp-kbd {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: .65rem;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background: var(--tblr-bg-surface-secondary, #f1f5f9);
+    border: 1px solid var(--tblr-border-color);
+    color: var(--tblr-secondary-color);
+}
+.jp-result-count {
+    white-space: nowrap;
+    font-size: .82rem;
+    color: var(--tblr-secondary-color);
+}
+
+/* ══════ Table ══════ */
+.jp-table-wrap {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    min-height: 200px;
+}
+.jp-table {
+    font-size: .85rem;
+}
+.jp-table thead th {
+    font-weight: 600;
+    font-size: .75rem;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+    color: var(--tblr-secondary-color);
+    background: var(--tblr-bg-surface);
+    border-bottom: 2px solid var(--tblr-border-color);
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+.jp-sortable {
+    cursor: pointer;
+    user-select: none;
+    transition: color .15s;
+}
+.jp-sortable:hover {
+    color: var(--tblr-primary) !important;
+}
+.jp-sort-icon {
+    font-size: .7rem;
+    margin-left: 2px;
+    opacity: .4;
+    transition: opacity .15s;
+}
+.jp-sortable:hover .jp-sort-icon {
+    opacity: 1;
+}
+.jp-sort-icon.text-primary {
+    opacity: 1;
+}
+.jp-job-row {
+    transition: background .1s;
+    cursor: pointer;
+}
+.jp-job-row:hover {
+    background: var(--tblr-primary-bg-subtle) !important;
+}
+.jp-job-row.jp-row-selected {
+    animation: jpFlash .6s ease;
+}
+@keyframes jpFlash {
+    0%   { background: var(--tblr-success-bg-subtle); }
+    100% { background: transparent; }
+}
+
+/* Select button */
+.jp-select-btn {
+    font-size: .78rem;
+    padding: 3px 10px;
+    border-radius: var(--tblr-border-radius);
+    transition: all .15s;
+}
+.jp-select-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(103,65,217,.3);
+}
+
+/* ══════ Status badges ══════ */
+.jp-status-badge {
+    font-size: .7rem;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .3px;
+}
+.jp-priority-badge {
+    font-size: .68rem;
+    padding: 1px 6px;
+    border-radius: 10px;
+    font-weight: 500;
+}
+
+/* ══════ Progress bar ══════ */
+.jp-progress {
+    height: 6px;
+    border-radius: 3px;
+    background: var(--tblr-bg-surface-secondary, #e9ecef);
+    min-width: 50px;
+}
+.jp-progress-bar {
+    height: 100%;
+    border-radius: 3px;
+    transition: width .3s ease;
+}
+
+/* ══════ Empty State ══════ */
+.jp-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .5rem;
+    padding: 2rem 0;
+}
+.jp-empty-state > i {
+    font-size: 2.5rem;
+    opacity: .2;
+}
+.jp-empty-state > div {
+    font-weight: 500;
+    color: var(--tblr-secondary-color);
+}
+
+/* ══════ Footer / Paging ══════ */
+.jp-footer {
+    padding: .65rem 1.25rem;
+    border-top: 1px solid var(--tblr-border-color);
+    background: var(--tblr-bg-surface);
+    flex-shrink: 0;
+}
+
+/* ══════ Selected Job Card ══════ */
+.jp-selected-card {
+    border: 1.5px solid var(--tblr-purple, #6741d9);
+    border-radius: var(--tblr-border-radius);
+    padding: .6rem 1rem;
+    background: rgba(103,65,217,.06);
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    animation: jpSlideIn .3s ease;
+}
+.jp-selected-card .jp-selected-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--tblr-purple, #6741d9);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+.jp-selected-card .jp-selected-info {
+    flex: 1;
+    min-width: 0;
+}
+.jp-selected-card .jp-selected-name {
+    font-weight: 600;
+    font-size: .9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.jp-selected-card .jp-selected-detail {
+    font-size: .75rem;
+    color: var(--tblr-secondary-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.jp-selected-card .jp-remove-btn {
+    border: none;
+    background: transparent;
+    color: var(--tblr-danger);
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 0 4px;
+    transition: transform .15s;
+    flex-shrink: 0;
+}
+.jp-selected-card .jp-remove-btn:hover {
+    transform: scale(1.2);
+}
+@keyframes jpSlideIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ══════ Dark Mode ══════ */
+[data-bs-theme="dark"] .jp-modal-content {
+    box-shadow: 0 16px 48px rgba(0,0,0,.4);
+}
+[data-bs-theme="dark"] .jp-selected-card {
+    background: rgba(103,65,217,.12);
+}
+[data-bs-theme="dark"] .jp-row:hover {
+    background: rgba(var(--tblr-primary-rgb),.08);
+}
+[data-bs-theme="dark"] .jp-select-btn:hover {
+    box-shadow: 0 4px 12px rgba(103,65,217,.4);
+}
+
+/* ══════ Responsive ══════ */
+@media (max-width: 768px) {
+    .jp-modal-content {
+        max-height: 95vh;
+    }
+    .jp-header {
+        padding: .75rem 1rem;
+    }
+    .jp-toolbar {
+        padding: .5rem .75rem;
+    }
+    .jp-table-wrap {
+        min-height: 150px;
+    }
+}

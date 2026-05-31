@@ -1,0 +1,77 @@
+@page
+@model erp.minepress.web.Pages.TenantAdmin.DiagnosticsModel
+@{
+    ViewData["Title"] = "Tenant Diagnostics";
+}
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title mb-0">Tenant Connection Diagnostics</h3>
+        <a class="btn btn-outline-secondary btn-sm" href="/TenantAdmin">Back</a>
+    </div>
+    <div class="card-body">
+        <p class="text-secondary">Live status from <code>/api/tenant-diagnostics/connection</code></p>
+
+        <div class="d-flex gap-2 mb-3">
+            <button type="button" class="btn btn-primary btn-sm" id="btnRefreshDiag">Refresh</button>
+        </div>
+
+        <div id="diagError" class="alert alert-danger d-none"></div>
+
+        <div class="row g-3" id="diagGrid" style="display:none;">
+            <div class="col-md-4"><div class="card card-sm"><div class="card-body"><div class="text-secondary">Tenant Resolved</div><div class="h3 mb-0" id="dTenantResolved">-</div></div></div></div>
+            <div class="col-md-4"><div class="card card-sm"><div class="card-body"><div class="text-secondary">Effective Mode</div><div class="h3 mb-0" id="dMode">-</div></div></div></div>
+            <div class="col-md-4"><div class="card card-sm"><div class="card-body"><div class="text-secondary">Bootstrap Config</div><div class="h3 mb-0" id="dBootstrap">-</div></div></div></div>
+            <div class="col-md-4"><div class="card card-sm"><div class="card-body"><div class="text-secondary">Tenant Key</div><div class="h4 mb-0" id="dTenantKey">-</div></div></div></div>
+            <div class="col-md-4"><div class="card card-sm"><div class="card-body"><div class="text-secondary">Tenant ID</div><div class="h6 mb-0" id="dTenantId">-</div></div></div></div>
+            <div class="col-md-4"><div class="card card-sm"><div class="card-body"><div class="text-secondary">Tenant Source</div><div class="h4 mb-0" id="dSource">-</div></div></div></div>
+        </div>
+
+        <div class="mt-3">
+            <label class="form-label">Raw Response</label>
+            <pre class="bg-light p-3 rounded border" id="diagRaw" style="min-height:140px;">Loading...</pre>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    (function () {
+        const errorBox = document.getElementById('diagError');
+        const grid = document.getElementById('diagGrid');
+        const raw = document.getElementById('diagRaw');
+
+        async function loadDiagnostics() {
+            errorBox.classList.add('d-none');
+            grid.style.display = 'none';
+            raw.textContent = 'Loading...';
+
+            try {
+                const res = await fetch('/api/tenant-diagnostics/connection', { credentials: 'include' });
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}`);
+                }
+
+                const data = await res.json();
+                raw.textContent = JSON.stringify(data, null, 2);
+
+                document.getElementById('dTenantResolved').textContent = data.tenantResolved ? 'Yes' : 'No';
+                document.getElementById('dMode').textContent = data.effectiveConnectionMode || '-';
+                document.getElementById('dBootstrap').textContent = data.bootstrapConnectionConfigured ? 'Configured' : 'Missing';
+                document.getElementById('dTenantKey').textContent = data.tenantKey || '-';
+                document.getElementById('dTenantId').textContent = data.tenantId || '-';
+                document.getElementById('dSource').textContent = data.tenantSource || '-';
+
+                grid.style.display = 'flex';
+            } catch (err) {
+                errorBox.textContent = 'Failed to load diagnostics: ' + (err?.message || err);
+                errorBox.classList.remove('d-none');
+                raw.textContent = '{}';
+            }
+        }
+
+        document.getElementById('btnRefreshDiag').addEventListener('click', loadDiagnostics);
+        loadDiagnostics();
+    })();
+</script>
+}

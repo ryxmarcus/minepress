@@ -1,0 +1,1016 @@
+{
+  "version": "2.0",
+  "system": "MinePress ERP",
+  "description": "Comprehensive tool definitions for Multi-Agent Printing ERP — all modules",
+  "modules": [
+    {
+      "module": "Job",
+      "agent": "JobAgent",
+      "tools": [
+        {
+          "name": "GetAllJobs",
+          "description": "List all jobs with optional status filter. Use for 'show jobs', 'last job created', 'recent jobs', 'all jobs'",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "status": { "type": "string", "description": "Filter by status code (e.g. created, in_progress, completed, cancelled)" },
+              "limit": { "type": "integer", "description": "Max records to return (default 20)" }
+            }
+          }
+        },
+        {
+          "name": "SearchJob",
+          "description": "Search jobs by keyword (job number, customer name, product name)",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "keyword": { "type": "string", "description": "Search keyword" }
+            },
+            "required": ["keyword"]
+          }
+        },
+        {
+          "name": "GetJobDetails",
+          "description": "Get detailed job information by job ID or job number",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "jobId": { "type": "string", "description": "Job ID or Job Number" }
+            },
+            "required": ["jobId"]
+          }
+        },
+        {
+          "name": "CreatePrintJob",
+          "description": "Create a new printing job",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "customerName": { "type": "string", "description": "Customer name" },
+              "jobType": { "type": "string", "description": "Printing type like Offset, Digital" },
+              "productType": { "type": "string", "description": "Product like Brochure, Poster" },
+              "quantity": { "type": "integer", "description": "Number of copies" },
+              "paperSize": { "type": "string", "description": "Paper size like A4, A3" },
+              "colorMode": { "type": "string", "description": "Color mode like Color or BW" }
+            },
+            "required": ["customerName", "jobType", "productType", "quantity"]
+          }
+        },
+        {
+          "name": "UpdatePrintJob",
+          "description": "Update an existing print job (status, quantity, priority)",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "jobId": { "type": "string", "description": "Job ID or Job Number" },
+              "status": { "type": "string", "description": "New status code" },
+              "quantity": { "type": "integer", "description": "New quantity" },
+              "priority": { "type": "string", "description": "New priority (Normal, High, Urgent)" }
+            },
+            "required": ["jobId"]
+          }
+        }
+      ]
+    },
+
+    {
+      "module": "Costing",
+      "agent": "CostingAgent",
+      "tools": [
+        {
+          "name": "CalculateJobCost",
+          "description": "Calculate printing job cost estimate",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "jobType": { "type": "string", "description": "Printing type (Offset, Digital)" },
+              "quantity": { "type": "integer", "description": "Number of copies" },
+              "paperType": { "type": "string", "description": "Paper type" },
+              "colorMode": { "type": "string", "description": "Color or BW" }
+            },
+            "required": ["jobType", "quantity"]
+          }
+        }
+      ]
+    },
+
+    {
+      "module": "Machine",
+      "agent": "MachineAgent",
+      "tools": [
+        {
+          "name": "GetAllMachines",
+          "description": "List all machines with optional type filter. Use for 'show machines', 'available machines'",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "machineType": { "type": "string", "description": "Filter by machine type (Offset, Digital, etc.)" }
+            }
+          }
+        },
+        {
+          "name": "AllocateMachine",
+          "description": "Allocate a machine to a job",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "jobId": { "type": "string", "description": "Job ID or Job Number" },
+              "machineType": { "type": "string", "description": "Preferred machine type" }
+            },
+            "required": ["jobId"]
+          }
+        },
+        {
+          "name": "GetMachineAllocations",
+          "description": "Get machine allocations for a specific job",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "jobId": { "type": "string", "description": "Job ID or Job Number" }
+            },
+            "required": ["jobId"]
+          }
+        },
+        {
+          "name": "GetMachineBreakdowns",
+          "description": "List machine breakdown records with optional status filter",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "status": { "type": "string", "description": "Filter by status" },
+              "limit": { "type": "integer", "description": "Max records" }
+            }
+          }
+        },
+        {
+          "name": "GetBreakdownsByMachine",
+          "description": "Get breakdowns for a specific machine",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "machineId": { "type": "integer", "description": "Machine ID" }
+            },
+            "required": ["machineId"]
+          }
+        }
+      ]
+    },
+
+    {
+      "module": "Billing",
+      "agent": "BillingAgent",
+      "tools": [
+        {
+          "name": "GetAllInvoices",
+          "description": "List all sales invoices. Use for 'show invoices', 'recent invoices', 'last invoice'",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "limit": { "type": "integer", "description": "Max records to return" }
+            }
+          }
+        },
+        {
+          "name": "GetInvoiceByJob",
+          "description": "Get invoice for a specific job",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "jobId": { "type": "string", "description": "Job ID or Job Number" }
+            },
+            "required": ["jobId"]
+          }
+        },
+        {
+          "name": "GetCreditNotes",
+          "description": "List credit notes with optional status filter",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "status": { "type": "string", "description": "Filter by status" },
+              "limit": { "type": "integer", "description": "Max records" }
+            }
+          }
+        },
+        {
+          "name": "GetDebitNotes",
+          "description": "List debit notes with optional status filter",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "status": { "type": "string", "description": "Filter by status" },
+              "limit": { "type": "integer", "description": "Max records" }
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "module": "Delivery",
+      "agent": "DeliveryAgent",
+      "tools": [
+        {
+          "name": "GetAllGatePasses",
+          "description": "List all gate passes. Use for 'show gate passes', 'recent deliveries'",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "status": { "type": "string", "description": "Filter by status" },
+              "limit": { "type": "integer", "description": "Max records" }
+            }
+          }
+        },
+        {
+          "name": "GetGatePassesByJob",
+          "description": "Get gate passes for a specific job",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "jobId": { "type": "string", "description": "Job ID or Job Number" }
+            },
+            "required": ["jobId"]
+          }
+        },
+        {
+          "name": "CreateGatePass",
+          "description": "Create gate pass for delivery",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "jobId": { "type": "string", "description": "Job ID or Job Number" },
+              "vehicleNumber": { "type": "string", "description": "Vehicle number" },
+              "driverName": { "type": "string", "description": "Driver name" },
+              "driverContact": { "type": "string", "description": "Driver contact number" }
+            },
+            "required": ["jobId"]
+          }
+        },
+        {
+          "name": "UpdateDelivery",
+          "description": "Update delivery status for a job (dispatched, delivered)",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "jobId": { "type": "string", "description": "Job ID or Job Number" },
+              "deliveryStatus": { "type": "string", "description": "New delivery status (dispatched, delivered)" }
+            },
+            "required": ["jobId"]
+          }
+        }
+      ]
+    },
+
+    {
+      "module": "Vendor",
+      "agent": "VendorAgent",
+      "tools": [
+        {
+          "name": "GetAllVendors",
+          "description": "List all vendors/suppliers. Use for 'show vendors', 'all suppliers'",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "limit": { "type": "integer", "description": "Max records" }
+            }
+          }
+        },
+        {
+          "name": "SearchVendor",
+          "description": "Search vendors by name or code",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "keyword": { "type": "string", "description": "Search keyword" }
+            },
+            "required": ["keyword"]
+          }
+        },
+        {
+          "name": "GetOutsourcesByJob",
+          "description": "Get vendor outsource jobs for a specific job",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "jobId": { "type": "string", "description": "Job ID or Job Number" }
+            },
+            "required": ["jobId"]
+          }
+        },
+        {
+          "name": "CreateVendorJob",
+          "description": "Create a vendor outsource job",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "jobId": { "type": "string", "description": "Job ID or Job Number" },
+              "vendorId": { "type": "integer", "description": "Vendor ID" },
+              "vendorName": { "type": "string", "description": "Vendor name (for lookup)" },
+              "processType": { "type": "string", "description": "Process type" },
+              "quantity": { "type": "integer", "description": "Quantity" }
+            },
+            "required": ["jobId"]
+          }
+        }
+      ]
+    },
+
+    {
+      "module": "Customer",
+      "agent": "CustomerAgent",
+      "tools": [
+        {
+          "name": "GetAllCustomers",
+          "description": "List all customers",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "limit": { "type": "integer", "description": "Max records to return" }
+            }
+          }
+        },
+        {
+          "name": "SearchCustomer",
+          "description": "Search customers by name or code",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "keyword": { "type": "string", "description": "Search keyword" }
+            },
+            "required": ["keyword"]
+          }
+        },
+        {
+          "name": "GetCustomerDetails",
+          "description": "Get customer details by ID",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "partyId": { "type": "integer", "description": "Customer/Party ID" }
+            },
+            "required": ["partyId"]
+          }
+        },
+        {
+          "name": "GetCustomerSummary",
+          "description": "Get customer summary with job and invoice counts",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "partyId": { "type": "integer", "description": "Customer/Party ID" }
+            },
+            "required": ["partyId"]
+          }
+        },
+        {
+          "name": "GetCustomerJobs",
+          "description": "Get jobs for a specific customer",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "partyId": { "type": "integer", "description": "Customer/Party ID" }
+            },
+            "required": ["partyId"]
+          }
+        },
+        {
+          "name": "GetCustomerInvoices",
+          "description": "Get invoices for a specific customer",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "partyId": { "type": "integer", "description": "Customer/Party ID" }
+            },
+            "required": ["partyId"]
+          }
+        }
+      ]
+    },
+
+    {
+      "module": "Enquiry",
+      "agent": "EnquiryAgent",
+      "tools": [
+        {
+          "name": "GetAllEnquiries",
+          "description": "List all enquiries with optional status filter",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "status": { "type": "string", "description": "Filter by status" },
+              "limit": { "type": "integer", "description": "Max records" }
+            }
+          }
+        },
+        {
+          "name": "SearchEnquiry",
+          "description": "Search enquiries by keyword",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "keyword": { "type": "string", "description": "Search keyword" }
+            },
+            "required": ["keyword"]
+          }
+        },
+        {
+          "name": "GetEnquiryDetails",
+          "description": "Get enquiry details by ID",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "enquiryId": { "type": "integer", "description": "Enquiry ID" }
+            },
+            "required": ["enquiryId"]
+          }
+        }
+      ]
+    },
+
+    {
+      "module": "Quotation",
+      "agent": "QuotationAgent",
+      "tools": [
+        {
+          "name": "GetAllQuotations",
+          "description": "List all quotations with optional status filter",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "status": { "type": "string", "description": "Filter by status" },
+              "limit": { "type": "integer", "description": "Max records" }
+            }
+          }
+        },
+        {
+          "name": "SearchQuotation",
+          "description": "Search quotations by keyword",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "keyword": { "type": "string", "description": "Search keyword" }
+            },
+            "required": ["keyword"]
+          }
+        },
+        {
+          "name": "GetQuotationDetails",
+          "description": "Get quotation details by ID",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "quotationId": { "type": "integer", "description": "Quotation ID" }
+            },
+            "required": ["quotationId"]
+          }
+        }
+      ]
+    },
+
+    {
+      "module": "Purchase",
+      "agent": "PurchaseAgent",
+      "tools": [
+        {
+          "name": "GetAllPurchaseOrders",
+          "description": "List all purchase orders with optional status filter",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "status": { "type": "string", "description": "Filter by status" },
+              "limit": { "type": "integer", "description": "Max records" }
+            }
+          }
+        },
+        {
+          "name": "SearchPurchaseOrder",
+          "description": "Search purchase orders by keyword",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "keyword": { "type": "string", "description": "Search keyword" }
+            },
+            "required": ["keyword"]
+          }
+        },
+        {
+          "name": "GetPurchaseOrderDetails",
+          "description": "Get purchase order details by ID",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "purchaseOrderId": { "type": "integer", "description": "Purchase Order ID" }
+            },
+            "required": ["purchaseOrderId"]
+          }
+        },
+        {
+          "name": "GetGoodsReceipts",
+          "description": "List goods receipts (GRN) with optional status filter",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "status": { "type": "string", "description": "Filter by status" },
+              "limit": { "type": "integer", "description": "Max records" }
+            }
+          }
+        },
+        {
+          "name": "GetPurchaseInvoices",
+          "description": "List purchase invoices with optional status filter",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "status": { "type": "string", "description": "Filter by status" },
+              "limit": { "type": "integer", "description": "Max records" }
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "module": "HR",
+      "agent": "HRAgent",
+      "tools": [
+        {
+          "name": "GetAllEmployees",
+          "description": "List all employees",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "limit": { "type": "integer", "description": "Max records" }
+            }
+          }
+        },
+        {
+          "name": "SearchEmployee",
+          "description": "Search employees by keyword",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "keyword": { "type": "string", "description": "Search keyword" }
+            },
+            "required": ["keyword"]
+          }
+        },
+        {
+          "name": "GetEmployeeDetails",
+          "description": "Get employee details by ID",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "employeeId": { "type": "integer", "description": "Employee ID" }
+            },
+            "required": ["employeeId"]
+          }
+        },
+        {
+          "name": "GetEmployeesByDepartment",
+          "description": "List employees by department name",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "department": { "type": "string", "description": "Department name" }
+            },
+            "required": ["department"]
+          }
+        },
+        {
+          "name": "GetLeaveRequests",
+          "description": "List leave requests with optional status filter",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "status": { "type": "string", "description": "Filter by status (Pending, Approved, Rejected)" },
+              "limit": { "type": "integer", "description": "Max records" }
+            }
+          }
+        },
+        {
+          "name": "GetEmployeeLeaves",
+          "description": "Get leave requests for a specific employee",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "employeeId": { "type": "integer", "description": "Employee ID" }
+            },
+            "required": ["employeeId"]
+          }
+        },
+        {
+          "name": "GetAttendance",
+          "description": "Get attendance records with optional employee/date filter",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "employeeId": { "type": "integer", "description": "Employee ID (optional)" },
+              "date": { "type": "string", "description": "Date filter (yyyy-MM-dd)" },
+              "limit": { "type": "integer", "description": "Max records" }
+            }
+          }
+        },
+        {
+          "name": "GetLoans",
+          "description": "List employee loans with optional status filter",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "status": { "type": "string", "description": "Filter by status" },
+              "limit": { "type": "integer", "description": "Max records" }
+            }
+          }
+        },
+        {
+          "name": "GetOvertimes",
+          "description": "List overtime records with optional employee filter",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "employeeId": { "type": "integer", "description": "Employee ID (optional)" },
+              "limit": { "type": "integer", "description": "Max records" }
+            }
+          }
+        },
+        {
+          "name": "GetReimbursements",
+          "description": "List reimbursement requests with optional status filter",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "status": { "type": "string", "description": "Filter by status" },
+              "limit": { "type": "integer", "description": "Max records" }
+            }
+          }
+        },
+        {
+          "name": "GetHRSummary",
+          "description": "Get HR dashboard summary (employee counts, pending leaves, active loans)",
+          "parameters": { "type": "object", "properties": {} }
+        },
+        {
+          "name": "GetBonuses",
+          "description": "List employee bonuses with optional status filter",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "status": { "type": "string", "description": "Filter by status" },
+              "limit": { "type": "integer", "description": "Max records" }
+            }
+          }
+        },
+        {
+          "name": "GetIncentives",
+          "description": "List employee incentives with optional status filter",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "status": { "type": "string", "description": "Filter by status" },
+              "limit": { "type": "integer", "description": "Max records" }
+            }
+          }
+        },
+        {
+          "name": "GetHolidays",
+          "description": "List holidays for the current or specified year",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "year": { "type": "integer", "description": "Year (optional, defaults to current year)" }
+            }
+          }
+        },
+        {
+          "name": "GetMedicalClaims",
+          "description": "List medical claims with optional status filter",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "status": { "type": "string", "description": "Filter by status" },
+              "limit": { "type": "integer", "description": "Max records" }
+            }
+          }
+        },
+        {
+          "name": "GetResignations",
+          "description": "List employee resignations with optional status filter",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "status": { "type": "string", "description": "Filter by status" },
+              "limit": { "type": "integer", "description": "Max records" }
+            }
+          }
+        },
+        {
+          "name": "GetSalaryAdvances",
+          "description": "List salary advance requests with optional status filter",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "status": { "type": "string", "description": "Filter by status" },
+              "limit": { "type": "integer", "description": "Max records" }
+            }
+          }
+        },
+        {
+          "name": "GetTransfers",
+          "description": "List employee transfers with optional status filter",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "status": { "type": "string", "description": "Filter by status" },
+              "limit": { "type": "integer", "description": "Max records" }
+            }
+          }
+        },
+        {
+          "name": "GetTravelExpenses",
+          "description": "List travel expense claims with optional status filter",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "status": { "type": "string", "description": "Filter by status" },
+              "limit": { "type": "integer", "description": "Max records" }
+            }
+          }
+        },
+        {
+          "name": "GetVacancies",
+          "description": "List open job vacancies with optional status filter",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "status": { "type": "string", "description": "Filter by status (Open, Closed, OnHold)" },
+              "limit": { "type": "integer", "description": "Max records" }
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "module": "Store",
+      "agent": "StoreAgent",
+      "tools": [
+        {
+          "name": "GetStoreIssues",
+          "description": "List store issue records with optional status filter",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "status": { "type": "string", "description": "Filter by status" },
+              "limit": { "type": "integer", "description": "Max records" }
+            }
+          }
+        },
+        {
+          "name": "GetStoreReceives",
+          "description": "List store receive records with optional status filter",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "status": { "type": "string", "description": "Filter by status" },
+              "limit": { "type": "integer", "description": "Max records" }
+            }
+          }
+        },
+        {
+          "name": "GetAllMaterials",
+          "description": "List all materials/inventory items with optional category filter",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "category": { "type": "string", "description": "Filter by category" }
+            }
+          }
+        },
+        {
+          "name": "SearchMaterial",
+          "description": "Search materials by keyword",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "keyword": { "type": "string", "description": "Search keyword" }
+            },
+            "required": ["keyword"]
+          }
+        },
+        {
+          "name": "GetAllPapers",
+          "description": "List all paper types with GSM, size, and rate",
+          "parameters": { "type": "object", "properties": {} }
+        },
+        {
+          "name": "GetAllInks",
+          "description": "List all ink types with color and rate",
+          "parameters": { "type": "object", "properties": {} }
+        },
+        {
+          "name": "GetAllPlates",
+          "description": "List all plate types with size and rate",
+          "parameters": { "type": "object", "properties": {} }
+        },
+        {
+          "name": "GetAllBindings",
+          "description": "List all binding types with rate",
+          "parameters": { "type": "object", "properties": {} }
+        },
+        {
+          "name": "GetAllFinishings",
+          "description": "List all finishing types with rate",
+          "parameters": { "type": "object", "properties": {} }
+        },
+        {
+          "name": "GetStockLedger",
+          "description": "Get stock ledger entries for inventory movement tracking",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "materialCode": { "type": "string", "description": "Material code (optional)" },
+              "limit": { "type": "integer", "description": "Max records" }
+            }
+          }
+        },
+        {
+          "name": "GetAllChemicals",
+          "description": "List all chemical types used in printing",
+          "parameters": { "type": "object", "properties": {} }
+        }
+      ]
+    },
+
+    {
+      "module": "Accounting",
+      "agent": "AccountingAgent",
+      "tools": [
+        {
+          "name": "GetReceipts",
+          "description": "List receipt records with optional date range",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "from": { "type": "string", "description": "From date (yyyy-MM-dd)" },
+              "to": { "type": "string", "description": "To date (yyyy-MM-dd)" },
+              "limit": { "type": "integer", "description": "Max records" }
+            }
+          }
+        },
+        {
+          "name": "GetPayments",
+          "description": "List payment records with optional date range",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "from": { "type": "string", "description": "From date (yyyy-MM-dd)" },
+              "to": { "type": "string", "description": "To date (yyyy-MM-dd)" },
+              "limit": { "type": "integer", "description": "Max records" }
+            }
+          }
+        },
+        {
+          "name": "GetExpenseVouchers",
+          "description": "List expense vouchers with optional category filter",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "category": { "type": "string", "description": "Expense category" },
+              "limit": { "type": "integer", "description": "Max records" }
+            }
+          }
+        },
+        {
+          "name": "GetOutstandingSummary",
+          "description": "Get receivable/payable outstanding summary",
+          "parameters": { "type": "object", "properties": {} }
+        },
+        {
+          "name": "GetChallans",
+          "description": "List delivery challans with optional status filter",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "status": { "type": "string", "description": "Filter by status" },
+              "limit": { "type": "integer", "description": "Max records" }
+            }
+          }
+        },
+        {
+          "name": "GetChallansByJob",
+          "description": "Get challans for a specific job",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "jobNo": { "type": "string", "description": "Job number" }
+            },
+            "required": ["jobNo"]
+          }
+        },
+        {
+          "name": "GetProformaInvoices",
+          "description": "List proforma invoices with optional status filter",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "status": { "type": "string", "description": "Filter by status" },
+              "limit": { "type": "integer", "description": "Max records" }
+            }
+          }
+        },
+        {
+          "name": "GetMachineBreakdowns",
+          "description": "List machine breakdown records with optional status filter",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "status": { "type": "string", "description": "Filter by status" },
+              "limit": { "type": "integer", "description": "Max records" }
+            }
+          }
+        },
+        {
+          "name": "GetBreakdownsByMachine",
+          "description": "Get breakdowns for a specific machine",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "machineId": { "type": "integer", "description": "Machine ID" }
+            },
+            "required": ["machineId"]
+          }
+        },
+        {
+          "name": "GetCreditNotes",
+          "description": "List credit notes with optional status filter",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "status": { "type": "string", "description": "Filter by status" },
+              "limit": { "type": "integer", "description": "Max records" }
+            }
+          }
+        },
+        {
+          "name": "GetDebitNotes",
+          "description": "List debit notes with optional status filter",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "status": { "type": "string", "description": "Filter by status" },
+              "limit": { "type": "integer", "description": "Max records" }
+            }
+          }
+        },
+        {
+          "name": "GetBankReceipts",
+          "description": "List bank receipt records with optional date range",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "from": { "type": "string", "description": "From date (yyyy-MM-dd)" },
+              "to": { "type": "string", "description": "To date (yyyy-MM-dd)" },
+              "limit": { "type": "integer", "description": "Max records" }
+            }
+          }
+        },
+        {
+          "name": "GetBankPayments",
+          "description": "List bank payment records with optional date range",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "from": { "type": "string", "description": "From date (yyyy-MM-dd)" },
+              "to": { "type": "string", "description": "To date (yyyy-MM-dd)" },
+              "limit": { "type": "integer", "description": "Max records" }
+            }
+          }
+        },
+        {
+          "name": "GetJournalVouchers",
+          "description": "List journal vouchers with optional date range",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "from": { "type": "string", "description": "From date (yyyy-MM-dd)" },
+              "to": { "type": "string", "description": "To date (yyyy-MM-dd)" },
+              "limit": { "type": "integer", "description": "Max records" }
+            }
+          }
+        },
+        {
+          "name": "GetLedgerEntries",
+          "description": "Get general ledger entries with optional account/date filter",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "accountHead": { "type": "string", "description": "Account head name (optional)" },
+              "from": { "type": "string", "description": "From date (yyyy-MM-dd)" },
+              "to": { "type": "string", "description": "To date (yyyy-MM-dd)" },
+              "limit": { "type": "integer", "description": "Max records" }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

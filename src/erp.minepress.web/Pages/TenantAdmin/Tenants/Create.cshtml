@@ -1,0 +1,80 @@
+@page
+@model erp.minepress.web.Pages.TenantAdmin.Tenants.CreateModel
+@{
+    ViewData["Title"] = "Create Tenant";
+}
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title mb-0">Add New Tenant</h3>
+        <a class="btn btn-outline-secondary btn-sm" href="/TenantAdmin/Tenants">Back</a>
+    </div>
+    <div class="card-body">
+        <form method="post" class="row g-3">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="col-md-4">
+                <label asp-for="Input.TenantKey" class="form-label"></label>
+                <div class="input-group">
+                    <input asp-for="Input.TenantKey" class="form-control" placeholder="tenant-key" />
+                    <button type="button" class="btn btn-outline-secondary" id="btnAutoGenerateTenantKey">Auto Generate</button>
+                </div>
+                <small class="text-muted">Use `Auto Generate` to create key from name.</small>
+                <span asp-validation-for="Input.TenantKey" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="Input.Name" class="form-label"></label>
+                <input asp-for="Input.Name" class="form-control" placeholder="Client Name" />
+                <span asp-validation-for="Input.Name" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="Input.SubscriptionPlan" class="form-label"></label>
+                <input asp-for="Input.SubscriptionPlan" class="form-control" placeholder="starter" />
+                <span asp-validation-for="Input.SubscriptionPlan" class="text-danger"></span>
+            </div>
+            <div class="col-md-3">
+                <label asp-for="Input.MaxUsers" class="form-label"></label>
+                <input asp-for="Input.MaxUsers" class="form-control" />
+                <span asp-validation-for="Input.MaxUsers" class="text-danger"></span>
+            </div>
+            <div class="col-12">
+                <label asp-for="Input.ConnectionString" class="form-label"></label>
+                <textarea asp-for="Input.ConnectionString" class="form-control" rows="3" placeholder="Host=...;Database=...;Username=...;Password=...;"></textarea>
+                <span asp-validation-for="Input.ConnectionString" class="text-danger"></span>
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">Create Tenant</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            const keyInput = document.getElementById('Input_TenantKey');
+            const nameInput = document.getElementById('Input_Name');
+            const generateBtn = document.getElementById('btnAutoGenerateTenantKey');
+
+            if (!keyInput || !nameInput || !generateBtn) {
+                return;
+            }
+
+            function slugify(value) {
+                return (value || 'tenant')
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]+/g, '-')
+                    .replace(/^-+|-+$/g, '') || 'tenant';
+            }
+
+            function randomSuffix() {
+                return Math.random().toString(36).slice(2, 8);
+            }
+
+            generateBtn.addEventListener('click', function () {
+                keyInput.value = `${slugify(nameInput.value)}-${randomSuffix()}`;
+            });
+        })();
+    </script>
+}

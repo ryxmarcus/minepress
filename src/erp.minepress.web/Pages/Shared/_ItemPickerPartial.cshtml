@@ -1,0 +1,105 @@
+@*
+    Shared Item Picker Component — reusable full-screen modal for selecting items from vw_mst_items.
+    Usage: <partial name="_ItemPickerPartial" />
+    Requires: jQuery, Bootstrap 5, Bootstrap Icons, item-picker.js, item-picker.css
+    API:     ItemPicker.open({ onSelect: function(item) { ... }, group: 'PAPER' })
+*@
+
+<!-- ═══ Item Picker Modal ═══ -->
+<div class="modal modal-blur fade" id="itemPickerModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:1100px;">
+        <div class="modal-content ip-modal-content">
+
+            <!-- Header -->
+            <div class="ip-header">
+                <div class="d-flex align-items-center gap-3 flex-grow-1">
+                    <div class="ip-header-icon">
+                        <i class="bi bi-box-seam"></i>
+                    </div>
+                    <div>
+                        <h3 class="ip-title mb-0">Select Item</h3>
+                        <div class="ip-subtitle">Browse and search materials from master inventory</div>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- Toolbar: Filters + Search -->
+            <div class="ip-toolbar">
+                <div class="row g-2 align-items-center">
+                    <div class="col-md-3">
+                        <div class="ip-filter-wrap">
+                            <i class="bi bi-funnel ip-filter-icon"></i>
+                            <select id="ipGroupFilter" class="form-select form-select-sm">
+                                <option value="">All Groups</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="ip-search-wrap">
+                            <i class="bi bi-search ip-search-icon"></i>
+                            <input type="text" id="ipSearchInput" class="form-control form-control-sm"
+                                   placeholder="Search by name, code, description, or HSN..." autocomplete="off" />
+                            <span id="ipSearchSpinner" class="spinner-border spinner-border-sm ip-spinner d-none"></span>
+                            <kbd class="ip-kbd d-none d-md-inline-block">Esc</kbd>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-end">
+                        <span class="text-muted small" id="ipResultCount"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table Body -->
+            <div class="ip-table-wrap">
+                <table class="table table-vcenter table-hover mb-0 ip-table">
+                    <thead class="sticky-top">
+                        <tr>
+                            <th class="ip-sortable" data-sort="itemCode" style="width:110px;">
+                                Code <i class="bi bi-arrow-down-up ip-sort-icon"></i>
+                            </th>
+                            <th class="ip-sortable" data-sort="itemName">
+                                Item Name <i class="bi bi-arrow-down-up ip-sort-icon"></i>
+                            </th>
+                            <th class="ip-sortable" data-sort="itemGroup" style="width:100px;">
+                                Group <i class="bi bi-arrow-down-up ip-sort-icon"></i>
+                            </th>
+                            <th class="text-center" style="width:70px;">UOM</th>
+                            <th class="text-end ip-sortable" data-sort="currentStock" style="width:90px;">
+                                Stock <i class="bi bi-arrow-down-up ip-sort-icon"></i>
+                            </th>
+                            <th class="text-end ip-sortable" data-sort="purchaseRate" style="width:90px;">
+                                Rate <i class="bi bi-arrow-down-up ip-sort-icon"></i>
+                            </th>
+                            <th style="width:80px;">HSN</th>
+                            <th class="text-center" style="width:80px;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ipTableBody">
+                        <tr><td colspan="8" class="text-center text-muted py-5">
+                            <div class="spinner-border spinner-border-sm me-2"></div>Loading items...
+                        </td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Footer: Paging -->
+            <div class="ip-footer">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="text-muted small">Show</span>
+                        <select id="ipPageSize" class="form-select form-select-sm" style="width:auto;">
+                            <option value="15">15</option>
+                            <option value="25" selected>25</option>
+                            <option value="50">50</option>
+                        </select>
+                        <span class="text-muted small">per page</span>
+                    </div>
+                    <div class="text-muted small" id="ipPagingInfo"></div>
+                    <nav><ul class="pagination pagination-sm mb-0" id="ipPaginationNav"></ul></nav>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

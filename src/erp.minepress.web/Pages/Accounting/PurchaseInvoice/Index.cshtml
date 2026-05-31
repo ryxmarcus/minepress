@@ -1,0 +1,117 @@
+@page
+@model erp.minepress.web.Pages.Accounting.PurchaseInvoice.IndexModel
+@{
+    ViewData["Title"] = "Purchase Invoices";
+}
+
+<div class="acc-hero d-print-none">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-lg" style="background:rgba(255,255,255,.15);">
+                <i class="bi bi-file-earmark-arrow-down" style="font-size:1.5rem;"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="mb-0">Purchase Invoices</h2>
+            <div class="text-white-75">Supplier invoices and bills — Accounts Payable</div>
+        </div>
+        <div class="col-auto d-flex gap-2">
+            <a href="/Accounting" class="btn btn-outline-light btn-sm"><i class="bi bi-arrow-left me-1"></i>Back</a>
+            <button class="btn btn-outline-light btn-sm" onclick="loadList()"><i class="bi bi-arrow-clockwise me-1"></i>Refresh</button>
+        </div>
+    </div>
+</div>
+
+<div class="acc-sub-nav d-print-none mb-3">
+    <a href="/Accounting/PurchaseInvoice" class="acc-sub-nav-item active"><i class="bi bi-file-earmark-arrow-down me-1"></i>Purchase Invoices</a>
+    <a href="/Accounting/Payment" class="acc-sub-nav-item"><i class="bi bi-credit-card me-1"></i>Payments</a>
+    <a href="/Accounting/DebitNote" class="acc-sub-nav-item"><i class="bi bi-file-earmark-plus me-1"></i>Debit Notes</a>
+    <a href="/Accounting/PurchaseOrder" class="acc-sub-nav-item"><i class="bi bi-cart-check me-1"></i>Purchase Orders</a>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body py-2">
+        <div class="row g-2 align-items-center">
+            <div class="col-md-4">
+                <div class="input-icon">
+                    <span class="input-icon-addon"><i class="bi bi-search"></i></span>
+                    <input type="text" id="txtSearch" class="form-control form-control-sm" placeholder="Search invoice no, supplier..." />
+                </div>
+            </div>
+            <div class="col-md-2">
+                <select id="ddlStatus" class="form-select form-select-sm">
+                    <option value="">All Statuses</option>
+                    <option value="DRAFT">Draft</option>
+                    <option value="POSTED">Posted</option>
+                    <option value="CANCELLED">Cancelled</option>
+                </select>
+            </div>
+            <div class="col-auto ms-auto"><span class="text-muted small" id="filteredCount"></span></div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table table-hover acc-list-table">
+            <thead>
+                <tr>
+                    <th>Invoice No</th>
+                    <th>Date</th>
+                    <th>Supplier</th>
+                    <th>Supplier Inv No</th>
+                    <th class="text-end">Amount</th>
+                    <th class="text-end">Paid</th>
+                    <th class="text-end">Balance</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="listBody">
+                <tr><td colspan="8" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2"></div>Loading...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let allData = [];
+        $(document).ready(function () { loadList(); $('#txtSearch, #ddlStatus').on('input change', applyFilters); });
+
+        function loadList() {
+            $('#listBody').html('<tr><td colspan="8" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2"></div>Loading...</td></tr>');
+            $.get('/api/accounting/purchase-invoices', function (data) { allData = data; applyFilters(); })
+            .fail(function () { $('#listBody').html('<tr><td colspan="8" class="text-center text-danger py-3">Failed to load.</td></tr>'); });
+        }
+
+        function applyFilters() {
+            const q = ($('#txtSearch').val() || '').toLowerCase();
+            const st = $('#ddlStatus').val();
+            let f = allData.filter(i => {
+                if (q && !(i.invoiceNo || '').toLowerCase().includes(q) && !(i.supplierName || '').toLowerCase().includes(q)) return false;
+                if (st && i.status !== st) return false;
+                return true;
+            });
+            $('#filteredCount').text(f.length < allData.length ? `${f.length} of ${allData.length}` : '');
+            let html = '';
+            if (f.length === 0) { html = '<tr><td colspan="8" class="text-center text-muted py-4">No purchase invoices found</td></tr>'; }
+            f.forEach(i => {
+                const sc = { 'DRAFT': 'acc-status-draft', 'POSTED': 'acc-status-posted', 'CANCELLED': 'acc-status-cancelled' }[i.status] || 'bg-secondary-lt';
+                html += `<tr>
+                    <td class="fw-semibold"><a href="/Accounting/PurchaseInvoice/Details?id=${i.purchaseInvoiceId}" class="text-decoration-none">${esc(i.invoiceNo)}</a></td>
+                    <td class="text-muted small">${esc(i.invoiceDate)}</td>
+                    <td>${esc(i.supplierName)}</td>
+                    <td class="text-muted small">${esc(i.supplierInvoiceNo || '-')}</td>
+                    <td class="text-end fw-semibold">${fmt(i.grandTotal)}</td>
+                    <td class="text-end text-success">${fmt(i.paidAmount)}</td>
+                    <td class="text-end ${i.balanceAmount > 0 ? 'text-danger fw-semibold' : ''}">${fmt(i.balanceAmount)}</td>
+                    <td><span class="acc-status-badge ${sc}">${(i.status || '').replace(/_/g, ' ')}</span></td>
+                </tr>`;
+            });
+            $('#listBody').html(html);
+        }
+
+        function fmt(v) { return v != null ? '₹' + Number(v).toLocaleString('en-IN', { minimumFractionDigits: 2 }) : '₹0.00'; }
+        function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.appendChild(document.createTextNode(s)); return d.innerHTML; }
+    </script>
+}

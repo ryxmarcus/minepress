@@ -1,0 +1,322 @@
+@page
+@model erp.minepress.web.Pages.RateCalculator.IndexModel
+@{
+    ViewData["Title"] = "Rate Calculator";
+    ViewData["ContainerClass"] = "container-xl";
+    ViewData["HidePageHeader"] = true;
+}
+
+<!-- Page Header -->
+<div class="page-header d-print-none mb-3">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <span class="avatar avatar-md bg-blue-lt text-blue">
+                <i class="bi bi-calculator-fill fs-4"></i>
+            </span>
+        </div>
+        <div class="col">
+            <h2 class="page-title mb-0">Printing Rate Calculator</h2>
+            <div class="text-secondary mt-1">
+                <i class="bi bi-robot me-1"></i>AI-powered cost estimation &middot; Configure parameters &amp; get instant pricing
+            </div>
+        </div>
+        <div class="col-auto d-flex gap-2">
+            <a href="/RateCalculator/List" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-clock-history me-1"></i>History
+            </a>
+            <button id="btnReset" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-counterclockwise me-1"></i>Reset
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Visual Step Progress Indicator -->
+<div class="rc-progress-track d-print-none mb-4">
+    <div class="rc-progress-step active" data-step="1">
+        <div class="rc-progress-dot"><i class="bi bi-briefcase-fill"></i></div>
+        <span>Job Config</span>
+    </div>
+    <div class="rc-progress-line"></div>
+    <div class="rc-progress-step" data-step="2">
+        <div class="rc-progress-dot"><i class="bi bi-box-seam-fill"></i></div>
+        <span>Product</span>
+    </div>
+    <div class="rc-progress-line"></div>
+    <div class="rc-progress-step" data-step="3">
+        <div class="rc-progress-dot"><i class="bi bi-palette-fill"></i></div>
+        <span>Design</span>
+    </div>
+    <div class="rc-progress-line"></div>
+    <div class="rc-progress-step" data-step="4">
+        <div class="rc-progress-dot"><i class="bi bi-printer-fill"></i></div>
+        <span>Print</span>
+    </div>
+    <div class="rc-progress-line"></div>
+    <div class="rc-progress-step" data-step="5">
+        <div class="rc-progress-dot"><i class="bi bi-check-circle-fill"></i></div>
+        <span>Calculate</span>
+    </div>
+</div>
+
+<div class="row row-cards">
+    <div class="col-12">
+        <partial name="_RateCalculatorPartial" />
+    </div>
+</div>
+
+<!-- SEND ESTIMATION / QUICK REQUISITION (Index-only) -->
+<div class="row row-cards mt-0 d-print-none" id="sendEstimationBlock" style="display:none;">
+    <div class="col-12">
+        <div class="rc-send-card">
+            <!-- Decorative background orbs -->
+            <div class="rc-send-orb rc-send-orb-1"></div>
+            <div class="rc-send-orb rc-send-orb-2"></div>
+            <div class="rc-send-orb rc-send-orb-3"></div>
+
+            <!-- Header strip -->
+            <div class="rc-send-strip">
+                <div class="rc-send-strip-inner">
+                    <div class="rc-send-badge">
+                        <span class="rc-send-badge-dot"></span>
+                        <i class="bi bi-send-fill"></i>
+                    </div>
+                    <div class="rc-send-title-group">
+                        <h5 class="rc-send-title">Send Quick Estimation</h5>
+                        <p class="rc-send-subtitle">
+                            <i class="bi bi-lightning-charge-fill me-1"></i>Share instantly via WhatsApp, Email or Print
+                        </p>
+                    </div>
+                </div>
+                <div class="rc-send-strip-decor">
+                    <span class="rc-send-chip"><i class="bi bi-shield-check me-1"></i>Secure</span>
+                    <span class="rc-send-chip"><i class="bi bi-clock-history me-1"></i>Instant</span>
+                </div>
+            </div>
+
+            <!-- Customer info section -->
+            <div class="rc-send-content">
+                <div class="rc-send-section-label">
+                    <i class="bi bi-person-badge-fill"></i>
+                    <span>Customer Information</span>
+                    <div class="rc-send-section-line"></div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="rc-send-field">
+                            <div class="rc-send-field-icon">
+                                <i class="bi bi-person-fill"></i>
+                            </div>
+                            <div class="rc-send-field-body">
+                                <label class="rc-send-field-label">Customer Name <span class="text-danger">*</span></label>
+                                <input id="txtSendCustName" type="text" class="rc-send-input" placeholder="Enter customer name" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="rc-send-field">
+                            <div class="rc-send-field-icon rc-send-field-icon-phone">
+                                <i class="bi bi-phone-fill"></i>
+                            </div>
+                            <div class="rc-send-field-body">
+                                <label class="rc-send-field-label">Phone No <span class="text-danger">*</span></label>
+                                <input id="txtSendCustPhone" type="tel" class="rc-send-input" placeholder="+91 98765 43210" maxlength="15" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="rc-send-field">
+                            <div class="rc-send-field-icon rc-send-field-icon-email">
+                                <i class="bi bi-envelope-fill"></i>
+                            </div>
+                            <div class="rc-send-field-body">
+                                <label class="rc-send-field-label">Email ID</label>
+                                <input id="txtSendCustEmail" type="email" class="rc-send-input" placeholder="customer@@example.com" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Content toggle -->
+                <div class="rc-send-section-label mt-4">
+                    <i class="bi bi-file-earmark-richtext-fill"></i>
+                    <span>Estimation Content</span>
+                    <div class="rc-send-section-line"></div>
+                </div>
+                <div class="rc-send-toggle-wrap">
+                    <label class="rc-send-toggle-pill active" data-value="summary">
+                        <input type="radio" name="sendContentType" value="summary" checked hidden />
+                        <span class="rc-send-toggle-icon"><i class="bi bi-file-text"></i></span>
+                        <span class="rc-send-toggle-text">Summary Only</span>
+                    </label>
+                    <label class="rc-send-toggle-pill" data-value="detailed">
+                        <input type="radio" name="sendContentType" value="detailed" hidden />
+                        <span class="rc-send-toggle-icon"><i class="bi bi-table"></i></span>
+                        <span class="rc-send-toggle-text">Full Cost Breakdown</span>
+                    </label>
+                </div>
+
+                <!-- Action channels -->
+                <div class="rc-send-section-label mt-4">
+                    <i class="bi bi-rocket-takeoff-fill"></i>
+                    <span>Choose Channel</span>
+                    <div class="rc-send-section-line"></div>
+                </div>
+                <div class="rc-send-channels">
+                    <button type="button" id="btnReviewEstimation" class="rc-send-channel rc-send-channel-review">
+                        <span class="rc-send-channel-glow"></span>
+                        <span class="rc-send-channel-icon"><i class="bi bi-eye-fill"></i></span>
+                        <span class="rc-send-channel-info">
+                            <span class="rc-send-channel-name">Review &amp; Preview</span>
+                            <span class="rc-send-channel-desc">Preview before sending</span>
+                        </span>
+                        <i class="bi bi-arrow-right rc-send-channel-arrow"></i>
+                    </button>
+                    <button type="button" id="btnSendWhatsApp" class="rc-send-channel rc-send-channel-whatsapp">
+                        <span class="rc-send-channel-glow"></span>
+                        <span class="rc-send-channel-icon"><i class="bi bi-whatsapp"></i></span>
+                        <span class="rc-send-channel-info">
+                            <span class="rc-send-channel-name">WhatsApp</span>
+                            <span class="rc-send-channel-desc">Send via WhatsApp</span>
+                        </span>
+                        <i class="bi bi-arrow-right rc-send-channel-arrow"></i>
+                    </button>
+                    <button type="button" id="btnSendEmail" class="rc-send-channel rc-send-channel-email">
+                        <span class="rc-send-channel-glow"></span>
+                        <span class="rc-send-channel-icon"><i class="bi bi-envelope-paper-fill"></i></span>
+                        <span class="rc-send-channel-info">
+                            <span class="rc-send-channel-name">Email</span>
+                            <span class="rc-send-channel-desc">Send via Email</span>
+                        </span>
+                        <i class="bi bi-arrow-right rc-send-channel-arrow"></i>
+                    </button>
+                    <button type="button" id="btnPrintEstimation" class="rc-send-channel rc-send-channel-print">
+                        <span class="rc-send-channel-glow"></span>
+                        <span class="rc-send-channel-icon"><i class="bi bi-printer-fill"></i></span>
+                        <span class="rc-send-channel-info">
+                            <span class="rc-send-channel-name">Print</span>
+                            <span class="rc-send-channel-desc">Print estimation</span>
+                        </span>
+                        <i class="bi bi-arrow-right rc-send-channel-arrow"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: Estimation Preview & Send -->
+<div class="modal modal-blur fade" id="modalEstimationPreview" tabindex="-1" aria-labelledby="modalEstimationPreviewLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-content rc-modal rc-modal-send">
+            <div class="rc-modal-accent" style="background:linear-gradient(90deg,#25d366,#128c7e);"></div>
+            <div class="modal-header rc-modal-header">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="rc-modal-icon" style="background:linear-gradient(135deg,#25d366,#128c7e);">
+                        <i class="bi bi-file-earmark-richtext"></i>
+                    </span>
+                    <div>
+                        <h5 class="modal-title mb-0" id="modalEstimationPreviewLabel">Estimation Preview</h5>
+                        <div class="rc-modal-subtitle">Review before sending to customer</div>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+            </div>
+            <div class="modal-body p-0">
+                <div id="estimationPreviewContent" class="rc-estimation-preview-wrap"></div>
+            </div>
+            <div class="modal-footer rc-modal-footer">
+                <div class="rc-modal-footer-info">
+                    <i class="bi bi-shield-check me-1"></i>Estimation Ref: <span id="estRefNo" class="fw-semibold">—</span>
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-success" id="btnModalSendWhatsApp">
+                        <i class="bi bi-whatsapp me-1"></i>WhatsApp
+                    </button>
+                    <button type="button" class="btn btn-primary" id="btnModalSendEmail">
+                        <i class="bi bi-envelope-paper-fill me-1"></i>Email
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="btnModalPrint">
+                        <i class="bi bi-printer-fill me-1"></i>Print
+                    </button>
+                    <button type="button" class="btn btn-ghost-dark" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg me-1"></i>Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Printable Estimation Template (hidden, used for window.print) -->
+<div id="printableEstimation" class="rc-printable-estimation d-none">
+    <div class="rc-print-header">
+        <div class="rc-print-company">
+            <h2 class="rc-print-company-name">MinePress</h2>
+            <div class="rc-print-company-tagline">Printing &amp; Publishing Solutions</div>
+        </div>
+        <div class="rc-print-doc-info">
+            <div class="rc-print-doc-title">ESTIMATION</div>
+            <table class="rc-print-meta">
+                <tr><td>Ref No:</td><td id="printRefNo">—</td></tr>
+                <tr><td>Date:</td><td id="printDate">—</td></tr>
+            </table>
+        </div>
+    </div>
+    <div class="rc-print-divider"></div>
+    <div class="rc-print-customer">
+        <h6>Customer Details</h6>
+        <table class="rc-print-customer-tbl">
+            <tr><td>Name:</td><td id="printCustName">—</td></tr>
+            <tr><td>Phone:</td><td id="printCustPhone">—</td></tr>
+            <tr><td>Email:</td><td id="printCustEmail">—</td></tr>
+        </table>
+    </div>
+    <div class="rc-print-divider"></div>
+    <div class="rc-print-job-info">
+        <h6>Job Details</h6>
+        <table class="rc-print-job-tbl">
+            <tr><td>Job Type:</td><td id="printJobType">—</td></tr>
+            <tr><td>Product:</td><td id="printProductType">—</td></tr>
+            <tr><td>Quantity:</td><td id="printQuantity">—</td></tr>
+            <tr><td>Size:</td><td id="printSize">—</td></tr>
+        </table>
+    </div>
+    <div class="rc-print-divider"></div>
+    <div id="printBreakdownSection">
+        <h6>Cost Breakdown</h6>
+        <table class="rc-print-breakdown-tbl" id="printBreakdownTable">
+            <thead><tr><th>Component</th><th>Detail</th><th class="text-end">Amount (₹)</th></tr></thead>
+            <tbody id="printBreakdownBody"></tbody>
+        </table>
+    </div>
+    <div class="rc-print-summary">
+        <table class="rc-print-summary-tbl">
+            <tr><td>Grand Total</td><td id="printGrandTotal" class="text-end">₹0.00</td></tr>
+            <tr><td>GST (18%)</td><td id="printTax" class="text-end">₹0.00</td></tr>
+            <tr class="rc-print-net-row"><td>Net Total</td><td id="printNetTotal" class="text-end">₹0.00</td></tr>
+            <tr><td>Cost Per Unit</td><td id="printCostPerUnit" class="text-end">₹0.00</td></tr>
+        </table>
+    </div>
+    <div class="rc-print-footer">
+        <div class="rc-print-terms">
+            <h6>Terms &amp; Conditions</h6>
+            <ol>
+                <li>This is a system-generated estimation and may vary based on final specifications.</li>
+                <li>Prices are valid for 15 days from the date of estimation.</li>
+                <li>GST @@18% is applicable as shown above.</li>
+                <li>Delivery timeline will be confirmed upon order confirmation.</li>
+            </ol>
+        </div>
+        <div class="rc-print-signature">
+            <div class="rc-print-sig-line"></div>
+            <div>Authorized Signatory</div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="/js/rate-calculator.js"></script>
+}
